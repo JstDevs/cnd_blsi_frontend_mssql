@@ -1,75 +1,107 @@
-import { useState } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
-import { Formik, Form } from 'formik';
-import * as Yup from 'yup';
-import FormField from '../../../components/common/FormField';
-import { addPPE, updatePPE, addCategory, addSupplier } from '../../../features/settings/ppeSlice';
+import { useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { Formik, Form } from "formik";
+import * as Yup from "yup";
+import FormField from "../../../components/common/FormField";
+import {
+  addPPE,
+  updatePPE,
+  addCategory,
+  addSupplier,
+} from "../../../features/settings/ppeSlice";
 
 const PPE_SCHEMA = Yup.object().shape({
-  category: Yup.string().required('Category is required'),
-  description: Yup.string().required('Description is required'),
-  depreciationRate: Yup.number().typeError('Must be a number').required('Depreciation Rate is required'),
-  depreciationValue: Yup.number().typeError('Must be a number').required('Depreciation Value is required'),
-  netBookValue: Yup.number().typeError('Must be a number').required('Net Book Value is required'),
-  supplier: Yup.string().required('Supplier is required'),
-  ppeNumber: Yup.number().typeError('Must be a number').required('PPE Number is required'),
-  unit: Yup.string().required('Unit is required'),
-  barcode: Yup.number().typeError('Must be a number').required('Barcode is required'),
-  quantity: Yup.number().typeError('Must be a number').required('Quantity is required'),
-  cost: Yup.number().typeError('Must be a number').required('Cost is required'),
-  dateAcquired: Yup.string().required('Date acquired is required'),
-  usefulLife: Yup.number().typeError('Must be a number').required('Estimated useful life is required'),
-  poNumber: Yup.number().typeError('Must be a number').required('PO Number is required'),
-  prNumber: Yup.number().typeError('Must be a number').required('PR Number is required'),
-  invoiceNumber: Yup.number().typeError('Must be a number').required('Invoice Number is required'),
-  airNumber: Yup.number().typeError('Must be a number').required('AIR Number is required'),
-  risNumber: Yup.number().typeError('Must be a number').required('RIS Number is required'),
+  category: Yup.string().required("Category is required"),
+  description: Yup.string().required("Description is required"),
+  depreciationRate: Yup.number()
+    .typeError("Must be a number")
+    .required("Depreciation Rate is required"),
+  depreciationValue: Yup.number()
+    .typeError("Must be a number")
+    .required("Depreciation Value is required"),
+  netBookValue: Yup.number()
+    .typeError("Must be a number")
+    .required("Net Book Value is required"),
+  supplier: Yup.string().required("Supplier is required"),
+  ppeNumber: Yup.number()
+    .typeError("Must be a number")
+    .required("PPE Number is required"),
+  unit: Yup.string().required("Unit is required"),
+  barcode: Yup.number()
+    .typeError("Must be a number")
+    .required("Barcode is required"),
+  quantity: Yup.number()
+    .typeError("Must be a number")
+    .required("Quantity is required"),
+  cost: Yup.number().typeError("Must be a number").required("Cost is required"),
+  dateAcquired: Yup.string().required("Date acquired is required"),
+  usefulLife: Yup.number()
+    .typeError("Must be a number")
+    .required("Estimated useful life is required"),
+  poNumber: Yup.number()
+    .typeError("Must be a number")
+    .required("PO Number is required"),
+  prNumber: Yup.number()
+    .typeError("Must be a number")
+    .required("PR Number is required"),
+  invoiceNumber: Yup.number()
+    .typeError("Must be a number")
+    .required("Invoice Number is required"),
+  airNumber: Yup.number()
+    .typeError("Must be a number")
+    .required("AIR Number is required"),
+  risNumber: Yup.number()
+    .typeError("Must be a number")
+    .required("RIS Number is required"),
   remarks: Yup.string(),
 });
 
 function PPEForm({ initialData, onClose }) {
   const dispatch = useDispatch();
-  const { categories, suppliers } = useSelector(state => state.ppes);
+  const { categories, suppliers } = useSelector((state) => state.ppes);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showCategoryInput, setShowCategoryInput] = useState(false);
   const [showSupplierInput, setShowSupplierInput] = useState(false);
-  const [newCategory, setNewCategory] = useState('');
-  const [newSupplier, setNewSupplier] = useState('');
+  const [newCategory, setNewCategory] = useState("");
+  const [newSupplier, setNewSupplier] = useState("");
 
-  const initialValues = initialData ? { ...initialData } : {
-    category: '',
-    description: '',
-    depreciationRate: '',
-    depreciationValue: '',
-    netBookValue: '',
-    supplier: '',
-    ppeNumber: '',
-    unit: '',
-    barcode: '',
-    quantity: '',
-    cost: '',
-    dateAcquired: '',
-    usefulLife: 1,
-    poNumber: '',
-    prNumber: '',
-    invoiceNumber: '',
-    airNumber: '',
-    risNumber: '',
-    remarks: '',
-  };
+  const initialValues = initialData
+    ? { ...initialData }
+    : {
+        category: "",
+        description: "",
+        depreciationRate: "",
+        depreciationValue: "",
+        netBookValue: "",
+        supplier: "",
+        ppeNumber: "",
+        unit: "",
+        barcode: "",
+        quantity: "",
+        cost: "",
+        dateAcquired: "",
+        usefulLife: 1,
+        poNumber: "",
+        prNumber: "",
+        invoiceNumber: "",
+        airNumber: "",
+        risNumber: "",
+        remarks: "",
+      };
 
   const handleSubmit = (values) => {
     setIsSubmitting(true);
-    const action = initialData && initialData.id
-      ? updatePPE({ ...values, id: initialData.id })
-      : addPPE(values);
+    const action =
+      initialData && initialData.id
+        ? updatePPE({ ...values, id: initialData.id })
+        : addPPE(values);
     dispatch(action)
       .unwrap()
       .then(() => {
         onClose();
       })
       .catch((error) => {
-        console.error('Error submitting PPE:', error);
+        console.error("Error submitting PPE:", error);
       })
       .finally(() => {
         setIsSubmitting(false);
@@ -80,8 +112,8 @@ function PPEForm({ initialData, onClose }) {
   const handleAddCategory = (setFieldValue) => {
     if (newCategory.trim()) {
       dispatch(addCategory(newCategory.trim()));
-      setFieldValue('category', newCategory.trim());
-      setNewCategory('');
+      setFieldValue("category", newCategory.trim());
+      setNewCategory("");
       setShowCategoryInput(false);
     }
   };
@@ -90,8 +122,8 @@ function PPEForm({ initialData, onClose }) {
   const handleAddSupplier = (setFieldValue) => {
     if (newSupplier.trim()) {
       dispatch(addSupplier(newSupplier.trim()));
-      setFieldValue('supplier', newSupplier.trim());
-      setNewSupplier('');
+      setFieldValue("supplier", newSupplier.trim());
+      setNewSupplier("");
       setShowSupplierInput(false);
     }
   };
@@ -103,29 +135,39 @@ function PPEForm({ initialData, onClose }) {
       onSubmit={handleSubmit}
       enableReinitialize
     >
-      {({ values, errors, touched, handleChange, handleBlur, setFieldValue }) => (
+      {({
+        values,
+        errors,
+        touched,
+        handleChange,
+        handleBlur,
+        setFieldValue,
+      }) => (
         <Form className="space-y-4">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {/* PPE Category with add new */}
             <div>
               <FormField
-                className='p-3 focus:outline-none'
+                className="p-3 focus:outline-none"
                 label="PPE Category"
                 name="category"
                 type="select"
                 required
                 value={values.category}
-                onChange={e => {
-                  if (e.target.value === '__add_new__') {
+                onChange={(e) => {
+                  if (e.target.value === "__add_new__") {
                     setShowCategoryInput(true);
                   } else {
-                    setFieldValue('category', e.target.value);
+                    setFieldValue("category", e.target.value);
                   }
                 }}
                 onBlur={handleBlur}
                 error={errors.category}
                 touched={touched.category}
-                options={[...categories, { value: '__add_new__', label: 'Add new category...' }]}
+                options={[
+                  ...categories,
+                  { value: "__add_new__", label: "Add new category..." },
+                ]}
               />
               {showCategoryInput && (
                 <div className="flex mt-2 gap-2">
@@ -134,7 +176,7 @@ function PPEForm({ initialData, onClose }) {
                     className="form-input flex-1"
                     placeholder="Enter new category"
                     value={newCategory}
-                    onChange={e => setNewCategory(e.target.value)}
+                    onChange={(e) => setNewCategory(e.target.value)}
                   />
                   <button
                     type="button"
@@ -145,10 +187,10 @@ function PPEForm({ initialData, onClose }) {
                   </button>
                   <button
                     type="button"
-                    className="btn btn-secondary"
+                    className="btn btn-outline"
                     onClick={() => {
                       setShowCategoryInput(false);
-                      setNewCategory('');
+                      setNewCategory("");
                     }}
                   >
                     Cancel
@@ -158,7 +200,7 @@ function PPEForm({ initialData, onClose }) {
             </div>
             {/* Description */}
             <FormField
-              className='p-3 focus:outline-none'
+              className="p-3 focus:outline-none"
               label="Description"
               name="description"
               type="text"
@@ -171,7 +213,7 @@ function PPEForm({ initialData, onClose }) {
             />
             {/* Depreciation Rate */}
             <FormField
-              className='p-3 focus:outline-none'
+              className="p-3 focus:outline-none"
               label="Depreciation Rate (%)"
               name="depreciationRate"
               type="number"
@@ -184,7 +226,7 @@ function PPEForm({ initialData, onClose }) {
             />
             {/* Depreciation Value */}
             <FormField
-              className='p-3 focus:outline-none'
+              className="p-3 focus:outline-none"
               label="Depreciation Value"
               name="depreciationValue"
               type="number"
@@ -197,7 +239,7 @@ function PPEForm({ initialData, onClose }) {
             />
             {/* Net Book Value */}
             <FormField
-              className='p-3 focus:outline-none'
+              className="p-3 focus:outline-none"
               label="Net Book Value"
               name="netBookValue"
               type="number"
@@ -211,23 +253,26 @@ function PPEForm({ initialData, onClose }) {
             {/* Supplier with add new */}
             <div>
               <FormField
-                className='p-3 focus:outline-none'
+                className="p-3 focus:outline-none"
                 label="Supplier"
                 name="supplier"
                 type="select"
                 required
                 value={values.supplier}
-                onChange={e => {
-                  if (e.target.value === '__add_new__') {
+                onChange={(e) => {
+                  if (e.target.value === "__add_new__") {
                     setShowSupplierInput(true);
                   } else {
-                    setFieldValue('supplier', e.target.value);
+                    setFieldValue("supplier", e.target.value);
                   }
                 }}
                 onBlur={handleBlur}
                 error={errors.supplier}
                 touched={touched.supplier}
-                options={[...suppliers, { value: '__add_new__', label: 'Add new supplier...' }]}
+                options={[
+                  ...suppliers,
+                  { value: "__add_new__", label: "Add new supplier..." },
+                ]}
               />
               {showSupplierInput && (
                 <div className="flex mt-2 gap-2">
@@ -236,7 +281,7 @@ function PPEForm({ initialData, onClose }) {
                     className="form-input flex-1"
                     placeholder="Enter new supplier"
                     value={newSupplier}
-                    onChange={e => setNewSupplier(e.target.value)}
+                    onChange={(e) => setNewSupplier(e.target.value)}
                   />
                   <button
                     type="button"
@@ -247,10 +292,10 @@ function PPEForm({ initialData, onClose }) {
                   </button>
                   <button
                     type="button"
-                    className="btn btn-secondary"
+                    className="btn btn-outline"
                     onClick={() => {
                       setShowSupplierInput(false);
-                      setNewSupplier('');
+                      setNewSupplier("");
                     }}
                   >
                     Cancel
@@ -260,7 +305,7 @@ function PPEForm({ initialData, onClose }) {
             </div>
             {/* PPE Number */}
             <FormField
-              className='p-3 focus:outline-none'
+              className="p-3 focus:outline-none"
               label="PPE Number"
               name="ppeNumber"
               type="number"
@@ -273,7 +318,7 @@ function PPEForm({ initialData, onClose }) {
             />
             {/* Unit */}
             <FormField
-              className='p-3 focus:outline-none'
+              className="p-3 focus:outline-none"
               label="Unit"
               name="unit"
               type="text"
@@ -286,7 +331,7 @@ function PPEForm({ initialData, onClose }) {
             />
             {/* Barcode */}
             <FormField
-              className='p-3 focus:outline-none'
+              className="p-3 focus:outline-none"
               label="Barcode"
               name="barcode"
               type="number"
@@ -299,7 +344,7 @@ function PPEForm({ initialData, onClose }) {
             />
             {/* Quantity */}
             <FormField
-              className='p-3 focus:outline-none'
+              className="p-3 focus:outline-none"
               label="Quantity"
               name="quantity"
               type="number"
@@ -312,7 +357,7 @@ function PPEForm({ initialData, onClose }) {
             />
             {/* Cost */}
             <FormField
-              className='p-3 focus:outline-none'
+              className="p-3 focus:outline-none"
               label="Cost"
               name="cost"
               type="number"
@@ -325,7 +370,7 @@ function PPEForm({ initialData, onClose }) {
             />
             {/* Date Acquired */}
             <FormField
-              className='p-3 focus:outline-none'
+              className="p-3 focus:outline-none"
               label="Date Acquired"
               name="dateAcquired"
               type="date"
@@ -338,7 +383,7 @@ function PPEForm({ initialData, onClose }) {
             />
             {/* Estimated Useful Life */}
             <FormField
-              className='p-3 focus:outline-none'
+              className="p-3 focus:outline-none"
               label="Estimated Useful Life (years)"
               name="usefulLife"
               type="number"
@@ -351,7 +396,7 @@ function PPEForm({ initialData, onClose }) {
             />
             {/* PO Number */}
             <FormField
-              className='p-3 focus:outline-none'
+              className="p-3 focus:outline-none"
               label="PO Number"
               name="poNumber"
               type="number"
@@ -364,7 +409,7 @@ function PPEForm({ initialData, onClose }) {
             />
             {/* PR Number */}
             <FormField
-              className='p-3 focus:outline-none'
+              className="p-3 focus:outline-none"
               label="PR Number"
               name="prNumber"
               type="number"
@@ -377,7 +422,7 @@ function PPEForm({ initialData, onClose }) {
             />
             {/* Invoice Number */}
             <FormField
-              className='p-3 focus:outline-none'
+              className="p-3 focus:outline-none"
               label="Invoice Number"
               name="invoiceNumber"
               type="number"
@@ -390,7 +435,7 @@ function PPEForm({ initialData, onClose }) {
             />
             {/* AIR Number */}
             <FormField
-              className='p-3 focus:outline-none'
+              className="p-3 focus:outline-none"
               label="AIR Number"
               name="airNumber"
               type="number"
@@ -403,7 +448,7 @@ function PPEForm({ initialData, onClose }) {
             />
             {/* RIS Number */}
             <FormField
-              className='p-3 focus:outline-none'
+              className="p-3 focus:outline-none"
               label="RIS Number"
               name="risNumber"
               type="number"
@@ -416,7 +461,7 @@ function PPEForm({ initialData, onClose }) {
             />
             {/* Remarks */}
             <FormField
-              className='p-3 focus:outline-none'
+              className="p-3 focus:outline-none"
               label="Remarks"
               name="remarks"
               type="textarea"
@@ -429,8 +474,16 @@ function PPEForm({ initialData, onClose }) {
             />
           </div>
           <div className="flex justify-end space-x-2 mt-6">
-            <button type="button" className="btn btn-secondary" onClick={onClose}>Cancel</button>
-            <button type="submit" className="btn btn-primary" disabled={isSubmitting}>Save</button>
+            <button type="button" className="btn btn-outline" onClick={onClose}>
+              Cancel
+            </button>
+            <button
+              type="submit"
+              className="btn btn-primary"
+              disabled={isSubmitting}
+            >
+              Save
+            </button>
           </div>
         </Form>
       )}
@@ -438,4 +491,4 @@ function PPEForm({ initialData, onClose }) {
   );
 }
 
-export default PPEForm; 
+export default PPEForm;

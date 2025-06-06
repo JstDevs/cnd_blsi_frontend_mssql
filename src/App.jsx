@@ -85,6 +85,7 @@ import BudgetSupplemental from "./pages/budget/form-budget/BudgetSupplemental";
 import FundsManagement from "./pages/budget/form-budget/FundsManagement";
 import FundTransfer from "./pages/budget/form-budget/FundTransfer";
 import TrialBalance from "./pages/budget/form-budget/TrialBalance";
+import UserAccessPage from "./pages/userAccess";
 
 function App() {
   const { isAuthenticated, isLoading } = useSelector((state) => state.auth);
@@ -182,6 +183,7 @@ function App() {
             element={<SubdepartmentPage />}
           />
           <Route path="/settings/users" element={<UserPage />} />
+          <Route path="/settings/user-access" element={<UserAccessPage />} />
           <Route
             path="/settings/chart-of-accounts"
             element={<ChartOfAccountsPage />}

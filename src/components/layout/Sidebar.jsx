@@ -30,7 +30,7 @@ const navigation = [
         name: "Users",
         submenu: [
           { name: "Approval Matrix", href: "/settings/approval-matrix" },
-          // { name: "User Access", href: "/settings/user-access" },
+          { name: "User Access", href: "/settings/user-access" },
           { name: "User", href: "/settings/users" },
         ],
       },
@@ -170,7 +170,7 @@ const navigation = [
     submenu: [
       { name: "General Ledger", href: "/reports/general-ledger" },
       { name: "Financial Statements", href: "/reports/financial-statements" },
-      { name: "Budget Reports", href: "/reports/budget" },
+      // { name: "Budget Reports", href: "/reports/budget" },
       // { name: "Subsidiary Ledger", href: "/reports/subsidiary-ledger" },
       // { name: "Trial Balance", href: "/reports/trial-balance" },
     ],

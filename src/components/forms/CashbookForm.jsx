@@ -1,23 +1,22 @@
-import { Formik, Form } from 'formik';
-import * as Yup from 'yup';
-import FormField from '../common/FormField';
+import { Formik, Form } from "formik";
+import * as Yup from "yup";
+import FormField from "../common/FormField";
 
 const CASHBOOK_SCHEMA = Yup.object().shape({
   fromDate: Yup.date()
-    .required('From Date is required')
-    .max(Yup.ref('toDate'), 'From Date must be before or equal to To Date'),
+    .required("From Date is required")
+    .max(Yup.ref("toDate"), "From Date must be before or equal to To Date"),
   toDate: Yup.date()
-    .required('To Date is required')
-    .min(Yup.ref('fromDate'), 'To Date must be after or equal to From Date'),
-  fund: Yup.string()
-    .required('Fund is required'),
+    .required("To Date is required")
+    .min(Yup.ref("fromDate"), "To Date must be after or equal to From Date"),
+  fund: Yup.string().required("Fund is required"),
 });
 
 function CashbookForm({ onSubmit }) {
   const initialValues = {
-    fromDate: '',
-    toDate: '',
-    fund: 'general',
+    fromDate: "",
+    toDate: "",
+    fund: "general",
   };
 
   return (
@@ -64,29 +63,27 @@ function CashbookForm({ onSubmit }) {
             onBlur={handleBlur}
             error={errors.fund}
             touched={touched.fund}
-            options={[
-              { value: 'general', label: 'General Fund' },
-            ]}
+            options={[{ value: "general", label: "General Fund" }]}
           />
 
           <div className="flex justify-end space-x-3 pt-4 border-t border-neutral-200">
             <button
               type="button"
-              onClick={() => onSubmit({ ...values, action: 'view' })}
+              onClick={() => onSubmit({ ...values, action: "view" })}
               className="btn btn-primary"
             >
               View
             </button>
             <button
               type="button"
-              onClick={() => onSubmit({ ...values, action: 'generate' })}
+              onClick={() => onSubmit({ ...values, action: "generate" })}
               className="btn btn-secondary"
             >
               Generate Cashbook
             </button>
             <button
               type="button"
-              onClick={() => onSubmit({ ...values, action: 'export' })}
+              onClick={() => onSubmit({ ...values, action: "export" })}
               className="btn btn-outline"
             >
               Export to Excel
@@ -98,4 +95,4 @@ function CashbookForm({ onSubmit }) {
   );
 }
 
-export default CashbookForm; 
+export default CashbookForm;

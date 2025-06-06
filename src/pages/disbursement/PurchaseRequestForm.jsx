@@ -1,64 +1,66 @@
-import { useState } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
-import { Formik, Form } from 'formik';
-import * as Yup from 'yup';
-import FormField from '../../components/common/FormField';
+import { useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { Formik, Form } from "formik";
+import * as Yup from "yup";
+import FormField from "../../components/common/FormField";
 
 const PURCHASE_REQUEST_SCHEMA = Yup.object().shape({
-  department: Yup.string().required('Department is required'),
-  section: Yup.string().required('Section is required'),
-  chargeAccount: Yup.string().required('Charge Account is required'),
-  prNumber: Yup.string().required('PR Number is required'),
-  saiNumber: Yup.string().required('SAI Number is required'),
-  alobsNumber: Yup.string().required('ALOBS Number is required'),
-  date: Yup.date().required('Date is required'),
-  fromDate: Yup.date().required('From Date is required'),
+  department: Yup.string().required("Department is required"),
+  section: Yup.string().required("Section is required"),
+  chargeAccount: Yup.string().required("Charge Account is required"),
+  prNumber: Yup.string().required("PR Number is required"),
+  saiNumber: Yup.string().required("SAI Number is required"),
+  alobsNumber: Yup.string().required("ALOBS Number is required"),
+  date: Yup.date().required("Date is required"),
+  fromDate: Yup.date().required("From Date is required"),
   toDate: Yup.date()
-    .required('To Date is required')
-    .min(Yup.ref('fromDate'), 'To Date must be after From Date'),
-  purpose: Yup.string().required('Purpose is required'),
+    .required("To Date is required")
+    .min(Yup.ref("fromDate"), "To Date must be after From Date"),
+  purpose: Yup.string().required("Purpose is required"),
 });
 
 // Mock data for initial development
 const departments = [
-  { value: 'IT Department', label: 'IT Department' },
-  { value: 'Engineering Department', label: 'Engineering Department' },
-  { value: 'Accounting Department', label: 'Accounting Department' },
+  { value: "IT Department", label: "IT Department" },
+  { value: "Engineering Department", label: "Engineering Department" },
+  { value: "Accounting Department", label: "Accounting Department" },
 ];
 
 const sections = [
-  { value: 'Section A', label: 'Section A' },
-  { value: 'Section B', label: 'Section B' },
-  { value: 'Section C', label: 'Section C' },
+  { value: "Section A", label: "Section A" },
+  { value: "Section B", label: "Section B" },
+  { value: "Section C", label: "Section C" },
 ];
 
 const chargeAccounts = [
-  { value: 'Account 1', label: 'Account 1' },
-  { value: 'Account 2', label: 'Account 2' },
-  { value: 'Account 3', label: 'Account 3' },
+  { value: "Account 1", label: "Account 1" },
+  { value: "Account 2", label: "Account 2" },
+  { value: "Account 3", label: "Account 3" },
 ];
 
 function PurchaseRequestForm({ initialData, onClose }) {
   const dispatch = useDispatch();
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const initialValues = initialData ? { ...initialData } : {
-    department: '',
-    section: '',
-    chargeAccount: '',
-    prNumber: '',
-    saiNumber: '',
-    alobsNumber: '',
-    date: '',
-    fromDate: '',
-    toDate: '',
-    purpose: '',
-  };
+  const initialValues = initialData
+    ? { ...initialData }
+    : {
+        department: "",
+        section: "",
+        chargeAccount: "",
+        prNumber: "",
+        saiNumber: "",
+        alobsNumber: "",
+        date: "",
+        fromDate: "",
+        toDate: "",
+        purpose: "",
+      };
 
   const handleSubmit = (values) => {
     setIsSubmitting(true);
     // TODO: Implement the actual submission logic
-    console.log('Submitting values:', values);
+    console.log("Submitting values:", values);
     setIsSubmitting(false);
     onClose();
   };
@@ -74,7 +76,7 @@ function PurchaseRequestForm({ initialData, onClose }) {
         <Form className="space-y-4">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <FormField
-              className='p-3 focus:outline-none'
+              className="p-3 focus:outline-none"
               label="Department"
               name="department"
               type="select"
@@ -86,9 +88,9 @@ function PurchaseRequestForm({ initialData, onClose }) {
               touched={touched.department}
               options={departments}
             />
-            
+
             <FormField
-              className='p-3 focus:outline-none'
+              className="p-3 focus:outline-none"
               label="Section"
               name="section"
               type="select"
@@ -104,7 +106,7 @@ function PurchaseRequestForm({ initialData, onClose }) {
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <FormField
-              className='p-3 focus:outline-none'
+              className="p-3 focus:outline-none"
               label="Charge Account"
               name="chargeAccount"
               type="select"
@@ -116,9 +118,9 @@ function PurchaseRequestForm({ initialData, onClose }) {
               touched={touched.chargeAccount}
               options={chargeAccounts}
             />
-            
+
             <FormField
-              className='p-3 focus:outline-none'
+              className="p-3 focus:outline-none"
               label="PR Number"
               name="prNumber"
               type="text"
@@ -133,7 +135,7 @@ function PurchaseRequestForm({ initialData, onClose }) {
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <FormField
-              className='p-3 focus:outline-none'
+              className="p-3 focus:outline-none"
               label="SAI Number"
               name="saiNumber"
               type="text"
@@ -144,9 +146,9 @@ function PurchaseRequestForm({ initialData, onClose }) {
               error={errors.saiNumber}
               touched={touched.saiNumber}
             />
-            
+
             <FormField
-              className='p-3 focus:outline-none'
+              className="p-3 focus:outline-none"
               label="ALOBS Number"
               name="alobsNumber"
               type="text"
@@ -161,7 +163,7 @@ function PurchaseRequestForm({ initialData, onClose }) {
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <FormField
-              className='p-3 focus:outline-none'
+              className="p-3 focus:outline-none"
               label="Date"
               name="date"
               type="date"
@@ -172,9 +174,9 @@ function PurchaseRequestForm({ initialData, onClose }) {
               error={errors.date}
               touched={touched.date}
             />
-            
+
             <FormField
-              className='p-3 focus:outline-none'
+              className="p-3 focus:outline-none"
               label="From Date"
               name="fromDate"
               type="date"
@@ -185,9 +187,9 @@ function PurchaseRequestForm({ initialData, onClose }) {
               error={errors.fromDate}
               touched={touched.fromDate}
             />
-            
+
             <FormField
-              className='p-3 focus:outline-none'
+              className="p-3 focus:outline-none"
               label="To Date"
               name="toDate"
               type="date"
@@ -201,7 +203,7 @@ function PurchaseRequestForm({ initialData, onClose }) {
           </div>
 
           <FormField
-            className='p-3 focus:outline-none'
+            className="p-3 focus:outline-none"
             label="Purpose"
             name="purpose"
             type="textarea"
@@ -215,8 +217,16 @@ function PurchaseRequestForm({ initialData, onClose }) {
           />
 
           <div className="flex justify-end space-x-2 mt-6">
-            <button type="button" className="btn btn-secondary" onClick={onClose}>Cancel</button>
-            <button type="submit" className="btn btn-primary" disabled={isSubmitting}>Save</button>
+            <button type="button" className="btn btn-outline" onClick={onClose}>
+              Cancel
+            </button>
+            <button
+              type="submit"
+              className="btn btn-primary"
+              disabled={isSubmitting}
+            >
+              Save
+            </button>
           </div>
         </Form>
       )}
@@ -224,4 +234,4 @@ function PurchaseRequestForm({ initialData, onClose }) {
   );
 }
 
-export default PurchaseRequestForm; 
+export default PurchaseRequestForm;

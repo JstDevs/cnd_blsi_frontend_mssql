@@ -49,7 +49,7 @@ function LoginPage() {
                 required
                 value={username}
                 onChange={(e) => setUsername(e.target.value)}
-                className="form-input"
+                className="px-4 py-2 rounded-md border border-neutral-200 focus:ring-primary-500 focus:border-primary-500 block w-full"
                 placeholder="Username"
               />
             </div>
@@ -68,7 +68,7 @@ function LoginPage() {
                 required
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="form-input"
+                className="px-4 py-2 rounded-md border border-neutral-200 focus:ring-primary-500 focus:border-primary-500 block w-full"
                 placeholder="Password"
               />
             </div>
