@@ -36,7 +36,7 @@ function FormField({
             onBlur={onBlur}
             rows={props.rows || 3}
             className={clsx(
-              "form-textarea border border-gray-300 focus:border-primary-500 focus:ring-primary-500",
+              "form-textarea border border-gray-300 px-4 py-2",
               isInvalid &&
                 "border-error-300 text-error-900 placeholder-error-300 focus:ring-error-500 focus:border-error-500",
               className
@@ -55,7 +55,7 @@ function FormField({
             onChange={onChange}
             onBlur={onBlur}
             className={clsx(
-              "form-select border border-gray-300 focus:border-primary-500 focus:ring-primary-500",
+              "form-select border border-gray-300 px-4 py-2",
               isInvalid &&
                 "border-error-300 text-error-900 focus:ring-error-500 focus:border-error-500",
               className
@@ -114,7 +114,7 @@ function FormField({
                   onChange={onChange}
                   onBlur={onBlur}
                   className={clsx(
-                    "form-radio",
+                    "form-radio ",
                     isInvalid &&
                       "border-error-300 text-error-900 focus:ring-error-500 focus:border-error-500",
                     className
@@ -150,7 +150,7 @@ function FormField({
             onChange={onChange}
             onBlur={onBlur}
             className={clsx(
-              "form-input border border-gray-300 focus:border-primary-500 focus:ring-primary-500",
+              "form-input border border-gray-300 px-4 py-2",
               isInvalid &&
                 "border-error-300 text-error-900 placeholder-error-300 focus:ring-error-500 focus:border-error-500",
               className

@@ -40,7 +40,7 @@ const sections = [
   {
     name: "Budget",
     icon: <ClipboardDocumentIcon className="h-6 w-6" />,
-    path: "/budget",
+    path: "/budget/details",
   },
   {
     name: "Applications",

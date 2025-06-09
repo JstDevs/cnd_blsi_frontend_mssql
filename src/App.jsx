@@ -27,14 +27,19 @@ import DocumentDetailsPage from "./pages/settings/DocumentDetailsPage";
 import ItemPage from "./pages/settings/ItemPage";
 import InvoiceChargeAccountsPage from "./pages/settings/InvoiceChargeAccountsPage";
 import ItemUnitPage from "./pages/settings/ItemUnitPage";
-import ProjectTypePage from "./pages/settings/ProjectTypePage";
+import ProjectTypePage from "./pages/settings/Accounting/Project/ProjectTypePage";
+import ProjectDetails from "./pages/settings/Accounting/Project/ProjectDetails";
 import FinancialStatementPage from "./pages/settings/FinancialStatementPage";
 import FiscalYearPage from "./pages/settings/FiscalYearPage";
 import TaxCodePage from "./pages/settings/TaxCodePage";
 import ModeOfPaymentPage from "./pages/settings/ModeOfPaymentPage";
 import PaymentTermsPage from "./pages/settings/PaymentTermsPage";
 import IndustryPage from "./pages/settings/IndustryPage";
-
+import Customer from "./pages/settings/Customer";
+// Setting --> real Prohject
+import TaxDeclaration from "./pages/settings/RealProject/TaxDeclaration";
+import GeneralRevision from "./pages/settings/RealProject/GeneralRevision";
+import BaseUnitValue from "./pages/settings/RealProject/BaseUnitValue";
 // Disbursement pages
 import ObligationRequestPage from "./pages/disbursement/ObligationRequestPage";
 import DisbursementVoucherPage from "./pages/disbursement/DisbursementVoucherPage";
@@ -60,32 +65,32 @@ import CollectionReportPage from "./pages/collections/CollectionReportPage";
 import PublicMarketTicketPage from "./pages/collections/PublicMarketTicketPage";
 
 // Budget pages
-import AnnualBudgetPage from "./pages/budget/AnnualBudgetPage";
-import AllotmentPage from "./pages/budget/AllotmentPage";
-import FundsPage from "./pages/budget/FundsPage";
-import BudgetTransferPage from "./pages/budget/BudgetTransferPage";
-import BudgetPage from "./pages/budget/BudgetPage";
-
-// Applications pages
-import BusinessPermitPage from "./pages/applications/BusinessPermitPage";
-import ChequeGeneratorPage from "./pages/applications/ChequeGeneratorPage";
-
-// Reports pages
-import GeneralLedgerPage from "./pages/reports/GeneralLedgerPage";
-import FinancialStatementsPage from "./pages/reports/FinancialStatementsPage";
-import BudgetReportPage from "./pages/reports/BudgetReportPage";
-import BirReportPage from "./pages/reports/BirReportPage";
 import BudgetAllotment from "./pages/budget/form-budget/BudgetAllotment";
 import BudgetReport from "./pages/budget/form-budget/BudgetReport";
 import BudgetTransfer from "./pages/budget/form-budget/BudgetTransfer";
-import Dashboard from "./pages/budget/form-budget/Dashboard";
 import BudgetDetails from "./pages/budget/form-budget/BudgetDetails";
 import BudgetSummary from "./pages/budget/form-budget/BudgetSummary";
 import BudgetSupplemental from "./pages/budget/form-budget/BudgetSupplemental";
 import FundsManagement from "./pages/budget/form-budget/FundsManagement";
 import FundTransfer from "./pages/budget/form-budget/FundTransfer";
 import TrialBalance from "./pages/budget/form-budget/TrialBalance";
+import BudgetPage from "./pages/budget/BudgetPage";
+import StatementComparison from "./pages/budget/form-budget/StatementComparison";
+import StatementAppropriation from "./pages/budget/form-budget/StatementAppropriation";
+import LGUMaintenance from "./pages/settings/LGUMaintenance";
+// Applications pages
+import BusinessPermitPage from "./pages/applications/BusinessPermitPage";
+import ChequeGeneratorPage from "./pages/applications/ChequeGeneratorPage";
+
+// Reports pages
+import GeneralLedgerPage from "./pages/reports/GeneralLedgerPage";
+import SubsidiaryLedger from "./pages/reports/SubsidiaryLedger";
+import FinancialStatementsPage from "./pages/reports/FinancialStatementsPage";
+import BudgetReportPage from "./pages/reports/BudgetReportPage";
+import BirReportPage from "./pages/reports/BirReportPage";
+// User Access
 import UserAccessPage from "./pages/userAccess";
+import ChangePassword from "./pages/auth/ChangePassword";
 
 function App() {
   const { isAuthenticated, isLoading } = useSelector((state) => state.auth);
@@ -176,8 +181,13 @@ function App() {
         >
           <Route path="/dashboard" element={<DashboardPage />} />
 
-          {/* Settings module */}
+          {/*-------------------------- Settings module-------------------- */}
           <Route path="/settings/departments" element={<DepartmentPage />} />
+          <Route path="/settings/customer" element={<Customer />} />
+          <Route
+            path="/settings/lgu-maintenance"
+            element={<LGUMaintenance />}
+          />
           <Route
             path="/settings/subdepartments"
             element={<SubdepartmentPage />}
@@ -223,8 +233,22 @@ function App() {
             element={<PaymentTermsPage />}
           />
           <Route path="/settings/industry" element={<IndustryPage />} />
+          <Route
+            path="/settings/project-details"
+            element={<ProjectDetails />}
+          />
+          {/* ---SETTING--REAL--PROJECT------> */}
+          <Route
+            path="/settings/tax-declaration"
+            element={<TaxDeclaration />}
+          />
+          <Route path="/settings/base-unit-value" element={<BaseUnitValue />} />
+          <Route
+            path="/settings/general-revision"
+            element={<GeneralRevision />}
+          />
 
-          {/* Disbursement module */}
+          {/*------------------------ Disbursement module----------------------- */}
           <Route
             path="/disbursement/obligation-requests"
             element={<ObligationRequestPage />}
@@ -307,10 +331,7 @@ function App() {
 
           {/* Budget module */}
           <Route path="/budget" element={<BudgetPage />} />
-          {/* <Route path="/budget/annual" element={<AnnualBudgetPage />} />
-          <Route path="/budget/allotment" element={<AllotmentPage />} />
-          <Route path="/budget/funds" element={<FundsPage />} />
-          <Route path="/budget/transfers" element={<BudgetTransferPage />} /> */}
+
           <Route path="/budget/allotment" element={<BudgetAllotment />} />
           <Route path="/budget/details" element={<BudgetDetails />} />
           <Route path="/budget/summary" element={<BudgetSummary />} />
@@ -318,16 +339,16 @@ function App() {
           <Route path="/budget/transfer" element={<BudgetTransfer />} />
           <Route path="/budget/report" element={<BudgetReport />} />
           <Route path="/budget/funds" element={<FundsManagement />} />
-          {/* <Route path="/budget/sub-funds" element={<SubFunds />} /> */}
+
           <Route path="/budget/fund-transfer" element={<FundTransfer />} />
-          {/* <Route
+          <Route
             path="/budget/statement-comparison"
             element={<StatementComparison />}
-          /> */}
-          {/* <Route
+          />
+          <Route
             path="/budget/statement-appropriation"
             element={<StatementAppropriation />}
-          /> */}
+          />
 
           {/*----------------------- Applications module ----------------------------*/}
           <Route
@@ -344,17 +365,20 @@ function App() {
             path="/reports/general-ledger"
             element={<GeneralLedgerPage />}
           />
-          {/* <Route
-            path="reports/trial-balance"
-            element={<TrialBalance />}
-          /> */}
+          <Route
+            path="/reports/subsidiary-ledger"
+            element={<SubsidiaryLedger />}
+          />
           <Route
             path="/reports/financial-statements"
             element={<FinancialStatementsPage />}
           />
           <Route path="/reports/budget" element={<BudgetReportPage />} />
           <Route path="/reports/bir" element={<BirReportPage />} />
-          {/* <Route path="/reports/tail-balance" element={<TrialBalance />} /> */}
+          <Route path="/reports/trial-balance" element={<TrialBalance />} />
+
+          {/* ---------------------------CHANGE PASSWORD------------------- */}
+          <Route path="/change-password" element={<ChangePassword />} />
         </Route>
 
         {/* Root redirect */}

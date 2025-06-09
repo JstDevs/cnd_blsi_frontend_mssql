@@ -1,5 +1,5 @@
-import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
-import authService from './authService';
+import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
+import authService from "./authService";
 
 const initialState = {
   user: null,
@@ -9,7 +9,7 @@ const initialState = {
 };
 
 export const login = createAsyncThunk(
-  'auth/login',
+  "auth/login",
   async ({ username, password }, thunkAPI) => {
     try {
       const user = await authService.login(username, password);
@@ -20,23 +20,23 @@ export const login = createAsyncThunk(
   }
 );
 
-export const logout = createAsyncThunk(
-  'auth/logout',
-  async (_, thunkAPI) => {
-    try {
-      await authService.logout();
-      return null;
-    } catch (error) {
-      return thunkAPI.rejectWithValue(error.message);
-    }
+export const logout = createAsyncThunk("auth/logout", async (_, thunkAPI) => {
+  try {
+    await authService.logout();
+    return null;
+  } catch (error) {
+    return thunkAPI.rejectWithValue(error.message);
   }
-);
+});
 
 export const changePassword = createAsyncThunk(
-  'auth/changePassword',
+  "auth/changePassword",
   async ({ currentPassword, newPassword }, thunkAPI) => {
     try {
-      const response = await authService.changePassword(currentPassword, newPassword);
+      const response = await authService.changePassword(
+        currentPassword,
+        newPassword
+      );
       return response;
     } catch (error) {
       return thunkAPI.rejectWithValue(error.message);
@@ -45,7 +45,7 @@ export const changePassword = createAsyncThunk(
 );
 
 export const fetchUserProfile = createAsyncThunk(
-  'auth/fetchUserProfile',
+  "auth/fetchUserProfile",
   async (token, thunkAPI) => {
     try {
       const user = await authService.fetchUserProfile(token);
@@ -57,7 +57,7 @@ export const fetchUserProfile = createAsyncThunk(
 );
 
 const authSlice = createSlice({
-  name: 'auth',
+  name: "auth",
   initialState,
   reducers: {
     resetAuthState: (state) => {
@@ -105,7 +105,7 @@ const authSlice = createSlice({
         state.isLoading = false;
         state.error = action.payload;
       });
-  }
+  },
 });
 
 export const { resetAuthState } = authSlice.actions;

@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { Menu, Transition } from "@headlessui/react";
 import {
   BellIcon,
@@ -17,6 +17,7 @@ function Header({ toggleSidebar, isSidebarOpen }) {
   const { user } = useSelector((state) => state.auth);
   const [showNotifications, setShowNotifications] = useState(false);
   const notificationsRef = useRef(null);
+  const navigate = useNavigate();
 
   useEffect(() => {
     if (!showNotifications) return;
@@ -66,7 +67,7 @@ function Header({ toggleSidebar, isSidebarOpen }) {
             </div>
           </div>
           <div className="flex items-center">
-            <button
+            {/* <button
               type="button"
               className="p-2 rounded-full text-neutral-500 hover:text-neutral-900 hover:bg-neutral-100 relative"
               onClick={() => setShowNotifications(!showNotifications)}
@@ -74,7 +75,7 @@ function Header({ toggleSidebar, isSidebarOpen }) {
               <span className="sr-only">View notifications</span>
               <BellIcon className="h-6 w-6" aria-hidden="true" />
               <span className="absolute top-0 right-0 block h-2.5 w-2.5 rounded-full bg-error-600 ring-2 ring-white"></span>
-            </button>
+            </button> */}
 
             <div className="ml-3 relative">
               <Menu as="div" className="relative">
@@ -105,6 +106,7 @@ function Header({ toggleSidebar, isSidebarOpen }) {
                         </p>
                       </div>
                     </div>
+
                     {/* <div className="py-1">
                       <Menu.Item>
                         {({ active }) => (
@@ -133,6 +135,26 @@ function Header({ toggleSidebar, isSidebarOpen }) {
                         )}
                       </Menu.Item>
                     </div> */}
+                    <div className="py-1">
+                      <Menu.Item>
+                        {({ active }) => (
+                          <button
+                            onClick={() => navigate("/change-password")}
+                            className={`${
+                              active
+                                ? "bg-neutral-100 text-neutral-900"
+                                : "text-neutral-700"
+                            } flex items-center px-4 py-2 text-sm w-full text-left`}
+                          >
+                            <KeyIcon
+                              className="mr-3 h-5 w-5 text-neutral-400"
+                              aria-hidden="true"
+                            />
+                            Change Password
+                          </button>
+                        )}
+                      </Menu.Item>
+                    </div>
                     <div className="py-1">
                       <Menu.Item>
                         {({ active }) => (

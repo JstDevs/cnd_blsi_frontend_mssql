@@ -1,44 +1,46 @@
-import { useState, useEffect } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
-import { PlusIcon, PencilIcon, TrashIcon } from '@heroicons/react/24/outline';
-import DataTable from '../../components/common/DataTable';
-import Modal from '../../components/common/Modal';
-import ProjectTypeForm from '../../components/forms/ProjectTypeForm';
+import { useState, useEffect } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { PlusIcon, PencilIcon, TrashIcon } from "@heroicons/react/24/outline";
+import DataTable from "@/components/common/DataTable";
+import Modal from "@/components/common/Modal";
+import ProjectTypeForm from "@/components/forms/ProjectTypeForm";
 import {
   fetchProjectTypes,
   addProjectType,
   updateProjectType,
-  deleteProjectType
-} from '../../features/settings/projectTypesSlice';
+  deleteProjectType,
+} from "@/features/settings/projectTypesSlice";
 
 function ProjectTypePage() {
   const dispatch = useDispatch();
-  const { projectTypes, isLoading } = useSelector(state => state.projectTypes);
-  
+  const { projectTypes, isLoading } = useSelector(
+    (state) => state.projectTypes
+  );
+
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [currentProjectType, setCurrentProjectType] = useState(null);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [projectTypeToDelete, setProjectTypeToDelete] = useState(null);
-  
+
   useEffect(() => {
     dispatch(fetchProjectTypes());
   }, [dispatch]);
-  
+
   const handleAdd = () => {
     setCurrentProjectType(null);
     setIsModalOpen(true);
   };
-  
+
   const handleEdit = (projectType) => {
     setCurrentProjectType(projectType);
     setIsModalOpen(true);
   };
-  
+
   const handleDelete = (projectType) => {
     setProjectTypeToDelete(projectType);
     setIsDeleteModalOpen(true);
   };
-  
+
   const confirmDelete = async () => {
     if (projectTypeToDelete) {
       try {
@@ -46,11 +48,11 @@ function ProjectTypePage() {
         setIsDeleteModalOpen(false);
         setProjectTypeToDelete(null);
       } catch (error) {
-        console.error('Failed to delete project type:', error);
+        console.error("Failed to delete project type:", error);
       }
     }
   };
-  
+
   const handleSubmit = (values) => {
     if (currentProjectType) {
       dispatch(updateProjectType({ ...values, id: currentProjectType.id }));
@@ -62,30 +64,32 @@ function ProjectTypePage() {
 
   const columns = [
     {
-      key: 'code',
-      header: 'Code',
-      sortable: true
+      key: "code",
+      header: "Code",
+      sortable: true,
     },
     {
-      key: 'name',
-      header: 'Name',
-      sortable: true
-    }
+      key: "name",
+      header: "Name",
+      sortable: true,
+    },
   ];
-  
+
   const actions = [
     {
       icon: PencilIcon,
-      title: 'Edit',
+      title: "Edit",
       onClick: handleEdit,
-      className: 'text-primary-600 hover:text-primary-900 p-1 rounded-full hover:bg-primary-50'
+      className:
+        "text-primary-600 hover:text-primary-900 p-1 rounded-full hover:bg-primary-50",
     },
     {
       icon: TrashIcon,
-      title: 'Delete',
+      title: "Delete",
       onClick: handleDelete,
-      className: 'text-error-600 hover:text-error-900 p-1 rounded-full hover:bg-error-50'
-    }
+      className:
+        "text-error-600 hover:text-error-900 p-1 rounded-full hover:bg-error-50",
+    },
   ];
 
   return (
@@ -106,7 +110,7 @@ function ProjectTypePage() {
           </button>
         </div>
       </div>
-      
+
       <div className="mt-4">
         <DataTable
           columns={columns}
@@ -116,7 +120,7 @@ function ProjectTypePage() {
           emptyMessage="No project types found. Click 'Add Project Type' to create one."
         />
       </div>
-      
+
       {/* Form Modal */}
       <Modal
         isOpen={isModalOpen}
@@ -129,7 +133,7 @@ function ProjectTypePage() {
           onSubmit={handleSubmit}
         />
       </Modal>
-      
+
       {/* Delete Confirmation Modal */}
       <Modal
         isOpen={isDeleteModalOpen}
@@ -138,7 +142,8 @@ function ProjectTypePage() {
       >
         <div className="py-3">
           <p className="text-neutral-700">
-            Are you sure you want to delete the project type "{projectTypeToDelete?.name}"?
+            Are you sure you want to delete the project type "
+            {projectTypeToDelete?.name}"?
           </p>
           <p className="text-sm text-neutral-500 mt-2">
             This action cannot be undone.
@@ -165,4 +170,4 @@ function ProjectTypePage() {
   );
 }
 
-export default ProjectTypePage; 
+export default ProjectTypePage;

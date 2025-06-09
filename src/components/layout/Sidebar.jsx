@@ -35,6 +35,14 @@ const navigation = [
         ],
       },
       {
+        name: "Real Property",
+        submenu: [
+          { name: "Tax Declaration", href: "/settings/tax-declaration" },
+          { name: "Base Unit Value", href: "/settings/base-unit-value" },
+          { name: "General Revision", href: "/settings/general-revision" },
+        ],
+      },
+      {
         name: "Accounting Settings",
         submenu: [
           {
@@ -59,7 +67,7 @@ const navigation = [
           {
             name: "Project Settings",
             submenu: [
-              // { name: "Project Details", href: "/settings/project-details" },
+              { name: "Project Details", href: "/settings/project-details" },
               { name: "Project Type", href: "/settings/project-type" },
             ],
           },
@@ -75,10 +83,12 @@ const navigation = [
         ],
       },
       { name: "Locations", href: "/settings/locations" },
+      { name: "Customer", href: "/settings/customer" },
       { name: "Chart of Accounts", href: "/settings/chart-of-accounts" },
       { name: "Vendors", href: "/settings/vendors" },
       { name: "Employees", href: "/settings/employees" },
       { name: "PPE", href: "/settings/ppe" },
+      { name: "LGU Maintenance", href: "/settings/lgu-maintenance" },
     ],
   },
   {
@@ -135,27 +145,7 @@ const navigation = [
       },
     ],
   },
-  {
-    name: "Budget",
-    icon: DocumentDuplicateIcon,
-    submenu: [
-      { name: "Budget Management", href: "/budget" },
-      { name: "Budget Details", href: "/budget/details" },
-      { name: "Budget Allotment", href: "/budget/allotment" },
-      { name: "Budget Summary", href: "/budget/summary" },
-      { name: "Budget Supplemental", href: "/budget/supplemental" },
-      { name: "Budget Transfer", href: "/budget/transfer" },
-      { name: "Budget Report", href: "/budget/report" },
-      { name: "Funds", href: "/budget/funds" },
-      // { name: 'Sub-funds', href: '/budget/sub-funds' },
-      { name: "Fund Transfer", href: "/budget/fund-transfer" },
-      // { name: "Statement of Comparison", href: "/budget/statement-comparison" },
-      // {
-      //   name: "Statement of Appropriation, Allotment, Obligation, Balances",
-      //   href: "/budget/statement-appropriation",
-      // },
-    ],
-  },
+
   {
     name: "Applications",
     icon: DocumentTextIcon,
@@ -165,14 +155,35 @@ const navigation = [
     ],
   },
   {
+    name: "Budget",
+    icon: DocumentDuplicateIcon,
+    submenu: [
+      // { name: "Budget Management", href: "/budget" },
+      { name: "Budget Details", href: "/budget/details" },
+      { name: "Budget Allotment", href: "/budget/allotment" },
+      { name: "Budget Summary", href: "/budget/summary" },
+      { name: "Budget Supplemental", href: "/budget/supplemental" },
+      { name: "Budget Transfer", href: "/budget/transfer" },
+      { name: "Budget Report", href: "/budget/report" },
+      { name: "Funds", href: "/budget/funds" },
+      // { name: 'Sub-funds', href: '/budget/sub-funds' },
+      { name: "Fund Transfer", href: "/budget/fund-transfer" },
+      { name: "Statement of Comparison", href: "/budget/statement-comparison" },
+      {
+        name: "Statement of Appropriation, Allotment, Obligation, Balances",
+        href: "/budget/statement-appropriation",
+      },
+    ],
+  },
+  {
     name: "Reports",
     icon: ChartBarIcon,
     submenu: [
       { name: "General Ledger", href: "/reports/general-ledger" },
       { name: "Financial Statements", href: "/reports/financial-statements" },
       // { name: "Budget Reports", href: "/reports/budget" },
-      // { name: "Subsidiary Ledger", href: "/reports/subsidiary-ledger" },
-      // { name: "Trial Balance", href: "/reports/trial-balance" },
+      { name: "Subsidiary Ledger", href: "/reports/subsidiary-ledger" },
+      { name: "Trial Balance", href: "/reports/trial-balance" },
     ],
   },
   {
@@ -189,88 +200,120 @@ function SidebarMenu({
   isActive,
   isSubMenuActive,
   level = 0,
+  parentPath = "",
 }) {
   return (
-    <div className={level > 0 ? `pl-${level * 4} space-y-1` : ""}>
-      {items.map((item) => (
-        <div key={item.name}>
-          {item.submenu ? (
-            <>
-              <button
-                onClick={(e) => {
-                  e.preventDefault();
-                  toggleMenu(item.name);
-                }}
+    <div
+      className={clsx(
+        "space-y-1",
+        level > 0 && "ml-4 border-l-2 border-neutral-200 pl-3" // Added left border for child items
+      )}
+    >
+      {items.map((item) => {
+        const itemPath = parentPath ? `${parentPath}.${item.name}` : item.name;
+        const isExpanded = expandedMenus[itemPath];
+        const hasActiveChild = isSubMenuActive(item.submenu || []);
+
+        return (
+          <div key={itemPath} className="relative">
+            {item.submenu ? (
+              <>
+                <button
+                  onClick={(e) => {
+                    e.preventDefault();
+                    toggleMenu(itemPath);
+                  }}
+                  className={clsx(
+                    "group flex items-center justify-between w-full px-3 py-2 text-sm font-medium rounded-md transition-colors",
+                    hasActiveChild
+                      ? "bg-primary-50 text-primary-700"
+                      : "text-neutral-700 hover:bg-neutral-100",
+                    isExpanded && "border-l-4 border-primary-500",
+                    level > 0 && "pl-2" // Adjust padding for nested items
+                  )}
+                >
+                  <div className="flex items-center">
+                    {item.icon && (
+                      <item.icon
+                        className={clsx(
+                          "mr-3 h-5 w-5 flex-shrink-0",
+                          hasActiveChild
+                            ? "text-primary-500"
+                            : "text-neutral-400 group-hover:text-neutral-500"
+                        )}
+                      />
+                    )}
+                    <span className="text-left">{item.name}</span>
+                  </div>
+                  <div className="flex items-center">
+                    {/* Chevron indicator with count badge */}
+                    {/* {item.submenu && (
+                      <span className="mr-2 text-xs text-neutral-500 bg-neutral-100 rounded-full px-2 py-0.5">
+                        {item.submenu.length}
+                      </span>
+                    )} */}
+                    <svg
+                      className={clsx(
+                        "h-5 w-5 transform transition-transform flex-shrink-0",
+                        isExpanded
+                          ? "rotate-180 text-primary-500"
+                          : "text-neutral-400"
+                      )}
+                      xmlns="http://www.w3.org/2000/svg"
+                      viewBox="0 0 20 20"
+                      fill="currentColor"
+                    >
+                      <path
+                        fillRule="evenodd"
+                        d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
+                        clipRule="evenodd"
+                      />
+                    </svg>
+                  </div>
+                </button>
+                {isExpanded && (
+                  <div className="mt-1">
+                    {" "}
+                    {/* Added margin top for separation */}
+                    <SidebarMenu
+                      items={item.submenu}
+                      expandedMenus={expandedMenus}
+                      toggleMenu={toggleMenu}
+                      isActive={isActive}
+                      isSubMenuActive={isSubMenuActive}
+                      level={level + 1}
+                      parentPath={itemPath}
+                    />
+                  </div>
+                )}
+              </>
+            ) : (
+              <Link
+                to={item.href}
                 className={clsx(
-                  "group flex items-center justify-between text-left px-3 py-2 text-sm font-medium rounded-md w-full transition-colors",
-                  isSubMenuActive(item.submenu)
-                    ? "bg-primary-50 text-primary-700"
-                    : "text-neutral-700 hover:bg-neutral-100"
+                  "group flex items-center px-3 py-2 text-sm font-medium rounded-md transition-colors",
+                  isActive(item.href)
+                    ? "bg-primary-50 text-primary-700 border-l-4 border-primary-500"
+                    : "text-neutral-700 hover:bg-neutral-100 hover:text-neutral-900",
+                  level > 0 && "pl-2" // Adjust padding for nested items
                 )}
               >
                 {item.icon && (
                   <item.icon
                     className={clsx(
-                      "mr-3 h-5 w-5",
-                      isSubMenuActive(item.submenu)
+                      "mr-3 h-5 w-5 flex-shrink-0",
+                      isActive(item.href)
                         ? "text-primary-500"
                         : "text-neutral-400 group-hover:text-neutral-500"
                     )}
                   />
                 )}
                 <span className="text-left">{item.name}</span>
-                <svg
-                  className={clsx(
-                    "h-5 w-5 transform transition-transform ml-auto",
-                    expandedMenus[item.name] ? "rotate-180" : ""
-                  )}
-                  xmlns="http://www.w3.org/2000/svg"
-                  viewBox="0 0 20 20"
-                  fill="currentColor"
-                >
-                  <path
-                    fillRule="evenodd"
-                    d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
-                    clipRule="evenodd"
-                  />
-                </svg>
-              </button>
-              {expandedMenus[item.name] && (
-                <SidebarMenu
-                  items={item.submenu}
-                  expandedMenus={expandedMenus}
-                  toggleMenu={toggleMenu}
-                  isActive={isActive}
-                  isSubMenuActive={isSubMenuActive}
-                  level={level + 1}
-                />
-              )}
-            </>
-          ) : (
-            <Link
-              to={item.href}
-              className={clsx(
-                "group flex items-center justify-start text-left px-3 py-2 text-sm font-medium rounded-md transition-colors",
-                isActive(item.href)
-                  ? "bg-primary-50 text-primary-700"
-                  : "text-neutral-700 hover:bg-neutral-100 hover:text-neutral-900"
-              )}
-            >
-              {item.icon && (
-                <item.icon
-                  className={clsx(
-                    "mr-3 flex-shrink-0 h-5 w-5",
-                    isActive(item.href)
-                      ? "text-primary-500"
-                      : "text-neutral-400 group-hover:text-neutral-500"
-                  )}
-                />
-              )}
-              <span className="text-left">{item.name}</span>
-            </Link>
-          )}
-        </div>
-      ))}
+              </Link>
+            )}
+          </div>
+        );
+      })}
     </div>
   );
 }
