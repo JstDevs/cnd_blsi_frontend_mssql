@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Button } from "@/components/common/button";
+import Button from "@/components/common/button";
 import { Plus, Trash2 } from "lucide-react";
 
 export default function TaxDeclarationPage() {
