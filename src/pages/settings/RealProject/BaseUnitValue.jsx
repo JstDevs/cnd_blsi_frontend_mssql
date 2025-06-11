@@ -33,16 +33,12 @@ export default function BaseUnitValue() {
 
   return (
     <div className="p-4">
-      <div className="flex items-center justify-between mb-4">
+      <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center mb-6 space-y-4 sm:space-y-0">
         <h2 className="text-xl font-semibold">Base Unit Value</h2>
-        <div className="space-x-2">
-          <Button
-            className="bg-blue-600 text-white"
-            onClick={() => openModal()}
-          >
-            <Plus className="w-4 h-4 mr-1" /> Add
-          </Button>
-        </div>
+
+        <Button className="bg-blue-600 text-white" onClick={() => openModal()}>
+          <Plus className="w-4 h-4 mr-1" /> Add
+        </Button>
       </div>
 
       <div className="overflow-x-auto">

@@ -1,116 +1,121 @@
-import { useState } from 'react';
-import { Formik, Form, FieldArray } from 'formik';
-import { PlusIcon, TrashIcon } from '@heroicons/react/24/outline';
-import DataTable from '../../components/common/DataTable';
-import Modal from '../../components/common/Modal';
-import FormField from '../../components/common/FormField';
-import { journalEntrySchema } from '../../utils/validationSchemas';
+import { useState } from "react";
+import { Formik, Form, FieldArray } from "formik";
+import { PlusIcon, TrashIcon } from "@heroicons/react/24/outline";
+import DataTable from "../../components/common/DataTable";
+import Modal from "../../components/common/Modal";
+import FormField from "../../components/common/FormField";
+import { journalEntrySchema } from "../../utils/validationSchemas";
+import Button from "../../components/common/Button";
 
 function JournalEntryPage() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [currentEntry, setCurrentEntry] = useState(null);
-  
+
   // Mock data for table
   const entries = [
     {
       id: 1,
-      date: '2024-01-15',
-      reference: 'JEV-2024-01-0001',
-      particulars: 'To record collection of real property tax',
+      date: "2024-01-15",
+      reference: "JEV-2024-01-0001",
+      particulars: "To record collection of real property tax",
       totalAmount: 50000,
-      status: 'Posted',
-      postedBy: 'John Smith',
-      postedDate: '2024-01-15T10:30:00',
+      status: "Posted",
+      postedBy: "John Smith",
+      postedDate: "2024-01-15T10:30:00",
     },
     {
       id: 2,
-      date: '2024-01-16',
-      reference: 'JEV-2024-01-0002',
-      particulars: 'To record payment of office supplies',
+      date: "2024-01-16",
+      reference: "JEV-2024-01-0002",
+      particulars: "To record payment of office supplies",
       totalAmount: 15000,
-      status: 'Draft',
+      status: "Draft",
       postedBy: null,
       postedDate: null,
     },
   ];
-  
+
   // Format amount as Philippine Peso
   const formatCurrency = (amount) => {
-    return new Intl.NumberFormat('en-PH', {
-      style: 'currency',
-      currency: 'PHP',
+    return new Intl.NumberFormat("en-PH", {
+      style: "currency",
+      currency: "PHP",
     }).format(amount);
   };
-  
+
   // Table columns
   const columns = [
     {
-      key: 'reference',
-      header: 'Reference',
+      key: "reference",
+      header: "Reference",
       sortable: true,
-      className: 'font-medium text-neutral-900',
+      className: "font-medium text-neutral-900",
     },
     {
-      key: 'date',
-      header: 'Date',
+      key: "date",
+      header: "Date",
       sortable: true,
       render: (value) => new Date(value).toLocaleDateString(),
     },
     {
-      key: 'particulars',
-      header: 'Particulars',
+      key: "particulars",
+      header: "Particulars",
       sortable: true,
     },
     {
-      key: 'totalAmount',
-      header: 'Amount',
+      key: "totalAmount",
+      header: "Amount",
       sortable: true,
       render: (value) => formatCurrency(value),
-      className: 'text-right',
+      className: "text-right",
     },
     {
-      key: 'status',
-      header: 'Status',
+      key: "status",
+      header: "Status",
       sortable: true,
       render: (value) => (
-        <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
-          value === 'Posted' ? 'bg-success-100 text-success-800' : 'bg-warning-100 text-warning-800'
-        }`}>
+        <span
+          className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
+            value === "Posted"
+              ? "bg-success-100 text-success-800"
+              : "bg-warning-100 text-warning-800"
+          }`}
+        >
           {value}
         </span>
       ),
     },
     {
-      key: 'postedBy',
-      header: 'Posted By',
+      key: "postedBy",
+      header: "Posted By",
       sortable: true,
-      render: (value) => value || '-',
+      render: (value) => value || "-",
     },
     {
-      key: 'postedDate',
-      header: 'Posted Date',
+      key: "postedDate",
+      header: "Posted Date",
       sortable: true,
-      render: (value) => value ? new Date(value).toLocaleString() : '-',
+      render: (value) => (value ? new Date(value).toLocaleString() : "-"),
     },
   ];
-  
+
   const handleCreateEntry = () => {
     setCurrentEntry(null);
     setIsModalOpen(true);
   };
-  
+
   const handleEditEntry = (entry) => {
     setCurrentEntry(entry);
     setIsModalOpen(true);
   };
-  
+
   const handleSubmit = async (values, { setSubmitting }) => {
     try {
       await journalEntrySchema.validate(values, { abortEarly: false });
-      console.log('Form data:', values);
+      console.log("Form data:", values);
       setIsModalOpen(false);
     } catch (err) {
-      console.error('Validation errors:', err.errors);
+      console.error("Validation errors:", err.errors);
     } finally {
       setSubmitting(false);
     }
@@ -119,30 +124,22 @@ function JournalEntryPage() {
   return (
     <div>
       <div className="page-header">
-        <div className="flex justify-between items-center">
+        <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center mb-6 space-y-4 sm:space-y-0">
           <div>
             <h1>Journal Entries</h1>
             <p>Record and manage journal entries</p>
           </div>
-          <button
-            type="button"
-            onClick={handleCreateEntry}
-            className="btn btn-primary flex items-center"
-          >
+          <Button type="button" onClick={handleCreateEntry}>
             <PlusIcon className="h-5 w-5 mr-2" />
             New Entry
-          </button>
+          </Button>
         </div>
       </div>
-      
+
       <div className="mt-4">
-        <DataTable
-          columns={columns}
-          data={entries}
-          pagination={true}
-        />
+        <DataTable columns={columns} data={entries} pagination={true} />
       </div>
-      
+
       <Modal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
@@ -151,16 +148,23 @@ function JournalEntryPage() {
       >
         <Formik
           initialValues={{
-            date: new Date().toISOString().split('T')[0],
-            reference: '',
-            particulars: '',
-            debitEntries: [{ accountCode: '', amount: '' }],
-            creditEntries: [{ accountCode: '', amount: '' }],
+            date: new Date().toISOString().split("T")[0],
+            reference: "",
+            particulars: "",
+            debitEntries: [{ accountCode: "", amount: "" }],
+            creditEntries: [{ accountCode: "", amount: "" }],
             ...currentEntry,
           }}
           onSubmit={handleSubmit}
         >
-          {({ values, errors, touched, handleChange, handleBlur, isSubmitting }) => (
+          {({
+            values,
+            errors,
+            touched,
+            handleChange,
+            handleBlur,
+            isSubmitting,
+          }) => (
             <Form className="p-4 space-y-4">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <FormField
@@ -174,7 +178,7 @@ function JournalEntryPage() {
                   error={errors.date}
                   touched={touched.date}
                 />
-                
+
                 <FormField
                   label="Reference"
                   name="reference"
@@ -187,7 +191,7 @@ function JournalEntryPage() {
                   touched={touched.reference}
                 />
               </div>
-              
+
               <FormField
                 label="Particulars"
                 name="particulars"
@@ -201,10 +205,12 @@ function JournalEntryPage() {
                 touched={touched.particulars}
                 rows={3}
               />
-              
+
               {/* Debit Entries */}
               <div>
-                <label className="block text-sm font-medium text-neutral-700 mb-2">Debit Entries</label>
+                <label className="block text-sm font-medium text-neutral-700 mb-2">
+                  Debit Entries
+                </label>
                 <FieldArray name="debitEntries">
                   {({ push, remove }) => (
                     <div className="space-y-2">
@@ -218,15 +224,19 @@ function JournalEntryPage() {
                               value={values.debitEntries[index].accountCode}
                               onChange={handleChange}
                               onBlur={handleBlur}
-                              error={
-                                errors.debitEntries?.[index]?.accountCode
-                              }
+                              error={errors.debitEntries?.[index]?.accountCode}
                               touched={
                                 touched.debitEntries?.[index]?.accountCode
                               }
                               options={[
-                                { value: '1-01-01-010', label: '1-01-01-010 - Cash in Bank' },
-                                { value: '1-01-02-020', label: '1-01-02-020 - Cash - Treasury' },
+                                {
+                                  value: "1-01-01-010",
+                                  label: "1-01-01-010 - Cash in Bank",
+                                },
+                                {
+                                  value: "1-01-02-020",
+                                  label: "1-01-02-020 - Cash - Treasury",
+                                },
                               ]}
                             />
                           </div>
@@ -238,12 +248,8 @@ function JournalEntryPage() {
                               value={values.debitEntries[index].amount}
                               onChange={handleChange}
                               onBlur={handleBlur}
-                              error={
-                                errors.debitEntries?.[index]?.amount
-                              }
-                              touched={
-                                touched.debitEntries?.[index]?.amount
-                              }
+                              error={errors.debitEntries?.[index]?.amount}
+                              touched={touched.debitEntries?.[index]?.amount}
                               min="0"
                               step="0.01"
                             />
@@ -261,7 +267,7 @@ function JournalEntryPage() {
                       ))}
                       <button
                         type="button"
-                        onClick={() => push({ accountCode: '', amount: '' })}
+                        onClick={() => push({ accountCode: "", amount: "" })}
                         className="text-sm text-primary-600 hover:text-primary-800"
                       >
                         + Add Debit Entry
@@ -270,10 +276,12 @@ function JournalEntryPage() {
                   )}
                 </FieldArray>
               </div>
-              
+
               {/* Credit Entries */}
               <div>
-                <label className="block text-sm font-medium text-neutral-700 mb-2">Credit Entries</label>
+                <label className="block text-sm font-medium text-neutral-700 mb-2">
+                  Credit Entries
+                </label>
                 <FieldArray name="creditEntries">
                   {({ push, remove }) => (
                     <div className="space-y-2">
@@ -287,15 +295,19 @@ function JournalEntryPage() {
                               value={values.creditEntries[index].accountCode}
                               onChange={handleChange}
                               onBlur={handleBlur}
-                              error={
-                                errors.creditEntries?.[index]?.accountCode
-                              }
+                              error={errors.creditEntries?.[index]?.accountCode}
                               touched={
                                 touched.creditEntries?.[index]?.accountCode
                               }
                               options={[
-                                { value: '1-01-01-010', label: '1-01-01-010 - Cash in Bank' },
-                                { value: '1-01-02-020', label: '1-01-02-020 - Cash - Treasury' },
+                                {
+                                  value: "1-01-01-010",
+                                  label: "1-01-01-010 - Cash in Bank",
+                                },
+                                {
+                                  value: "1-01-02-020",
+                                  label: "1-01-02-020 - Cash - Treasury",
+                                },
                               ]}
                             />
                           </div>
@@ -307,12 +319,8 @@ function JournalEntryPage() {
                               value={values.creditEntries[index].amount}
                               onChange={handleChange}
                               onBlur={handleBlur}
-                              error={
-                                errors.creditEntries?.[index]?.amount
-                              }
-                              touched={
-                                touched.creditEntries?.[index]?.amount
-                              }
+                              error={errors.creditEntries?.[index]?.amount}
+                              touched={touched.creditEntries?.[index]?.amount}
                               min="0"
                               step="0.01"
                             />
@@ -330,7 +338,7 @@ function JournalEntryPage() {
                       ))}
                       <button
                         type="button"
-                        onClick={() => push({ accountCode: '', amount: '' })}
+                        onClick={() => push({ accountCode: "", amount: "" })}
                         className="text-sm text-primary-600 hover:text-primary-800"
                       >
                         + Add Credit Entry
@@ -339,14 +347,17 @@ function JournalEntryPage() {
                   )}
                 </FieldArray>
               </div>
-              
+
               <div className="mt-4 p-4 bg-neutral-50 rounded-lg border border-neutral-200">
                 <div className="grid grid-cols-2 gap-4">
                   <div>
                     <p className="text-sm text-neutral-600">Total Debits</p>
                     <p className="text-lg font-semibold">
                       {formatCurrency(
-                        values.debitEntries.reduce((sum, entry) => sum + Number(entry.amount || 0), 0)
+                        values.debitEntries.reduce(
+                          (sum, entry) => sum + Number(entry.amount || 0),
+                          0
+                        )
                       )}
                     </p>
                   </div>
@@ -354,13 +365,16 @@ function JournalEntryPage() {
                     <p className="text-sm text-neutral-600">Total Credits</p>
                     <p className="text-lg font-semibold">
                       {formatCurrency(
-                        values.creditEntries.reduce((sum, entry) => sum + Number(entry.amount || 0), 0)
+                        values.creditEntries.reduce(
+                          (sum, entry) => sum + Number(entry.amount || 0),
+                          0
+                        )
                       )}
                     </p>
                   </div>
                 </div>
               </div>
-              
+
               <div className="flex justify-end space-x-3 pt-4 border-t border-neutral-200">
                 <button
                   type="button"
@@ -374,7 +388,11 @@ function JournalEntryPage() {
                   disabled={isSubmitting}
                   className="btn btn-primary"
                 >
-                  {isSubmitting ? 'Saving...' : currentEntry ? 'Update' : 'Save'}
+                  {isSubmitting
+                    ? "Saving..."
+                    : currentEntry
+                    ? "Update"
+                    : "Save"}
                 </button>
               </div>
             </Form>

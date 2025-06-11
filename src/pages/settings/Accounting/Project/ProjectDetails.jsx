@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import Modal from "@/components/common/Modal";
 import FormField from "@/components/common/FormField"; // assuming reusable field
 import { Pencil, Trash2, PlusCircle } from "lucide-react";
+import Button from "../../../../components/common/Button";
 
 const sampleProjects = [
   {
@@ -38,14 +39,14 @@ const ProjectDetails = () => {
   return (
     <div className="p-6 bg-gray-100 min-h-screen">
       <div className="max-w-6xl mx-auto">
-        <div className="flex items-center justify-between mb-4">
+        <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center mb-6 space-y-4 sm:space-y-0">
           <h2 className="text-2xl font-semibold">Project Details</h2>
-          <button
+          <Button
             onClick={handleAdd}
             className="flex items-center gap-2 bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
           >
             <PlusCircle size={18} /> Add Project
-          </button>
+          </Button>
         </div>
 
         <div className="overflow-auto shadow rounded-lg bg-white">

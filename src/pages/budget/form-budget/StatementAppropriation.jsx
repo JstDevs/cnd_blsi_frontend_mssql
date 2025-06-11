@@ -10,7 +10,7 @@ const StatementAppropriation = () => {
   );
 
   return (
-    <div className="bg-gray-50 p-6">
+    <div className="bg-gray-50 ">
       <div className="max-w-7xl mx-auto bg-white shadow rounded-xl p-6">
         <h1 className="text-2xl font-semibold text-gray-800 mb-6">
           Statement of Appropriations, Allotment, Obligations and Balances
@@ -87,7 +87,7 @@ const StatementAppropriation = () => {
           </div>
         </div>
 
-        <div className="flex flex-wrap gap-4 mb-6">
+        <div className="sm:flex grid grid-cols-1 flex-wrap gap-4 mb-6">
           <button className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700">
             View
           </button>
@@ -100,7 +100,7 @@ const StatementAppropriation = () => {
           <button className="bg-purple-600 text-white px-4 py-2 rounded-md hover:bg-purple-700">
             Generate SAO
           </button>
-          <button className="ml-auto bg-gray-700 text-white px-4 py-2 rounded-md hover:bg-gray-800">
+          <button className="sm:ml-auto bg-gray-700 text-white px-4 py-2 rounded-md hover:bg-gray-800">
             Export to Excel
           </button>
         </div>

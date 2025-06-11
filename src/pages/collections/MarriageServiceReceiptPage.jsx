@@ -1,8 +1,8 @@
-import { useState } from 'react';
-import { PlusIcon, PencilIcon, TrashIcon } from '@heroicons/react/24/outline';
-import DataTable from '../../components/common/DataTable';
-import Modal from '../../components/common/Modal';
-import MarriageServiceReceiptForm from '../../components/forms/MarriageServiceReceiptForm';
+import { useState } from "react";
+import { PlusIcon, PencilIcon, TrashIcon } from "@heroicons/react/24/outline";
+import DataTable from "../../components/common/DataTable";
+import Modal from "../../components/common/Modal";
+import MarriageServiceReceiptForm from "../../components/forms/MarriageServiceReceiptForm";
 
 function MarriageServiceReceiptPage() {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -40,21 +40,21 @@ function MarriageServiceReceiptPage() {
   };
 
   const columns = [
-    { header: 'Status', accessor: 'status' },
-    { header: 'AP/AR', accessor: 'apAr' },
-    { header: 'Customer', accessor: 'customer' },
-    { header: 'Total Amount', accessor: 'totalAmount' },
-    { header: 'Amount Received', accessor: 'amountReceived' },
-    { header: 'Credit', accessor: 'credit' },
-    { header: 'Debit', accessor: 'debit' },
-    { header: 'EWT', accessor: 'ewt' },
-    { header: 'Withheld Amount', accessor: 'withheldAmount' },
-    { header: 'Total', accessor: 'total' },
-    { header: 'Discount (%)', accessor: 'discountPercent' },
-    { header: 'Amount Due', accessor: 'amountDue' },
+    { header: "Status", accessor: "status" },
+    { header: "AP/AR", accessor: "apAr" },
+    { header: "Customer", accessor: "customer" },
+    { header: "Total Amount", accessor: "totalAmount" },
+    { header: "Amount Received", accessor: "amountReceived" },
+    { header: "Credit", accessor: "credit" },
+    { header: "Debit", accessor: "debit" },
+    { header: "EWT", accessor: "ewt" },
+    { header: "Withheld Amount", accessor: "withheldAmount" },
+    { header: "Total", accessor: "total" },
+    { header: "Discount (%)", accessor: "discountPercent" },
+    { header: "Amount Due", accessor: "amountDue" },
     {
-      header: 'Actions',
-      accessor: 'actions',
+      header: "Actions",
+      accessor: "actions",
       cell: ({ row }) => (
         <div className="flex space-x-2">
           <button
@@ -75,14 +75,14 @@ function MarriageServiceReceiptPage() {
   ];
 
   return (
-    <div className="container mx-auto px-4 py-8">
-      <div className="flex justify-between items-center mb-6">
+    <div className="container mx-auto">
+      <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center mb-6 space-y-4 sm:space-y-0">
         <h1 className="text-2xl font-semibold text-gray-900">
           Marriage Service Receipts
         </h1>
         <button
           onClick={() => setIsModalOpen(true)}
-          className="btn btn-primary flex items-center"
+          className="btn btn-primary flex items-center justify-center"
         >
           <PlusIcon className="h-5 w-5 mr-2" />
           Add Receipt
@@ -98,7 +98,7 @@ function MarriageServiceReceiptPage() {
       <Modal
         isOpen={isModalOpen}
         onClose={handleCloseModal}
-        title={selectedReceipt ? 'Edit Receipt' : 'Add Receipt'}
+        title={selectedReceipt ? "Edit Receipt" : "Add Receipt"}
       >
         <MarriageServiceReceiptForm
           initialData={selectedReceipt}
@@ -110,4 +110,4 @@ function MarriageServiceReceiptPage() {
   );
 }
 
-export default MarriageServiceReceiptPage; 
+export default MarriageServiceReceiptPage;

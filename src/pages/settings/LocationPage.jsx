@@ -1,47 +1,107 @@
-import { useState } from 'react';
-import { PlusIcon, PencilIcon, TrashIcon } from '@heroicons/react/24/outline';
-import DataTable from '../../components/common/DataTable';
-import Modal from '../../components/common/Modal';
-import FormField from '../../components/common/FormField';
-import { regionSchema, provinceSchema, municipalitySchema, barangaySchema } from '../../utils/validationSchemas';
+import { useState } from "react";
+import { PlusIcon, PencilIcon, TrashIcon } from "@heroicons/react/24/outline";
+import DataTable from "../../components/common/DataTable";
+import Modal from "../../components/common/Modal";
+import FormField from "../../components/common/FormField";
+import {
+  regionSchema,
+  provinceSchema,
+  municipalitySchema,
+  barangaySchema,
+} from "../../utils/validationSchemas";
+import Button from "../../components/common/Button";
 
 function LocationPage() {
-  const [activeTab, setActiveTab] = useState('region');
+  const [activeTab, setActiveTab] = useState("region");
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [currentLocation, setCurrentLocation] = useState(null);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [locationToDelete, setLocationToDelete] = useState(null);
-  
+
   // Mock data for locations
   const mockData = {
     regions: [
-      { id: 1, code: 'REG001', name: 'Region I', description: 'Ilocos Region', status: 'Active' },
-      { id: 2, code: 'REG002', name: 'Region II', description: 'Cagayan Valley', status: 'Active' },
+      {
+        id: 1,
+        code: "REG001",
+        name: "Region I",
+        description: "Ilocos Region",
+        status: "Active",
+      },
+      {
+        id: 2,
+        code: "REG002",
+        name: "Region II",
+        description: "Cagayan Valley",
+        status: "Active",
+      },
     ],
     provinces: [
-      { id: 1, code: 'PRV001', name: 'Ilocos Norte', regionId: 1, regionName: 'Region I', status: 'Active' },
-      { id: 2, code: 'PRV002', name: 'Ilocos Sur', regionId: 1, regionName: 'Region I', status: 'Active' },
+      {
+        id: 1,
+        code: "PRV001",
+        name: "Ilocos Norte",
+        regionId: 1,
+        regionName: "Region I",
+        status: "Active",
+      },
+      {
+        id: 2,
+        code: "PRV002",
+        name: "Ilocos Sur",
+        regionId: 1,
+        regionName: "Region I",
+        status: "Active",
+      },
     ],
     municipalities: [
-      { id: 1, code: 'MUN001', name: 'Laoag City', provinceId: 1, provinceName: 'Ilocos Norte', status: 'Active' },
-      { id: 2, code: 'MUN002', name: 'Batac City', provinceId: 1, provinceName: 'Ilocos Norte', status: 'Active' },
+      {
+        id: 1,
+        code: "MUN001",
+        name: "Laoag City",
+        provinceId: 1,
+        provinceName: "Ilocos Norte",
+        status: "Active",
+      },
+      {
+        id: 2,
+        code: "MUN002",
+        name: "Batac City",
+        provinceId: 1,
+        provinceName: "Ilocos Norte",
+        status: "Active",
+      },
     ],
     barangays: [
-      { id: 1, code: 'BRG001', name: 'Barangay 1', municipalityId: 1, municipalityName: 'Laoag City', status: 'Active' },
-      { id: 2, code: 'BRG002', name: 'Barangay 2', municipalityId: 1, municipalityName: 'Laoag City', status: 'Active' },
+      {
+        id: 1,
+        code: "BRG001",
+        name: "Barangay 1",
+        municipalityId: 1,
+        municipalityName: "Laoag City",
+        status: "Active",
+      },
+      {
+        id: 2,
+        code: "BRG002",
+        name: "Barangay 2",
+        municipalityId: 1,
+        municipalityName: "Laoag City",
+        status: "Active",
+      },
     ],
   };
 
   // Get validation schema based on active tab
   const getValidationSchema = () => {
     switch (activeTab) {
-      case 'region':
+      case "region":
         return regionSchema;
-      case 'province':
+      case "province":
         return provinceSchema;
-      case 'municipality':
+      case "municipality":
         return municipalitySchema;
-      case 'barangay':
+      case "barangay":
         return barangaySchema;
       default:
         return regionSchema;
@@ -52,65 +112,77 @@ function LocationPage() {
   const getColumns = () => {
     const baseColumns = [
       {
-        key: 'code',
-        header: 'Code',
+        key: "code",
+        header: "Code",
         sortable: true,
-        className: 'font-medium text-neutral-900',
+        className: "font-medium text-neutral-900",
       },
       {
-        key: 'name',
-        header: 'Name',
+        key: "name",
+        header: "Name",
         sortable: true,
       },
     ];
 
     switch (activeTab) {
-      case 'barangay':
+      case "barangay":
         return [
           ...baseColumns,
-          { key: 'municipalityName', header: 'Municipality', sortable: true },
+          { key: "municipalityName", header: "Municipality", sortable: true },
           {
-            key: 'status',
-            header: 'Status',
+            key: "status",
+            header: "Status",
             sortable: true,
             render: (value) => (
-              <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
-                value === 'Active' ? 'bg-success-100 text-success-800' : 'bg-neutral-100 text-neutral-800'
-              }`}>
+              <span
+                className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
+                  value === "Active"
+                    ? "bg-success-100 text-success-800"
+                    : "bg-neutral-100 text-neutral-800"
+                }`}
+              >
                 {value}
               </span>
             ),
           },
         ];
-      case 'municipality':
+      case "municipality":
         return [
           ...baseColumns,
-          { key: 'provinceName', header: 'Province', sortable: true },
+          { key: "provinceName", header: "Province", sortable: true },
           {
-            key: 'status',
-            header: 'Status',
+            key: "status",
+            header: "Status",
             sortable: true,
             render: (value) => (
-              <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
-                value === 'Active' ? 'bg-success-100 text-success-800' : 'bg-neutral-100 text-neutral-800'
-              }`}>
+              <span
+                className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
+                  value === "Active"
+                    ? "bg-success-100 text-success-800"
+                    : "bg-neutral-100 text-neutral-800"
+                }`}
+              >
                 {value}
               </span>
             ),
           },
         ];
-      case 'province':
+      case "province":
         return [
           ...baseColumns,
-          { key: 'regionName', header: 'Region', sortable: true },
+          { key: "regionName", header: "Region", sortable: true },
           {
-            key: 'status',
-            header: 'Status',
+            key: "status",
+            header: "Status",
             sortable: true,
             render: (value) => (
-              <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
-                value === 'Active' ? 'bg-success-100 text-success-800' : 'bg-neutral-100 text-neutral-800'
-              }`}>
+              <span
+                className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
+                  value === "Active"
+                    ? "bg-success-100 text-success-800"
+                    : "bg-neutral-100 text-neutral-800"
+                }`}
+              >
                 {value}
               </span>
             ),
@@ -119,15 +191,19 @@ function LocationPage() {
       default:
         return [
           ...baseColumns,
-          { key: 'description', header: 'Description', sortable: true },
+          { key: "description", header: "Description", sortable: true },
           {
-            key: 'status',
-            header: 'Status',
+            key: "status",
+            header: "Status",
             sortable: true,
             render: (value) => (
-              <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
-                value === 'Active' ? 'bg-success-100 text-success-800' : 'bg-neutral-100 text-neutral-800'
-              }`}>
+              <span
+                className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
+                  value === "Active"
+                    ? "bg-success-100 text-success-800"
+                    : "bg-neutral-100 text-neutral-800"
+                }`}
+              >
                 {value}
               </span>
             ),
@@ -143,15 +219,17 @@ function LocationPage() {
   const actions = [
     {
       icon: PencilIcon,
-      title: 'Edit',
+      title: "Edit",
       onClick: (location) => handleEditLocation(location),
-      className: 'text-primary-600 hover:text-primary-900 p-1 rounded-full hover:bg-primary-50'
+      className:
+        "text-primary-600 hover:text-primary-900 p-1 rounded-full hover:bg-primary-50",
     },
     {
       icon: TrashIcon,
-      title: 'Delete',
+      title: "Delete",
       onClick: (location) => handleDeleteLocation(location),
-      className: 'text-error-600 hover:text-error-900 p-1 rounded-full hover:bg-error-50'
+      className:
+        "text-error-600 hover:text-error-900 p-1 rounded-full hover:bg-error-50",
     },
   ];
 
@@ -183,16 +261,16 @@ function LocationPage() {
     const baseFields = (
       <>
         <FormField
-          className='p-3 focus:outline-none'
+          className="p-3 focus:outline-none"
           label="Code"
           name="code"
           type="text"
           required
           placeholder={`Enter ${activeTab} code`}
         />
-        
+
         <FormField
-          className='p-3 focus:outline-none'
+          className="p-3 focus:outline-none"
           label="Name"
           name="name"
           type="text"
@@ -203,12 +281,12 @@ function LocationPage() {
     );
 
     switch (activeTab) {
-      case 'region':
+      case "region":
         return (
           <>
             {baseFields}
             <FormField
-              className='p-3 focus:outline-none'
+              className="p-3 focus:outline-none"
               label="Description"
               name="description"
               type="textarea"
@@ -218,53 +296,53 @@ function LocationPage() {
             />
           </>
         );
-      case 'province':
+      case "province":
         return (
           <>
             {baseFields}
             <FormField
-              className='p-3 focus:outline-none'
+              className="p-3 focus:outline-none"
               label="Region"
               name="regionId"
               type="select"
               required
-              options={mockData.regions.map(region => ({
+              options={mockData.regions.map((region) => ({
                 value: region.id,
-                label: region.name
+                label: region.name,
               }))}
             />
           </>
         );
-      case 'municipality':
+      case "municipality":
         return (
           <>
             {baseFields}
             <FormField
-              className='p-3 focus:outline-none'
+              className="p-3 focus:outline-none"
               label="Province"
               name="provinceId"
               type="select"
               required
-              options={mockData.provinces.map(province => ({
+              options={mockData.provinces.map((province) => ({
                 value: province.id,
-                label: province.name
+                label: province.name,
               }))}
             />
           </>
         );
-      case 'barangay':
+      case "barangay":
         return (
           <>
             {baseFields}
             <FormField
-              className='p-3 focus:outline-none'
+              className="p-3 focus:outline-none"
               label="Municipality"
               name="municipalityId"
               type="select"
               required
-              options={mockData.municipalities.map(municipality => ({
+              options={mockData.municipalities.map((municipality) => ({
                 value: municipality.id,
-                label: municipality.name
+                label: municipality.name,
               }))}
             />
           </>
@@ -277,33 +355,35 @@ function LocationPage() {
   return (
     <div>
       <div className="page-header">
-        <div className="flex justify-between items-center">
+        <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center mb-6 space-y-4 sm:space-y-0">
           <div>
             <h1>Locations</h1>
             <p>Manage regions, provinces, municipalities, and barangays</p>
           </div>
-          <button
+          <Button
             type="button"
             onClick={handleCreateLocation}
             className="btn btn-primary flex items-center"
           >
             <PlusIcon className="h-5 w-5 mr-2" />
             Add {activeTab.charAt(0).toUpperCase() + activeTab.slice(1)}
-          </button>
+          </Button>
         </div>
       </div>
 
       <div className="mb-6 border-b border-neutral-200">
         <nav className="-mb-px flex space-x-8">
-          {['region', 'province', 'municipality', 'barangay'].map((tab) => (
+          {["region", "province", "municipality", "barangay"].map((tab) => (
             <button
               key={tab}
               onClick={() => setActiveTab(tab)}
               className={`
                 whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm
-                ${activeTab === tab
-                  ? 'border-primary-500 text-primary-600'
-                  : 'border-transparent text-neutral-500 hover:text-neutral-700 hover:border-neutral-300'}
+                ${
+                  activeTab === tab
+                    ? "border-primary-500 text-primary-600"
+                    : "border-transparent text-neutral-500 hover:text-neutral-700 hover:border-neutral-300"
+                }
               `}
             >
               {tab.charAt(0).toUpperCase() + tab.slice(1)}s
@@ -311,7 +391,7 @@ function LocationPage() {
           ))}
         </nav>
       </div>
-      
+
       <div className="mt-4">
         <DataTable
           columns={getColumns()}
@@ -320,27 +400,31 @@ function LocationPage() {
           pagination={true}
         />
       </div>
-      
+
       <Modal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
-        title={currentLocation ? `Edit ${activeTab.charAt(0).toUpperCase() + activeTab.slice(1)}` : `New ${activeTab.charAt(0).toUpperCase() + activeTab.slice(1)}`}
+        title={
+          currentLocation
+            ? `Edit ${activeTab.charAt(0).toUpperCase() + activeTab.slice(1)}`
+            : `New ${activeTab.charAt(0).toUpperCase() + activeTab.slice(1)}`
+        }
       >
         <div className="p-4 space-y-4">
           {getFormFields()}
-          
+
           <FormField
-            className='p-3 focus:outline-none'
+            className="p-3 focus:outline-none"
             label="Status"
             name="status"
             type="select"
             required
             options={[
-              { value: 'Active', label: 'Active' },
-              { value: 'Inactive', label: 'Inactive' },
+              { value: "Active", label: "Active" },
+              { value: "Inactive", label: "Inactive" },
             ]}
           />
-          
+
           <div className="flex justify-end space-x-3 pt-4 border-t border-neutral-200">
             <button
               type="button"
@@ -349,16 +433,13 @@ function LocationPage() {
             >
               Cancel
             </button>
-            <button
-              type="submit"
-              className="btn btn-primary"
-            >
-              {currentLocation ? 'Update' : 'Save'}
+            <button type="submit" className="btn btn-primary">
+              {currentLocation ? "Update" : "Save"}
             </button>
           </div>
         </div>
       </Modal>
-      
+
       <Modal
         isOpen={isDeleteModalOpen}
         onClose={() => setIsDeleteModalOpen(false)}
@@ -371,7 +452,7 @@ function LocationPage() {
           <p className="text-sm text-neutral-500 mt-2">
             This action cannot be undone.
           </p>
-          
+
           <div className="flex justify-end space-x-3 pt-4 mt-4 border-t border-neutral-200">
             <button
               type="button"

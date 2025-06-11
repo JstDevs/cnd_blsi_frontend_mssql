@@ -1,19 +1,22 @@
-import { useEffect, useState } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
-import { PlusIcon, PencilIcon, TrashIcon } from '@heroicons/react/24/outline';
-import DataTable from '../../components/common/DataTable';
-import Modal from '../../components/common/Modal';
-import ApprovalMatrixForm from './ApprovalMatrixForm';
+import { useEffect, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { PlusIcon, PencilIcon, TrashIcon } from "@heroicons/react/24/outline";
+import DataTable from "../../components/common/DataTable";
+import Modal from "../../components/common/Modal";
+import ApprovalMatrixForm from "./ApprovalMatrixForm";
 import {
   fetchApprovalMatrix,
   addApprovalMatrix,
   updateApprovalMatrix,
   deleteApprovalMatrix,
-} from '../../features/settings/approvalMatrixSlice';
+} from "../../features/settings/approvalMatrixSlice";
+import Button from "../../components/common/Button";
 
 function ApprovalMatrixPage() {
   const dispatch = useDispatch();
-  const { approvalMatrix, isLoading, error } = useSelector(state => state.approvalMatrix);
+  const { approvalMatrix, isLoading, error } = useSelector(
+    (state) => state.approvalMatrix
+  );
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [currentMatrix, setCurrentMatrix] = useState(null);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
@@ -37,7 +40,7 @@ function ApprovalMatrixPage() {
     setMatrixToDelete(row);
     setIsDeleteModalOpen(true);
   };
-  
+
   const confirmDelete = async () => {
     if (matrixToDelete) {
       try {
@@ -45,7 +48,7 @@ function ApprovalMatrixPage() {
         setIsDeleteModalOpen(false);
         setMatrixToDelete(null);
       } catch (error) {
-        console.error('Failed to delete approval matrix:', error);
+        console.error("Failed to delete approval matrix:", error);
         // Optionally show an error message to the user
       }
     }
@@ -61,50 +64,65 @@ function ApprovalMatrixPage() {
   };
 
   const columns = [
-    { key: 'documentType', header: 'Document Type', sortable: true },
-    { key: 'sequenceLevel', header: 'Sequence Level', sortable: true },
-    { key: 'approvalRule', header: 'Approval Rule', sortable: true },
-    { key: 'approverType', header: 'Approver Type', sortable: true },
-    { key: 'approver', header: 'Approver', sortable: true },
-    { key: 'amountFrom', header: 'From', sortable: true },
-    { key: 'amountTo', header: 'To', sortable: true },
+    { key: "documentType", header: "Document Type", sortable: true },
+    { key: "sequenceLevel", header: "Sequence Level", sortable: true },
+    { key: "approvalRule", header: "Approval Rule", sortable: true },
+    { key: "approverType", header: "Approver Type", sortable: true },
+    { key: "approver", header: "Approver", sortable: true },
+    { key: "amountFrom", header: "From", sortable: true },
+    { key: "amountTo", header: "To", sortable: true },
   ];
 
   const actions = [
     {
       icon: PencilIcon,
-      title: 'Edit',
+      title: "Edit",
       onClick: handleEdit,
-      className: 'text-primary-600 hover:text-primary-900 p-1 rounded-full hover:bg-primary-50',
+      className:
+        "text-primary-600 hover:text-primary-900 p-1 rounded-full hover:bg-primary-50",
     },
     {
       icon: TrashIcon,
-      title: 'Delete',
+      title: "Delete",
       onClick: handleDelete,
-      className: 'text-error-600 hover:text-error-900 p-1 rounded-full hover:bg-error-50',
+      className:
+        "text-error-600 hover:text-error-900 p-1 rounded-full hover:bg-error-50",
     },
   ];
 
   return (
     <div>
       <div className="page-header">
-        <div className="flex justify-between items-center">
+        <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center mb-6 space-y-4 sm:space-y-0">
           <div>
             <h1>Approval Matrix</h1>
             <p>Manage approval matrix for document types</p>
           </div>
-          <button type="button" onClick={handleAdd} className="btn btn-primary flex items-center">
+          <Button type="button" onClick={handleAdd}>
             <PlusIcon className="h-5 w-5 mr-2" aria-hidden="true" />
             Add Approval Matrix
-          </button>
+          </Button>
         </div>
       </div>
       <div className="mt-4">
-        <DataTable columns={columns} data={approvalMatrix} actions={actions} loading={isLoading} />
+        <DataTable
+          columns={columns}
+          data={approvalMatrix}
+          actions={actions}
+          loading={isLoading}
+        />
         {error && <div className="text-error-600 mt-2">{error}</div>}
       </div>
-      <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} title={currentMatrix ? 'Edit Approval Matrix' : 'Add Approval Matrix'}>
-        <ApprovalMatrixForm initialData={currentMatrix} onClose={() => setIsModalOpen(false)} onSubmit={handleSubmit} />
+      <Modal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        title={currentMatrix ? "Edit Approval Matrix" : "Add Approval Matrix"}
+      >
+        <ApprovalMatrixForm
+          initialData={currentMatrix}
+          onClose={() => setIsModalOpen(false)}
+          onSubmit={handleSubmit}
+        />
       </Modal>
 
       {/* Delete Confirmation Modal */}
@@ -142,4 +160,4 @@ function ApprovalMatrixPage() {
   );
 }
 
-export default ApprovalMatrixPage; 
+export default ApprovalMatrixPage;

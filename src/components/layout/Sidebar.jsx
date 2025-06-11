@@ -246,12 +246,6 @@ function SidebarMenu({
                     <span className="text-left">{item.name}</span>
                   </div>
                   <div className="flex items-center">
-                    {/* Chevron indicator with count badge */}
-                    {/* {item.submenu && (
-                      <span className="mr-2 text-xs text-neutral-500 bg-neutral-100 rounded-full px-2 py-0.5">
-                        {item.submenu.length}
-                      </span>
-                    )} */}
                     <svg
                       className={clsx(
                         "h-5 w-5 transform transition-transform flex-shrink-0",

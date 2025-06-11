@@ -332,18 +332,21 @@ const TrialBalance = () => {
   return (
     <div className="space-y-6">
       {/* Header & Actions */}
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-        <div>
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 flex-wrap">
+        {/* Heading */}
+        <div className="min-w-[200px]">
           <h2 className="text-2xl font-bold text-gray-900">Trial Balance</h2>
           <p className="text-gray-600">
             Comprehensive trial balance analysis and reporting
           </p>
         </div>
-        <div className="flex items-center gap-3">
-          <div className="flex items-center bg-gray-100 rounded-lg p-1">
+
+        {/* Controls */}
+        <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 sm:gap-3 w-full sm:w-auto">
+          <div className="flex items-center bg-gray-100 rounded-lg p-1 w-full sm:w-auto justify-center sm:justify-start">
             <button
               onClick={() => setViewMode("summary")}
-              className={`px-3 py-1 rounded-md text-sm font-medium transition-colors ${
+              className={`px-3 py-1 rounded-md text-sm font-medium transition-colors flex-1 ${
                 viewMode === "summary"
                   ? "bg-white text-gray-900 shadow-sm"
                   : "text-gray-600"
@@ -353,7 +356,7 @@ const TrialBalance = () => {
             </button>
             <button
               onClick={() => setViewMode("detailed")}
-              className={`px-3 py-1 rounded-md text-sm font-medium transition-colors ${
+              className={`px-3 py-1 rounded-md text-sm font-medium transition-colors flex-1 ${
                 viewMode === "detailed"
                   ? "bg-white text-gray-900 shadow-sm"
                   : "text-gray-600"
@@ -362,16 +365,18 @@ const TrialBalance = () => {
               Detailed
             </button>
           </div>
+
           <button
             onClick={handlePrint}
-            className="flex items-center px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors"
+            className="flex items-center justify-center px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors w-full sm:w-auto"
           >
             <Printer className="w-4 h-4 mr-2" />
             Print
           </button>
+
           <button
             onClick={handleExport}
-            className="flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+            className="flex items-center justify-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors w-full sm:w-auto"
           >
             <Download className="w-4 h-4 mr-2" />
             Export
@@ -457,7 +462,7 @@ const TrialBalance = () => {
 
       {/* Filter Controls */}
       <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-4 mb-4">
+        <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-6 gap-4 mb-4">
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
               Date End
@@ -833,20 +838,33 @@ const TrialBalance = () => {
       )}
 
       {/* Summary Footer */}
-      <div className="bg-white rounded-lg shadow-sm border border-gray-200 px-6 py-4">
-        <div className="flex items-center justify-between text-sm text-gray-600">
-          <div className="flex items-center gap-4">
+      <div className="bg-white rounded-lg shadow-sm border border-gray-200 px-4 py-3 sm:px-6 sm:py-4">
+        <div className="grid gap-3 sm:grid-cols-2 sm:gap-6 text-sm text-gray-700">
+          {/* Left Section */}
+          <div className="flex flex-col gap-1">
             <span>
-              Trial Balance for {selectedFund} - {selectedLedger}
+              <span className="font-medium">Trial Balance:</span> {selectedFund}{" "}
+              — {selectedLedger}
             </span>
             <span>
-              Period: {dateFrom} to {dateEnd}
+              <span className="font-medium">Period:</span> {dateFrom} to{" "}
+              {dateEnd}
             </span>
-            <span>Approver: {selectedApprover}</span>
+            <span>
+              <span className="font-medium">Approver:</span> {selectedApprover}
+            </span>
           </div>
-          <div className="flex items-center gap-4">
-            <span>Showing {filteredData.length} accounts</span>
-            <span>Generated on {new Date().toLocaleDateString()}</span>
+
+          {/* Right Section */}
+          <div className="flex flex-col gap-1 sm:items-end text-gray-600">
+            <span>
+              <span className="font-medium">Accounts:</span>{" "}
+              {filteredData.length}
+            </span>
+            <span>
+              <span className="font-medium">Generated on:</span>{" "}
+              {new Date().toLocaleDateString()}
+            </span>
           </div>
         </div>
       </div>

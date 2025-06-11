@@ -18,6 +18,7 @@ import {
   deleteUser,
 } from "@/features/settings/userSlice";
 import { fetchDepartments } from "@/features/settings/departmentSlice";
+import Button from "../../components/common/Button";
 
 // User Access options
 const userAccessOptions = [
@@ -148,19 +149,19 @@ function UserPage() {
   return (
     <div>
       <div className="page-header">
-        <div className="flex justify-between items-center">
+        <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center mb-6 space-y-4 sm:space-y-0">
           <div>
             <h1>Users</h1>
             <p>Manage system users and their access rights</p>
           </div>
-          <button
+          <Button
             type="button"
             onClick={handleAddUser}
             className="btn btn-primary flex items-center"
           >
             <PlusIcon className="h-5 w-5 mr-2" aria-hidden="true" />
             Add User
-          </button>
+          </Button>
         </div>
       </div>
 

@@ -10,6 +10,7 @@ import {
   updateProjectType,
   deleteProjectType,
 } from "@/features/settings/projectTypesSlice";
+import Button from "../../../../components/common/Button";
 
 function ProjectTypePage() {
   const dispatch = useDispatch();
@@ -95,19 +96,19 @@ function ProjectTypePage() {
   return (
     <div>
       <div className="page-header">
-        <div className="flex justify-between items-center">
+        <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center mb-6 space-y-4 sm:space-y-0">
           <div>
             <h1>Project Types</h1>
             <p>Manage project types</p>
           </div>
-          <button
+          <Button
             type="button"
             onClick={handleAdd}
             className="btn btn-primary flex items-center"
           >
             <PlusIcon className="h-5 w-5 mr-2" aria-hidden="true" />
             Add Project Type
-          </button>
+          </Button>
         </div>
       </div>
 

@@ -1,5 +1,9 @@
-import { useState } from 'react';
-import { ChevronUpIcon, ChevronDownIcon, MagnifyingGlassIcon } from '@heroicons/react/24/solid';
+import { useState } from "react";
+import {
+  ChevronUpIcon,
+  ChevronDownIcon,
+  MagnifyingGlassIcon,
+} from "@heroicons/react/24/solid";
 
 function DataTable({
   columns,
@@ -9,22 +13,22 @@ function DataTable({
   actions = [],
   loading = false,
   onRowClick = null,
-  emptyMessage = "No data available"
+  emptyMessage = "No data available",
 }) {
   const [currentPage, setCurrentPage] = useState(1);
   const [rowsPerPage, setRowsPerPage] = useState(10);
-  const [searchTerm, setSearchTerm] = useState('');
-  const [sortConfig, setSortConfig] = useState({ key: null, direction: 'asc' });
+  const [searchTerm, setSearchTerm] = useState("");
+  const [sortConfig, setSortConfig] = useState({ key: null, direction: "asc" });
 
   // Ensure data is an array
   const safeData = Array.isArray(data) ? data : [];
 
   // Search functionality
-  const filteredData = safeData.filter(item =>
+  const filteredData = safeData.filter((item) =>
     Object.values(item).some(
-      value => 
-        value !== null && 
-        value !== undefined && 
+      (value) =>
+        value !== null &&
+        value !== undefined &&
         value.toString().toLowerCase().includes(searchTerm.toLowerCase())
     )
   );
@@ -32,22 +36,20 @@ function DataTable({
   // Sorting functionality
   const sortedData = [...filteredData].sort((a, b) => {
     if (!sortConfig.key) return 0;
-    
+
     const aValue = a[sortConfig.key];
     const bValue = b[sortConfig.key];
-    
+
     if (aValue === null || aValue === undefined) return 1;
     if (bValue === null || bValue === undefined) return -1;
-    
-    if (typeof aValue === 'string' && typeof bValue === 'string') {
-      return sortConfig.direction === 'asc' 
+
+    if (typeof aValue === "string" && typeof bValue === "string") {
+      return sortConfig.direction === "asc"
         ? aValue.localeCompare(bValue)
         : bValue.localeCompare(aValue);
     }
-    
-    return sortConfig.direction === 'asc' 
-      ? aValue - bValue 
-      : bValue - aValue;
+
+    return sortConfig.direction === "asc" ? aValue - bValue : bValue - aValue;
   });
 
   // Pagination
@@ -59,9 +61,9 @@ function DataTable({
 
   // Sort handler
   const requestSort = (key) => {
-    let direction = 'asc';
-    if (sortConfig.key === key && sortConfig.direction === 'asc') {
-      direction = 'desc';
+    let direction = "asc";
+    if (sortConfig.key === key && sortConfig.direction === "asc") {
+      direction = "desc";
     }
     setSortConfig({ key, direction });
   };
@@ -88,7 +90,9 @@ function DataTable({
       <div className="bg-white shadow-sm rounded-lg border border-neutral-200">
         <div className="px-4 py-5 sm:p-6 text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600 mx-auto"></div>
-          <h3 className="mt-2 text-lg font-medium text-neutral-900">Loading...</h3>
+          <h3 className="mt-2 text-lg font-medium text-neutral-900">
+            Loading...
+          </h3>
           <p className="mt-1 text-sm text-neutral-500">
             Please wait while we fetch the data.
           </p>
@@ -116,10 +120,10 @@ function DataTable({
               d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4"
             />
           </svg>
-          <h3 className="mt-2 text-lg font-medium text-neutral-900">No data available</h3>
-          <p className="mt-1 text-sm text-neutral-500">
-            {emptyMessage}
-          </p>
+          <h3 className="mt-2 text-lg font-medium text-neutral-900">
+            No data available
+          </h3>
+          <p className="mt-1 text-sm text-neutral-500">{emptyMessage}</p>
         </div>
       </div>
     );
@@ -131,7 +135,10 @@ function DataTable({
         <div className="px-4 py-3 border-b border-neutral-200 bg-neutral-50">
           <div className="relative rounded-md shadow-sm">
             <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-              <MagnifyingGlassIcon className="h-5 w-5 text-neutral-400" aria-hidden="true" />
+              <MagnifyingGlassIcon
+                className="h-5 w-5 text-neutral-400"
+                aria-hidden="true"
+              />
             </div>
             <input
               type="text"
@@ -143,7 +150,7 @@ function DataTable({
           </div>
         </div>
       )}
-      
+
       <div className="overflow-x-auto">
         <table className="min-w-full divide-y divide-neutral-200">
           <thead className="bg-neutral-50">
@@ -153,7 +160,9 @@ function DataTable({
                   key={column.key}
                   scope="col"
                   className="px-6 py-3 text-left text-xs font-medium text-neutral-500 uppercase tracking-wider cursor-pointer"
-                  onClick={() => column.sortable !== false && requestSort(column.key)}
+                  onClick={() =>
+                    column.sortable !== false && requestSort(column.key)
+                  }
                 >
                   <div className="flex items-center space-x-1">
                     <span>{column.header}</span>
@@ -161,16 +170,18 @@ function DataTable({
                       <span className="flex flex-col">
                         <ChevronUpIcon
                           className={`h-3 w-3 ${
-                            sortConfig.key === column.key && sortConfig.direction === 'asc'
-                              ? 'text-primary-600'
-                              : 'text-neutral-400'
+                            sortConfig.key === column.key &&
+                            sortConfig.direction === "asc"
+                              ? "text-primary-600"
+                              : "text-neutral-400"
                           }`}
                         />
                         <ChevronDownIcon
                           className={`h-3 w-3 -mt-1 ${
-                            sortConfig.key === column.key && sortConfig.direction === 'desc'
-                              ? 'text-primary-600'
-                              : 'text-neutral-400'
+                            sortConfig.key === column.key &&
+                            sortConfig.direction === "desc"
+                              ? "text-primary-600"
+                              : "text-neutral-400"
                           }`}
                         />
                       </span>
@@ -187,17 +198,23 @@ function DataTable({
           </thead>
           <tbody className="bg-white divide-y divide-neutral-200">
             {paginatedData.map((row, rowIndex) => (
-              <tr 
+              <tr
                 key={row.id || rowIndex}
-                className={onRowClick ? "hover:bg-neutral-50 cursor-pointer" : ""}
+                className={
+                  onRowClick ? "hover:bg-neutral-50 cursor-pointer" : ""
+                }
                 onClick={onRowClick ? () => onRowClick(row) : undefined}
               >
                 {columns.map((column) => (
-                  <td 
-                    key={`${row.id || rowIndex}-${column.key}`} 
-                    className={`px-6 py-4 whitespace-nowrap text-sm ${column.className || 'text-neutral-500'}`}
+                  <td
+                    key={`${row.id || rowIndex}-${column.key}`}
+                    className={`px-6 py-4 whitespace-nowrap text-sm ${
+                      column.className || "text-neutral-500"
+                    }`}
                   >
-                    {column.render ? column.render(row[column.key], row) : row[column.key]}
+                    {column.render
+                      ? column.render(row[column.key], row)
+                      : row[column.key]}
                   </td>
                 ))}
                 {actions.length > 0 && (
@@ -209,7 +226,10 @@ function DataTable({
                           e.stopPropagation();
                           action.onClick(row);
                         }}
-                        className={action.className || "text-primary-600 hover:text-primary-900"}
+                        className={
+                          action.className ||
+                          "text-primary-600 hover:text-primary-900"
+                        }
                         title={action.title}
                       >
                         {action.icon ? (
@@ -226,25 +246,36 @@ function DataTable({
           </tbody>
         </table>
       </div>
-      
+
       {pagination && totalPages > 0 && (
-        <div className="px-4 py-3 flex flex-row items-center justify-between w-full border-t border-neutral-200 bg-neutral-50 sm:px-6">
-          <div>
-            <p className="text-sm text-neutral-700">
-              Showing <span className="font-medium">{Math.min((currentPage - 1) * rowsPerPage + 1, sortedData.length)}</span> to{' '}
-              <span className="font-medium">{Math.min(currentPage * rowsPerPage, sortedData.length)}</span> of{' '}
-              <span className="font-medium">{sortedData.length}</span> results
-            </p>
+        <div className="px-2 py-3 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 border-t border-neutral-200 bg-neutral-50 sm:px-6">
+          {/* Pagination Summary */}
+          <div className="text-sm text-neutral-700 text-center sm:text-left">
+            Showing{" "}
+            <span className="font-medium">
+              {Math.min((currentPage - 1) * rowsPerPage + 1, sortedData.length)}
+            </span>{" "}
+            to{" "}
+            <span className="font-medium">
+              {Math.min(currentPage * rowsPerPage, sortedData.length)}
+            </span>{" "}
+            of <span className="font-medium">{sortedData.length}</span> results
           </div>
-          <div className="flex items-center space-x-4">
-            <div className="flex items-center space-x-2">
-              <label htmlFor="rows-per-page" className="text-sm text-neutral-700">
+
+          {/* Controls: Rows per page + Buttons */}
+          <div className="flex flex-wrap items-center justify-between sm:justify-end sm:gap-4 gap-1">
+            {/* Rows per page */}
+            <div className="flex items-center gap-2">
+              <label
+                htmlFor="rows-per-page"
+                className="text-sm text-neutral-700 whitespace-nowrap"
+              >
                 Rows per page
               </label>
               <select
                 id="rows-per-page"
                 name="rows-per-page"
-                className="block w-auto pl-3 pr-10 py-1 text-base border-neutral-300 focus:outline-none focus:ring-primary-500 focus:border-primary-500 sm:text-sm rounded-md"
+                className="block w-auto pl-3 pr-8 py-1 text-sm border border-neutral-300 rounded-md focus:outline-none focus:ring-1 focus:ring-primary-500 focus:border-primary-500"
                 value={rowsPerPage}
                 onChange={handleRowsPerPageChange}
               >
@@ -255,22 +286,22 @@ function DataTable({
                 ))}
               </select>
             </div>
-            <div className="flex items-center space-x-2">
+
+            {/* Pagination Buttons */}
+            <div className="flex items-center gap-2">
               <button
                 onClick={() => handlePageChange(currentPage - 1)}
                 disabled={currentPage === 1}
-                className="relative inline-flex items-center px-2 py-2 rounded-md border border-neutral-300 bg-white text-sm font-medium text-neutral-500 hover:bg-neutral-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                className="inline-flex items-center px-2 py-2 rounded-md border border-neutral-300 bg-white text-sm font-medium text-neutral-500 hover:bg-neutral-100 disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                <span className="sr-only">Previous</span>
-                <ChevronLeftIcon className="h-5 w-5" aria-hidden="true" />
+                <ChevronLeftIcon className="h-5 w-5" />
               </button>
               <button
                 onClick={() => handlePageChange(currentPage + 1)}
                 disabled={currentPage === totalPages}
-                className="relative inline-flex items-center px-2 py-2 rounded-md border border-neutral-300 bg-white text-sm font-medium text-neutral-500 hover:bg-neutral-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                className="inline-flex items-center px-2 py-2 rounded-md border border-neutral-300 bg-white text-sm font-medium text-neutral-500 hover:bg-neutral-100 disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                <span className="sr-only">Next</span>
-                <ChevronRightIcon className="h-5 w-5" aria-hidden="true" />
+                <ChevronRightIcon className="h-5 w-5" />
               </button>
             </div>
           </div>

@@ -17,6 +17,7 @@ import {
   X,
   Check,
 } from "lucide-react";
+import Button from "../../../components/common/Button";
 
 const BudgetDetails = () => {
   const [selectedBudget, setSelectedBudget] = useState(null);
@@ -378,13 +379,13 @@ const BudgetDetails = () => {
               Table
             </button>
           </div>
-          <button
+          <Button
             onClick={() => setShowAddForm(true)}
             className="flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
           >
             <Plus className="w-4 h-4 mr-2" />
             New Budget
-          </button>
+          </Button>
         </div>
       </div>
 

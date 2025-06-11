@@ -1,20 +1,23 @@
-import { useState } from 'react';
-import { FiPlus, FiEdit2, FiTrash2 } from 'react-icons/fi';
-import { useDispatch, useSelector } from 'react-redux';
-import { toast } from 'react-hot-toast';
-import Button from '../../components/common/Button';
-import DataTable from '../../components/common/DataTable';
-import Modal from '../../components/common/Modal';
-import FormField from '../../components/common/FormField';
-import { Formik, Form } from 'formik';
-import * as Yup from 'yup';
+import { useState } from "react";
+import { FiPlus, FiEdit2, FiTrash2 } from "react-icons/fi";
+import { useDispatch, useSelector } from "react-redux";
+import { toast } from "react-hot-toast";
+import Button from "../../components/common/Button";
+import DataTable from "../../components/common/DataTable";
+import Modal from "../../components/common/Modal";
+import FormField from "../../components/common/FormField";
+import { Formik, Form } from "formik";
+import * as Yup from "yup";
 
 const validationSchema = Yup.object().shape({
-  date: Yup.date().required('Date is required'),
-  accountCode: Yup.string().required('Account code is required'),
-  description: Yup.string().required('Description is required'),
-  debit: Yup.number().min(0, 'Debit amount must be greater than or equal to 0'),
-  credit: Yup.number().min(0, 'Credit amount must be greater than or equal to 0'),
+  date: Yup.date().required("Date is required"),
+  accountCode: Yup.string().required("Account code is required"),
+  description: Yup.string().required("Description is required"),
+  debit: Yup.number().min(0, "Debit amount must be greater than or equal to 0"),
+  credit: Yup.number().min(
+    0,
+    "Credit amount must be greater than or equal to 0"
+  ),
 });
 
 const BeginningBalanceForm = ({ initialData, onClose }) => {
@@ -24,11 +27,11 @@ const BeginningBalanceForm = ({ initialData, onClose }) => {
     try {
       setIsSubmitting(true);
       // TODO: Replace with actual API call
-      console.log('Form data:', values);
-      toast.success('Beginning balance saved successfully');
+      console.log("Form data:", values);
+      toast.success("Beginning balance saved successfully");
       onClose();
     } catch (error) {
-      toast.error(error.message || 'Failed to save beginning balance');
+      toast.error(error.message || "Failed to save beginning balance");
     } finally {
       setIsSubmitting(false);
     }
@@ -36,33 +39,33 @@ const BeginningBalanceForm = ({ initialData, onClose }) => {
 
   return (
     <Formik
-      initialValues={initialData || {
-        date: new Date().toISOString().split('T')[0],
-        accountCode: '',
-        description: '',
-        debit: '',
-        credit: '',
-      }}
+      initialValues={
+        initialData || {
+          date: new Date().toISOString().split("T")[0],
+          accountCode: "",
+          description: "",
+          debit: "",
+          credit: "",
+        }
+      }
       validationSchema={validationSchema}
       onSubmit={handleSubmit}
     >
       {({ isValid, dirty }) => (
         <Form className="space-y-4">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <FormField
-              label="Date"
-              name="date"
-              type="date"
-              required
-            />
+            <FormField label="Date" name="date" type="date" required />
             <FormField
               label="Account Code"
               name="accountCode"
               type="select"
               required
               options={[
-                { value: '1-01-01-010', label: '1-01-01-010 - Cash in Bank' },
-                { value: '1-01-02-020', label: '1-01-02-020 - Cash - Treasury' },
+                { value: "1-01-01-010", label: "1-01-01-010 - Cash in Bank" },
+                {
+                  value: "1-01-02-020",
+                  label: "1-01-02-020 - Cash - Treasury",
+                },
               ]}
             />
           </div>
@@ -106,7 +109,7 @@ const BeginningBalanceForm = ({ initialData, onClose }) => {
               disabled={isSubmitting || !isValid || !dirty}
               loading={isSubmitting}
             >
-              {initialData ? 'Update' : 'Save'}
+              {initialData ? "Update" : "Save"}
             </Button>
           </div>
         </Form>
@@ -124,17 +127,17 @@ const BeginningBalancePage = () => {
   const mockEntries = [
     {
       id: 1,
-      date: '2024-01-01',
-      accountCode: '1-01-01-010',
-      description: 'Beginning balance for Cash in Bank',
+      date: "2024-01-01",
+      accountCode: "1-01-01-010",
+      description: "Beginning balance for Cash in Bank",
       debit: 100000,
       credit: 0,
     },
     {
       id: 2,
-      date: '2024-01-01',
-      accountCode: '1-01-02-020',
-      description: 'Beginning balance for Cash - Treasury',
+      date: "2024-01-01",
+      accountCode: "1-01-02-020",
+      description: "Beginning balance for Cash - Treasury",
       debit: 50000,
       credit: 0,
     },
@@ -151,14 +154,14 @@ const BeginningBalancePage = () => {
   };
 
   const handleDelete = async (id) => {
-    if (window.confirm('Are you sure you want to delete this entry?')) {
+    if (window.confirm("Are you sure you want to delete this entry?")) {
       try {
         setIsLoading(true);
         // TODO: Replace with actual API call
-        console.log('Deleting entry:', id);
-        toast.success('Entry deleted successfully');
+        console.log("Deleting entry:", id);
+        toast.success("Entry deleted successfully");
       } catch (error) {
-        toast.error(error.message || 'Failed to delete entry');
+        toast.error(error.message || "Failed to delete entry");
       } finally {
         setIsLoading(false);
       }
@@ -166,38 +169,38 @@ const BeginningBalancePage = () => {
   };
 
   const formatCurrency = (amount) => {
-    return new Intl.NumberFormat('en-PH', {
-      style: 'currency',
-      currency: 'PHP',
+    return new Intl.NumberFormat("en-PH", {
+      style: "currency",
+      currency: "PHP",
     }).format(amount);
   };
 
   const columns = [
     {
-      header: 'Date',
-      accessorKey: 'date',
+      header: "Date",
+      accessorKey: "date",
       cell: ({ row }) => new Date(row.original.date).toLocaleDateString(),
     },
     {
-      header: 'Account Code',
-      accessorKey: 'accountCode',
+      header: "Account Code",
+      accessorKey: "accountCode",
     },
     {
-      header: 'Description',
-      accessorKey: 'description',
+      header: "Description",
+      accessorKey: "description",
     },
     {
-      header: 'Debit',
-      accessorKey: 'debit',
+      header: "Debit",
+      accessorKey: "debit",
       cell: ({ row }) => formatCurrency(row.original.debit),
     },
     {
-      header: 'Credit',
-      accessorKey: 'credit',
+      header: "Credit",
+      accessorKey: "credit",
       cell: ({ row }) => formatCurrency(row.original.credit),
     },
     {
-      header: 'Actions',
+      header: "Actions",
       cell: ({ row }) => (
         <div className="flex items-center space-x-2">
           <button
@@ -219,8 +222,10 @@ const BeginningBalancePage = () => {
 
   return (
     <div className="container mx-auto px-4 py-8">
-      <div className="flex justify-between items-center mb-6">
-        <h1 className="text-2xl font-semibold text-gray-900">Beginning Balance</h1>
+      <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center mb-6 space-y-4 sm:space-y-0">
+        <h1 className="text-2xl font-semibold text-gray-900">
+          Beginning Balance
+        </h1>
         <Button onClick={handleAdd}>
           <FiPlus className="w-5 h-5 mr-2" />
           Add Entry
@@ -228,17 +233,13 @@ const BeginningBalancePage = () => {
       </div>
 
       <div className="bg-white rounded-lg shadow">
-        <DataTable
-          columns={columns}
-          data={mockEntries}
-          isLoading={isLoading}
-        />
+        <DataTable columns={columns} data={mockEntries} isLoading={isLoading} />
       </div>
 
       <Modal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
-        title={selectedEntry ? 'Edit Entry' : 'Add Entry'}
+        title={selectedEntry ? "Edit Entry" : "Add Entry"}
       >
         <BeginningBalanceForm
           initialData={selectedEntry}
@@ -249,4 +250,4 @@ const BeginningBalancePage = () => {
   );
 };
 
-export default BeginningBalancePage; 
+export default BeginningBalancePage;

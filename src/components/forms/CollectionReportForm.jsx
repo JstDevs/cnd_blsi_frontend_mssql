@@ -1,15 +1,14 @@
-import { Formik, Form } from 'formik';
-import * as Yup from 'yup';
-import FormField from '../common/FormField';
+import { Formik, Form } from "formik";
+import * as Yup from "yup";
+import FormField from "../common/FormField";
 
 const COLLECTION_REPORT_SCHEMA = Yup.object().shape({
-  date: Yup.date()
-    .required('Date is required'),
+  date: Yup.date().required("Date is required"),
 });
 
 function CollectionReportForm({ onSubmit }) {
   const initialValues = {
-    date: '',
+    date: "",
   };
 
   return (
@@ -32,25 +31,25 @@ function CollectionReportForm({ onSubmit }) {
             touched={touched.date}
           />
 
-          <div className="flex justify-end space-x-3 pt-4 border-t border-neutral-200">
+          <div className="grid grid-cols-1 gap-4 sm:flex justify-end pt-4 border-t border-neutral-200">
             <button
               type="button"
-              onClick={() => onSubmit({ ...values, action: 'view' })}
-              className="btn btn-primary"
+              onClick={() => onSubmit({ ...values, action: "view" })}
+              className="btn btn-primary sm:w-auto w-full"
             >
               View
             </button>
             <button
               type="button"
-              onClick={() => onSubmit({ ...values, action: 'generate' })}
-              className="btn btn-secondary"
+              onClick={() => onSubmit({ ...values, action: "generate" })}
+              className="btn btn-secondary sm:w-auto w-full"
             >
               Generate Journal
             </button>
             <button
               type="button"
-              onClick={() => onSubmit({ ...values, action: 'export' })}
-              className="btn btn-outline"
+              onClick={() => onSubmit({ ...values, action: "export" })}
+              className="btn btn-outline sm:w-auto w-full"
             >
               Export to Excel
             </button>
@@ -61,4 +60,4 @@ function CollectionReportForm({ onSubmit }) {
   );
 }
 
-export default CollectionReportForm; 
+export default CollectionReportForm;

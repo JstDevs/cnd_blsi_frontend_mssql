@@ -19,11 +19,11 @@ const GeneralRevision = () => {
 
   return (
     <div className="p-4">
-      <div className="flex justify-between items-center mb-4">
+      <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center mb-6 space-y-4 sm:space-y-0">
         <h1 className="text-xl font-semibold">General Revision</h1>
-        <button onClick={handleAdd} className="btn btn-primary">
+        <Button onClick={handleAdd} className="btn btn-primary">
           Add Revision
-        </button>
+        </Button>
       </div>
 
       {/* Table */}
