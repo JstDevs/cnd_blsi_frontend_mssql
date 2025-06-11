@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import DataTable from "../../components/common/DataTable";
 import FundUtilizationRequestForm from "../../components/forms/FundUtilizationRequestForm";
-import { Button } from "../../components/common/Button";
+import Button from "@/components/common/Button";
 import Modal from "../../components/common/Modal";
 
 // Mock data for the table
