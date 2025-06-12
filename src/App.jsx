@@ -69,6 +69,7 @@ import BudgetAllotment from "./pages/budget/form-budget/BudgetAllotment";
 import BudgetReport from "./pages/budget/form-budget/BudgetReport";
 import BudgetTransfer from "./pages/budget/form-budget/BudgetTransfer";
 import BudgetDetails from "./pages/budget/form-budget/BudgetDetails";
+import NewBudgetPage from "./pages/budget/newBudget";
 import BudgetSummary from "./pages/budget/form-budget/BudgetSummary";
 import BudgetSupplemental from "./pages/budget/form-budget/BudgetSupplemental";
 import FundsManagement from "./pages/budget/form-budget/FundsManagement";
@@ -78,6 +79,7 @@ import BudgetPage from "./pages/budget/BudgetPage";
 import StatementComparison from "./pages/budget/form-budget/StatementComparison";
 import StatementAppropriation from "./pages/budget/form-budget/StatementAppropriation";
 import LGUMaintenance from "./pages/settings/LGUMaintenance";
+
 // Applications pages
 import BusinessPermitPage from "./pages/applications/BusinessPermitPage";
 import ChequeGeneratorPage from "./pages/applications/ChequeGeneratorPage";
@@ -91,6 +93,7 @@ import BirReportPage from "./pages/reports/BirReportPage";
 // User Access
 import UserAccessPage from "./pages/userAccess";
 import ChangePassword from "./pages/auth/ChangePassword";
+import UserProfilePage from './pages/userProfile';
 
 function App() {
   const { isAuthenticated, isLoading } = useSelector((state) => state.auth);
@@ -180,6 +183,9 @@ function App() {
           }
         >
           <Route path="/dashboard" element={<DashboardPage />} />
+
+          {/* user profile */}
+          <Route path="/profile" element={<UserProfilePage />} />
 
           {/*-------------------------- Settings module-------------------- */}
           <Route path="/settings/departments" element={<DepartmentPage />} />
@@ -334,6 +340,7 @@ function App() {
 
           <Route path="/budget/allotment" element={<BudgetAllotment />} />
           <Route path="/budget/details" element={<BudgetDetails />} />
+          <Route path="/budget/new" element={<NewBudgetPage />} />
           <Route path="/budget/summary" element={<BudgetSummary />} />
           <Route path="/budget/supplemental" element={<BudgetSupplemental />} />
           <Route path="/budget/transfer" element={<BudgetTransfer />} />

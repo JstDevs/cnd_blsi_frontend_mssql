@@ -1,52 +1,49 @@
-import { useState, useEffect } from "react";
-import { useDispatch, useSelector } from "react-redux";
-import { PlusIcon, PencilIcon, TrashIcon } from "@heroicons/react/24/outline";
-import DataTable from "../../components/common/DataTable";
-import Modal from "../../components/common/Modal";
-import ProjectDetailsForm from "../../components/forms/ProjectDetailsForm";
+import { useState, useEffect } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import { PlusIcon, PencilIcon, TrashIcon } from '@heroicons/react/24/outline';
+import DataTable from '../../components/common/DataTable';
+import Modal from '../../components/common/Modal';
+import ProjectDetailsForm from '../../components/forms/ProjectDetailsForm';
 import {
   fetchProjectDetails,
   addProjectDetail,
   updateProjectDetail,
-  deleteProjectDetail,
-} from "../../features/settings/projectDetailsSlice";
-import Button from "../../components/common/Button";
+  deleteProjectDetail
+} from '../../features/settings/projectDetailsSlice';
 
 function ProjectDetailsPage() {
   const dispatch = useDispatch();
-  const { projectDetails, isLoading } = useSelector(
-    (state) => state.projectDetails
-  );
-
+  const { projectDetails, isLoading } = useSelector(state => state.projectDetails);
+  
   // Add console log to check state after render
-  console.log("ProjectDetailsPage - projectDetails:", projectDetails);
-  console.log("ProjectDetailsPage - isLoading:", isLoading);
+  console.log('ProjectDetailsPage - projectDetails:', projectDetails);
+  console.log('ProjectDetailsPage - isLoading:', isLoading);
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [currentProject, setCurrentProject] = useState(null);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [projectToDelete, setProjectToDelete] = useState(null);
-
+  
   useEffect(() => {
-    console.log("ProjectDetailsPage - useEffect: Fetching project details");
+    console.log('ProjectDetailsPage - useEffect: Fetching project details');
     dispatch(fetchProjectDetails());
   }, [dispatch]);
-
+  
   const handleAdd = () => {
     setCurrentProject(null);
     setIsModalOpen(true);
   };
-
+  
   const handleEdit = (project) => {
     setCurrentProject(project);
     setIsModalOpen(true);
   };
-
+  
   const handleDelete = (project) => {
     setProjectToDelete(project);
     setIsDeleteModalOpen(true);
   };
-
+  
   const confirmDelete = async () => {
     if (projectToDelete) {
       try {
@@ -54,11 +51,11 @@ function ProjectDetailsPage() {
         setIsDeleteModalOpen(false);
         setProjectToDelete(null);
       } catch (error) {
-        console.error("Failed to delete project detail:", error);
+        console.error('Failed to delete project detail:', error);
       }
     }
   };
-
+  
   const handleSubmit = (values) => {
     if (currentProject) {
       dispatch(updateProjectDetail({ ...values, id: currentProject.id }));
@@ -70,71 +67,69 @@ function ProjectDetailsPage() {
 
   const columns = [
     {
-      key: "projectTitle",
-      header: "Project Title",
-      sortable: true,
+      key: 'projectTitle',
+      header: 'Project Title',
+      sortable: true
     },
     {
-      key: "startDate",
-      header: "Start Date",
-      sortable: true,
-      // Optional: Add render function to format date if needed
-    },
-    {
-      key: "endDate",
-      header: "End Date",
+      key: 'startDate',
+      header: 'Start Date',
       sortable: true,
       // Optional: Add render function to format date if needed
     },
     {
-      key: "projectType",
-      header: "Project Type",
+      key: 'endDate',
+      header: 'End Date',
+      sortable: true,
+      // Optional: Add render function to format date if needed
+    },
+    {
+      key: 'projectType',
+      header: 'Project Type',
       sortable: true,
       // Optional: Add render function to display label instead of value if needed
     },
-    {
-      key: "description",
-      header: "Description",
-      sortable: false, // Description might be long, sorting might not be useful
-    },
+     {
+      key: 'description',
+      header: 'Description',
+      sortable: false // Description might be long, sorting might not be useful
+    }
   ];
-
+  
   const actions = [
     {
       icon: PencilIcon,
-      title: "Edit",
+      title: 'Edit',
       onClick: handleEdit,
-      className:
-        "text-primary-600 hover:text-primary-900 p-1 rounded-full hover:bg-primary-50",
+      className: 'text-primary-600 hover:text-primary-900 p-1 rounded-full hover:bg-primary-50'
     },
     {
       icon: TrashIcon,
-      title: "Delete",
+      title: 'Delete',
       onClick: handleDelete,
-      className:
-        "text-error-600 hover:text-error-900 p-1 rounded-full hover:bg-error-50",
-    },
+      className: 'text-error-600 hover:text-error-900 p-1 rounded-full hover:bg-error-50'
+    }
   ];
 
   return (
     <div>
       <div className="page-header">
-        <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center mb-6 space-y-4 sm:space-y-0">
+        <div className="flex justify-between items-center">
           <div>
             <h1>Project Details</h1>
             <p>Manage project details</p>
           </div>
-          <Button
+          <button
             type="button"
             onClick={handleAdd}
             className="btn btn-primary flex items-center"
           >
             <PlusIcon className="h-5 w-5 mr-2" aria-hidden="true" />
             Add Project Detail
-          </Button>
+          </button>
         </div>
       </div>
-
+      
       <div className="mt-4">
         <DataTable
           columns={columns}
@@ -144,7 +139,7 @@ function ProjectDetailsPage() {
           emptyMessage="No project details found. Click 'Add Project Detail' to create one."
         />
       </div>
-
+      
       {/* Form Modal */}
       <Modal
         isOpen={isModalOpen}
@@ -158,7 +153,7 @@ function ProjectDetailsPage() {
           onSubmit={handleSubmit}
         />
       </Modal>
-
+      
       {/* Delete Confirmation Modal */}
       <Modal
         isOpen={isDeleteModalOpen}
@@ -167,8 +162,7 @@ function ProjectDetailsPage() {
       >
         <div className="py-3">
           <p className="text-neutral-700">
-            Are you sure you want to delete the project "
-            {projectToDelete?.projectTitle}"?
+            Are you sure you want to delete the project "{projectToDelete?.projectTitle}"?
           </p>
           <p className="text-sm text-neutral-500 mt-2">
             This action cannot be undone.
@@ -195,4 +189,4 @@ function ProjectDetailsPage() {
   );
 }
 
-export default ProjectDetailsPage;
+export default ProjectDetailsPage; 

@@ -1,5 +1,7 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 
+const API_URL = import.meta.env.VITE_API_URL;
+
 // Mock initial data
 const initialDepartments = [
   { 
@@ -43,75 +45,176 @@ const initialState = {
   error: null,
 };
 
-// Thunks for API calls
 export const fetchDepartments = createAsyncThunk(
   'departments/fetchDepartments',
   async (_, thunkAPI) => {
     try {
-      // Simulate API call
-      return new Promise((resolve) => {
-        setTimeout(() => {
-          resolve(initialDepartments);
-        }, 500);
+      const token = localStorage.getItem('token');
+
+      const response = await fetch(`${API_URL}/settings/departments`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
       });
+
+      const res = await response.json();
+
+      if (!response.ok) {
+        throw new Error(res.message || 'Failed to fetch departments');
+      }
+
+      return res.data;
     } catch (error) {
       return thunkAPI.rejectWithValue(error.message);
     }
   }
 );
+// export const fetchDepartments = createAsyncThunk(
+//   'departments/fetchDepartments',
+//   async (_, thunkAPI) => {
+//     try {
+//       // Simulate API call
+//       return new Promise((resolve) => {
+//         setTimeout(() => {
+//           resolve(initialDepartments);
+//         }, 500);
+//       });
+//     } catch (error) {
+//       return thunkAPI.rejectWithValue(error.message);
+//     }
+//   }
+// );
+
 
 export const addDepartment = createAsyncThunk(
   'departments/addDepartment',
   async (department, thunkAPI) => {
     try {
-      // Simulate API call
-      return new Promise((resolve) => {
-        setTimeout(() => {
-          const newDepartment = {
-            ...department,
-            id: Date.now(), // Generate a temporary ID
-            status: department.status || 'Active',
-          };
-          resolve(newDepartment);
-        }, 500);
+      const response = await fetch(`${API_URL}/settings/addDepartment`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${localStorage.getItem('token')}`,
+        },
+        body: JSON.stringify(department),
       });
+
+      const res = await response.json();
+
+      if (!response.ok) {
+        throw new Error(res.message || 'Failed to add department');
+      }
+
+      return res.data; // Return new department data from backend
     } catch (error) {
       return thunkAPI.rejectWithValue(error.message);
     }
   }
 );
+// export const addDepartment = createAsyncThunk(
+//   'departments/addDepartment',
+//   async (department, thunkAPI) => {
+//     try {
+//       // Simulate API call
+//       return new Promise((resolve) => {
+//         setTimeout(() => {
+//           const newDepartment = {
+//             ...department,
+//             id: Date.now(), // Generate a temporary ID
+//             status: department.status || 'Active',
+//           };
+//           resolve(newDepartment);
+//         }, 500);
+//       });
+//     } catch (error) {
+//       return thunkAPI.rejectWithValue(error.message);
+//     }
+//   }
+// );
+
 
 export const updateDepartment = createAsyncThunk(
   'departments/updateDepartment',
   async (department, thunkAPI) => {
     try {
-      // Simulate API call
-      return new Promise((resolve) => {
-        setTimeout(() => {
-          resolve(department);
-        }, 500);
+      const response = await fetch(`${API_URL}/settings/updateDepartment/${department.id}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${localStorage.getItem('token')}`,
+        },
+        body: JSON.stringify(department),
       });
+
+      const res = await response.json();
+
+      if (!response.ok) {
+        throw new Error(res.message || 'Failed to update department');
+      }
+
+      return res.data; // Updated department from backend
     } catch (error) {
       return thunkAPI.rejectWithValue(error.message);
     }
   }
 );
 
+// export const updateDepartment = createAsyncThunk(
+//   'departments/updateDepartment',
+//   async (department, thunkAPI) => {
+//     try {
+//       // Simulate API call
+//       return new Promise((resolve) => {
+//         setTimeout(() => {
+//           resolve(department);
+//         }, 500);
+//       });
+//     } catch (error) {
+//       return thunkAPI.rejectWithValue(error.message);
+//     }
+//   }
+// );
+
 export const deleteDepartment = createAsyncThunk(
   'departments/deleteDepartment',
   async (id, thunkAPI) => {
     try {
-      // Simulate API call
-      return new Promise((resolve) => {
-        setTimeout(() => {
-          resolve(id);
-        }, 500);
+      const response = await fetch(`${API_URL}/settings/deleteDepartment/${id}`, {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${localStorage.getItem('token')}`,
+        },
       });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'Failed to delete department');
+      }
+
+      return id; // Return ID so you can remove it from Redux state
     } catch (error) {
       return thunkAPI.rejectWithValue(error.message);
     }
   }
 );
+// export const deleteDepartment = createAsyncThunk(
+//   'departments/deleteDepartment',
+//   async (id, thunkAPI) => {
+//     try {
+//       // Simulate API call
+//       return new Promise((resolve) => {
+//         setTimeout(() => {
+//           resolve(id);
+//         }, 500);
+//       });
+//     } catch (error) {
+//       return thunkAPI.rejectWithValue(error.message);
+//     }
+//   }
+// );
 
 const departmentSlice = createSlice({
   name: 'departments',

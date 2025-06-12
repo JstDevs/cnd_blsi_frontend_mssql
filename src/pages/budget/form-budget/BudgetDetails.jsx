@@ -17,7 +17,8 @@ import {
   X,
   Check,
 } from "lucide-react";
-import Button from "../../../components/common/Button";
+import BudgetForm from '../../../components/forms/BudgetForm';
+import Modal from '../../../components/common/Modal';
 
 const BudgetDetails = () => {
   const [selectedBudget, setSelectedBudget] = useState(null);
@@ -29,6 +30,40 @@ const BudgetDetails = () => {
   const [filterAccount, setFilterAccount] = useState("all");
   const [filterFund, setFilterFund] = useState("all");
   const [viewMode, setViewMode] = useState("grid");
+  const [isModalOpen, setIsModalOpen] = useState(true);
+  
+  // new code
+  const [selectedRecord, setSelectedRecord] = useState(null);
+  const handleAddNew = () => {
+    setSelectedRecord(null);
+    setIsModalOpen(true);
+  };
+
+  const handleEdit = (record) => {
+    setSelectedRecord(record);
+    setIsModalOpen(true);
+  };
+
+  const handleDelete = (record) => {
+    // Implement delete functionality
+    console.log('Delete record:', record);
+  };
+
+  const handleSubmit = async (values) => {
+    try {
+      if (selectedRecord) {
+        // Update existing record
+        console.log('Update record:', values);
+      } else {
+        // Create new record
+        console.log('Create record:', values);
+      }
+      setIsModalOpen(false);
+    } catch (error) {
+      console.error('Error saving record:', error);
+    }
+  };
+  //. new data
 
   const budgetItems = [
     {
@@ -379,13 +414,13 @@ const BudgetDetails = () => {
               Table
             </button>
           </div>
-          <Button
+          <button
             onClick={() => setShowAddForm(true)}
             className="flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
           >
             <Plus className="w-4 h-4 mr-2" />
             New Budget
-          </Button>
+          </button>
         </div>
       </div>
 
@@ -979,6 +1014,20 @@ const BudgetDetails = () => {
           </div>
         </div>
       )}
+
+      {/* Form Modal */}
+      <Modal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        title={selectedRecord ? 'Edit Budget' : 'Add New Budget'}
+        className="max-w-4xl w-full"
+      >
+        <BudgetForm
+          initialData={selectedRecord}
+          onSubmit={handleSubmit}
+          onClose={() => setIsModalOpen(false)}
+        />
+      </Modal>
     </div>
   );
 };

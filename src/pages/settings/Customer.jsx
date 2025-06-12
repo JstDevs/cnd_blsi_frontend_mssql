@@ -2,7 +2,6 @@ import React, { useState } from "react";
 import Modal from "@/components/common/Modal";
 import FormField from "@/components/common/FormField";
 import { Pencil, Trash2, UserPlus } from "lucide-react";
-import Button from "../../components/common/Button";
 
 const Customer = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -20,14 +19,14 @@ const Customer = () => {
 
   return (
     <div className="p-6">
-      <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center mb-6 space-y-4 sm:space-y-0">
+      <div className="flex justify-between items-center mb-4">
         <h2 className="text-xl font-bold">Customer Management</h2>
-        <Button
+        <button
           onClick={handleAdd}
           className="btn btn-primary flex items-center gap-2"
         >
           <UserPlus size={16} /> Add
-        </Button>
+        </button>
       </div>
 
       <div className="overflow-auto border rounded-lg">

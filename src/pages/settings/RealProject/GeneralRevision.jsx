@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import FormField from "@/components/common/FormField";
 import Modal from "@/components/common/Modal";
-import Button from "@/components/common/Button";
+import { Button } from "@/components/common/Button";
 import { Trash2, Pencil, Plus } from "lucide-react";
 const GeneralRevision = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -19,11 +19,11 @@ const GeneralRevision = () => {
 
   return (
     <div className="p-4">
-      <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center mb-6 space-y-4 sm:space-y-0">
+      <div className="flex justify-between items-center mb-4">
         <h1 className="text-xl font-semibold">General Revision</h1>
-        <Button onClick={handleAdd} className="btn btn-primary">
+        <button onClick={handleAdd} className="btn btn-primary">
           Add Revision
-        </Button>
+        </button>
       </div>
 
       {/* Table */}

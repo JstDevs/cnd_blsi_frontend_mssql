@@ -1,28 +1,54 @@
 // Mock service for auth operations - replace with actual API calls
+// const login = async (username, password) => {
+//   // Simulating API call
+//   return new Promise((resolve, reject) => {
+//     setTimeout(() => {
+//       if (username === 'admin' && password === 'password') {
+//         const user = {
+//           id: 1,
+//           username: 'admin',
+//           firstName: 'Admin',
+//           lastName: 'User',
+//           email: 'admin@lgu.gov.ph',
+//           role: 'Administrator',
+//           department: 'Information Technology',
+//           permissions: ['all']
+//         };
+//         localStorage.setItem('token', 'mock-jwt-token');
+//         localStorage.setItem('user', JSON.stringify(user));
+//         resolve(user);
+//       } else {
+//         reject(new Error('Invalid username or password'));
+//       }
+//     }, 800);
+//   });
+// };
+
+const API_URL = import.meta.env.VITE_API_URL;
 const login = async (username, password) => {
-  // Simulating API call
-  return new Promise((resolve, reject) => {
-    setTimeout(() => {
-      if (username === 'admin' && password === 'password') {
-        const user = {
-          id: 1,
-          username: 'admin',
-          firstName: 'Admin',
-          lastName: 'User',
-          email: 'admin@lgu.gov.ph',
-          role: 'Administrator',
-          department: 'Information Technology',
-          permissions: ['all']
-        };
-        localStorage.setItem('token', 'mock-jwt-token');
-        localStorage.setItem('user', JSON.stringify(user));
-        resolve(user);
-      } else {
-        reject(new Error('Invalid username or password'));
-      }
-    }, 800);
-  });
+  try {
+    const response = await fetch(`${API_URL}/login`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ username, password })
+    });
+
+    const res = await response.json();
+    if (!response.ok) {
+      throw new Error(res.message || 'Login failed');
+    }
+
+    localStorage.setItem('token', res.access_token);
+    localStorage.setItem('user', JSON.stringify(res.user));
+    return res.user;
+  }
+  catch(error) {
+    throw new Error(error.message);
+  }
 };
+
 
 
 

@@ -1,45 +1,44 @@
-import { useState, useEffect } from "react";
-import { useDispatch, useSelector } from "react-redux";
-import { PlusIcon, PencilIcon, TrashIcon } from "@heroicons/react/24/outline";
-import DataTable from "../../components/common/DataTable";
-import Modal from "../../components/common/Modal";
-import ItemUnitForm from "../../components/forms/ItemUnitForm";
+import { useState, useEffect } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import { PlusIcon, PencilIcon, TrashIcon } from '@heroicons/react/24/outline';
+import DataTable from '../../components/common/DataTable';
+import Modal from '../../components/common/Modal';
+import ItemUnitForm from '../../components/forms/ItemUnitForm';
 import {
   fetchItemUnits,
   addItemUnit,
   updateItemUnit,
-  deleteItemUnit,
-} from "../../features/settings/itemUnitsSlice";
-import Button from "../../components/common/Button";
+  deleteItemUnit
+} from '../../features/settings/itemUnitsSlice';
 
 function ItemUnitPage() {
   const dispatch = useDispatch();
-  const { itemUnits, isLoading } = useSelector((state) => state.itemUnits);
-
+  const { itemUnits, isLoading } = useSelector(state => state.itemUnits);
+  
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [currentItemUnit, setCurrentItemUnit] = useState(null);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [itemUnitToDelete, setItemUnitToDelete] = useState(null);
-
+  
   useEffect(() => {
     dispatch(fetchItemUnits());
   }, [dispatch]);
-
+  
   const handleAdd = () => {
     setCurrentItemUnit(null);
     setIsModalOpen(true);
   };
-
+  
   const handleEdit = (itemUnit) => {
     setCurrentItemUnit(itemUnit);
     setIsModalOpen(true);
   };
-
+  
   const handleDelete = (itemUnit) => {
     setItemUnitToDelete(itemUnit);
     setIsDeleteModalOpen(true);
   };
-
+  
   const confirmDelete = async () => {
     if (itemUnitToDelete) {
       try {
@@ -47,11 +46,11 @@ function ItemUnitPage() {
         setIsDeleteModalOpen(false);
         setItemUnitToDelete(null);
       } catch (error) {
-        console.error("Failed to delete item unit:", error);
+        console.error('Failed to delete item unit:', error);
       }
     }
   };
-
+  
   const handleSubmit = (values) => {
     if (currentItemUnit) {
       dispatch(updateItemUnit({ ...values, id: currentItemUnit.id }));
@@ -63,53 +62,51 @@ function ItemUnitPage() {
 
   const columns = [
     {
-      key: "code",
-      header: "Code",
-      sortable: true,
+      key: 'code',
+      header: 'Code',
+      sortable: true
     },
     {
-      key: "name",
-      header: "Name",
-      sortable: true,
-    },
+      key: 'name',
+      header: 'Name',
+      sortable: true
+    }
   ];
-
+  
   const actions = [
     {
       icon: PencilIcon,
-      title: "Edit",
+      title: 'Edit',
       onClick: handleEdit,
-      className:
-        "text-primary-600 hover:text-primary-900 p-1 rounded-full hover:bg-primary-50",
+      className: 'text-primary-600 hover:text-primary-900 p-1 rounded-full hover:bg-primary-50'
     },
     {
       icon: TrashIcon,
-      title: "Delete",
+      title: 'Delete',
       onClick: handleDelete,
-      className:
-        "text-error-600 hover:text-error-900 p-1 rounded-full hover:bg-error-50",
-    },
+      className: 'text-error-600 hover:text-error-900 p-1 rounded-full hover:bg-error-50'
+    }
   ];
 
   return (
     <div>
       <div className="page-header">
-        <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center mb-6 space-y-4 sm:space-y-0">
+        <div className="flex justify-between items-center">
           <div>
             <h1>Item Units</h1>
             <p>Manage item units</p>
           </div>
-          <Button
+          <button
             type="button"
             onClick={handleAdd}
             className="btn btn-primary flex items-center"
           >
             <PlusIcon className="h-5 w-5 mr-2" aria-hidden="true" />
             Add Item Unit
-          </Button>
+          </button>
         </div>
       </div>
-
+      
       <div className="mt-4">
         <DataTable
           columns={columns}
@@ -119,7 +116,7 @@ function ItemUnitPage() {
           emptyMessage="No item units found. Click 'Add Item Unit' to create one."
         />
       </div>
-
+      
       {/* Form Modal */}
       <Modal
         isOpen={isModalOpen}
@@ -132,7 +129,7 @@ function ItemUnitPage() {
           onSubmit={handleSubmit}
         />
       </Modal>
-
+      
       {/* Delete Confirmation Modal */}
       <Modal
         isOpen={isDeleteModalOpen}
@@ -141,8 +138,7 @@ function ItemUnitPage() {
       >
         <div className="py-3">
           <p className="text-neutral-700">
-            Are you sure you want to delete the item unit "
-            {itemUnitToDelete?.name}"?
+            Are you sure you want to delete the item unit "{itemUnitToDelete?.name}"?
           </p>
           <p className="text-sm text-neutral-500 mt-2">
             This action cannot be undone.
@@ -169,4 +165,4 @@ function ItemUnitPage() {
   );
 }
 
-export default ItemUnitPage;
+export default ItemUnitPage; 

@@ -1,22 +1,19 @@
-import { useState, useEffect } from "react";
-import { useDispatch, useSelector } from "react-redux";
-import { PlusIcon, PencilIcon, TrashIcon } from "@heroicons/react/24/outline";
-import DataTable from "../../components/common/DataTable";
-import Modal from "../../components/common/Modal";
-import PaymentTermsForm from "../../components/forms/PaymentTermsForm";
+import { useState, useEffect } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import { PlusIcon, PencilIcon, TrashIcon } from '@heroicons/react/24/outline';
+import DataTable from '../../components/common/DataTable';
+import Modal from '../../components/common/Modal';
+import PaymentTermsForm from '../../components/forms/PaymentTermsForm';
 import {
   fetchPaymentTerms,
   addPaymentTerm,
   updatePaymentTerm,
-  deletePaymentTerm,
-} from "../../features/settings/paymentTermsSlice";
-import Button from "../../components/common/Button";
+  deletePaymentTerm
+} from '../../features/settings/paymentTermsSlice';
 
 function PaymentTermsPage() {
   const dispatch = useDispatch();
-  const { paymentTerms, isLoading } = useSelector(
-    (state) => state.paymentTerms
-  );
+  const { paymentTerms, isLoading } = useSelector(state => state.paymentTerms);
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [currentPaymentTerm, setCurrentPaymentTerm] = useState(null);
@@ -49,7 +46,7 @@ function PaymentTermsPage() {
         setIsDeleteModalOpen(false);
         setPaymentTermToDelete(null);
       } catch (error) {
-        console.error("Failed to delete payment term:", error);
+        console.error('Failed to delete payment term:', error);
       }
     }
   };
@@ -65,55 +62,53 @@ function PaymentTermsPage() {
 
   const columns = [
     {
-      key: "code",
-      header: "Code",
-      sortable: true,
+      key: 'code',
+      header: 'Code',
+      sortable: true
     },
     {
-      key: "name",
-      header: "Name",
-      sortable: true,
+      key: 'name',
+      header: 'Name',
+      sortable: true
     },
     {
-      key: "numberOfDays",
-      header: "Number of Days",
-      sortable: true,
-    },
+      key: 'numberOfDays',
+      header: 'Number of Days',
+      sortable: true
+    }
   ];
 
   const actions = [
     {
       icon: PencilIcon,
-      title: "Edit",
+      title: 'Edit',
       onClick: handleEdit,
-      className:
-        "text-primary-600 hover:text-primary-900 p-1 rounded-full hover:bg-primary-50",
+      className: 'text-primary-600 hover:text-primary-900 p-1 rounded-full hover:bg-primary-50'
     },
     {
       icon: TrashIcon,
-      title: "Delete",
+      title: 'Delete',
       onClick: handleDelete,
-      className:
-        "text-error-600 hover:text-error-900 p-1 rounded-full hover:bg-error-50",
-    },
+      className: 'text-error-600 hover:text-error-900 p-1 rounded-full hover:bg-error-50'
+    }
   ];
 
   return (
     <div>
       <div className="page-header">
-        <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center mb-6 space-y-4 sm:space-y-0">
+        <div className="flex justify-between items-center">
           <div>
             <h1>Payment Terms</h1>
             <p>Manage payment terms</p>
           </div>
-          <Button
+          <button
             type="button"
             onClick={handleAdd}
             className="btn btn-primary flex items-center"
           >
             <PlusIcon className="h-5 w-5 mr-2" aria-hidden="true" />
             Add Payment Term
-          </Button>
+          </button>
         </div>
       </div>
 
@@ -148,8 +143,7 @@ function PaymentTermsPage() {
       >
         <div className="py-3">
           <p className="text-neutral-700">
-            Are you sure you want to delete the payment term "
-            {paymentTermToDelete?.name}"?
+            Are you sure you want to delete the payment term "{paymentTermToDelete?.name}"?
           </p>
           <p className="text-sm text-neutral-500 mt-2">
             This action cannot be undone.
@@ -176,4 +170,4 @@ function PaymentTermsPage() {
   );
 }
 
-export default PaymentTermsPage;
+export default PaymentTermsPage; 

@@ -201,7 +201,7 @@ function DashboardPage() {
       <div className="page-header">
         <h1 className="text-2xl font-bold text-neutral-900">Dashboard</h1>
         <p className="mt-1 text-sm text-neutral-500">
-          Welcome back, {user?.firstName} {user?.lastName}!
+          Welcome back, {user?.first_name} {user?.middle_name} {user?.last_name}!
         </p>
       </div>
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">

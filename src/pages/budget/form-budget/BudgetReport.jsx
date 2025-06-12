@@ -223,24 +223,18 @@ const BudgetReport = () => {
   return (
     <div className="space-y-6">
       {/* Header & Actions */}
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 sm:gap-4">
-        {/* Title and subtitle - left side */}
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
-          <h2 className="text-xl sm:text-2xl font-bold text-gray-900">
-            Budget Reports
-          </h2>
-          <p className="text-sm sm:text-base text-gray-600">
+          <h2 className="text-2xl font-bold text-gray-900">Budget Reports</h2>
+          <p className="text-gray-600">
             Comprehensive budget analysis and reporting dashboard
           </p>
         </div>
-
-        {/* Controls section - right side */}
-        <div className="flex flex-col sm:flex-row gap-2 sm:gap-3 w-full sm:w-auto">
-          {/* View mode toggle */}
+        <div className="flex items-center gap-3">
           <div className="flex items-center bg-gray-100 rounded-lg p-1">
             <button
               onClick={() => setViewMode("summary")}
-              className={`px-3 py-2 rounded-md text-sm font-medium transition-colors w-full ${
+              className={`px-3 py-1 rounded-md text-sm font-medium transition-colors ${
                 viewMode === "summary"
                   ? "bg-white text-gray-900 shadow-sm"
                   : "text-gray-600"
@@ -250,7 +244,7 @@ const BudgetReport = () => {
             </button>
             <button
               onClick={() => setViewMode("detailed")}
-              className={`px-3 py-2 rounded-md text-sm font-medium transition-colors w-full ${
+              className={`px-3 py-1 rounded-md text-sm font-medium transition-colors ${
                 viewMode === "detailed"
                   ? "bg-white text-gray-900 shadow-sm"
                   : "text-gray-600"
@@ -259,24 +253,20 @@ const BudgetReport = () => {
               Detailed
             </button>
           </div>
-
-          {/* Action buttons */}
-          <div className="flex gap-2 sm:gap-3">
-            <button
-              onClick={handlePrintReport}
-              className="flex items-center px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors text-sm"
-            >
-              <Printer className="w-4 h-4 mr-2" />
-              Print
-            </button>
-            <button
-              onClick={handleExportToExcel}
-              className="flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm"
-            >
-              <Download className="w-4 h-4 mr-2" />
-              Export
-            </button>
-          </div>
+          <button
+            onClick={handlePrintReport}
+            className="flex items-center px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors"
+          >
+            <Printer className="w-4 h-4 mr-2" />
+            Print
+          </button>
+          <button
+            onClick={handleExportToExcel}
+            className="flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+          >
+            <Download className="w-4 h-4 mr-2" />
+            Export
+          </button>
         </div>
       </div>
 

@@ -1,22 +1,19 @@
-import { useState, useEffect } from "react";
-import { useDispatch, useSelector } from "react-redux";
-import { PlusIcon, PencilIcon, TrashIcon } from "@heroicons/react/24/outline";
-import DataTable from "../../components/common/DataTable";
-import Modal from "../../components/common/Modal";
-import ModeOfPaymentForm from "../../components/forms/ModeOfPaymentForm";
+import { useState, useEffect } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import { PlusIcon, PencilIcon, TrashIcon } from '@heroicons/react/24/outline';
+import DataTable from '../../components/common/DataTable';
+import Modal from '../../components/common/Modal';
+import ModeOfPaymentForm from '../../components/forms/ModeOfPaymentForm';
 import {
   fetchModeOfPayments,
   addModeOfPayment,
   updateModeOfPayment,
-  deleteModeOfPayment,
-} from "../../features/settings/modeOfPaymentSlice";
-import Button from "../../components/common/Button";
+  deleteModeOfPayment
+} from '../../features/settings/modeOfPaymentSlice';
 
 function ModeOfPaymentPage() {
   const dispatch = useDispatch();
-  const { modeOfPayments, isLoading } = useSelector(
-    (state) => state.modeOfPayments
-  );
+  const { modeOfPayments, isLoading } = useSelector(state => state.modeOfPayments);
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [currentModeOfPayment, setCurrentModeOfPayment] = useState(null);
@@ -49,7 +46,7 @@ function ModeOfPaymentPage() {
         setIsDeleteModalOpen(false);
         setModeOfPaymentToDelete(null);
       } catch (error) {
-        console.error("Failed to delete mode of payment:", error);
+        console.error('Failed to delete mode of payment:', error);
       }
     }
   };
@@ -65,50 +62,48 @@ function ModeOfPaymentPage() {
 
   const columns = [
     {
-      key: "code",
-      header: "Code",
-      sortable: true,
+      key: 'code',
+      header: 'Code',
+      sortable: true
     },
     {
-      key: "name",
-      header: "Name",
-      sortable: true,
-    },
+      key: 'name',
+      header: 'Name',
+      sortable: true
+    }
   ];
 
   const actions = [
     {
       icon: PencilIcon,
-      title: "Edit",
+      title: 'Edit',
       onClick: handleEdit,
-      className:
-        "text-primary-600 hover:text-primary-900 p-1 rounded-full hover:bg-primary-50",
+      className: 'text-primary-600 hover:text-primary-900 p-1 rounded-full hover:bg-primary-50'
     },
     {
       icon: TrashIcon,
-      title: "Delete",
+      title: 'Delete',
       onClick: handleDelete,
-      className:
-        "text-error-600 hover:text-error-900 p-1 rounded-full hover:bg-error-50",
-    },
+      className: 'text-error-600 hover:text-error-900 p-1 rounded-full hover:bg-error-50'
+    }
   ];
 
   return (
     <div>
       <div className="page-header">
-        <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center mb-6 space-y-4 sm:space-y-0">
+        <div className="flex justify-between items-center">
           <div>
             <h1>Mode of Payments</h1>
             <p>Manage mode of payments</p>
           </div>
-          <Button
+          <button
             type="button"
             onClick={handleAdd}
             className="btn btn-primary flex items-center"
           >
             <PlusIcon className="h-5 w-5 mr-2" aria-hidden="true" />
             Add Mode of Payment
-          </Button>
+          </button>
         </div>
       </div>
 
@@ -126,9 +121,7 @@ function ModeOfPaymentPage() {
       <Modal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
-        title={
-          currentModeOfPayment ? "Edit Mode of Payment" : "Add Mode of Payment"
-        }
+        title={currentModeOfPayment ? "Edit Mode of Payment" : "Add Mode of Payment"}
       >
         <ModeOfPaymentForm
           initialData={currentModeOfPayment}
@@ -145,8 +138,7 @@ function ModeOfPaymentPage() {
       >
         <div className="py-3">
           <p className="text-neutral-700">
-            Are you sure you want to delete the mode of payment "
-            {modeOfPaymentToDelete?.name}"?
+            Are you sure you want to delete the mode of payment "{modeOfPaymentToDelete?.name}"?
           </p>
           <p className="text-sm text-neutral-500 mt-2">
             This action cannot be undone.
@@ -173,4 +165,4 @@ function ModeOfPaymentPage() {
   );
 }
 
-export default ModeOfPaymentPage;
+export default ModeOfPaymentPage; 

@@ -268,25 +268,25 @@ function ChequeGeneratorPage() {
   );
 
   return (
-    <div className=" bg-gray-50 min-h-screen">
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
+    <div className="p-6 bg-gray-50 min-h-screen">
+      <div className="flex justify-between items-center mb-6">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Cheque Generator</h1>
+          <h1 className="text-2xl font-bold">Cheque Generator</h1>
           <p className="text-gray-600">Generate and print cheques</p>
         </div>
-
         <button
           type="button"
           onClick={handlePrint}
-          className="w-full sm:w-auto bg-blue-600 text-white px-4 py-2 rounded-lg flex items-center justify-center hover:bg-blue-700 transition"
+          className="bg-blue-600 text-white px-4 py-2 rounded-lg flex items-center hover:bg-blue-700"
         >
           <Printer className="h-5 w-5 mr-2" />
           Print Cheque
         </button>
       </div>
-      <div className="grid grid-cols-1 xl:grid-cols-3 gap-4 my-4">
+
+      <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-4 gap-6">
         {/* Cheque Template Section */}
-        <div className="bg-white p-4 rounded-lg shadow border flex-1">
+        <div className="bg-white p-4 rounded-lg shadow border">
           <h2 className="text-lg font-semibold mb-4 text-yellow-700">
             Cheque Template
           </h2>
@@ -347,7 +347,7 @@ function ChequeGeneratorPage() {
         </div>
 
         {/* Cheque Details Section */}
-        <div className="bg-white p-4 rounded-lg shadow border flex-1">
+        <div className="bg-white p-4 rounded-lg shadow border">
           <div className="flex justify-between items-center mb-4">
             <h2 className="text-lg font-semibold text-yellow-700">
               Cheque Details
@@ -459,7 +459,7 @@ function ChequeGeneratorPage() {
         </div>
 
         {/* Signatories Section */}
-        <div className="bg-white p-4 rounded-lg shadow border flex-1">
+        <div className="bg-white p-4 rounded-lg shadow border">
           <h2 className="text-lg font-semibold mb-4 text-yellow-700">
             Signatories
           </h2>
@@ -523,23 +523,25 @@ function ChequeGeneratorPage() {
             </div>
           </div>
         </div>
-      </div>
-      <div className="grid grid-cols-1 gap-6">
+
         {/* Check List Section */}
         <div className="xl:col-span-4 bg-white p-4 rounded-lg shadow border">
-          <div className="flex sm:justify-between sm:items-center sm:flex-row flex-col gap-4 mb-4">
+          <div className="flex justify-between items-center mb-4">
             <h2 className="text-lg font-semibold">Check List</h2>
             <div className="flex items-center space-x-2">
-              <div className="relative max-sm:w-full">
+              <div className="relative">
                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
                 <input
                   type="text"
                   placeholder="Search..."
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
-                  className="pl-10 pr-4 py-2 w-full border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 />
               </div>
+              <button className="bg-gray-200 text-gray-800 px-3 py-2 rounded hover:bg-gray-300">
+                ...
+              </button>
             </div>
           </div>
 

@@ -103,6 +103,8 @@ function BudgetForm({ initialData, onSubmit, onClose }) {
     setSubmitting(false);
   };
 
+  console.log('in budget form modal:');
+
   return (
     <Formik
       initialValues={initialData || initialValues}
