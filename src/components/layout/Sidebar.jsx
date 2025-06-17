@@ -31,6 +31,7 @@ const navigation = [
         submenu: [
           { name: "Approval Matrix", href: "/settings/approval-matrix" },
           { name: "User Access", href: "/settings/user-access" },
+          { name: "User Roles", href: "/settings/user-roles" },
           { name: "User", href: "/settings/users" },
         ],
       },
@@ -47,11 +48,17 @@ const navigation = [
         submenu: [
           {
             name: "Bank Details",
-            href: "/settings/bank",
+            submenu: [
+              { name: "Bank", href: "/settings/bank" },
+              { name: "Currency", href: "/settings/currency" },
+            ],
           },
           {
             name: "Document Details",
-            href: "/settings/document-details",
+            submenu: [
+              { name: "Document Type", href: "/settings/document-details" },
+              { name: "Document Type Category", href: "/settings/document-type-categories" },
+            ],
           },
           {
             name: "Items Settings",
@@ -84,7 +91,15 @@ const navigation = [
       },
       { name: "Locations", href: "/settings/locations" },
       { name: "Customer", href: "/settings/customer" },
-      { name: "Chart of Accounts", href: "/settings/chart-of-accounts" },
+      {
+        name: "Chart of Accounts Settings",
+        submenu: [
+          { name: "Chart of Accounts", href: "/settings/chart-of-accounts" },
+          { name: "Account Group", href: "/settings/account-group" },
+          { name: "Major Account Group", href: "/settings/major-account-group" },
+          { name: "Sub Major Account Group", href: "/settings/sub-major-account-group" },
+        ],
+      },
       { name: "Vendors", href: "/settings/vendors" },
       {
         name: "Employees",

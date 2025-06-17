@@ -38,21 +38,49 @@ const initialState = {
 };
 
 // Thunks for API calls
+// export const fetchEmployees = createAsyncThunk(
+//   'employees/fetchEmployees',
+//   async (_, thunkAPI) => {
+//     try {
+//       // Simulate API call
+//       return new Promise((resolve) => {
+//         setTimeout(() => {
+//           resolve(initialEmployees);
+//         }, 500);
+//       });
+//     } catch (error) {
+//       return thunkAPI.rejectWithValue(error.message);
+//     }
+//   }
+// );
+
 export const fetchEmployees = createAsyncThunk(
   'employees/fetchEmployees',
   async (_, thunkAPI) => {
     try {
-      // Simulate API call
-      return new Promise((resolve) => {
-        setTimeout(() => {
-          resolve(initialEmployees);
-        }, 500);
+      const token = localStorage.getItem('token');
+
+      const response = await fetch(`${API_URL}/employee`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
       });
+
+      const res = await response.json();
+
+      if (!response.ok) {
+        throw new Error(res.message || 'Failed to fetch');
+      }
+
+      return res;
     } catch (error) {
       return thunkAPI.rejectWithValue(error.message);
     }
   }
 );
+
 
 export const addEmployee = createAsyncThunk(
   'employees/addEmployee',
@@ -80,16 +108,52 @@ export const addEmployee = createAsyncThunk(
   }
 );
 
+
 export const updateEmployee = createAsyncThunk(
   'employees/updateEmployee',
   async (employee, thunkAPI) => {
     try {
-      // Simulate API call
-      return new Promise((resolve) => {
-        setTimeout(() => {
-          resolve(employee);
-        }, 500);
+      const response = await fetch(`${API_URL}/employee/${employee.ID}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${localStorage.getItem('token')}`,
+        },
+        body: JSON.stringify(employee),
       });
+
+      const res = await response.json();
+
+      if (!response.ok) {
+        throw new Error(res.message || 'Failed to update');
+      }
+
+      return res;
+    } catch (error) {
+      return thunkAPI.rejectWithValue(error.message);
+    }
+  }
+);
+
+
+export const deleteEmployee = createAsyncThunk(
+  'employees/deleteEmployee',
+  async (ID, thunkAPI) => {
+    try {
+      const response = await fetch(`${API_URL}/employee/${ID}`, {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${localStorage.getItem('token')}`,
+        },
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'Failed to delete');
+      }
+
+      return ID; // Return ID so you can remove it from Redux state
     } catch (error) {
       return thunkAPI.rejectWithValue(error.message);
     }
@@ -151,6 +215,21 @@ const employeeSlice = createSlice({
         state.error = null;
       })
       .addCase(updateEmployee.rejected, (state, action) => {
+        state.isLoading = false;
+        state.error = action.payload;
+      })
+      // Delete employee
+      .addCase(deleteEmployee.pending, (state) => {
+        state.isLoading = true;
+      })
+      .addCase(deleteEmployee.fulfilled, (state, action) => {
+        state.isLoading = false;
+        state.employees = state.employees.filter(
+          (employee) => employee.ID !== action.payload
+        );
+        state.error = null;
+      })
+      .addCase(deleteEmployee.rejected, (state, action) => {
         state.isLoading = false;
         state.error = action.payload;
       });

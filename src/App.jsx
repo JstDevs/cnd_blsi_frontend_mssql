@@ -14,19 +14,25 @@ import NotFoundPage from "./pages/NotFoundPage";
 
 // Settings pages
 import DepartmentPage from "./pages/settings/DepartmentPage";
+import CurrencyPage from "./pages/settings/CurrencyPage";
 import SubdepartmentPage from "./pages/settings/SubdepartmentPage";
 import UserPage from "./pages/settings/UserPage";
 import ChartOfAccountsPage from "./pages/settings/ChartOfAccountsPage";
+import AccountGroupPage from "./pages/settings/AccountGroupPage";
+import MajorAccountGroupPage from "./pages/settings/MajorAccountGroupPage";
+import SubMajorAccountGroupPage from "./pages/settings/SubMajorAccountGroupPage";
 import VendorPage from "./pages/settings/VendorPage";
 import EmployeePage from "./pages/settings/EmployeePage";
 import EmploymentStatus from "./pages/settings/EmploymentStatus";
 import PositionPage from "./pages/settings/PositionPage";
+import UserrolesPage from "./pages/settings/UserrolesPage";
 import NationalitiesPage from "./pages/settings/NationalitiesPage";
 import LocationPage from "./pages/settings/LocationPage";
 import PPEPage from "./pages/settings/PPE/PPEPage";
 import ApprovalMatrixPage from "./pages/settings/ApprovalMatrixPage";
 import BankPage from "./pages/settings/BankPage";
 import DocumentDetailsPage from "./pages/settings/DocumentDetailsPage";
+import DocumentTypeCategoriesPage from "./pages/settings/DocumentTypeCategoriesPage";
 import ItemPage from "./pages/settings/ItemPage";
 import InvoiceChargeAccountsPage from "./pages/settings/InvoiceChargeAccountsPage";
 import ItemUnitPage from "./pages/settings/ItemUnitPage";
@@ -202,10 +208,23 @@ function App() {
             element={<SubdepartmentPage />}
           />
           <Route path="/settings/users" element={<UserPage />} />
+          <Route path="/settings/user-roles" element={<UserrolesPage />} />
           <Route path="/settings/user-access" element={<UserAccessPage />} />
           <Route
             path="/settings/chart-of-accounts"
             element={<ChartOfAccountsPage />}
+          />
+          <Route
+            path="/settings/account-group"
+            element={<AccountGroupPage />}
+          />
+          <Route
+            path="/settings/major-account-group"
+            element={<MajorAccountGroupPage />}
+          />
+          <Route
+            path="/settings/sub-major-account-group"
+            element={<SubMajorAccountGroupPage />}
           />
           <Route path="/settings/vendors" element={<VendorPage />} />
           <Route path="/settings/employees" element={<EmployeePage />} />
@@ -219,9 +238,14 @@ function App() {
             element={<ApprovalMatrixPage />}
           />
           <Route path="/settings/bank" element={<BankPage />} />
+          <Route path="/settings/currency" element={<CurrencyPage />} />
           <Route
             path="/settings/document-details"
             element={<DocumentDetailsPage />}
+          />
+          <Route
+            path="/settings/document-type-categories"
+            element={<DocumentTypeCategoriesPage />}
           />
           <Route path="/settings/items" element={<ItemPage />} />
           <Route

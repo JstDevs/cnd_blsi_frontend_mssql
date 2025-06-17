@@ -6,59 +6,59 @@ import { PlusIcon, PencilIcon, TrashIcon } from '@heroicons/react/24/outline';
 import DataTable from '../../components/common/DataTable';
 import FormField from '../../components/common/FormField';
 import Modal from '../../components/common/Modal';
-import { fetchDepartments, addDepartment, updateDepartment, deleteDepartment } from '../../features/settings/departmentSlice';
+import { fetchAccountGroups, addAccountGroup, updateAccountGroup, deleteAccountGroup } from '../../features/settings/accountGroupSlice';
 
-// Validation schema for department form
-const departmentSchema = Yup.object().shape({
+// Validation schema for account group form
+const accountGroupSchema = Yup.object().shape({
   Code: Yup.string()
-    .required('Department code is required')
-    .max(10, 'Department code must be at most 10 characters'),
+    .required('Code is required')
+    .max(10, 'Code must be at most 10 characters'),
   Name: Yup.string()
-    .required('Department name is required')
-    .max(100, 'Department name must be at most 100 characters'),
+    .required('Name is required')
+    .max(100, 'Name must be at most 100 characters'),
 });
 
-function DepartmentPage() {
+function AccountGroupPage() {
   const dispatch = useDispatch();
-  const { departments, isLoading, error } = useSelector(state => state.departments);
-  
+  const { accountGroups, isLoading, error } = useSelector(state => state.accountGroups);
+
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [currentDepartment, setCurrentDepartment] = useState(null);
+  const [currentAccountGroup, setCurrentAccountGroup] = useState(null);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
-  const [departmentToDelete, setDepartmentToDelete] = useState(null);
-  
+  const [accountGroupToDelete, setAccountGroupToDelete] = useState(null);
+
   useEffect(() => {
-    dispatch(fetchDepartments());
+    dispatch(fetchAccountGroups());
   }, [dispatch]);
-  
-  const handleAddDepartment = () => {
-    setCurrentDepartment(null);
+
+  const handleAddAccountGroup = () => {
+    setCurrentAccountGroup(null);
     setIsModalOpen(true);
   };
-  
-  const handleEditDepartment = (department) => {
-    setCurrentDepartment(department);
+
+  const handleEditAccountGroup = (accountGroup) => {
+    setCurrentAccountGroup(accountGroup);
     setIsModalOpen(true);
   };
-  
-  const handleDeleteDepartment = (department) => {
-    setDepartmentToDelete(department);
+
+  const handleDeleteAccountGroup = (accountGroup) => {
+    setAccountGroupToDelete(accountGroup);
     setIsDeleteModalOpen(true);
   };
   
   const confirmDelete = () => {
-    if (departmentToDelete) {
-      dispatch(deleteDepartment(departmentToDelete.ID));
+    if (accountGroupToDelete) {
+      dispatch(deleteAccountGroup(accountGroupToDelete.ID));
       setIsDeleteModalOpen(false);
-      setDepartmentToDelete(null);
+      setAccountGroupToDelete(null);
     }
   };
   
   const handleSubmit = (values, { resetForm }) => {
-    if (currentDepartment) {
-      dispatch(updateDepartment({ ...values, ID: currentDepartment.ID }));
+    if (currentAccountGroup) {
+      dispatch(updateAccountGroup({ ...values, ID: currentAccountGroup.ID }));
     } else {
-      dispatch(addDepartment(values));
+      dispatch(addAccountGroup(values));
     }
     setIsModalOpen(false);
     resetForm();
@@ -74,7 +74,7 @@ function DepartmentPage() {
     },
     {
       key: 'Name',
-      header: 'Department Name',
+      header: 'Account Type',
       sortable: true,
     },
   ];
@@ -84,13 +84,13 @@ function DepartmentPage() {
     {
       icon: PencilIcon,
       title: 'Edit',
-      onClick: handleEditDepartment,
+      onClick: handleEditAccountGroup,
       className: 'text-primary-600 hover:text-primary-900 p-1 rounded-full hover:bg-primary-50'
     },
     {
       icon: TrashIcon,
       title: 'Delete',
-      onClick: handleDeleteDepartment,
+      onClick: handleDeleteAccountGroup,
       className: 'text-error-600 hover:text-error-900 p-1 rounded-full hover:bg-error-50'
     },
   ];
@@ -100,16 +100,16 @@ function DepartmentPage() {
       <div className="page-header">
         <div className="flex justify-between items-center">
           <div>
-            <h1>Departments</h1>
-            <p>Manage LGU departments and their details</p>
+            <h1>Account Types</h1>
+            <p>Manage account types and their details</p>
           </div>
           <button
             type="button"
-            onClick={handleAddDepartment}
+            onClick={handleAddAccountGroup}
             className="btn btn-primary flex items-center"
           >
             <PlusIcon className="h-5 w-5 mr-2" aria-hidden="true" />
-            Add Department
+            Add Account Type
           </button>
         </div>
       </div>
@@ -117,35 +117,35 @@ function DepartmentPage() {
       <div className="mt-4">
         <DataTable
           columns={columns}
-          data={departments}
+          data={accountGroups}
           actions={actions}
           loading={isLoading}
         />
       </div>
-      
-      {/* Department Form Modal */}
+
+      {/* Account Group Form Modal */}
       <Modal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
-        title={currentDepartment ? "Edit Department" : "Add Department"}
+        title={currentAccountGroup ? "Edit Account Type" : "Add Account Type"}
       >
         <Formik
           initialValues={{
-            Code: currentDepartment?.Code || '',
-            Name: currentDepartment?.Name || '',
+            Code: currentAccountGroup?.Code || '',
+            Name: currentAccountGroup?.Name || '',
           }}
-          validationSchema={departmentSchema}
+          validationSchema={accountGroupSchema}
           onSubmit={handleSubmit}
         >
           {({ values, errors, touched, handleChange, handleBlur, isSubmitting }) => (
             <Form className="space-y-4">
               <FormField
                 className='p-3 focus:outline-none'
-                label="Department Code"
+                label="Code"
                 name="Code"
                 type="text"
                 required
-                placeholder="Enter department code"
+                placeholder="Enter code"
                 value={values.Code}
                 onChange={handleChange}
                 onBlur={handleBlur}
@@ -154,11 +154,11 @@ function DepartmentPage() {
               />
               <FormField
                 className='p-3 focus:outline-none'
-                label="Department Name"
+                label="Name"
                 name="Name"
                 type="text"
                 required
-                placeholder="Enter department name"
+                placeholder="Enter name"
                 value={values.Name}
                 onChange={handleChange}
                 onBlur={handleBlur}
@@ -194,7 +194,7 @@ function DepartmentPage() {
       >
         <div className="py-3">
           <p className="text-neutral-700">
-            Are you sure you want to delete the department <span className="font-medium">{departmentToDelete?.departmentName}</span>?
+            Are you sure you want to delete <span className="font-medium">{accountGroupToDelete?.Name}</span>?
           </p>
           <p className="text-sm text-neutral-500 mt-2">
             This action cannot be undone and may affect related records in the system.
@@ -221,4 +221,4 @@ function DepartmentPage() {
   );
 }
 
-export default DepartmentPage;
+export default AccountGroupPage;

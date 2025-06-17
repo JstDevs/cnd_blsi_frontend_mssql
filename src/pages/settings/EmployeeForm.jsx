@@ -32,51 +32,51 @@ import { fetchEmploymentStatuses } from '../../features/settings/employmentStatu
 
 // Validation schema
 const employeeSchema = Yup.object().shape({
-  firstName: Yup.string()
+  FirstName: Yup.string()
     .required('First name is required')
     .max(100, 'First name must be at most 100 characters'),
-  lastName: Yup.string()
+  LastName: Yup.string()
     .required('Last name is required')
     .max(100, 'Last name must be at most 100 characters'),
-  middleName: Yup.string()
+  MiddleName: Yup.string()
     .max(100, 'Middle name must be at most 100 characters'),
-  birthDate: Yup.date()
+  Birthday: Yup.date()
     .required('Birth date is required')
     .max(new Date(), 'Birth date cannot be in the future'),
-  gender: Yup.string()
+  Gender: Yup.string()
     .required('Gender is required'),
   civilStatus: Yup.string()
     .required('Civil status is required'),
-  address: Yup.string()
+  StreetAddress: Yup.string()
     .required('Address is required')
     .max(200, 'Address must be at most 200 characters'),
-  contactNumber: Yup.string()
+  MobileNumber: Yup.string()
     .required('Contact number is required')
     .matches(/^[0-9+\-() ]+$/, 'Invalid contact number format'),
-  email: Yup.string()
+  EmailAddress: Yup.string()
     .email('Invalid email address')
     .required('Email is required'),
-  departmentId: Yup.number()
+  DepartmentID: Yup.number()
     .required('Department is required'),
-  position: Yup.string()
+  PositionID: Yup.string()
     .required('Position is required'),
-  employmentStatus: Yup.string()
+  EmploymentStatusID: Yup.string()
     .required('Employment status is required'),
-  dateHired: Yup.date()
+  DateHired: Yup.date()
     .required('Date hired is required'),
-  tin: Yup.string()
+  TIN: Yup.string()
     .required('TIN is required')
     .matches(/^\d{3}-\d{3}-\d{3}-\d{3}$/, 'Invalid TIN format (e.g., 123-456-789-000)'),
-  sssNumber: Yup.string()
+  SSS: Yup.string()
     .required('SSS number is required')
     .matches(/^\d{2}-\d{7}-\d{1}$/, 'Invalid SSS number format (e.g., 12-3456789-0)'),
-  philHealthNumber: Yup.string()
+  Philhealth: Yup.string()
     .required('PhilHealth number is required')
     .matches(/^\d{2}-\d{9}-\d{1}$/, 'Invalid PhilHealth number format (e.g., 12-345678901-2)'),
-  pagIbigNumber: Yup.string()
+  Pagibig: Yup.string()
     .required('Pag-IBIG number is required')
     .matches(/^\d{4}-\d{4}-\d{4}$/, 'Invalid Pag-IBIG number format (e.g., 1234-5678-9012)'),
-  status: Yup.string()
+  Active: Yup.string()
     .required('Status is required'),
 });
 
@@ -112,33 +112,33 @@ function EmployeeForm({ initialData, onClose }) {
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const initialValues = initialData ? { ...initialData } : {
-    firstName: '',
-    lastName: '',
-    middleName: '',
-    birthDate: '',
-    gender: '',
+    FirstName: '',
+    LastName: '',
+    MiddleName: '',
+    Birthday: '',
+    Gender: '',
     civilStatus: '',
-    address: '',
-    contactNumber: '',
-    email: '',
-    departmentId: '',
-    position: '',
-    employmentStatus: '',
-    dateHired: new Date().toISOString().split('T')[0],
-    tin: '',
-    sssNumber: '',
-    philHealthNumber: '',
-    pagIbigNumber: '',
-    status: 'Active',
+    StreetAddress: '',
+    MobileNumber: '',
+    EmailAddress: '',
+    DepartmentID: '',
+    PositionID: '',
+    EmploymentStatusID: '',
+    DateHired: new Date().toISOString().split('T')[0],
+    TIN: '',
+    SSS: '',
+    Philhealth: '',
+    Pagibig: '',
+    Active: 'Active',
   };
 
   const handleSubmit = (values) => {
     setIsSubmitting(true);
-    
-    const departmentName = departments.find(d => d.value === Number(values.departmentId))?.label || '';
+
+    const departmentName = departments.find(d => d.value === Number(values.DepartmentID))?.label || '';
     const submissionData = {
       ...values,
-      departmentId: Number(values.departmentId),
+      DepartmentID: Number(values.DepartmentID),
       departmentName,
     };
     
@@ -172,42 +172,42 @@ function EmployeeForm({ initialData, onClose }) {
             <FormField
               className='p-3 focus:outline-none'
               label="Last Name"
-              name="lastName"
+              name="LastName"
               type="text"
               required
               placeholder="Enter last name"
-              value={values.lastName}
+              value={values.LastName}
               onChange={handleChange}
               onBlur={handleBlur}
-              error={errors.lastName}
-              touched={touched.lastName}
+              error={errors.LastName}
+              touched={touched.LastName}
             />
             
             <FormField
               className='p-3 focus:outline-none'
               label="First Name"
-              name="firstName"
+              name="FirstName"
               type="text"
               required
               placeholder="Enter first name"
-              value={values.firstName}
+              value={values.FirstName}
               onChange={handleChange}
               onBlur={handleBlur}
-              error={errors.firstName}
-              touched={touched.firstName}
+              error={errors.FirstName}
+              touched={touched.FirstName}
             />
             
             <FormField
               className='p-3 focus:outline-none'
               label="Middle Name"
-              name="middleName"
+              name="MiddleName"
               type="text"
               placeholder="Enter middle name"
-              value={values.middleName}
+              value={values.MiddleName}
               onChange={handleChange}
               onBlur={handleBlur}
-              error={errors.middleName}
-              touched={touched.middleName}
+              error={errors.MiddleName}
+              touched={touched.MiddleName}
             />
           </div>
           
@@ -215,27 +215,27 @@ function EmployeeForm({ initialData, onClose }) {
             <FormField
               className='p-3 focus:outline-none'
               label="Birth Date"
-              name="birthDate"
+              name="Birthday"
               type="date"
               required
-              value={values.birthDate}
+              value={values.Birthday}
               onChange={handleChange}
               onBlur={handleBlur}
-              error={errors.birthDate}
-              touched={touched.birthDate}
+              error={errors.Birthday}
+              touched={touched.Birthday}
             />
             
             <FormField
               className='p-3 focus:outline-none'
               label="Gender"
-              name="gender"
+              name="Gender"
               type="select"
               required
-              value={values.gender}
+              value={values.Gender}
               onChange={handleChange}
               onBlur={handleBlur}
-              error={errors.gender}
-              touched={touched.gender}
+              error={errors.Gender}
+              touched={touched.Gender}
               options={[
                 { value: 'Male', label: 'Male' },
                 { value: 'Female', label: 'Female' },
@@ -265,15 +265,15 @@ function EmployeeForm({ initialData, onClose }) {
           <FormField
             className='p-3 focus:outline-none'
             label="Address"
-            name="address"
+            name="StreetAddress"
             type="textarea"
             required
             placeholder="Enter complete address"
-            value={values.address}
+            value={values.StreetAddress}
             onChange={handleChange}
             onBlur={handleBlur}
-            error={errors.address}
-            touched={touched.address}
+            error={errors.StreetAddress}
+            touched={touched.StreetAddress}
             rows={2}
           />
           
@@ -281,29 +281,29 @@ function EmployeeForm({ initialData, onClose }) {
             <FormField
               className='p-3 focus:outline-none'
               label="Contact Number"
-              name="contactNumber"
+              name="MobileNumber"
               type="text"
               required
               placeholder="Enter contact number"
-              value={values.contactNumber}
+              value={values.MobileNumber}
               onChange={handleChange}
               onBlur={handleBlur}
-              error={errors.contactNumber}
-              touched={touched.contactNumber}
+              error={errors.MobileNumber}
+              touched={touched.MobileNumber}
             />
             
             <FormField
               className='p-3 focus:outline-none'
               label="Email"
-              name="email"
+              name="EmailAddress"
               type="email"
               required
               placeholder="Enter email address"
-              value={values.email}
+              value={values.EmailAddress}
               onChange={handleChange}
               onBlur={handleBlur}
-              error={errors.email}
-              touched={touched.email}
+              error={errors.EmailAddress}
+              touched={touched.EmailAddress}
             />
           </div>
           
@@ -311,14 +311,14 @@ function EmployeeForm({ initialData, onClose }) {
             <FormField
               className='p-3 focus:outline-none'
               label="Department"
-              name="departmentId"
+              name="DepartmentID"
               type="select"
               required
-              value={values.departmentId}
+              value={values.DepartmentID}
               onChange={handleChange}
               onBlur={handleBlur}
-              error={errors.departmentId}
-              touched={touched.departmentId}
+              error={errors.DepartmentID}
+              touched={touched.DepartmentID}
               options={departmentOptions}
               disabled={isLoadingDepartments}
             />
@@ -326,14 +326,14 @@ function EmployeeForm({ initialData, onClose }) {
             <FormField
               className='p-3 focus:outline-none'
               label="Position"
-              name="position"
+              name="PositionID"
               type="select"
               required
-              value={values.position}
+              value={values.PositionID}
               onChange={handleChange}
               onBlur={handleBlur}
-              error={errors.position}
-              touched={touched.position}
+              error={errors.PositionID}
+              touched={touched.PositionID}
               options={positionOptions}
               disabled={isLoadingPositions}
             />
@@ -343,14 +343,14 @@ function EmployeeForm({ initialData, onClose }) {
             <FormField
               className='p-3 focus:outline-none'
               label="Employment Status"
-              name="employmentStatus"
+              name="EmploymentStatusID"
               type="select"
               required
-              value={values.employmentStatus}
+              value={values.EmploymentStatusID}
               onChange={handleChange}
               onBlur={handleBlur}
-              error={errors.employmentStatus}
-              touched={touched.employmentStatus}
+              error={errors.EmploymentStatusID}
+              touched={touched.EmploymentStatusID}
               options={employmentStatusOptions}
               disabled={isLoadingEmploymentStatuses}
             />
@@ -358,14 +358,14 @@ function EmployeeForm({ initialData, onClose }) {
             <FormField
               className='p-3 focus:outline-none'
               label="Date Hired"
-              name="dateHired"
+              name="DateHired"
               type="date"
               required
-              value={values.dateHired}
+              value={values.DateHired}
               onChange={handleChange}
               onBlur={handleBlur}
-              error={errors.dateHired}
-              touched={touched.dateHired}
+              error={errors.DateHired}
+              touched={touched.DateHired}
             />
           </div>
           
@@ -373,29 +373,29 @@ function EmployeeForm({ initialData, onClose }) {
             <FormField
               className='p-3 focus:outline-none'
               label="TIN"
-              name="tin"
+              name="TIN"
               type="text"
               required
               placeholder="123-456-789-000"
-              value={values.tin}
+              value={values.TIN}
               onChange={handleChange}
               onBlur={handleBlur}
-              error={errors.tin}
-              touched={touched.tin}
+              error={errors.TIN}
+              touched={touched.TIN}
             />
             
             <FormField
               className='p-3 focus:outline-none'
               label="SSS Number"
-              name="sssNumber"
+              name="SSS"
               type="text"
               required
               placeholder="12-3456789-0"
-              value={values.sssNumber}
+              value={values.SSS}
               onChange={handleChange}
               onBlur={handleBlur}
-              error={errors.sssNumber}
-              touched={touched.sssNumber}
+              error={errors.SSS}
+              touched={touched.SSS}
             />
           </div>
           
@@ -403,46 +403,46 @@ function EmployeeForm({ initialData, onClose }) {
             <FormField
               className='p-3 focus:outline-none'
               label="PhilHealth Number"
-              name="philHealthNumber"
+              name="Philhealth"
               type="text"
               required
               placeholder="12-345678901-2"
-              value={values.philHealthNumber}
+              value={values.Philhealth}
               onChange={handleChange}
               onBlur={handleBlur}
-              error={errors.philHealthNumber}
-              touched={touched.philHealthNumber}
+              error={errors.Philhealth}
+              touched={touched.Philhealth}
             />
             
             <FormField
               className='p-3 focus:outline-none'
               label="Pag-IBIG Number"
-              name="pagIbigNumber"
+              name="Pagibig"
               type="text"
               required
               placeholder="1234-5678-9012"
-              value={values.pagIbigNumber}
+              value={values.Pagibig}
               onChange={handleChange}
               onBlur={handleBlur}
-              error={errors.pagIbigNumber}
-              touched={touched.pagIbigNumber}
+              error={errors.Pagibig}
+              touched={touched.Pagibig}
             />
           </div>
           
           <FormField
             className='p-3 focus:outline-none'
             label="Status"
-            name="status"
+            name="Active"
             type="select"
             required
-            value={values.status}
+            value={values.Active}
             onChange={handleChange}
             onBlur={handleBlur}
-            error={errors.status}
-            touched={touched.status}
+            error={errors.Active}
+            touched={touched.Active}
             options={[
-              { value: 'Active', label: 'Active' },
-              { value: 'Inactive', label: 'Inactive' },
+              { value: '1', label: 'Active' },
+              { value: '0', label: 'Inactive' },
             ]}
           />
           

@@ -6,59 +6,59 @@ import { PlusIcon, PencilIcon, TrashIcon } from '@heroicons/react/24/outline';
 import DataTable from '../../components/common/DataTable';
 import FormField from '../../components/common/FormField';
 import Modal from '../../components/common/Modal';
-import { fetchDepartments, addDepartment, updateDepartment, deleteDepartment } from '../../features/settings/departmentSlice';
+import { fetchCurrencies, addCurrency, updateCurrency, deleteCurrency } from '../../features/settings/currencySlice';
 
-// Validation schema for department form
-const departmentSchema = Yup.object().shape({
+// Validation schema for currency form
+const currencySchema = Yup.object().shape({
   Code: Yup.string()
-    .required('Department code is required')
-    .max(10, 'Department code must be at most 10 characters'),
+    .required('Currency code is required')
+    .max(10, 'Currency code must be at most 10 characters'),
   Name: Yup.string()
-    .required('Department name is required')
-    .max(100, 'Department name must be at most 100 characters'),
+    .required('Currency name is required')
+    .max(100, 'Currency name must be at most 100 characters'),
 });
 
-function DepartmentPage() {
+function CurrencyPage() {
   const dispatch = useDispatch();
-  const { departments, isLoading, error } = useSelector(state => state.departments);
-  
+  const { currencies, isLoading, error } = useSelector(state => state.currencies);
+
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [currentDepartment, setCurrentDepartment] = useState(null);
+  const [currentCurrency, setCurrentCurrency] = useState(null);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
-  const [departmentToDelete, setDepartmentToDelete] = useState(null);
-  
+  const [currencyToDelete, setCurrencyToDelete] = useState(null);
+
   useEffect(() => {
-    dispatch(fetchDepartments());
+    dispatch(fetchCurrencies());
   }, [dispatch]);
-  
-  const handleAddDepartment = () => {
-    setCurrentDepartment(null);
+
+  const handleAddCurrency = () => {
+    setCurrentCurrency(null);
     setIsModalOpen(true);
   };
-  
-  const handleEditDepartment = (department) => {
-    setCurrentDepartment(department);
+
+  const handleEditCurrency = (currency) => {
+    setCurrentCurrency(currency);
     setIsModalOpen(true);
   };
-  
-  const handleDeleteDepartment = (department) => {
-    setDepartmentToDelete(department);
+
+  const handleDeleteCurrency = (currency) => {
+    setCurrencyToDelete(currency);
     setIsDeleteModalOpen(true);
   };
   
   const confirmDelete = () => {
-    if (departmentToDelete) {
-      dispatch(deleteDepartment(departmentToDelete.ID));
+    if (currencyToDelete) {
+      dispatch(deleteCurrency(currencyToDelete.ID));
       setIsDeleteModalOpen(false);
-      setDepartmentToDelete(null);
+      setCurrencyToDelete(null);
     }
   };
   
   const handleSubmit = (values, { resetForm }) => {
-    if (currentDepartment) {
-      dispatch(updateDepartment({ ...values, ID: currentDepartment.ID }));
+    if (currentCurrency) {
+      dispatch(updateCurrency({ ...values, ID: currentCurrency.ID }));
     } else {
-      dispatch(addDepartment(values));
+      dispatch(addCurrency(values));
     }
     setIsModalOpen(false);
     resetForm();
@@ -74,7 +74,7 @@ function DepartmentPage() {
     },
     {
       key: 'Name',
-      header: 'Department Name',
+      header: 'Currency Name',
       sortable: true,
     },
   ];
@@ -84,13 +84,13 @@ function DepartmentPage() {
     {
       icon: PencilIcon,
       title: 'Edit',
-      onClick: handleEditDepartment,
+      onClick: handleEditCurrency,
       className: 'text-primary-600 hover:text-primary-900 p-1 rounded-full hover:bg-primary-50'
     },
     {
       icon: TrashIcon,
       title: 'Delete',
-      onClick: handleDeleteDepartment,
+      onClick: handleDeleteCurrency,
       className: 'text-error-600 hover:text-error-900 p-1 rounded-full hover:bg-error-50'
     },
   ];
@@ -100,16 +100,16 @@ function DepartmentPage() {
       <div className="page-header">
         <div className="flex justify-between items-center">
           <div>
-            <h1>Departments</h1>
-            <p>Manage LGU departments and their details</p>
+            <h1>Currencies</h1>
+            <p>Manage LGU currencies and their details</p>
           </div>
           <button
             type="button"
-            onClick={handleAddDepartment}
+            onClick={handleAddCurrency}
             className="btn btn-primary flex items-center"
           >
             <PlusIcon className="h-5 w-5 mr-2" aria-hidden="true" />
-            Add Department
+            Add Currency
           </button>
         </div>
       </div>
@@ -117,35 +117,35 @@ function DepartmentPage() {
       <div className="mt-4">
         <DataTable
           columns={columns}
-          data={departments}
+          data={currencies}
           actions={actions}
           loading={isLoading}
         />
       </div>
-      
-      {/* Department Form Modal */}
+
+      {/* Currency Form Modal */}
       <Modal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
-        title={currentDepartment ? "Edit Department" : "Add Department"}
+        title={currentCurrency ? "Edit Currency" : "Add Currency"}
       >
         <Formik
           initialValues={{
-            Code: currentDepartment?.Code || '',
-            Name: currentDepartment?.Name || '',
+            Code: currentCurrency?.Code || '',
+            Name: currentCurrency?.Name || '',
           }}
-          validationSchema={departmentSchema}
+          validationSchema={currencySchema}
           onSubmit={handleSubmit}
         >
           {({ values, errors, touched, handleChange, handleBlur, isSubmitting }) => (
             <Form className="space-y-4">
               <FormField
                 className='p-3 focus:outline-none'
-                label="Department Code"
+                label="Currency Code"
                 name="Code"
                 type="text"
                 required
-                placeholder="Enter department code"
+                placeholder="Enter currency code"
                 value={values.Code}
                 onChange={handleChange}
                 onBlur={handleBlur}
@@ -154,11 +154,11 @@ function DepartmentPage() {
               />
               <FormField
                 className='p-3 focus:outline-none'
-                label="Department Name"
+                label="Currency Name"
                 name="Name"
                 type="text"
                 required
-                placeholder="Enter department name"
+                placeholder="Enter currency name"
                 value={values.Name}
                 onChange={handleChange}
                 onBlur={handleBlur}
@@ -194,7 +194,7 @@ function DepartmentPage() {
       >
         <div className="py-3">
           <p className="text-neutral-700">
-            Are you sure you want to delete the department <span className="font-medium">{departmentToDelete?.departmentName}</span>?
+            Are you sure you want to delete the currency <span className="font-medium">{currencyToDelete?.Name}</span>?
           </p>
           <p className="text-sm text-neutral-500 mt-2">
             This action cannot be undone and may affect related records in the system.
@@ -221,4 +221,4 @@ function DepartmentPage() {
   );
 }
 
-export default DepartmentPage;
+export default CurrencyPage;

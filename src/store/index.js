@@ -1,9 +1,13 @@
 import { configureStore } from '@reduxjs/toolkit';
 import authReducer from '../features/auth/authSlice';
 import departmentReducer from '../features/settings/departmentSlice';
+import currencyReducer from '../features/settings/currencySlice';
 import subdepartmentReducer from '../features/settings/subdepartmentSlice';
 import userReducer from '../features/settings/userSlice';
 import chartOfAccountsReducer from '../features/settings/chartOfAccountsSlice';
+import accountGroupReducer from '../features/settings/accountGroupSlice';
+import majorAccountGroupReducer from '../features/settings/majorAccountGroupSlice';
+import subMajorAccountGroupReducer from '../features/settings/subMajorAccountGroupSlice';
 import vendorReducer from '../features/settings/vendorSlice';
 import employeeReducer from '../features/settings/employeeSlice';
 import obligationRequestReducer from '../features/disbursement/obligationRequestSlice';
@@ -27,6 +31,8 @@ import { paymentTermsReducer } from '../features/settings/paymentTermsSlice';
 import { industryReducer } from '../features/settings/industrySlice';
 import { employmentStatusReducer } from '../features/settings/employmentStatusSlice';
 import { positionReducer } from '../features/settings/positionSlice';
+import { documentTypeCategoriesReducer } from '../features/settings/documentTypeCategoriesSlice';
+import { userrolesReducer } from '../features/settings/userrolesSlice';
 import { nationalityReducer } from '../features/settings/nationalitiesSlice';
 
 import communityTaxReducer from '../features/communityTax/communityTaxSlice';
@@ -40,9 +46,13 @@ export const store = configureStore({
   reducer: {
     auth: authReducer,
     departments: departmentReducer,
+    currencies: currencyReducer,
     subdepartments: subdepartmentReducer,
     users: userReducer,
     chartOfAccounts: chartOfAccountsReducer,
+    accountGroups: accountGroupReducer,
+    majorAccountGroups: majorAccountGroupReducer,
+    subMajorAccountGroups: subMajorAccountGroupReducer,
     vendors: vendorReducer,
     employees: employeeReducer,
     obligationRequests: obligationRequestReducer,
@@ -53,6 +63,7 @@ export const store = configureStore({
     approvalMatrix: approvalMatrixReducer,
     banks: bankReducer,
     documentDetails: documentDetailsReducer,
+    documentTypeCategories: documentTypeCategoriesReducer,
     items: itemReducer,
     invoiceChargeAccounts: invoiceChargeAccountsReducer,
     itemUnits: itemUnitsReducer,
@@ -66,6 +77,7 @@ export const store = configureStore({
     industries: industryReducer,
     employmentStatuses: employmentStatusReducer,
     positions: positionReducer,
+    userroles: userrolesReducer,
     nationalities: nationalityReducer,
     communityTax: communityTaxReducer,
     generalServiceReceipts: generalServiceReceiptsReducer,

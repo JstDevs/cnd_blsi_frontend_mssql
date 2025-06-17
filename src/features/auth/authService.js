@@ -36,8 +36,8 @@ const login = async (userName, password) => {
     });
 
     const res = await response.json();
-    if (!response.ok) {
-      throw new Error(res.message || 'Login failed');
+    if (!response.ok || !res.token) {
+      throw new Error(res.message || res.errors?.general || 'Login failed');
     }
 
     localStorage.setItem('token', res.token);
