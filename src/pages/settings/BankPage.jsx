@@ -43,7 +43,7 @@ const BankPage = () => {
   const confirmDelete = async () => {
     if (bankToDelete) {
       try {
-        await dispatch(deleteBank(bankToDelete.id)).unwrap();
+        await dispatch(deleteBank(bankToDelete.ID)).unwrap();
         toast.success('Bank deleted successfully');
         setIsDeleteModalOpen(false);
         setBankToDelete(null);
@@ -65,48 +65,36 @@ const BankPage = () => {
   // Table columns definition
   const columns = [
     {
-      key: 'branchCode',
+      key: 'BranchCode',
       header: 'Branch Code',
       sortable: true,
       className: 'font-medium text-neutral-900',
     },
     {
-      key: 'branch',
+      key: 'Branch',
       header: 'Branch',
       sortable: true,
     },
     {
-      key: 'name',
+      key: 'Name',
       header: 'Bank Name',
       sortable: true,
     },
     {
-      key: 'accountNumber',
+      key: 'AccountNumber',
       header: 'Account Number',
       sortable: true,
     },
     {
-      key: 'balance',
+      key: 'Balance',
       header: 'Balance',
       sortable: true,
       render: (value, row) => formatCurrency(value, row.currency),
     },
     {
-      key: 'currency',
+      key: 'CurrencyID',
       header: 'Currency',
       sortable: true,
-    },
-    {
-      key: 'status',
-      header: 'Status',
-      sortable: true,
-      render: (value) => (
-        <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
-          value === 'Active' ? 'bg-success-100 text-success-800' : 'bg-neutral-100 text-neutral-800'
-        }`}>
-          {value}
-        </span>
-      ),
     },
   ];
 

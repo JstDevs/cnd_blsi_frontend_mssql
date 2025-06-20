@@ -2,14 +2,14 @@ import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 const API_URL = import.meta.env.VITE_API_URL;
 
 // Mock Data
-const mockIndustries = [];
-export const fetchIndustries = createAsyncThunk(
-  'industries/fetchIndustries',
+const mockRegions = [];
+export const fetchRegions = createAsyncThunk(
+  'regions/fetchRegions',
   async (_, thunkAPI) => {
     try {
       const token = localStorage.getItem('token');
 
-      const response = await fetch(`${API_URL}/industryType`, {
+      const response = await fetch(`${API_URL}/region`, {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',
@@ -31,17 +31,17 @@ export const fetchIndustries = createAsyncThunk(
 );
 
 
-export const addIndustry = createAsyncThunk(
-  'industries/addIndustry',
-  async (industry, thunkAPI) => {
+export const addRegion = createAsyncThunk(
+  'regions/addRegion',
+  async (region, thunkAPI) => {
     try {
-      const response = await fetch(`${API_URL}/industryType`, {
+      const response = await fetch(`${API_URL}/region`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
           Authorization: `Bearer ${localStorage.getItem('token')}`,
         },
-        body: JSON.stringify(industry),
+        body: JSON.stringify(region),
       });
 
       const res = await response.json();
@@ -57,17 +57,17 @@ export const addIndustry = createAsyncThunk(
   }
 );
 
-export const updateIndustry = createAsyncThunk(
-  'industries/updateIndustry',
-  async (industry, thunkAPI) => {
+export const updateRegion = createAsyncThunk(
+  'regions/updateRegion',
+  async (region, thunkAPI) => {
     try {
-      const response = await fetch(`${API_URL}/industryType/${industry.ID}`, {
+      const response = await fetch(`${API_URL}/region/${region.ID}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
           Authorization: `Bearer ${localStorage.getItem('token')}`,
         },
-        body: JSON.stringify(industry),
+        body: JSON.stringify(region),
       });
 
       const res = await response.json();
@@ -83,11 +83,11 @@ export const updateIndustry = createAsyncThunk(
   }
 );
 
-export const deleteIndustry = createAsyncThunk(
-  'industries/deleteIndustry',
+export const deleteRegion = createAsyncThunk(
+  'regions/deleteRegion',
   async (ID, thunkAPI) => {
     try {
-      const response = await fetch(`${API_URL}/industryType/${ID}`, {
+      const response = await fetch(`${API_URL}/region/${ID}`, {
         method: 'DELETE',
         headers: {
           'Content-Type': 'application/json',
@@ -107,77 +107,77 @@ export const deleteIndustry = createAsyncThunk(
   }
 );
 
-const industriesSlice = createSlice({
-  name: 'industries',
+const regionsSlice = createSlice({
+  name: 'regions',
   initialState: {
-    industries: [],
+    regions: [],
     isLoading: false,
     error: null,
   },
   reducers: {},
   extraReducers: (builder) => {
     builder
-      .addCase(fetchIndustries.pending, (state) => {
+      .addCase(fetchRegions.pending, (state) => {
         state.isLoading = true;
         state.error = null;
       })
-      .addCase(fetchIndustries.fulfilled, (state, action) => {
+      .addCase(fetchRegions.fulfilled, (state, action) => {
         state.isLoading = false;
-        state.industries = Array.isArray(action.payload) ? action.payload : [];
+        state.regions = Array.isArray(action.payload) ? action.payload : [];
       })
-      .addCase(fetchIndustries.rejected, (state, action) => {
+      .addCase(fetchRegions.rejected, (state, action) => {
         state.isLoading = false;
-        state.error = action.error.message || 'Failed to fetch industries';
-        console.warn('Failed to fetch industries, using mock data.', state.error);
-        state.industries = mockIndustries;
+        state.error = action.error.message || 'Failed to fetch regions';
+        console.warn('Failed to fetch regions, using mock data.', state.error);
+        state.regions = mockRegions;
       })
-      .addCase(addIndustry.pending, (state) => {
+      .addCase(addRegion.pending, (state) => {
         state.isLoading = true;
         state.error = null;
       })
-      .addCase(addIndustry.fulfilled, (state, action) => {
+      .addCase(addRegion.fulfilled, (state, action) => {
         state.isLoading = false;
-        if (!Array.isArray(state.industries)) {
-          state.industries = [];
+        if (!Array.isArray(state.regions)) {
+          state.regions = [];
         }
-        state.industries.push(action.payload);
+        state.regions.push(action.payload);
       })
-      .addCase(addIndustry.rejected, (state, action) => {
+      .addCase(addRegion.rejected, (state, action) => {
         state.isLoading = false;
-        state.error = action.error.message || 'Failed to add industry';
-        console.error('Failed to add industry:', state.error);
+        state.error = action.error.message || 'Failed to add region';
+        console.error('Failed to add region:', state.error);
       })
-      .addCase(updateIndustry.pending, (state) => {
+      .addCase(updateRegion.pending, (state) => {
         state.isLoading = true;
         state.error = null;
       })
-      .addCase(updateIndustry.fulfilled, (state, action) => {
+      .addCase(updateRegion.fulfilled, (state, action) => {
         state.isLoading = false;
-        const index = state.industries.findIndex(item => item.ID === action.payload.ID);
+        const index = state.regions.findIndex(item => item.ID === action.payload.ID);
         if (index !== -1) {
-          if (!Array.isArray(state.industries)) {
-            state.industries = [];
+          if (!Array.isArray(state.regions)) {
+            state.regions = [];
           }
-          state.industries[index] = action.payload;
+          state.regions[index] = action.payload;
         }
       })
-      .addCase(deleteIndustry.pending, (state) => {
+      .addCase(deleteRegion.pending, (state) => {
         state.isLoading = true;
         state.error = null;
       })
-      .addCase(deleteIndustry.fulfilled, (state, action) => {
+      .addCase(deleteRegion.fulfilled, (state, action) => {
         state.isLoading = false;
-        if (!Array.isArray(state.industries)) {
-          state.industries = [];
+        if (!Array.isArray(state.regions)) {
+          state.regions = [];
         }
-        state.industries = state.industries.filter(item => item.ID !== action.payload);
+        state.regions = state.regions.filter(item => item.ID !== action.payload);
       })
-      .addCase(deleteIndustry.rejected, (state, action) => {
+      .addCase(deleteRegion.rejected, (state, action) => {
         state.isLoading = false;
-        state.error = action.error.message || 'Failed to delete industry';
-        console.error('Failed to delete industry:', state.error);
+        state.error = action.error.message || 'Failed to delete region';
+        console.error('Failed to delete region:', state.error);
       });
   },
 });
 
-export const industriesReducer = industriesSlice.reducer;
+export const regionsReducer = regionsSlice.reducer;

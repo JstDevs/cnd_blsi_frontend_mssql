@@ -4,17 +4,16 @@ import FormField from '../common/FormField';
 
 // Mock data for Tax Type select
 const mockTaxTypes = [
-  { value: 'vat', label: 'VAT' },
-  { value: 'ewt', label: 'EWT' },
-  { value: 'other', label: 'Other' },
+  { value: 'Individual', label: 'Individual' },
+  { value: 'Corporate', label: 'Corporate' },
 ];
 
 function TaxCodeForm({ initialData, onSubmit, onClose }) {
   const validationSchema = Yup.object({
-    type: Yup.string().required('Type is required'),
-    code: Yup.string().required('Code is required'),
-    natureOfPayment: Yup.string().required('Nature of Payment is required'),
-    rate: Yup.number()
+    Type: Yup.string().required('Type is required'),
+    Code: Yup.string().required('Code is required'),
+    Name: Yup.string().required('Nature of Payment is required'),
+    Rate: Yup.number()
       .required('Rate is required')
       .min(0, 'Rate cannot be negative')
       .max(100, 'Rate cannot exceed 100%'),
@@ -23,10 +22,10 @@ function TaxCodeForm({ initialData, onSubmit, onClose }) {
   return (
     <Formik
       initialValues={initialData || {
-        type: '',
-        code: '',
-        natureOfPayment: '',
-        rate: 0,
+        Type: '',
+        Code: '',
+        Name: '',
+        Rate: 0,
       }}
       validationSchema={validationSchema}
       onSubmit={onSubmit}
@@ -44,48 +43,48 @@ function TaxCodeForm({ initialData, onSubmit, onClose }) {
         <form onSubmit={handleSubmit} className="space-y-4">
           <FormField
             label="Type"
-            name="type"
+            name="Type"
             type="select"
             options={mockTaxTypes}
-            value={values.type}
+            value={values.Type}
             onChange={handleChange}
             onBlur={handleBlur}
-            error={errors.type}
-            touched={touched.type}
+            error={errors.Type}
+            touched={touched.Type}
             required
           />
           <FormField
             label="Code"
-            name="code"
+            name="Code"
             type="text"
-            value={values.code}
+            value={values.Code}
             onChange={handleChange}
             onBlur={handleBlur}
-            error={errors.code}
-            touched={touched.code}
-            required
-          />
-          <FormField
-            label="Nature of Payment"
-            name="natureOfPayment"
-            type="text"
-            value={values.natureOfPayment}
-            onChange={handleChange}
-            onBlur={handleBlur}
-            error={errors.natureOfPayment}
-            touched={touched.natureOfPayment}
+            error={errors.Code}
+            touched={touched.Code}
             required
           />
           <FormField
             label="Rate (%)"
-            name="rate"
+            name="Rate"
             type="number"
             step="0.01"
-            value={values.rate}
+            value={values.Rate}
             onChange={handleChange}
             onBlur={handleBlur}
-            error={errors.rate}
-            touched={touched.rate}
+            error={errors.Rate}
+            touched={touched.Rate}
+            required
+          />
+          <FormField
+            label="Nature of Payment"
+            name="Name"
+            type="textarea"
+            value={values.Name}
+            onChange={handleChange}
+            onBlur={handleBlur}
+            error={errors.Name}
+            touched={touched.Name}
             required
           />
 

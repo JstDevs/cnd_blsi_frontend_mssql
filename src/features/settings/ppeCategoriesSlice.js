@@ -30,7 +30,7 @@ export const fetchPpeCategories = createAsyncThunk(
   }
 );
 
-  export const addPpeCategory = createAsyncThunk(
+export const addPpeCategory = createAsyncThunk(
   'ppeCategories/addPpeCategory',
   async (ppeCategory, thunkAPI) => {
     try {

@@ -42,7 +42,7 @@ function TaxCodePage() {
   const confirmDelete = async () => {
     if (taxCodeToDelete) {
       try {
-        await dispatch(deleteTaxCode(taxCodeToDelete.id)).unwrap();
+        await dispatch(deleteTaxCode(taxCodeToDelete.ID)).unwrap();
         setIsDeleteModalOpen(false);
         setTaxCodeToDelete(null);
       } catch (error) {
@@ -55,7 +55,7 @@ function TaxCodePage() {
     // Assuming rate is stored as a decimal, convert to percentage for display if needed later
     // When submitting, ensure it's in the correct format for your backend (decimal usually)
     if (currentTaxCode) {
-      dispatch(updateTaxCode({ ...values, id: currentTaxCode.id }));
+      dispatch(updateTaxCode({ ...values, ID: currentTaxCode.ID }));
     } else {
       dispatch(addTaxCode(values));
     }
@@ -64,23 +64,23 @@ function TaxCodePage() {
 
   const columns = [
     {
-      key: 'type',
+      key: 'Type',
       header: 'Type',
       sortable: true,
       // Optional: Add render function to display label instead of value if needed
     },
     {
-      key: 'code',
+      key: 'Code',
       header: 'Code',
       sortable: true
     },
     {
-      key: 'natureOfPayment',
+      key: 'Name',
       header: 'Nature of Payment',
       sortable: true
     },
     {
-      key: 'rate',
+      key: 'Rate',
       header: 'Rate (%)',
       sortable: true,
       render: (value) => `${value} %`

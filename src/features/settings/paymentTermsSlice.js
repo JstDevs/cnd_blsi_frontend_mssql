@@ -1,33 +1,111 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
+const API_URL = import.meta.env.VITE_API_URL;
 
 // Mock Data
-const mockPaymentTerms = [
-  { id: '1', code: 'NET30', name: 'Net 30 Days', numberOfDays: 30 },
-  { id: '2', code: 'DUEONRECEIPT', name: 'Due on Receipt', numberOfDays: 0 },
-  { id: '3', code: 'NET60', name: 'Net 60 Days', numberOfDays: 60 },
-];
+const mockPaymentTerms = [];
+export const fetchPaymentTerms = createAsyncThunk(
+  'paymentTerms/fetchPaymentTerms',
+  async (_, thunkAPI) => {
+    try {
+      const token = localStorage.getItem('token');
 
-// Async Thunks (Mock API calls)
-export const fetchPaymentTerms = createAsyncThunk('paymentTerms/fetchPaymentTerms', async () => {
-  console.log('Mock API call: Fetching payment terms');
-  return new Promise(resolve => setTimeout(() => resolve(mockPaymentTerms), 500));
-});
+      const response = await fetch(`${API_URL}/paymentTerms`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+      });
 
-export const addPaymentTerm = createAsyncThunk('paymentTerms/addPaymentTerm', async (paymentTerm) => {
-  console.log('Mock API call: Adding payment term', paymentTerm);
-  const newPaymentTerm = { ...paymentTerm, id: Date.now().toString() }; // Assign a mock ID
-  return new Promise(resolve => setTimeout(() => resolve(newPaymentTerm), 500));
-});
+      const res = await response.json();
 
-export const updatePaymentTerm = createAsyncThunk('paymentTerms/updatePaymentTerm', async (paymentTerm) => {
-  console.log('Mock API call: Updating payment term', paymentTerm);
-  return new Promise(resolve => setTimeout(() => resolve(paymentTerm), 500));
-});
+      if (!response.ok) {
+        throw new Error(res.message || 'Failed to fetch');
+      }
 
-export const deletePaymentTerm = createAsyncThunk('paymentTerms/deletePaymentTerm', async (id) => {
-  console.log('Mock API call: Deleting payment term with ID', id);
-  return new Promise(resolve => setTimeout(() => resolve(id), 500));
-});
+      return res;
+    } catch (error) {
+      return thunkAPI.rejectWithValue(error.message);
+    }
+  }
+);
+
+
+export const addPaymentTerm = createAsyncThunk(
+  'paymentTerms/addPaymentTerm',
+  async (paymentTerm, thunkAPI) => {
+    try {
+      const response = await fetch(`${API_URL}/paymentTerms`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${localStorage.getItem('token')}`,
+        },
+        body: JSON.stringify(paymentTerm),
+      });
+
+      const res = await response.json();
+
+      if (!response.ok) {
+        throw new Error(res.message || 'Failed to add');
+      }
+
+      return res;
+    } catch (error) {
+      return thunkAPI.rejectWithValue(error.message);
+    }
+  }
+);
+
+export const updatePaymentTerm = createAsyncThunk(
+  'paymentTerms/updatePaymentTerm',
+  async (paymentTerm, thunkAPI) => {
+    try {
+      const response = await fetch(`${API_URL}/paymentTerms/${paymentTerm.ID}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${localStorage.getItem('token')}`,
+        },
+        body: JSON.stringify(paymentTerm),
+      });
+
+      const res = await response.json();
+
+      if (!response.ok) {
+        throw new Error(res.message || 'Failed to update');
+      }
+
+      return res;
+    } catch (error) {
+      return thunkAPI.rejectWithValue(error.message);
+    }
+  }
+);
+
+export const deletePaymentTerm = createAsyncThunk(
+  'paymentTerms/deletePaymentTerm',
+  async (ID, thunkAPI) => {
+    try {
+      const response = await fetch(`${API_URL}/paymentTerms/${ID}`, {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${localStorage.getItem('token')}`,
+        },
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'Failed to delete');
+      }
+
+      return ID; // Return ID so you can remove it from Redux state
+    } catch (error) {
+      return thunkAPI.rejectWithValue(error.message);
+    }
+  }
+);
 
 const paymentTermsSlice = createSlice({
   name: 'paymentTerms',
@@ -59,7 +137,7 @@ const paymentTermsSlice = createSlice({
       })
       .addCase(addPaymentTerm.fulfilled, (state, action) => {
         state.isLoading = false;
-         if (!Array.isArray(state.paymentTerms)) {
+        if (!Array.isArray(state.paymentTerms)) {
           state.paymentTerms = [];
         }
         state.paymentTerms.push(action.payload);
@@ -75,18 +153,13 @@ const paymentTermsSlice = createSlice({
       })
       .addCase(updatePaymentTerm.fulfilled, (state, action) => {
         state.isLoading = false;
-        const index = state.paymentTerms.findIndex(term => term.id === action.payload.id);
+        const index = state.paymentTerms.findIndex(item => item.ID === action.payload.ID);
         if (index !== -1) {
-           if (!Array.isArray(state.paymentTerms)) {
-             state.paymentTerms = [];
+          if (!Array.isArray(state.paymentTerms)) {
+            state.paymentTerms = [];
           }
           state.paymentTerms[index] = action.payload;
         }
-      })
-      .addCase(updatePaymentTerm.rejected, (state, action) => {
-        state.isLoading = false;
-        state.error = action.error.message || 'Failed to update payment term';
-        console.error('Failed to update payment term:', state.error);
       })
       .addCase(deletePaymentTerm.pending, (state) => {
         state.isLoading = true;
@@ -94,10 +167,10 @@ const paymentTermsSlice = createSlice({
       })
       .addCase(deletePaymentTerm.fulfilled, (state, action) => {
         state.isLoading = false;
-         if (!Array.isArray(state.paymentTerms)) {
+        if (!Array.isArray(state.paymentTerms)) {
           state.paymentTerms = [];
         }
-        state.paymentTerms = state.paymentTerms.filter(term => term.id !== action.payload);
+        state.paymentTerms = state.paymentTerms.filter(item => item.ID !== action.payload);
       })
       .addCase(deletePaymentTerm.rejected, (state, action) => {
         state.isLoading = false;
@@ -107,4 +180,4 @@ const paymentTermsSlice = createSlice({
   },
 });
 
-export const paymentTermsReducer = paymentTermsSlice.reducer; 
+export const paymentTermsReducer = paymentTermsSlice.reducer;

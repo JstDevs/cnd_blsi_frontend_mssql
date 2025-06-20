@@ -5,6 +5,7 @@ import DataTable from '../../components/common/DataTable';
 import Modal from '../../components/common/Modal';
 import DocumentDetailsForm from '../../components/forms/DocumentDetailsForm';
 import { PlusIcon, PencilIcon, TrashIcon } from '@heroicons/react/24/outline';
+import { fetchDocumentTypeCategories } from '../../features/settings/documentTypeCategoriesSlice';
 
 const DocumentDetailsPage = () => {
   const dispatch = useDispatch();
@@ -13,9 +14,16 @@ const DocumentDetailsPage = () => {
   const [selectedDocument, setSelectedDocument] = useState(null);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [documentToDelete, setDocumentToDelete] = useState(null);
+  const { documentTypeCategories } = useSelector((state) => state.documentTypeCategories);
+
+  const documentTypeCategoryOptions = documentTypeCategories.map(cat => ({
+    value: cat.ID,
+    label: cat.Name
+  }))
 
   useEffect(() => {
     dispatch(fetchDocumentDetails());
+    dispatch(fetchDocumentTypeCategories());
   }, [dispatch]);
 
   const handleAdd = () => {
@@ -36,7 +44,7 @@ const DocumentDetailsPage = () => {
   const confirmDelete = async () => {
     if (documentToDelete) {
       try {
-        await dispatch(deleteDocumentDetail(documentToDelete.id)).unwrap();
+        await dispatch(deleteDocumentDetail(documentToDelete.ID)).unwrap();
         setIsDeleteModalOpen(false);
         setDocumentToDelete(null);
       } catch (error) {
@@ -48,52 +56,36 @@ const DocumentDetailsPage = () => {
 
   const columns = [
     {
-      key: 'name',
+      key: 'Name',
       header: 'Name',
       sortable: true
     },
     {
-      key: 'code',
+      key: 'Code',
       header: 'Code',
       sortable: true
     },
     {
-      key: 'prefix',
+      key: 'Prefix',
       header: 'Prefix'
     },
     {
-      key: 'suffix',
+      key: 'Suffix',
       header: 'Suffix'
     },
     {
-      key: 'startNumber',
+      key: 'StartNumber',
       header: 'Start Number'
     },
     {
-      key: 'currentNumber',
+      key: 'CurrentNumber',
       header: 'Current Number'
     },
     {
-      key: 'documentTypeCategory',
+      key: 'DocumentTypeCategoryID',
       header: 'Category',
       sortable: true
     },
-    {
-      key: 'status',
-      header: 'Status',
-      sortable: true,
-      render: (value) => (
-        <span
-          className={`inline-flex rounded-full px-2 text-xs font-semibold leading-5 ${
-            value === 'Active'
-              ? 'bg-green-100 text-green-800'
-              : 'bg-red-100 text-red-800'
-          }`}
-        >
-          {value}
-        </span>
-      )
-    }
   ];
 
   const actions = [
@@ -144,6 +136,7 @@ const DocumentDetailsPage = () => {
         <DocumentDetailsForm
           document={selectedDocument}
           onClose={() => setIsModalOpen(false)}
+          documentTypeCategoryOptions={documentTypeCategoryOptions}
         />
       </Modal>
 

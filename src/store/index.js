@@ -17,7 +17,7 @@ import generalReceiptReducer from '../features/collections/generalReceiptSlice';
 import ppeReducer from '../features/settings/ppeSlice';
 import approvalMatrixReducer from '../features/settings/approvalMatrixSlice';
 import bankReducer from '../features/settings/bankSlice';
-import documentDetailsReducer from '../features/settings/documentDetailsSlice';
+import {documentDetailsReducer} from '../features/settings/documentDetailsSlice';
 import itemReducer from '../features/settings/itemSlice';
 import invoiceChargeAccountsReducer from '../features/settings/invoiceChargeAccountsSlice';
 import { itemUnitsReducer } from '../features/settings/itemUnitsSlice';
@@ -28,7 +28,7 @@ import { fiscalYearsReducer } from '../features/settings/fiscalYearSlice';
 import { taxCodesReducer } from '../features/settings/taxCodeSlice';
 import { modeOfPaymentsReducer } from '../features/settings/modeOfPaymentSlice';
 import { paymentTermsReducer } from '../features/settings/paymentTermsSlice';
-import { industryReducer } from '../features/settings/industrySlice';
+import { industriesReducer } from '../features/settings/industrySlice';
 import { employmentStatusReducer } from '../features/settings/employmentStatusSlice';
 import { positionReducer } from '../features/settings/positionSlice';
 import { documentTypeCategoriesReducer } from '../features/settings/documentTypeCategoriesSlice';
@@ -36,6 +36,10 @@ import { userrolesReducer } from '../features/settings/userrolesSlice';
 import { nationalityReducer } from '../features/settings/nationalitiesSlice';
 import { vendorCustomerTypesReducer } from '../features/settings/vendorCustomerTypeSlice';
 import { vendorTypesReducer } from '../features/settings/vendorTypeSlice';
+import { regionsReducer } from '../features/settings/regionsSlice';
+import { provincesReducer } from '../features/settings/provincesSlice';
+import { municipalitiesReducer } from '../features/settings/municipalitiesSlice';
+import { barangaysReducer } from '../features/settings/barangaysSlice';
 import { generalRevisionsReducer } from '../features/settings/generalRevisionSlice';
 import { modulesReducer } from '../features/settings/modulesSlice';
 import { ppeCategoriesReducer } from '../features/settings/ppeCategoriesSlice';
@@ -86,13 +90,17 @@ export const store = configureStore({
     taxCodes: taxCodesReducer,
     modeOfPayments: modeOfPaymentsReducer,
     paymentTerms: paymentTermsReducer,
-    industries: industryReducer,
+    industries: industriesReducer,
     employmentStatuses: employmentStatusReducer,
     positions: positionReducer,
     userroles: userrolesReducer,
     nationalities: nationalityReducer,
     vendorCustomerTypes: vendorCustomerTypesReducer,
     vendorTypes: vendorTypesReducer,
+    regions: regionsReducer,
+    provinces: provincesReducer,
+    municipalities: municipalitiesReducer,
+    barangays: barangaysReducer,
     generalRevisions: generalRevisionsReducer,
     modules: modulesReducer,
     communityTax: communityTaxReducer,

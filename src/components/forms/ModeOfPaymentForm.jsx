@@ -4,14 +4,14 @@ import FormField from '../common/FormField';
 
 function ModeOfPaymentForm({ initialData, onSubmit, onClose }) {
   const validationSchema = Yup.object({
-    code: Yup.string().required('Code is required'),
-    name: Yup.string().required('Name is required'),
+    Code: Yup.string().required('Code is required'),
+    Name: Yup.string().required('Name is required'),
   });
 
   const formik = useFormik({
     initialValues: initialData || {
-      code: '',
-      name: '',
+      Code: '',
+      Name: '',
     },
     validationSchema,
     onSubmit: (values) => {
@@ -23,24 +23,24 @@ function ModeOfPaymentForm({ initialData, onSubmit, onClose }) {
     <form onSubmit={formik.handleSubmit} className="space-y-4">
       <FormField
         label="Code"
-        name="code"
+        name="Code"
         type="text"
-        value={formik.values.code}
+        value={formik.values.Code}
         onChange={formik.handleChange}
         onBlur={formik.handleBlur}
-        error={formik.errors.code}
-        touched={formik.touched.code}
+        error={formik.errors.Code}
+        touched={formik.touched.Code}
         required
       />
       <FormField
         label="Name"
-        name="name"
+        name="Name"
         type="text"
-        value={formik.values.name}
+        value={formik.values.Name}
         onChange={formik.handleChange}
         onBlur={formik.handleBlur}
-        error={formik.errors.name}
-        touched={formik.touched.name}
+        error={formik.errors.Name}
+        touched={formik.touched.Name}
         required
       />
 

@@ -1,5 +1,7 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
+import { fetchPpeCategories } from '../../../features/settings/ppeCategoriesSlice';
+import { fetchPpeSuppliers } from '../../../features/settings/ppeSuppliersSlice';
 import { Formik, Form } from "formik";
 import * as Yup from "yup";
 import FormField from "../../../components/common/FormField";
@@ -11,89 +13,79 @@ import {
 } from "../../../features/settings/ppeSlice";
 
 const PPE_SCHEMA = Yup.object().shape({
-  category: Yup.string().required("Category is required"),
-  description: Yup.string().required("Description is required"),
-  depreciationRate: Yup.number()
+  CategoryID: Yup.string().required("Category is required"),
+  Description: Yup.string().required("Description is required"),
+  DepreciationRate: Yup.number()
     .typeError("Must be a number")
     .required("Depreciation Rate is required"),
-  depreciationValue: Yup.number()
+  DepreciationValue: Yup.number()
     .typeError("Must be a number")
     .required("Depreciation Value is required"),
-  netBookValue: Yup.number()
+  NetBookValue: Yup.number()
     .typeError("Must be a number")
     .required("Net Book Value is required"),
-  supplier: Yup.string().required("Supplier is required"),
-  ppeNumber: Yup.number()
-    .typeError("Must be a number")
+  SupplierID: Yup.string().required("Supplier is required"),
+  PPENumber: Yup.string()
     .required("PPE Number is required"),
-  unit: Yup.string().required("Unit is required"),
-  barcode: Yup.number()
-    .typeError("Must be a number")
+  Unit: Yup.string().required("Unit is required"),
+  Barcode: Yup.string()
     .required("Barcode is required"),
-  quantity: Yup.number()
+  Quantity: Yup.number()
     .typeError("Must be a number")
     .required("Quantity is required"),
-  cost: Yup.number().typeError("Must be a number").required("Cost is required"),
-  dateAcquired: Yup.string().required("Date acquired is required"),
-  usefulLife: Yup.number()
+  Cost: Yup.number().typeError("Must be a number").required("Cost is required"),
+  DateAcquired: Yup.string().required("Date acquired is required"),
+  EstimatedUsefulLife: Yup.number()
     .typeError("Must be a number")
     .required("Estimated useful life is required"),
-  poNumber: Yup.number()
-    .typeError("Must be a number")
-    .required("PO Number is required"),
-  prNumber: Yup.number()
-    .typeError("Must be a number")
-    .required("PR Number is required"),
-  invoiceNumber: Yup.number()
-    .typeError("Must be a number")
-    .required("Invoice Number is required"),
-  airNumber: Yup.number()
-    .typeError("Must be a number")
-    .required("AIR Number is required"),
-  risNumber: Yup.number()
-    .typeError("Must be a number")
-    .required("RIS Number is required"),
-  remarks: Yup.string(),
+  PONumber: Yup.string().required("PO Number is required"),
+  PRNumber: Yup.string().required("PR Number is required"),
+  InvoiceNumber: Yup.string().required("Invoice Number is required"),
+  AIRNumber: Yup.string().required("AIR Number is required"),
+  RISNumber: Yup.string().required("RIS Number is required"),
+  Remarks: Yup.string(),
 });
 
 function PPEForm({ initialData, onClose }) {
   const dispatch = useDispatch();
-  const { categories, suppliers } = useSelector((state) => state.ppes);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [showCategoryInput, setShowCategoryInput] = useState(false);
-  const [showSupplierInput, setShowSupplierInput] = useState(false);
-  const [newCategory, setNewCategory] = useState("");
-  const [newSupplier, setNewSupplier] = useState("");
+
+  const { ppeSuppliers } = useSelector(state => state.ppeSuppliers);
+  const { ppeCategories } = useSelector(state => state.ppeCategories);
+  useEffect(() => {
+    dispatch(fetchPpeCategories());
+    dispatch(fetchPpeSuppliers());
+  }, [dispatch]);
 
   const initialValues = initialData
     ? { ...initialData }
     : {
-        category: "",
-        description: "",
-        depreciationRate: "",
-        depreciationValue: "",
-        netBookValue: "",
-        supplier: "",
-        ppeNumber: "",
-        unit: "",
-        barcode: "",
-        quantity: "",
-        cost: "",
-        dateAcquired: "",
-        usefulLife: 1,
-        poNumber: "",
-        prNumber: "",
-        invoiceNumber: "",
-        airNumber: "",
-        risNumber: "",
-        remarks: "",
+        CategoryID: "",
+        Description: "",
+        DepreciationRate: "",
+        DepreciationValue: "",
+        NetBookValue: "",
+        SupplierID: "",
+        PPENumber: "",
+        Unit: "",
+        Barcode: "",
+        Quantity: "",
+        Cost: "",
+        DateAcquired: "",
+        EstimatedUsefulLife: 1,
+        PONumber: "",
+        PRNumber: "",
+        InvoiceNumber: "",
+        AIRNumber: "",
+        RISNumber: "",
+        Remarks: "",
       };
 
   const handleSubmit = (values) => {
     setIsSubmitting(true);
     const action =
-      initialData && initialData.id
-        ? updatePPE({ ...values, id: initialData.id })
+      initialData && initialData.ID
+        ? updatePPE({ ...values, ID: initialData.ID })
         : addPPE(values);
     dispatch(action)
       .unwrap()
@@ -106,26 +98,6 @@ function PPEForm({ initialData, onClose }) {
       .finally(() => {
         setIsSubmitting(false);
       });
-  };
-
-  // Handler for adding new category
-  const handleAddCategory = (setFieldValue) => {
-    if (newCategory.trim()) {
-      dispatch(addCategory(newCategory.trim()));
-      setFieldValue("category", newCategory.trim());
-      setNewCategory("");
-      setShowCategoryInput(false);
-    }
-  };
-
-  // Handler for adding new supplier
-  const handleAddSupplier = (setFieldValue) => {
-    if (newSupplier.trim()) {
-      dispatch(addSupplier(newSupplier.trim()));
-      setFieldValue("supplier", newSupplier.trim());
-      setNewSupplier("");
-      setShowSupplierInput(false);
-    }
   };
 
   return (
@@ -150,326 +122,258 @@ function PPEForm({ initialData, onClose }) {
               <FormField
                 className="p-3 focus:outline-none"
                 label="PPE Category"
-                name="category"
+                name="CategoryID"
                 type="select"
                 required
-                value={values.category}
-                onChange={(e) => {
-                  if (e.target.value === "__add_new__") {
-                    setShowCategoryInput(true);
-                  } else {
-                    setFieldValue("category", e.target.value);
-                  }
-                }}
+                value={values.CategoryID}
                 onBlur={handleBlur}
-                error={errors.category}
-                touched={touched.category}
-                options={[
-                  ...categories,
-                  { value: "__add_new__", label: "Add new category..." },
-                ]}
+                onChange={handleChange}
+                error={errors.CategoryID}
+                touched={touched.CategoryID}
+                options={ppeCategories.map(cat => ({
+                  value: cat.ID,
+                  label: cat.Name
+                }))}
               />
-              {showCategoryInput && (
-                <div className="flex mt-2 gap-2">
-                  <input
-                    type="text"
-                    className="form-input flex-1"
-                    placeholder="Enter new category"
-                    value={newCategory}
-                    onChange={(e) => setNewCategory(e.target.value)}
-                  />
-                  <button
-                    type="button"
-                    className="btn btn-primary"
-                    onClick={() => handleAddCategory(setFieldValue)}
-                  >
-                    Add
-                  </button>
-                  <button
-                    type="button"
-                    className="btn btn-outline"
-                    onClick={() => {
-                      setShowCategoryInput(false);
-                      setNewCategory("");
-                    }}
-                  >
-                    Cancel
-                  </button>
-                </div>
-              )}
             </div>
             {/* Description */}
             <FormField
               className="p-3 focus:outline-none"
               label="Description"
-              name="description"
+              name="Description"
               type="text"
               required
-              value={values.description}
+              value={values.Description}
               onChange={handleChange}
               onBlur={handleBlur}
-              error={errors.description}
-              touched={touched.description}
+              error={errors.Description}
+              touched={touched.Description}
             />
             {/* Depreciation Rate */}
             <FormField
               className="p-3 focus:outline-none"
               label="Depreciation Rate (%)"
-              name="depreciationRate"
+              name="DepreciationRate"
               type="number"
               required
-              value={values.depreciationRate}
+              value={values.DepreciationRate}
               onChange={handleChange}
               onBlur={handleBlur}
-              error={errors.depreciationRate}
-              touched={touched.depreciationRate}
+              error={errors.DepreciationRate}
+              touched={touched.DepreciationRate}
             />
             {/* Depreciation Value */}
             <FormField
               className="p-3 focus:outline-none"
               label="Depreciation Value"
-              name="depreciationValue"
+              name="DepreciationValue"
               type="number"
               required
-              value={values.depreciationValue}
+              value={values.DepreciationValue}
               onChange={handleChange}
               onBlur={handleBlur}
-              error={errors.depreciationValue}
-              touched={touched.depreciationValue}
+              error={errors.DepreciationValue}
+              touched={touched.DepreciationValue}
             />
             {/* Net Book Value */}
             <FormField
               className="p-3 focus:outline-none"
               label="Net Book Value"
-              name="netBookValue"
+              name="NetBookValue"
               type="number"
               required
-              value={values.netBookValue}
+              value={values.NetBookValue}
               onChange={handleChange}
               onBlur={handleBlur}
-              error={errors.netBookValue}
-              touched={touched.netBookValue}
+              error={errors.NetBookValue}
+              touched={touched.NetBookValue}
             />
             {/* Supplier with add new */}
             <div>
               <FormField
                 className="p-3 focus:outline-none"
                 label="Supplier"
-                name="supplier"
+                name="SupplierID"
                 type="select"
                 required
-                value={values.supplier}
-                onChange={(e) => {
-                  if (e.target.value === "__add_new__") {
-                    setShowSupplierInput(true);
-                  } else {
-                    setFieldValue("supplier", e.target.value);
-                  }
-                }}
+                value={values.SupplierID}
                 onBlur={handleBlur}
-                error={errors.supplier}
-                touched={touched.supplier}
-                options={[
-                  ...suppliers,
-                  { value: "__add_new__", label: "Add new supplier..." },
-                ]}
+                onChange={handleChange}
+                error={errors.SupplierID}
+                touched={touched.SupplierID}
+                options={ppeSuppliers.map(supplier => ({
+                  value: supplier.ID,
+                  label: supplier.Name
+                }))}
               />
-              {showSupplierInput && (
-                <div className="flex mt-2 gap-2">
-                  <input
-                    type="text"
-                    className="form-input flex-1"
-                    placeholder="Enter new supplier"
-                    value={newSupplier}
-                    onChange={(e) => setNewSupplier(e.target.value)}
-                  />
-                  <button
-                    type="button"
-                    className="btn btn-primary"
-                    onClick={() => handleAddSupplier(setFieldValue)}
-                  >
-                    Add
-                  </button>
-                  <button
-                    type="button"
-                    className="btn btn-outline"
-                    onClick={() => {
-                      setShowSupplierInput(false);
-                      setNewSupplier("");
-                    }}
-                  >
-                    Cancel
-                  </button>
-                </div>
-              )}
             </div>
             {/* PPE Number */}
             <FormField
               className="p-3 focus:outline-none"
               label="PPE Number"
-              name="ppeNumber"
-              type="number"
+              name="PPENumber"
+              type="text"
               required
-              value={values.ppeNumber}
+              value={values.PPENumber}
               onChange={handleChange}
               onBlur={handleBlur}
-              error={errors.ppeNumber}
-              touched={touched.ppeNumber}
+              error={errors.PPENumber}
+              touched={touched.PPENumber}
             />
             {/* Unit */}
             <FormField
               className="p-3 focus:outline-none"
               label="Unit"
-              name="unit"
+              name="Unit"
               type="text"
               required
-              value={values.unit}
+              value={values.Unit}
               onChange={handleChange}
               onBlur={handleBlur}
-              error={errors.unit}
-              touched={touched.unit}
+              error={errors.Unit}
+              touched={touched.Unit}
             />
             {/* Barcode */}
             <FormField
               className="p-3 focus:outline-none"
               label="Barcode"
-              name="barcode"
-              type="number"
+              name="Barcode"
+              type="text"
               required
-              value={values.barcode}
+              value={values.Barcode}
               onChange={handleChange}
               onBlur={handleBlur}
-              error={errors.barcode}
-              touched={touched.barcode}
+              error={errors.Barcode}
+              touched={touched.Barcode}
             />
             {/* Quantity */}
             <FormField
               className="p-3 focus:outline-none"
               label="Quantity"
-              name="quantity"
+              name="Quantity"
               type="number"
               required
-              value={values.quantity}
+              value={values.Quantity}
               onChange={handleChange}
               onBlur={handleBlur}
-              error={errors.quantity}
-              touched={touched.quantity}
+              error={errors.Quantity}
+              touched={touched.Quantity}
             />
             {/* Cost */}
             <FormField
               className="p-3 focus:outline-none"
               label="Cost"
-              name="cost"
+              name="Cost"
               type="number"
               required
-              value={values.cost}
+              value={values.Cost}
               onChange={handleChange}
               onBlur={handleBlur}
-              error={errors.cost}
-              touched={touched.cost}
+              error={errors.Cost}
+              touched={touched.Cost}
             />
             {/* Date Acquired */}
             <FormField
               className="p-3 focus:outline-none"
               label="Date Acquired"
-              name="dateAcquired"
+              name="DateAcquired"
               type="date"
               required
-              value={values.dateAcquired}
+              value={values.DateAcquired}
               onChange={handleChange}
               onBlur={handleBlur}
-              error={errors.dateAcquired}
-              touched={touched.dateAcquired}
+              error={errors.DateAcquired}
+              touched={touched.DateAcquired}
             />
             {/* Estimated Useful Life */}
             <FormField
               className="p-3 focus:outline-none"
               label="Estimated Useful Life (years)"
-              name="usefulLife"
+              name="EstimatedUsefulLife"
               type="number"
               required
-              value={values.usefulLife}
+              value={values.EstimatedUsefulLife}
               onChange={handleChange}
               onBlur={handleBlur}
-              error={errors.usefulLife}
-              touched={touched.usefulLife}
+              error={errors.EstimatedUsefulLife}
+              touched={touched.EstimatedUsefulLife}
             />
             {/* PO Number */}
             <FormField
               className="p-3 focus:outline-none"
               label="PO Number"
-              name="poNumber"
-              type="number"
+              name="PONumber"
+              type="text"
               required
-              value={values.poNumber}
+              value={values.PONumber}
               onChange={handleChange}
               onBlur={handleBlur}
-              error={errors.poNumber}
-              touched={touched.poNumber}
+              error={errors.PONumber}
+              touched={touched.PONumber}
             />
             {/* PR Number */}
             <FormField
               className="p-3 focus:outline-none"
               label="PR Number"
-              name="prNumber"
-              type="number"
+              name="PRNumber"
+              type="text"
               required
-              value={values.prNumber}
+              value={values.PRNumber}
               onChange={handleChange}
               onBlur={handleBlur}
-              error={errors.prNumber}
-              touched={touched.prNumber}
+              error={errors.PRNumber}
+              touched={touched.PRNumber}
             />
             {/* Invoice Number */}
             <FormField
               className="p-3 focus:outline-none"
               label="Invoice Number"
-              name="invoiceNumber"
-              type="number"
+              name="InvoiceNumber"
+              type="text"
               required
-              value={values.invoiceNumber}
+              value={values.InvoiceNumber}
               onChange={handleChange}
               onBlur={handleBlur}
-              error={errors.invoiceNumber}
-              touched={touched.invoiceNumber}
+              error={errors.InvoiceNumber}
+              touched={touched.InvoiceNumber}
             />
             {/* AIR Number */}
             <FormField
               className="p-3 focus:outline-none"
               label="AIR Number"
-              name="airNumber"
-              type="number"
+              name="AIRNumber"
+              type="text"
               required
-              value={values.airNumber}
+              value={values.AIRNumber}
               onChange={handleChange}
               onBlur={handleBlur}
-              error={errors.airNumber}
-              touched={touched.airNumber}
+              error={errors.AIRNumber}
+              touched={touched.AIRNumber}
             />
             {/* RIS Number */}
             <FormField
               className="p-3 focus:outline-none"
               label="RIS Number"
-              name="risNumber"
-              type="number"
+              name="RISNumber"
+              type="text"
               required
-              value={values.risNumber}
+              value={values.RISNumber}
               onChange={handleChange}
               onBlur={handleBlur}
-              error={errors.risNumber}
-              touched={touched.risNumber}
+              error={errors.RISNumber}
+              touched={touched.RISNumber}
             />
             {/* Remarks */}
             <FormField
               className="p-3 focus:outline-none"
               label="Remarks"
-              name="remarks"
+              name="Remarks"
               type="textarea"
-              value={values.remarks}
+              value={values.Remarks}
               onChange={handleChange}
               onBlur={handleBlur}
-              error={errors.remarks}
-              touched={touched.remarks}
+              error={errors.Remarks}
+              touched={touched.Remarks}
               rows={2}
             />
           </div>

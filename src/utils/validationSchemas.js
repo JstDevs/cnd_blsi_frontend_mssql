@@ -188,39 +188,37 @@ export const realPropertyTaxSchema = Yup.object().shape({
 
 // Location validation schemas
 export const barangaySchema = Yup.object().shape({
-  code: Yup.string()
-    .required(messages.required)
-    .matches(/^BRG\d{3}$/, 'Invalid barangay code format (e.g., BRG001)'),
-  name: Yup.string()
+  Name: Yup.string()
     .required(messages.required)
     .max(100, 'Name too long'),
-  type: Yup.string()
+  MunicipalityCode: Yup.string()
     .required(messages.required),
-  population: Yup.number()
-    .required(messages.required)
-    .min(0, 'Population cannot be negative'),
-  status: Yup.string()
+  ProvinceCode: Yup.string()
+    .required(messages.required),
+  RegionCode: Yup.string()
     .required(messages.required),
 });
 
 export const municipalitySchema = Yup.object().shape({
-  name: Yup.string()
+  Name: Yup.string()
     .required(messages.required)
     .max(100, 'Name too long'),
-  province: Yup.string()
+  ProvinceCode: Yup.string()
+    .required(messages.required),
+  RegionCode: Yup.string()
     .required(messages.required),
 });
 
 export const provinceSchema = Yup.object().shape({
-  name: Yup.string()
+  Name: Yup.string()
     .required(messages.required)
     .max(100, 'Name too long'),
-  region: Yup.string()
+  RegionCode: Yup.string()
     .required(messages.required),
 });
 
 export const regionSchema = Yup.object().shape({
-  name: Yup.string()
+  Name: Yup.string()
     .required(messages.required)
     .max(100, 'Name too long'),
 });

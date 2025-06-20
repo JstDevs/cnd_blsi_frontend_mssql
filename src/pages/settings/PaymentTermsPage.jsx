@@ -42,7 +42,7 @@ function PaymentTermsPage() {
   const confirmDelete = async () => {
     if (paymentTermToDelete) {
       try {
-        await dispatch(deletePaymentTerm(paymentTermToDelete.id)).unwrap();
+        await dispatch(deletePaymentTerm(paymentTermToDelete.ID)).unwrap();
         setIsDeleteModalOpen(false);
         setPaymentTermToDelete(null);
       } catch (error) {
@@ -53,7 +53,7 @@ function PaymentTermsPage() {
 
   const handleSubmit = (values) => {
     if (currentPaymentTerm) {
-      dispatch(updatePaymentTerm({ ...values, id: currentPaymentTerm.id }));
+      dispatch(updatePaymentTerm({ ...values, ID: currentPaymentTerm.ID }));
     } else {
       dispatch(addPaymentTerm(values));
     }
@@ -62,17 +62,17 @@ function PaymentTermsPage() {
 
   const columns = [
     {
-      key: 'code',
+      key: 'Code',
       header: 'Code',
       sortable: true
     },
     {
-      key: 'name',
+      key: 'Name',
       header: 'Name',
       sortable: true
     },
     {
-      key: 'numberOfDays',
+      key: 'NumberOfDays',
       header: 'Number of Days',
       sortable: true
     }

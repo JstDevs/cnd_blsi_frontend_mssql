@@ -42,7 +42,7 @@ function ModeOfPaymentPage() {
   const confirmDelete = async () => {
     if (modeOfPaymentToDelete) {
       try {
-        await dispatch(deleteModeOfPayment(modeOfPaymentToDelete.id)).unwrap();
+        await dispatch(deleteModeOfPayment(modeOfPaymentToDelete.ID)).unwrap();
         setIsDeleteModalOpen(false);
         setModeOfPaymentToDelete(null);
       } catch (error) {
@@ -53,7 +53,7 @@ function ModeOfPaymentPage() {
 
   const handleSubmit = (values) => {
     if (currentModeOfPayment) {
-      dispatch(updateModeOfPayment({ ...values, id: currentModeOfPayment.id }));
+      dispatch(updateModeOfPayment({ ...values, ID: currentModeOfPayment.ID }));
     } else {
       dispatch(addModeOfPayment(values));
     }
@@ -62,12 +62,12 @@ function ModeOfPaymentPage() {
 
   const columns = [
     {
-      key: 'code',
+      key: 'Code',
       header: 'Code',
       sortable: true
     },
     {
-      key: 'name',
+      key: 'Name',
       header: 'Name',
       sortable: true
     }

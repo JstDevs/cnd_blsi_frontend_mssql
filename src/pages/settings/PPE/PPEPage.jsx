@@ -7,25 +7,25 @@ import PPEForm from './PPEForm';
 import { fetchPPEs, deletePPE } from '../../../features/settings/ppeSlice';
 
 const FIELDS = [
-  { key: 'category', header: 'PPE Category' },
-  { key: 'description', header: 'Description' },
-  { key: 'depreciationRate', header: 'Depreciation Rate (%)' },
-  { key: 'depreciationValue', header: 'Depreciation Value' },
-  { key: 'netBookValue', header: 'Net Book Value' },
-  { key: 'supplier', header: 'Supplier' },
-  { key: 'ppeNumber', header: 'PPE Number' },
-  { key: 'unit', header: 'Unit' },
-  { key: 'barcode', header: 'Barcode' },
-  { key: 'quantity', header: 'Quantity' },
-  { key: 'cost', header: 'Cost' },
-  { key: 'dateAcquired', header: 'Date Acquired' },
-  { key: 'usefulLife', header: 'Estimated Useful Life (years)' },
-  { key: 'poNumber', header: 'PO Number' },
-  { key: 'prNumber', header: 'PR Number' },
-  { key: 'invoiceNumber', header: 'Invoice Number' },
-  { key: 'airNumber', header: 'AIR Number' },
-  { key: 'risNumber', header: 'RIS Number' },
-  { key: 'remarks', header: 'Remarks' },
+  { key: 'CategoryID', header: 'PPE Category' },
+  { key: 'Description', header: 'Description' },
+  { key: 'DepreciationRate', header: 'Depreciation Rate (%)' },
+  { key: 'DepreciationValue', header: 'Depreciation Value' },
+  { key: 'NetBookValue', header: 'Net Book Value' },
+  { key: 'Supplier', header: 'Supplier' },
+  { key: 'PPENumber', header: 'PPE Number' },
+  { key: 'Unit', header: 'Unit' },
+  { key: 'Barcode', header: 'Barcode' },
+  { key: 'Quantity', header: 'Quantity' },
+  { key: 'Cost', header: 'Cost' },
+  { key: 'DateAcquired', header: 'Date Acquired' },
+  { key: 'EstimatedUsefulLife', header: 'Estimated Useful Life (years)' },
+  { key: 'PONumber', header: 'PO Number' },
+  { key: 'PRNumber', header: 'PR Number' },
+  { key: 'InvoiceNumber', header: 'Invoice Number' },
+  { key: 'AIRNumber', header: 'AIR Number' },
+  { key: 'RISNumber', header: 'RIS Number' },
+  { key: 'Remarks', header: 'Remarks' },
 ];
 
 function PPEPage() {
@@ -50,7 +50,7 @@ function PPEPage() {
 
   const handleDeletePPE = (ppe) => {
     if (window.confirm('Are you sure you want to delete this PPE entry?')) {
-      dispatch(deletePPE(ppe.id));
+      dispatch(deletePPE(ppe.ID));
     }
   };
 

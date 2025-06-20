@@ -9,21 +9,21 @@ function VendorDetailsForm({ initialData, onSubmit, onClose, regionOptions = [],
     Name: Yup.string().required('Name is required'),
     PhoneNumber: Yup.string().required('Phone number is required'),
     MobileNumber: Yup.string().required('Mobile number is required'),
-    Email: Yup.string().email('Invalid email').required('Email is required'),
+    EmailAddress: Yup.string().email('Invalid email').required('Email is required'),
     Website: Yup.string().required('Website is required'),
-    Region: Yup.string().required('Region is required'),
-    Province: Yup.string().required('Province is required'),
-    Municipality: Yup.string().required('Municipality is required'),
-    Barangay: Yup.string().required('Barangay is required'),
+    RegionID: Yup.string().required('Region is required'),
+    ProvinceID: Yup.string().required('Province is required'),
+    MunicipalityID: Yup.string().required('Municipality is required'),
+    BarangayID: Yup.string().required('Barangay is required'),
     StreetAddress: Yup.string().required('Street address is required'),
-    ZipCode: Yup.string().required('Zip code is required'),
-    VendorType: Yup.string().required('Vendor type is required'),
-    RevenueDistrictOffice: Yup.string().required('Revenue District Office is required'),
-    Industry: Yup.string().required('Industry is required'),
-    TaxCode: Yup.string().required('Tax code is required'),
-    PaymentTerms: Yup.string().required('Payment terms are required'),
+    ZIPCode: Yup.string().required('Zip code is required'),
+    TypeID: Yup.string().required('Vendor type is required'),
+    RDO: Yup.string().required('Revenue District Office is required'),
+    IndustryTypeID: Yup.string().required('Industry is required'),
+    TaxCodeID: Yup.string().required('Tax code is required'),
+    PaymentTermsID: Yup.string().required('Payment terms are required'),
     Vatable: Yup.boolean(),
-    ModeOfPayment: Yup.string().required('Mode of payment is required'),
+    PaymentMethodID: Yup.string().required('Mode of payment is required'),
     ContactPerson: Yup.string().required('Contact person is required'),
     DeliveryLeadTime: Yup.number().required('Delivery lead time is required').typeError('Must be a number'),
   });
@@ -35,21 +35,21 @@ function VendorDetailsForm({ initialData, onSubmit, onClose, regionOptions = [],
       Name: '',
       PhoneNumber: '',
       MobileNumber: '',
-      Email: '',
+      EmailAddress: '',
       Website: '',
-      Region: '',
-      Province: '',
-      Municipality: '',
-      Barangay: '',
+      RegionID: '',
+      ProvinceID: '',
+      MunicipalityID: '',
+      BarangayID: '',
       StreetAddress: '',
-      ZipCode: '',
-      VendorType: '',
-      RevenueDistrictOffice: '',
-      Industry: '',
-      TaxCode: '',
-      PaymentTerms: '',
+      ZIPCode: '',
+      TypeID: '',
+      RDO: '',
+      IndustryTypeID: '',
+      TaxCodeID: '',
+      PaymentTermsID: '',
       Vatable: false,
-      ModeOfPayment: '',
+      PaymentMethodID: '',
       ContactPerson: '',
       DeliveryLeadTime: '',
     },
@@ -63,89 +63,63 @@ function VendorDetailsForm({ initialData, onSubmit, onClose, regionOptions = [],
 
   return (
     <form onSubmit={formik.handleSubmit} className="space-y-6">
-
-      {/* Row 1 */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <FormField label="Code" name="Code" type="text" required {...formik} />
-        <FormField label="TIN" name="TIN" type="text" required {...formik} />
+        <FormField label="Code" name="Code" type="text" value={values.Code} onChange={handleChange} onBlur={handleBlur} error={errors.Code} touched={touched.Code} required />
+        <FormField label="TIN" name="TIN" type="text" value={values.TIN} onChange={handleChange} onBlur={handleBlur} error={errors.TIN} touched={touched.TIN} required />
       </div>
 
-      {/* Row 2 */}
-      <FormField label="Name" name="Name" type="text" required {...formik} />
+      <FormField label="Name" name="Name" type="text" value={values.Name} onChange={handleChange} onBlur={handleBlur} error={errors.Name} touched={touched.Name} required />
 
-      {/* Row 3 */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <FormField label="Phone Number" name="PhoneNumber" type="text" required {...formik} />
-        <FormField label="Mobile Number" name="MobileNumber" type="text" required {...formik} />
+        <FormField label="Phone Number" name="PhoneNumber" type="text" value={values.PhoneNumber} onChange={handleChange} onBlur={handleBlur} error={errors.PhoneNumber} touched={touched.PhoneNumber} required />
+        <FormField label="Mobile Number" name="MobileNumber" type="text" value={values.MobileNumber} onChange={handleChange} onBlur={handleBlur} error={errors.MobileNumber} touched={touched.MobileNumber} required />
       </div>
 
-      {/* Row 4 */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <FormField label="Email" name="Email" type="email" required {...formik} />
-        <FormField label="Website" name="Website" type="text" required {...formik} />
+        <FormField label="Email" name="EmailAddress" type="email" value={values.EmailAddress} onChange={handleChange} onBlur={handleBlur} error={errors.EmailAddress} touched={touched.EmailAddress} required />
+        <FormField label="Website" name="Website" type="text" value={values.Website} onChange={handleChange} onBlur={handleBlur} error={errors.Website} touched={touched.Website} required />
       </div>
 
-      {/* Row 5 */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <FormField label="Region" name="Region" type="select" required options={regionOptions} {...formik} />
-        <FormField label="Province" name="Province" type="select" required options={provinceOptions} {...formik} />
+        <FormField label="Region" name="RegionID" type="select" options={regionOptions} value={values.RegionID} onChange={handleChange} onBlur={handleBlur} error={errors.RegionID} touched={touched.RegionID} required />
+        <FormField label="Province" name="ProvinceID" type="select" options={provinceOptions} value={values.ProvinceID} onChange={handleChange} onBlur={handleBlur} error={errors.ProvinceID} touched={touched.ProvinceID} required />
       </div>
 
-      {/* Row 6 */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <FormField label="Municipality" name="Municipality" type="select" required options={municipalityOptions} {...formik} />
-        <FormField label="Barangay" name="Barangay" type="select" required options={barangayOptions} {...formik} />
+        <FormField label="Municipality" name="MunicipalityID" type="select" options={municipalityOptions} value={values.MunicipalityID} onChange={handleChange} onBlur={handleBlur} error={errors.MunicipalityID} touched={touched.MunicipalityID} required />
+        <FormField label="Barangay" name="BarangayID" type="select" options={barangayOptions} value={values.BarangayID} onChange={handleChange} onBlur={handleBlur} error={errors.BarangayID} touched={touched.BarangayID} required />
       </div>
 
-      {/* Row 7 */}
-      <FormField label="Street Address" name="StreetAddress" type="textarea" required {...formik} />
+      <FormField label="Street Address" name="StreetAddress" type="textarea" value={values.StreetAddress} onChange={handleChange} onBlur={handleBlur} error={errors.StreetAddress} touched={touched.StreetAddress} required />
 
-      {/* Row 8 */}
-      <FormField label="Zip Code" name="ZipCode" type="text" required {...formik} />
+      <FormField label="Zip Code" name="ZIPCode" type="text" value={values.ZIPCode} onChange={handleChange} onBlur={handleBlur} error={errors.ZIPCode} touched={touched.ZIPCode} required />
 
       <hr className="border-t border-neutral-300 my-4" />
 
-      {/* Row 9 */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <FormField label="Vendor Type" name="VendorType" type="select" required options={vendorTypeOptions} {...formik} />
-        <FormField label="Revenue District Office" name="RevenueDistrictOffice" type="text" required {...formik} />
+        <FormField label="Vendor Type" name="TypeID" type="select" options={vendorTypeOptions} value={values.TypeID} onChange={handleChange} onBlur={handleBlur} error={errors.TypeID} touched={touched.TypeID} required />
+        <FormField label="Revenue District Office" name="RDO" type="text" value={values.RDO} onChange={handleChange} onBlur={handleBlur} error={errors.RDO} touched={touched.RDO} required />
       </div>
 
-      {/* Row 10 */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <FormField label="Industry" name="Industry" type="select" required options={industryOptions} {...formik} />
-        <FormField label="Tax Code" name="TaxCode" type="select" required options={taxCodeOptions} {...formik} />
+        <FormField label="Industry" name="IndustryTypeID" type="select" options={industryOptions} value={values.IndustryTypeID} onChange={handleChange} onBlur={handleBlur} error={errors.IndustryTypeID} touched={touched.IndustryTypeID} required />
+        <FormField label="Tax Code" name="TaxCodeID" type="select" options={taxCodeOptions} value={values.TaxCodeID} onChange={handleChange} onBlur={handleBlur} error={errors.TaxCodeID} touched={touched.TaxCodeID} required />
       </div>
 
-      {/* Row 11 */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <FormField label="Payment Terms" name="PaymentTerms" type="select" required options={paymentTermsOptions} {...formik} />
+        <FormField label="Payment Terms" name="PaymentTermsID" type="select" options={paymentTermsOptions} value={values.PaymentTermsID} onChange={handleChange} onBlur={handleBlur} error={errors.PaymentTermsID} touched={touched.PaymentTermsID} required />
         <div className="flex items-center space-x-2 mt-2">
-          <input
-            type="checkbox"
-            name="Vatable"
-            checked={values.Vatable}
-            onChange={handleChange}
-            onBlur={handleBlur}
-          />
+          <input type="checkbox" name="Vatable" checked={values.Vatable} onChange={handleChange} onBlur={handleBlur} />
           <label htmlFor="Vatable">Vatable</label>
         </div>
       </div>
 
-      {/* Row 12 */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <FormField label="Mode of Payment" name="ModeOfPayment" type="select" required options={modeOfPaymentOptions} {...formik} />
-        <FormField label="Contact Person" name="ContactPerson" type="text" required {...formik} />
+        <FormField label="Mode of Payment" name="PaymentMethodID" type="select" options={modeOfPaymentOptions} value={values.PaymentMethodID} onChange={handleChange} onBlur={handleBlur} error={errors.PaymentMethodID} touched={touched.PaymentMethodID} required />
+        <FormField label="Contact Person" name="ContactPerson" type="text" value={values.ContactPerson} onChange={handleChange} onBlur={handleBlur} error={errors.ContactPerson} touched={touched.ContactPerson} required />
       </div>
 
-      {/* Row 13 */}
-      <FormField
-        label="Delivery Lead Time (days)"
-        name="DeliveryLeadTime"
-        type="number"
-        required
-        {...formik}
-      />
+      <FormField label="Delivery Lead Time (days)" name="DeliveryLeadTime" type="number" value={values.DeliveryLeadTime} onChange={handleChange} onBlur={handleBlur} error={errors.DeliveryLeadTime} touched={touched.DeliveryLeadTime} required />
 
       <div className="flex justify-end space-x-3 pt-4 border-t border-neutral-200">
         <button type="button" onClick={onClose} className="btn btn-outline">Cancel</button>

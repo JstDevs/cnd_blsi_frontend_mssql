@@ -42,7 +42,7 @@ function IndustryPage() {
   const confirmDelete = async () => {
     if (industryToDelete) {
       try {
-        await dispatch(deleteIndustry(industryToDelete.id)).unwrap();
+        await dispatch(deleteIndustry(industryToDelete.ID)).unwrap();
         setIsDeleteModalOpen(false);
         setIndustryToDelete(null);
       } catch (error) {
@@ -53,7 +53,7 @@ function IndustryPage() {
 
   const handleSubmit = (values) => {
     if (currentIndustry) {
-      dispatch(updateIndustry({ ...values, id: currentIndustry.id }));
+      dispatch(updateIndustry({ ...values, ID: currentIndustry.ID }));
     } else {
       dispatch(addIndustry(values));
     }
@@ -62,8 +62,8 @@ function IndustryPage() {
 
   const columns = [
     {
-      key: 'industryType',
-      header: 'Industry Type',
+      key: 'Name',
+      header: 'Name',
       sortable: true
     }
   ];

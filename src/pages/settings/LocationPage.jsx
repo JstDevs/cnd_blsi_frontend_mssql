@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { useFormik } from 'formik';
 import * as Yup from 'yup';
 import { PlusIcon, PencilIcon, TrashIcon } from '@heroicons/react/24/outline';
+import { useDispatch, useSelector } from 'react-redux';
 import DataTable from '../../components/common/DataTable';
 import Modal from '../../components/common/Modal';
 import FormField from '../../components/common/FormField';
@@ -11,6 +12,30 @@ import {
   municipalitySchema,
   barangaySchema,
 } from '../../utils/validationSchemas';
+import {
+  fetchRegions,
+  addRegion,
+  updateRegion,
+  deleteRegion,
+} from '../../features/settings/regionsSlice';
+import {
+  fetchProvinces,
+  addProvince,
+  updateProvince,
+  deleteProvince,
+} from '../../features/settings/provincesSlice';
+import {
+  fetchMunicipalities,
+  addMunicipality,
+  updateMunicipality,
+  deleteMunicipality,
+} from '../../features/settings/municipalitiesSlice';
+import {
+  fetchBarangays,
+  addBarangay,
+  updateBarangay,
+  deleteBarangay,
+} from '../../features/settings/barangaysSlice';
 
 function LocationPage() {
   const [activeTab, setActiveTab] = useState('region');
@@ -19,24 +44,19 @@ function LocationPage() {
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [locationToDelete, setLocationToDelete] = useState(null);
 
-  const mockData = {
-    regions: [
-      { id: 1, name: 'Region I' },
-      { id: 2, name: 'Region II' },
-    ],
-    provinces: [
-      { id: 1, name: 'Ilocos Norte', regionId: 1, regionName: 'Region I' },
-      { id: 2, name: 'Ilocos Sur', regionId: 1, regionName: 'Region I' },
-    ],
-    municipalitys: [
-      { id: 1, name: 'Laoag City', provinceId: 1, provinceName: 'Ilocos Norte', regionId: 1, regionName: 'Region I' },
-      { id: 2, name: 'Batac City', provinceId: 1, provinceName: 'Ilocos Norte', regionId: 1, regionName: 'Region I' },
-    ],
-    barangays: [
-      { id: 1, name: 'Barangay 1', provinceId: 1, provinceName: 'Ilocos Norte', municipalityId: 1, municipalityName: 'Laoag City', regionId: 1, regionName: 'Region I' },
-      { id: 2, name: 'Barangay 2', provinceId: 1, provinceName: 'Ilocos Norte', municipalityId: 1, municipalityName: 'Laoag City', regionId: 1, regionName: 'Region I' },
-    ],
-  };
+  const dispatch = useDispatch();
+
+  const { regions } = useSelector(state => state.regions);
+  const { provinces } = useSelector(state => state.provinces);
+  const { municipalities } = useSelector(state => state.municipalities);
+  const { barangays } = useSelector(state => state.barangays);
+
+  useEffect(() => {
+    dispatch(fetchRegions());
+    dispatch(fetchProvinces());
+    dispatch(fetchMunicipalities());
+    dispatch(fetchBarangays());
+  }, [dispatch]);
 
   const getValidationSchema = () => {
     switch (activeTab) {
@@ -56,31 +76,89 @@ function LocationPage() {
   const getColumns = () => {
     switch (activeTab) {
       case 'region':
-        return [{ key: 'name', header: 'Region', sortable: true }];
+        return [{ key: 'Name', header: 'Region', sortable: true }];
       case 'province':
         return [
-          { key: 'regionName', header: 'Region', sortable: true },
-          { key: 'name', header: 'Province', sortable: true },
+          { key: 'RegionName', header: 'Region', sortable: true },
+          { key: 'Name', header: 'Province', sortable: true },
         ];
       case 'municipality':
         return [
-          { key: 'regionName', header: 'Region', sortable: true },
-          { key: 'provinceName', header: 'Province', sortable: true },
-          { key: 'name', header: 'Municipality', sortable: true },
+          { key: 'RegionName', header: 'Region', sortable: true },
+          { key: 'ProvinceName', header: 'Province', sortable: true },
+          { key: 'Name', header: 'Municipality', sortable: true },
         ];
       case 'barangay':
         return [
-          { key: 'regionName', header: 'Region', sortable: true },
-          { key: 'provinceName', header: 'Province', sortable: true },
-          { key: 'municipalityName', header: 'Municipality', sortable: true },
-          { key: 'name', header: 'Barangay', sortable: true },
+          { key: 'RegionName', header: 'Region', sortable: true },
+          { key: 'ProvinceName', header: 'Province', sortable: true },
+          { key: 'MunicipalityName', header: 'Municipality', sortable: true },
+          { key: 'Name', header: 'Barangay', sortable: true },
         ];
       default:
         return [];
     }
   };
 
-  const getData = () => mockData[`${activeTab}s`] || [];
+  const getData = () => {
+    switch (activeTab) {
+      case 'region':
+        return regions;
+      case 'province':
+        return provinces;
+      case 'municipality':
+        return municipalities;
+      case 'barangay':
+        return barangays;
+      default:
+        return [];
+    }
+  };
+
+  const getAddAction = () => {
+    switch (activeTab) {
+      case 'region':
+        return addRegion;
+      case 'province':
+        return addProvince;
+      case 'municipality':
+        return addMunicipality;
+      case 'barangay':
+        return addBarangay;
+      default:
+        return null;
+    }
+  };
+
+  const getUpdateAction = () => {
+    switch (activeTab) {
+      case 'region':
+        return updateRegion;
+      case 'province':
+        return updateProvince;
+      case 'municipality':
+        return updateMunicipality;
+      case 'barangay':
+        return updateBarangay;
+      default:
+        return null;
+    }
+  };
+
+  const getDeleteAction = () => {
+    switch (activeTab) {
+      case 'region':
+        return deleteRegion;
+      case 'province':
+        return deleteProvince;
+      case 'municipality':
+        return deleteMunicipality;
+      case 'barangay':
+        return deleteBarangay;
+      default:
+        return null;
+    }
+  };
 
   const actions = [
     {
@@ -114,6 +192,7 @@ function LocationPage() {
 
   const confirmDelete = () => {
     if (locationToDelete) {
+      dispatch(getDeleteAction()(locationToDelete.ID));
       setIsDeleteModalOpen(false);
       setLocationToDelete(null);
     }
@@ -123,10 +202,10 @@ function LocationPage() {
     if (isModalOpen) {
       formik.resetForm({
         values: currentLocation || {
-          name: '',
-          regionId: '',
-          provinceId: '',
-          municipalityId: '',
+          Name: '',
+          RegionCode: '',
+          ProvinceCode: '',
+          MunicipalityCode: '',
         }
       });
     }
@@ -134,22 +213,20 @@ function LocationPage() {
 
   const formik = useFormik({
     initialValues: currentLocation || {
-      name: '',
-      regionId: '',
-      provinceId: '',
-      municipalityId: '',
+      Name: '',
+      RegionCode: '',
+      ProvinceCode: '',
+      MunicipalityCode: '',
     },
     enableReinitialize: true,
     validationSchema: getValidationSchema(),
-    // onSubmit: (values) => {
-    //   console.log('Submitted:', values);
-    //   setIsModalOpen(false);
-    // },
     onSubmit: async (values, { setSubmitting }) => {
-    console.log('Submitted:', values);
-    setIsModalOpen(false);
-    setSubmitting(false);
-  },
+      const action = currentLocation ? getUpdateAction() : getAddAction();
+      const payload = currentLocation ? { ...currentLocation, ...values } : values;
+      await dispatch(action(payload));
+      setIsModalOpen(false);
+      setSubmitting(false);
+    },
   });
 
   const getFormFields = () => {
@@ -165,12 +242,12 @@ function LocationPage() {
         return (
           <FormField
             label="Region"
-            name="name"
+            name="Name"
             type="text"
             placeholder="Enter region name"
-            value={formik.values.name}
-            error={formik.errors.name}
-            touched={formik.touched.name}
+            value={formik.values.Name}
+            error={formik.errors.Name}
+            touched={formik.touched.Name}
             {...commonProps}
           />
         );
@@ -179,22 +256,22 @@ function LocationPage() {
           <>
             <FormField
               label="Province"
-              name="name"
+              name="Name"
               type="text"
               placeholder="Enter province name"
-              value={formik.values.name}
-              error={formik.errors.name}
-              touched={formik.touched.name}
+              value={formik.values.Name}
+              error={formik.errors.Name}
+              touched={formik.touched.Name}
               {...commonProps}
             />
             <FormField
               label="Region"
-              name="regionId"
+              name="RegionCode"
               type="select"
-              options={mockData.regions.map(r => ({ value: r.id, label: r.name }))}
-              value={formik.values.regionId}
-              error={formik.errors.regionId}
-              touched={formik.touched.regionId}
+              options={regions.map(r => ({ value: r.ID, label: r.Name }))}
+              value={formik.values.RegionCode}
+              error={formik.errors.RegionCode}
+              touched={formik.touched.RegionCode}
               {...commonProps}
             />
           </>
@@ -204,32 +281,32 @@ function LocationPage() {
           <>
             <FormField
               label="Municipality"
-              name="name"
+              name="Name"
               type="text"
-              value={formik.values.name}
-              error={formik.errors.name}
-              touched={formik.touched.name}
+              value={formik.values.Name}
+              error={formik.errors.Name}
+              touched={formik.touched.Name}
               placeholder="Enter municipality name"
               {...commonProps}
             />
             <FormField
               label="Province"
-              name="provinceId"
+              name="ProvinceCode"
               type="select"
-              options={mockData.provinces.map(p => ({ value: p.id, label: p.name }))}
-              value={formik.values.provinceId}
-              error={formik.errors.provinceId}
-              touched={formik.touched.provinceId}
+              options={provinces.map(p => ({ value: p.ID, label: p.Name }))}
+              value={formik.values.ProvinceCode}
+              error={formik.errors.ProvinceCode}
+              touched={formik.touched.ProvinceCode}
               {...commonProps}
             />
             <FormField
               label="Region"
-              name="regionId"
+              name="RegionCode"
               type="select"
-              options={mockData.regions.map(r => ({ value: r.id, label: r.name }))}
-              value={formik.values.regionId}
-              error={formik.errors.regionId}
-              touched={formik.touched.regionId}
+              options={regions.map(r => ({ value: r.ID, label: r.Name }))}
+              value={formik.values.RegionCode}
+              error={formik.errors.RegionCode}
+              touched={formik.touched.RegionCode}
               {...commonProps}
             />
           </>
@@ -239,42 +316,42 @@ function LocationPage() {
           <>
             <FormField
               label="Barangay"
-              name="name"
+              name="Name"
               type="text"
-              value={formik.values.name}
-              error={formik.errors.name}
-              touched={formik.touched.name}
+              value={formik.values.Name}
+              error={formik.errors.Name}
+              touched={formik.touched.Name}
               placeholder="Enter barangay name"
               {...commonProps}
             />
             <FormField
               label="Municipality"
-              name="municipalityId"
+              name="MunicipalityCode"
               type="select"
-              options={mockData.municipalitys.map(m => ({ value: m.id, label: m.name }))}
-              value={formik.values.municipalityId}
-              error={formik.errors.municipalityId}
-              touched={formik.touched.municipalityId}
+              options={municipalities.map(m => ({ value: m.ID, label: m.Name }))}
+              value={formik.values.MunicipalityCode}
+              error={formik.errors.MunicipalityCode}
+              touched={formik.touched.MunicipalityCode}
               {...commonProps}
             />
             <FormField
               label="Province"
-              name="provinceId"
+              name="ProvinceCode"
               type="select"
-              options={mockData.provinces.map(p => ({ value: p.id, label: p.name }))}
-              value={formik.values.provinceId}
-              error={formik.errors.provinceId}
-              touched={formik.touched.provinceId}
+              options={provinces.map(p => ({ value: p.ID, label: p.Name }))}
+              value={formik.values.ProvinceCode}
+              error={formik.errors.ProvinceCode}
+              touched={formik.touched.ProvinceCode}
               {...commonProps}
             />
             <FormField
               label="Region"
-              name="regionId"
+              name="RegionCode"
               type="select"
-              options={mockData.regions.map(r => ({ value: r.id, label: r.name }))}
-              value={formik.values.regionId}
-              error={formik.errors.regionId}
-              touched={formik.touched.regionId}
+              options={regions.map(r => ({ value: r.ID, label: r.Name }))}
+              value={formik.values.RegionCode}
+              error={formik.errors.RegionCode}
+              touched={formik.touched.RegionCode}
               {...commonProps}
             />
           </>

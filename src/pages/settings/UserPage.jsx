@@ -133,34 +133,34 @@ function UserPage() {
   // };
 
   const handleSubmit = async (values, { resetForm, setErrors, setSubmitting }) => {
-  const submissionData = { ...values };
+    const submissionData = { ...values };
 
-  try {
-    if (currentUser) {
-      const result = await dispatch(updateUser({ ...submissionData, ID: currentUser.ID }));
+    try {
+      if (currentUser) {
+        const result = await dispatch(updateUser({ ...submissionData, ID: currentUser.ID }));
 
-      if (updateUser.fulfilled.match(result)) {
-        setIsModalOpen(false);
-        resetForm();
-      } else if (updateUser.rejected.match(result)) {
-        setErrors({ general: result.payload || "Failed to update user." });
+        if (updateUser.fulfilled.match(result)) {
+          setIsModalOpen(false);
+          resetForm();
+        } else if (updateUser.rejected.match(result)) {
+          setErrors({ general: result.payload || "Failed to update user." });
+        }
+      } else {
+        const result = await dispatch(addUser(submissionData));
+
+        if (addUser.fulfilled.match(result)) {
+          setIsModalOpen(false);
+          resetForm();
+        } else if (addUser.rejected.match(result)) {
+          setErrors({ general: result.payload || "Failed to add user." });
+        }
       }
-    } else {
-      const result = await dispatch(addUser(submissionData));
-
-      if (addUser.fulfilled.match(result)) {
-        setIsModalOpen(false);
-        resetForm();
-      } else if (addUser.rejected.match(result)) {
-        setErrors({ general: result.payload || "Failed to add user." });
-      }
+    } catch (error) {
+      setErrors({ general: "Unexpected error occurred." });
+    } finally {
+      setSubmitting(false);
     }
-  } catch (error) {
-    setErrors({ general: "Unexpected error occurred." });
-  } finally {
-    setSubmitting(false);
-  }
-};
+  };
 
 
 

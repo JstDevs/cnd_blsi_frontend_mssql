@@ -10,6 +10,15 @@ import {
   updateVendorDetails,
   deleteVendorDetails
 } from '../../features/settings/vendorDetailsSlice';
+import { fetchRegions } from '../../features/settings/regionsSlice';
+import { fetchProvinces } from '../../features/settings/provincesSlice';
+import { fetchMunicipalities } from '../../features/settings/municipalitiesSlice';
+import { fetchBarangays } from '../../features/settings/barangaysSlice';
+import { fetchVendorTypes } from '../../features/settings/vendorTypeSlice';
+import { fetchIndustries} from '../../features/settings/industrySlice';
+import { fetchTaxCodes} from '../../features/settings/taxCodeSlice';
+import { fetchPaymentTerms } from '../../features/settings/paymentTermsSlice';
+import { fetchModeOfPayments } from '../../features/settings/modeOfPaymentSlice';
 
 function VendorDetailsPage() {
   const dispatch = useDispatch();
@@ -20,9 +29,40 @@ function VendorDetailsPage() {
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [vendorDetailsToDelete, setVendorDetailsToDelete] = useState(null);
 
+  const { regions } = useSelector(state => state.regions);
+  const { provinces } = useSelector(state => state.provinces);
+  const { municipalities } = useSelector(state => state.municipalities);
+  const { barangays } = useSelector(state => state.barangays);
+  const { vendorTypes } = useSelector(state => state.vendorTypes);
+  const { industries } = useSelector(state => state.industries);
+  const { taxCodes } = useSelector(state => state.taxCodes);
+  const { paymentTerms } = useSelector(state => state.paymentTerms);
+  const { modeOfPayments } = useSelector(state => state.modeOfPayments);
+
   useEffect(() => {
     dispatch(fetchVendorDetails());
+    dispatch(fetchRegions());
+    dispatch(fetchProvinces());
+    dispatch(fetchMunicipalities());
+    dispatch(fetchBarangays());
+    dispatch(fetchVendorTypes());
+    dispatch(fetchIndustries());
+    dispatch(fetchTaxCodes());
+    dispatch(fetchPaymentTerms());
+    dispatch(fetchModeOfPayments());
   }, [dispatch]);
+
+
+
+  const regionOptions = regions.map(r => ({ value: r.ID, label: r.Name }));
+  const provinceOptions = provinces.map(p => ({ value: p.ID, label: p.Name }));
+  const municipalityOptions = municipalities.map(m => ({ value: m.ID, label: m.Name }));
+  const barangayOptions = barangays.map(b => ({ value: b.ID, label: b.Name }));
+  const vendorTypeOptions = vendorTypes.map(v => ({ value: v.ID, label: v.Name }));
+  const industryOptions = industries.map(i => ({ value: i.ID, label: i.Name }));
+  const taxCodeOptions = taxCodes.map(t => ({ value: t.ID, label: t.Code }));
+  const paymentTermsOptions = paymentTerms.map(pt => ({ value: pt.ID, label: pt.Name }));
+  const modeOfPaymentOptions = modeOfPayments.map(mop => ({ value: mop.ID, label: mop.Name }));
 
   const handleAdd = () => {
     setCurrentVendorDetails(null);
@@ -122,6 +162,15 @@ function VendorDetailsPage() {
           initialData={currentVendorDetails}
           onClose={() => setIsModalOpen(false)}
           onSubmit={handleSubmit}
+          regionOptions={regionOptions}
+          provinceOptions={provinceOptions}
+          municipalityOptions={municipalityOptions}
+          barangayOptions={barangayOptions}
+          vendorTypeOptions={vendorTypeOptions}
+          industryOptions={industryOptions}
+          taxCodeOptions={taxCodeOptions}
+          paymentTermsOptions={paymentTermsOptions}
+          modeOfPaymentOptions={modeOfPaymentOptions}
         />
       </Modal>
 

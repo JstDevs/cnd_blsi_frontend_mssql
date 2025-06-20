@@ -4,9 +4,9 @@ import FormField from '../common/FormField';
 
 function PaymentTermsForm({ initialData, onSubmit, onClose }) {
   const validationSchema = Yup.object({
-    code: Yup.string().required('Code is required'),
-    name: Yup.string().required('Name is required'),
-    numberOfDays: Yup.number()
+    Code: Yup.string().required('Code is required'),
+    Name: Yup.string().required('Name is required'),
+    NumberOfDays: Yup.number()
       .required('Number of Days is required')
       .integer('Number of Days must be an integer')
       .min(0, 'Number of Days cannot be negative'),
@@ -14,9 +14,9 @@ function PaymentTermsForm({ initialData, onSubmit, onClose }) {
 
   const formik = useFormik({
     initialValues: initialData || {
-      code: '',
-      name: '',
-      numberOfDays: 0,
+      Code: '',
+      Name: '',
+      NumberOfDays: 0,
     },
     validationSchema,
     onSubmit: (values) => {
@@ -28,35 +28,35 @@ function PaymentTermsForm({ initialData, onSubmit, onClose }) {
     <form onSubmit={formik.handleSubmit} className="space-y-4">
       <FormField
         label="Code"
-        name="code"
+        name="Code"
         type="text"
-        value={formik.values.code}
+        value={formik.values.Code}
         onChange={formik.handleChange}
         onBlur={formik.handleBlur}
-        error={formik.errors.code}
-        touched={formik.touched.code}
+        error={formik.errors.Code}
+        touched={formik.touched.Code}
         required
       />
       <FormField
         label="Name"
-        name="name"
+        name="Name"
         type="text"
-        value={formik.values.name}
+        value={formik.values.Name}
         onChange={formik.handleChange}
         onBlur={formik.handleBlur}
-        error={formik.errors.name}
-        touched={formik.touched.name}
+        error={formik.errors.Name}
+        touched={formik.touched.Name}
         required
       />
       <FormField
         label="Number of Days"
-        name="numberOfDays"
+        name="NumberOfDays"
         type="number"
-        value={formik.values.numberOfDays}
+        value={formik.values.NumberOfDays}
         onChange={formik.handleChange}
         onBlur={formik.handleBlur}
-        error={formik.errors.numberOfDays}
-        touched={formik.touched.numberOfDays}
+        error={formik.errors.NumberOfDays}
+        touched={formik.touched.NumberOfDays}
         required
       />
 

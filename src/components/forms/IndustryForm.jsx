@@ -4,12 +4,12 @@ import FormField from '../common/FormField';
 
 function IndustryForm({ initialData, onSubmit, onClose }) {
   const validationSchema = Yup.object({
-    industryType: Yup.string().required('Industry Type is required'),
+    Name: Yup.string().required('Name is required'),
   });
 
   const formik = useFormik({
     initialValues: initialData || {
-      industryType: '',
+      Name: '',
     },
     validationSchema,
     onSubmit: (values) => {
@@ -20,14 +20,14 @@ function IndustryForm({ initialData, onSubmit, onClose }) {
   return (
     <form onSubmit={formik.handleSubmit} className="space-y-4">
       <FormField
-        label="Industry Type"
-        name="industryType"
+        label="Name"
+        name="Name"
         type="text"
-        value={formik.values.industryType}
+        value={formik.values.Name}
         onChange={formik.handleChange}
         onBlur={formik.handleBlur}
-        error={formik.errors.industryType}
-        touched={formik.touched.industryType}
+        error={formik.errors.Name}
+        touched={formik.touched.Name}
         required
       />
 

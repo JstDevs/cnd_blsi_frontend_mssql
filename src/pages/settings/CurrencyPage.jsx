@@ -11,11 +11,11 @@ import { fetchCurrencies, addCurrency, updateCurrency, deleteCurrency } from '..
 // Validation schema for currency form
 const currencySchema = Yup.object().shape({
   Code: Yup.string()
-    .required('Currency code is required')
-    .max(10, 'Currency code must be at most 10 characters'),
+    .required('Code is required')
+    .max(10, 'Code must be at most 10 characters'),
   Name: Yup.string()
-    .required('Currency name is required')
-    .max(100, 'Currency name must be at most 100 characters'),
+    .required('Name is required')
+    .max(100, 'Name must be at most 100 characters'),
 });
 
 function CurrencyPage() {
@@ -141,7 +141,7 @@ function CurrencyPage() {
             <Form className="space-y-4">
               <FormField
                 className='p-3 focus:outline-none'
-                label="Currency Code"
+                label="Code"
                 name="Code"
                 type="text"
                 required
@@ -154,7 +154,7 @@ function CurrencyPage() {
               />
               <FormField
                 className='p-3 focus:outline-none'
-                label="Currency Name"
+                label="Name"
                 name="Name"
                 type="text"
                 required
