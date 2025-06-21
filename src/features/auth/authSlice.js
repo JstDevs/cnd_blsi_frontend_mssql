@@ -3,7 +3,7 @@ import authService from "./authService";
 
 const initialState = {
   user: null,
-  isAuthenticated: false,
+  isAuthenticated: true,
   isLoading: false,
   error: null,
 };
