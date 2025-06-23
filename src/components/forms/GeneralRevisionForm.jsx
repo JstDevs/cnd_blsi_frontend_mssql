@@ -1,9 +1,19 @@
-import React from "react";
+import { useEffect } from "react";
+import { useDispatch, useSelector } from "react-redux";
 import { useFormik } from 'formik';
 import * as Yup from "yup";
 import FormField from "@/components/common/FormField";
+import { fetchEmployees } from "@/features/settings/employeeSlice";
 
 const GeneralRevisionForm = ({ initialData, onSubmit, onCancel, isEdit }) => {
+  const dispatch = useDispatch();
+
+    const { employees } = useSelector((state) => state.employees);
+  
+    useEffect(() => {
+      dispatch(fetchEmployees());
+    }, [dispatch]);
+
   const revisionSchema = Yup.object().shape({
     General_Revision_Date_Year: Yup.string().required("Required"),
     GeneralRevisionCode: Yup.string().required("Required"),
@@ -73,9 +83,10 @@ const GeneralRevisionForm = ({ initialData, onSubmit, onCancel, isEdit }) => {
           value={formik.values.CityorMunicipalityAssessor}
           onChange={formik.handleChange}
           onBlur={formik.handleBlur}
-          options={[
-            { value: "Caballero, Joven", label: "Curimao, Caballero, Joven" },
-          ]}
+          options={employees.map((employee) => ({
+            value: employee.ID,
+            label: `${employee.LastName}, ${employee.FirstName}`,
+          }))}
         />
         <FormField
           label="Assistant City Or Municipality Assessor"
@@ -84,9 +95,10 @@ const GeneralRevisionForm = ({ initialData, onSubmit, onCancel, isEdit }) => {
           value={formik.values.CityorMunicipalityAssistantAssessor}
           onChange={formik.handleChange}
           onBlur={formik.handleBlur}
-          options={[
-            { value: "Elopre, Clark", label: "Entac, Elopre, Clark" },
-          ]}
+          options={employees.map((employee) => ({
+            value: employee.ID,
+            label: `${employee.LastName}, ${employee.FirstName}`,
+          }))}
         />
         <FormField
           label="Provincial Assessor"
@@ -95,9 +107,10 @@ const GeneralRevisionForm = ({ initialData, onSubmit, onCancel, isEdit }) => {
           value={formik.values.ProvincialAssessor}
           onChange={formik.handleChange}
           onBlur={formik.handleBlur}
-          options={[
-            { value: "Aruscaldo, Vincent", label: "Azupardo, Aruscaldo, Vincent" },
-          ]}
+          options={employees.map((employee) => ({
+            value: employee.ID,
+            label: `${employee.LastName}, ${employee.FirstName}`,
+          }))}
         />
         <FormField
           label="Assistant Provincial Assessor"
@@ -106,9 +119,10 @@ const GeneralRevisionForm = ({ initialData, onSubmit, onCancel, isEdit }) => {
           value={formik.values.ProvincialAssistantAssessor}
           onChange={formik.handleChange}
           onBlur={formik.handleBlur}
-          options={[
-            { value: "Orquin, Melvin", label: "Alvarez, Orquin, Melvin" },
-          ]}
+          options={employees.map((employee) => ({
+            value: employee.ID,
+            label: `${employee.LastName}, ${employee.FirstName}`,
+          }))}
         />
       </div>
 

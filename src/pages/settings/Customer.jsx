@@ -1,207 +1,213 @@
-import React, { useState } from "react";
-import Modal from "@/components/common/Modal";
-import FormField from "@/components/common/FormField";
-import { Pencil, Trash2, UserPlus } from "lucide-react";
+import { useState, useEffect } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import { PlusIcon, PencilIcon, TrashIcon } from '@heroicons/react/24/outline';
+import DataTable from '../../components/common/DataTable';
+import Modal from '../../components/common/Modal';
+import CustomerForm from '../../components/forms/CustomerForm';
+import {
+  fetchCustomers,
+  addCustomer,
+  updateCustomer,
+  deleteCustomer
+} from '../../features/settings/customersSlice';
 
-const Customer = () => {
+function Customer() {
+  const dispatch = useDispatch();
+  const { customers, isLoading } = useSelector(state => state.customers);
+
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [currentCustomer, setCurrentCustomer] = useState(null);
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [customerToDelete, setCustomerToDelete] = useState(null);
 
-  const handleEdit = (customer) => {
-    setCurrentCustomer(customer);
-    setIsModalOpen(true);
-  };
+  useEffect(() => {
+    dispatch(fetchCustomers());
+  }, [dispatch]);
 
   const handleAdd = () => {
     setCurrentCustomer(null);
     setIsModalOpen(true);
   };
 
+  const handleEdit = (customer) => {
+    setCurrentCustomer(customer);
+    setIsModalOpen(true);
+  };
+
+  const handleDelete = (customer) => {
+    setCustomerToDelete(customer);
+    setIsDeleteModalOpen(true);
+  };
+
+  const confirmDelete = async () => {
+    if (customerToDelete) {
+      try {
+        await dispatch(deleteCustomer(customerToDelete.ID)).unwrap();
+        setIsDeleteModalOpen(false);
+        setCustomerToDelete(null);
+      } catch (error) {
+        console.error('Failed to delete customer:', error);
+      }
+    }
+  };
+
+  const handleSubmit = (values) => {
+    if (currentCustomer) {
+      dispatch(updateCustomer({ ...values, ID: currentCustomer.ID }));
+    } else {
+      dispatch(addCustomer(values));
+    }
+    setIsModalOpen(false);
+  };
+
+  const columns = [
+    {
+      key: 'Code',
+      header: 'Code',
+      sortable: true
+    },
+    {
+      key: 'Name',
+      header: 'Name',
+      sortable: true
+    },
+    {
+      key: 'TIN',
+      header: 'TIN',
+      sortable: true
+    },
+    {
+      key: 'PaymentTermsID',
+      header: 'Payment Terms',
+      sortable: true
+    },
+    {
+      key: 'PaymentMethodID',
+      header: 'Payment Method',
+      sortable: true
+    },
+    {
+      key: 'TaxCodeID',
+      header: 'Tax Code',
+      sortable: true
+    },
+    {
+      key: 'IndustryTypeID',
+      header: 'Industry Type',
+      sortable: true
+    },
+    {
+      key: 'ZIPCode',
+      header: 'ZIP Code',
+      sortable: true
+    },
+    {
+      key: 'PlaceofIncorporation',
+      header: 'Place of Incorporation',
+      sortable: true
+    },
+    {
+      key: 'KindofOrganization',
+      header: 'Kind of Organization',
+      sortable: true
+    },
+    {
+      key: 'DateofRegistration',
+      header: 'Date of Registration',
+      sortable: true
+    }
+  ];
+
+  const actions = [
+    {
+      icon: PencilIcon,
+      title: 'Edit',
+      onClick: handleEdit,
+      className: 'text-primary-600 hover:text-primary-900 p-1 rounded-full hover:bg-primary-50'
+    },
+    {
+      icon: TrashIcon,
+      title: 'Delete',
+      onClick: handleDelete,
+      className: 'text-error-600 hover:text-error-900 p-1 rounded-full hover:bg-error-50'
+    }
+  ];
+
   return (
-    <div className="p-6">
-      <div className="flex justify-between items-center mb-4">
-        <h2 className="text-xl font-bold">Customer Management</h2>
-        <button
-          onClick={handleAdd}
-          className="btn btn-primary flex items-center gap-2"
-        >
-          <UserPlus size={16} /> Add
-        </button>
+    <div>
+      <div className="page-header">
+        <div className="flex justify-between items-center">
+          <div>
+            <h1>Customers</h1>
+            <p>Manage Customers</p>
+          </div>
+          <button
+            type="button"
+            onClick={handleAdd}
+            className="btn btn-primary flex items-center"
+          >
+            <PlusIcon className="h-5 w-5 mr-2" aria-hidden="true" />
+            Add Customer
+          </button>
+        </div>
       </div>
 
-      <div className="overflow-auto border rounded-lg">
-        <table className="min-w-full text-sm text-left">
-          <thead className="bg-neutral-200">
-            <tr>
-              <th className="px-3 py-2">Code</th>
-              <th className="px-3 py-2">Name</th>
-              <th className="px-3 py-2">TIN</th>
-              <th className="px-3 py-2">Payment Terms</th>
-              <th className="px-3 py-2">Payment Method</th>
-              <th className="px-3 py-2">Tax Code</th>
-              <th className="px-3 py-2">Industry Type</th>
-              <th className="px-3 py-2">ZIP Code</th>
-              <th className="px-3 py-2">Place of Incorporation</th>
-              <th className="px-3 py-2">Kind of Organization</th>
-              <th className="px-3 py-2">Date of Registration</th>
-              <th className="px-3 py-2">Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            {/* Sample Row */}
-            <tr className="border-t">
-              <td className="px-3 py-2">JST</td>
-              <td className="px-3 py-2">JST Technology</td>
-              <td className="px-3 py-2">321-212-213-0000</td>
-              <td className="px-3 py-2">N/A - Not Applicable</td>
-              <td className="px-3 py-2">Cash</td>
-              <td className="px-3 py-2">NOT</td>
-              <td className="px-3 py-2">IT Consulting</td>
-              <td className="px-3 py-2">1200</td>
-              <td className="px-3 py-2">JST MAKATI</td>
-              <td className="px-3 py-2">Corporation</td>
-              <td className="px-3 py-2">15-04-2000</td>
-              <td className="px-3 py-2 space-x-2">
-                <button onClick={() => handleEdit({})}>
-                  <Pencil size={16} />
-                </button>
-                <button>
-                  <Trash2 size={16} />
-                </button>
-              </td>
-            </tr>
-          </tbody>
-        </table>
+      <div className="mt-4">
+        <DataTable
+          columns={columns}
+          data={customers}
+          actions={actions}
+          loading={isLoading}
+          emptyMessage="No customers found. Click 'Add Customer' to create one."
+        />
       </div>
 
+      {/* Form Modal */}
       <Modal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
-        title={currentCustomer ? "Edit Customer" : "New Customer"}
-        size="xl"
+        title={currentCustomer ? "Edit Customer" : "Add Customer"}
       >
-        <div className="p-4 space-y-4">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <FormField label="Code" name="code" type="text" />
-            <FormField label="TIN" name="tin" type="text" />
-            <FormField label="Phone Number" name="phone" type="text" />
-            <FormField label="Mobile Number" name="mobile" type="text" />
-            <FormField label="Name" name="name" type="text" />
-            <FormField label="Email" name="email" type="email" />
-            <FormField label="Website" name="website" type="text" />
-            <FormField
-              label="Region"
-              name="region"
-              type="select"
-              options={[
-                { value: "REGION VI", label: "REGION VI (WESTERN VISAYAS)" },
-              ]}
-            />
-            <FormField
-              label="Province"
-              name="province"
-              type="select"
-              options={[{ value: "AKLAN", label: "AKLAN" }]}
-            />
-            <FormField
-              label="Municipality"
-              name="municipality"
-              type="select"
-              options={[{ value: "ALTAVAS", label: "ALTAVAS" }]}
-            />
-            <FormField
-              label="Barangay"
-              name="barangay"
-              type="select"
-              options={[{ value: "Cabangila", label: "Cabangila" }]}
-            />
-            <FormField label="Zip Code" name="zipCode" type="text" />
-            <FormField
-              label="Street Address"
-              name="street"
-              type="textarea"
-              rows={2}
-            />
-            <FormField label="Revenue District Office" name="rdo" type="text" />
-            <FormField
-              label="Place of Incorporation"
-              name="placeOfIncorp"
-              type="text"
-            />
-            <FormField
-              label="Tax Code"
-              name="taxCode"
-              type="select"
-              options={[{ value: "NOT", label: "NOT" }]}
-            />
-            <FormField
-              label="Industry"
-              name="industry"
-              type="select"
-              options={[{ value: "IT Consulting", label: "IT Consulting" }]}
-            />
-            <FormField
-              label="Payment Terms"
-              name="paymentTerms"
-              type="select"
-              options={[
-                {
-                  value: "N/A - Not Applicable",
-                  label: "N/A - Not Applicable",
-                },
-              ]}
-            />
-            <FormField
-              label="Mode of Payment"
-              name="paymentMode"
-              type="select"
-              options={[{ value: "Cash", label: "Cash" }]}
-            />
-            <FormField
-              label="Contact Person"
-              name="contactPerson"
-              type="text"
-            />
-            <FormField
-              label="Date of Registration / Incorporation"
-              name="registrationDate"
-              type="date"
-            />
-          </div>
+        <CustomerForm
+          initialData={currentCustomer}
+          onClose={() => setIsModalOpen(false)}
+          onSubmit={handleSubmit}
+        />
+      </Modal>
 
-          <div className="pt-2">
-            <label className="font-medium">Kind of Organization</label>
-            <div className="flex gap-4 mt-1">
-              <label className="flex items-center gap-2">
-                <input type="radio" name="orgType" value="Association" />{" "}
-                Association
-              </label>
-              <label className="flex items-center gap-2">
-                <input type="radio" name="orgType" value="Partnership" />{" "}
-                Partnership
-              </label>
-              <label className="flex items-center gap-2">
-                <input type="radio" name="orgType" value="Corporation" />{" "}
-                Corporation
-              </label>
-            </div>
-          </div>
-
-          <div className="flex justify-end gap-3 pt-4 border-t">
-            <button
-              onClick={() => setIsModalOpen(false)}
-              className="btn btn-outline"
-            >
-              Cancel
-            </button>
-            <button className="btn btn-primary">
-              {currentCustomer ? "Update" : "Create"}
-            </button>
-          </div>
+      {/* Delete Confirmation Modal */}
+      <Modal
+        isOpen={isDeleteModalOpen}
+        onClose={() => setIsDeleteModalOpen(false)}
+        title="Confirm Delete"
+      >
+        <div className="py-3">
+          <p className="text-neutral-700">
+            Are you sure you want to delete the customer "{customerToDelete?.name}"?
+          </p>
+          <p className="text-sm text-neutral-500 mt-2">
+            This action cannot be undone.
+          </p>
+        </div>
+        <div className="flex justify-end space-x-3 pt-4 border-t border-neutral-200">
+          <button
+            type="button"
+            onClick={() => setIsDeleteModalOpen(false)}
+            className="btn btn-outline"
+          >
+            Cancel
+          </button>
+          <button
+            type="button"
+            onClick={confirmDelete}
+            className="btn btn-danger"
+          >
+            Delete
+          </button>
         </div>
       </Modal>
     </div>
   );
-};
+}
 
 export default Customer;

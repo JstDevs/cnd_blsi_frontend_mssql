@@ -23,7 +23,7 @@ const subdepartmentSchema = Yup.object().shape({
 
 function SubdepartmentPage() {
   const dispatch = useDispatch();
-  const { subdepartments, isLoading } = useSelector(state => state.subdepartments);
+  const { subdepartments, isLoading } = useSelector(state => state.subdepartments || {});
   const { departments } = useSelector(state => state.departments);
   
   const [isModalOpen, setIsModalOpen] = useState(false);

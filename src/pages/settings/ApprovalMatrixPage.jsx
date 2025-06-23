@@ -29,7 +29,23 @@ function ApprovalMatrixPage() {
   };
 
   const handleEdit = (row) => {
-    setCurrentMatrix(row);
+    const mappedApprovers = row.Approvers?.map((a) => ({
+      type: a.PositionorEmployee,
+      value: a.PositionorEmployeeID,
+      amountFrom: Number(a.AmountFrom),
+      amountTo: Number(a.AmountTo),
+    })) || [];
+
+    const {
+      Approvers,
+      ...rest
+    } = row;
+
+    setCurrentMatrix({
+      ...rest,
+      approvers: mappedApprovers,
+    });
+    // setCurrentMatrix(row);
     setIsModalOpen(true);
   };
 
@@ -41,7 +57,7 @@ function ApprovalMatrixPage() {
   const confirmDelete = async () => {
     if (matrixToDelete) {
       try {
-        await dispatch(deleteApprovalMatrix(matrixToDelete.id)).unwrap();
+        await dispatch(deleteApprovalMatrix(matrixToDelete.ID)).unwrap();
         setIsDeleteModalOpen(false);
         setMatrixToDelete(null);
       } catch (error) {
@@ -51,23 +67,25 @@ function ApprovalMatrixPage() {
     }
   };
 
-  const handleSubmit = (values) => {
-    if (currentMatrix) {
-      dispatch(updateApprovalMatrix({ ...values, id: currentMatrix.id }));
-    } else {
-      dispatch(addApprovalMatrix(values));
+  const handleSubmit = async (values) => {
+    try {
+      if (currentMatrix) {
+        await dispatch(updateApprovalMatrix({ ...values, ID: currentMatrix.ID })).unwrap();
+      } else {
+        await dispatch(addApprovalMatrix(values)).unwrap(); // <- Important: unwrap to catch errors
+      }
+      setIsModalOpen(false); // Only close modal on success
+    } catch (err) {
+      console.error('Failed to submit approval matrix:', err);
+      // Optionally display error inside the form or at modal level
     }
-    setIsModalOpen(false);
   };
 
   const columns = [
-    { key: 'documentType', header: 'Document Type', sortable: true },
-    { key: 'sequenceLevel', header: 'Sequence Level', sortable: true },
-    { key: 'approvalRule', header: 'Approval Rule', sortable: true },
-    { key: 'approverType', header: 'Approver Type', sortable: true },
-    { key: 'approver', header: 'Approver', sortable: true },
-    { key: 'amountFrom', header: 'From', sortable: true },
-    { key: 'amountTo', header: 'To', sortable: true },
+    { key: 'DocumentTypeName', header: 'Document Type', sortable: true },
+    { key: 'SequenceLevel', header: 'Sequence Level', sortable: true },
+    { key: 'AllorMajority', header: 'All or Majority', sortable: true },
+    { key: 'NumberofApprover', header: 'No of Approvers', sortable: true },
   ];
 
   const actions = [

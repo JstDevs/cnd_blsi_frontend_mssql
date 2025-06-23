@@ -42,7 +42,7 @@ function FiscalYearPage() {
   const confirmDelete = async () => {
     if (fiscalYearToDelete) {
       try {
-        await dispatch(deleteFiscalYear(fiscalYearToDelete.id)).unwrap();
+        await dispatch(deleteFiscalYear(fiscalYearToDelete.ID)).unwrap();
         setIsDeleteModalOpen(false);
         setFiscalYearToDelete(null);
       } catch (error) {
@@ -53,7 +53,7 @@ function FiscalYearPage() {
   
   const handleSubmit = (values) => {
     if (currentFiscalYear) {
-      dispatch(updateFiscalYear({ ...values, id: currentFiscalYear.id }));
+      dispatch(updateFiscalYear({ ...values, id: currentFiscalYear.ID }));
     } else {
       dispatch(addFiscalYear(values));
     }

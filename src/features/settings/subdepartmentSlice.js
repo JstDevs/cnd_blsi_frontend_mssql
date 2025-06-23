@@ -67,13 +67,13 @@ export const fetchSubdepartments = createAsyncThunk(
       });
 
       const res = await response.json();
-      console.log('Fetched subdepartments:', res);
+      // console.log('Fetched subdepartments:', res);
 
       if (!response.ok) {
         throw new Error(res.message || 'Failed to fetch departments');
       }
 
-      return res;
+      return res.items;
     } catch (error) {
       return thunkAPI.rejectWithValue(error.message);
     }

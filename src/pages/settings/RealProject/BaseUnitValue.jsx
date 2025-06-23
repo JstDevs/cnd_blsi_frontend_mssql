@@ -1,169 +1,163 @@
-import { useState } from "react";
-import FormField from "@/components/common/FormField";
-import Modal from "@/components/common/Modal";
-import { Button } from "@/components/common/Button";
-import { Trash2, Pencil, Plus } from "lucide-react";
-const dummyData = [
-  {
-    year: "2025",
-    classification: "",
-    location: "",
-    unit: "Square Meter",
-    actualUse: "construction",
-    subClass: "1",
-    price: "1.00",
-  },
-];
+import { useState, useEffect } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import { PlusIcon, PencilIcon, TrashIcon } from '@heroicons/react/24/outline';
+import DataTable from '../../../components/common/DataTable';
+import Modal from '../../../components/common/Modal';
+import BaseUnitForm from '../../../components/forms/BaseUnitForm';
+import {
+  fetchBaseUnits,
+  addBaseUnit,
+  updateBaseUnit,
+  deleteBaseUnit
+} from '../../../features/settings/baseUnitSlice';
 
-export default function BaseUnitValue() {
-  const [data, setData] = useState(dummyData);
+function BaseUnitValue() {
+  const dispatch = useDispatch();
+  const { baseUnits, isLoading } = useSelector(state => state.baseUnits);
+
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [selectedRecord, setSelectedRecord] = useState(null);
+  const [currentBaseUnit, setCurrentBaseUnit] = useState(null);
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [baseUnitToDelete, setBaseUnitToDelete] = useState(null);
 
-  const openModal = (record = null) => {
-    setSelectedRecord(record);
+  useEffect(() => {
+    dispatch(fetchBaseUnits());
+  }, [dispatch]);
+
+  const handleAdd = () => {
+    setCurrentBaseUnit(null);
     setIsModalOpen(true);
   };
 
-  const deleteRecord = (index) => {
-    const updated = [...data];
-    updated.splice(index, 1);
-    setData(updated);
+  const handleEdit = (baseUnit) => {
+    setCurrentBaseUnit(baseUnit);
+    setIsModalOpen(true);
   };
 
+  const handleDelete = (baseUnit) => {
+    setBaseUnitToDelete(baseUnit);
+    setIsDeleteModalOpen(true);
+  };
+
+  const confirmDelete = async () => {
+    if (baseUnitToDelete) {
+      try {
+        await dispatch(deleteBaseUnit(baseUnitToDelete.ID)).unwrap();
+        setIsDeleteModalOpen(false);
+        setBaseUnitToDelete(null);
+      } catch (error) {
+        console.error('Failed to delete base unit:', error);
+      }
+    }
+  };
+
+  const handleSubmit = (values) => {
+    if (currentBaseUnit) {
+      dispatch(updateBaseUnit({ ...values, ID: currentBaseUnit.ID }));
+    } else {
+      dispatch(addBaseUnit(values));
+    }
+    setIsModalOpen(false);
+  };
+
+  const columns = [
+    {
+      key: 'Name',
+      header: 'Name',
+      sortable: true
+    }
+  ];
+
+  const actions = [
+    {
+      icon: PencilIcon,
+      title: 'Edit',
+      onClick: handleEdit,
+      className: 'text-primary-600 hover:text-primary-900 p-1 rounded-full hover:bg-primary-50'
+    },
+    {
+      icon: TrashIcon,
+      title: 'Delete',
+      onClick: handleDelete,
+      className: 'text-error-600 hover:text-error-900 p-1 rounded-full hover:bg-error-50'
+    }
+  ];
+
   return (
-    <div className="p-4">
-      <div className="flex items-center justify-between mb-4">
-        <h2 className="text-xl font-semibold">Base Unit Value</h2>
-        <div className="space-x-2">
-          <Button
-            className="bg-blue-600 text-white"
-            onClick={() => openModal()}
+    <div>
+      <div className="page-header">
+        <div className="flex justify-between items-center">
+          <div>
+            <h1>Base Units</h1>
+            <p>Manage Base Units</p>
+          </div>
+          <button
+            type="button"
+            onClick={handleAdd}
+            className="btn btn-primary flex items-center"
           >
-            <Plus className="w-4 h-4 mr-1" /> Add
-          </Button>
+            <PlusIcon className="h-5 w-5 mr-2" aria-hidden="true" />
+            Add Base Unit
+          </button>
         </div>
       </div>
 
-      <div className="overflow-x-auto">
-        <table className="min-w-full bg-white border">
-          <thead className="bg-gray-200">
-            <tr>
-              <th className="px-4 py-2 border">General Revision Year</th>
-              <th className="px-4 py-2 border">Classification</th>
-              <th className="px-4 py-2 border">Location</th>
-              <th className="px-4 py-2 border">Unit</th>
-              <th className="px-4 py-2 border">Actual Use</th>
-              <th className="px-4 py-2 border">Sub Classification</th>
-              <th className="px-4 py-2 border">Price</th>
-              <th className="px-4 py-2 border">Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            {data.map((record, index) => (
-              <tr key={index}>
-                <td className="px-4 py-2 border">{record.year}</td>
-                <td className="px-4 py-2 border">{record.classification}</td>
-                <td className="px-4 py-2 border">{record.location}</td>
-                <td className="px-4 py-2 border">{record.unit}</td>
-                <td className="px-4 py-2 border">{record.actualUse}</td>
-                <td className="px-4 py-2 border">{record.subClass}</td>
-                <td className="px-4 py-2 border">{record.price}</td>
-                
-                <td className="px-4 py-2 border">
-                  <div className="flex items-center gap-2">
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      onClick={() => openModal(record)}
-                    >
-                      <Pencil className="w-4 h-4" />
-                    </Button>
-                    <Button
-                      size="sm"
-                      variant="destructive"
-                      onClick={() => deleteRecord(index)}
-                    >
-                      <Trash2 className="w-4 h-4" />
-                    </Button>
-                  </div>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+      <div className="mt-4">
+        <DataTable
+          columns={columns}
+          data={baseUnits}
+          actions={actions}
+          loading={isLoading}
+          emptyMessage="No base units found. Click 'Add Base Unit' to create one."
+        />
       </div>
 
+      {/* Form Modal */}
       <Modal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
-        title={selectedRecord ? "Edit Unit Value" : "Add Unit Value"}
-        size="lg"
+        title={currentBaseUnit ? "Edit Base Unit" : "Add Base Unit"}
       >
-        <div className="p-4 space-y-4">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <FormField
-              label="General Revision Year"
-              name="year"
-              type="text"
-              defaultValue={selectedRecord?.year}
-              placeholder="Enter year"
-            />
-            <FormField
-              label="Classification"
-              name="classification"
-              type="text"
-              defaultValue={selectedRecord?.classification}
-              placeholder="Enter classification"
-            />
-            <FormField
-              label="Location"
-              name="location"
-              type="text"
-              defaultValue={selectedRecord?.location}
-              placeholder="Enter location"
-            />
-            <FormField
-              label="Unit"
-              name="unit"
-              type="text"
-              defaultValue={selectedRecord?.unit}
-              placeholder="e.g., Square Meter"
-            />
-            <FormField
-              label="Actual Use"
-              name="actualUse"
-              type="text"
-              defaultValue={selectedRecord?.actualUse}
-              placeholder="e.g., construction"
-            />
-            <FormField
-              label="Sub Classification"
-              name="subClass"
-              type="text"
-              defaultValue={selectedRecord?.subClass}
-            />
-            <FormField
-              label="Price"
-              name="price"
-              type="number"
-              defaultValue={selectedRecord?.price}
-              step="0.01"
-            />
-          </div>
-          <div className="pt-4 flex justify-end space-x-2">
-            <button
-              className="btn btn-outline"
-              onClick={() => setIsModalOpen(false)}
-            >
-              Cancel
-            </button>
-            <button className="btn btn-primary" type="submit">
-              {selectedRecord ? "Update" : "Create"}
-            </button>
-          </div>
+        <BaseUnitForm
+          initialData={currentBaseUnit}
+          onClose={() => setIsModalOpen(false)}
+          onSubmit={handleSubmit}
+        />
+      </Modal>
+
+      {/* Delete Confirmation Modal */}
+      <Modal
+        isOpen={isDeleteModalOpen}
+        onClose={() => setIsDeleteModalOpen(false)}
+        title="Confirm Delete"
+      >
+        <div className="py-3">
+          <p className="text-neutral-700">
+            Are you sure you want to delete the base unit "{baseUnitToDelete?.Name}"?
+          </p>
+          <p className="text-sm text-neutral-500 mt-2">
+            This action cannot be undone.
+          </p>
+        </div>
+        <div className="flex justify-end space-x-3 pt-4 border-t border-neutral-200">
+          <button
+            type="button"
+            onClick={() => setIsDeleteModalOpen(false)}
+            className="btn btn-outline"
+          >
+            Cancel
+          </button>
+          <button
+            type="button"
+            onClick={confirmDelete}
+            className="btn btn-danger"
+          >
+            Delete
+          </button>
         </div>
       </Modal>
     </div>
   );
 }
+
+export default BaseUnitValue;

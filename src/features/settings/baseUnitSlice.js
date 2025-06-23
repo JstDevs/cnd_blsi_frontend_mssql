@@ -2,14 +2,14 @@ import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 const API_URL = import.meta.env.VITE_API_URL;
 
 // Mock Data
-const mockFiscalYears = [];
-export const fetchFiscalYears = createAsyncThunk(
-  'fiscalYears/fetchFiscalYears',
+const mockBaseUnits = [];
+export const fetchBaseUnits = createAsyncThunk(
+  'baseUnits/fetchBaseUnits',
   async (_, thunkAPI) => {
     try {
       const token = localStorage.getItem('token');
 
-      const response = await fetch(`${API_URL}/fiscalYear`, {
+      const response = await fetch(`${API_URL}/scheduleofBaseunitMarketValue`, {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',
@@ -31,17 +31,17 @@ export const fetchFiscalYears = createAsyncThunk(
 );
 
 
-export const addFiscalYear = createAsyncThunk(
-  'fiscalYears/addFiscalYear',
-  async (fiscalYear, thunkAPI) => {
+export const addBaseUnit = createAsyncThunk(
+  'baseUnits/addBaseUnit',
+  async (baseUnit, thunkAPI) => {
     try {
-      const response = await fetch(`${API_URL}/fiscalYear`, {
+      const response = await fetch(`${API_URL}/scheduleofBaseunitMarketValue`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
           Authorization: `Bearer ${localStorage.getItem('token')}`,
         },
-        body: JSON.stringify(fiscalYear),
+        body: JSON.stringify(baseUnit),
       });
 
       const res = await response.json();
@@ -57,17 +57,17 @@ export const addFiscalYear = createAsyncThunk(
   }
 );
 
-export const updateFiscalYear = createAsyncThunk(
-  'fiscalYears/updateFiscalYear',
-  async (fiscalYear, thunkAPI) => {
+export const updateBaseUnit = createAsyncThunk(
+  'baseUnits/updateBaseUnit',
+  async (baseUnit, thunkAPI) => {
     try {
-      const response = await fetch(`${API_URL}/fiscalYear/${fiscalYear.ID}`, {
+      const response = await fetch(`${API_URL}/scheduleofBaseunitMarketValue/${baseUnit.ID}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
           Authorization: `Bearer ${localStorage.getItem('token')}`,
         },
-        body: JSON.stringify(fiscalYear),
+        body: JSON.stringify(baseUnit),
       });
 
       const res = await response.json();
@@ -83,11 +83,11 @@ export const updateFiscalYear = createAsyncThunk(
   }
 );
 
-export const deleteFiscalYear = createAsyncThunk(
-  'fiscalYears/deleteFiscalYear',
+export const deleteBaseUnit = createAsyncThunk(
+  'baseUnits/deleteBaseUnit',
   async (ID, thunkAPI) => {
     try {
-      const response = await fetch(`${API_URL}/fiscalYear/${ID}`, {
+      const response = await fetch(`${API_URL}/scheduleofBaseunitMarketValue/${ID}`, {
         method: 'DELETE',
         headers: {
           'Content-Type': 'application/json',
@@ -107,77 +107,77 @@ export const deleteFiscalYear = createAsyncThunk(
   }
 );
 
-const fiscalYearsSlice = createSlice({
-  name: 'fiscalYears',
+const baseUnitsSlice = createSlice({
+  name: 'baseUnits',
   initialState: {
-    fiscalYears: [],
+    baseUnits: [],
     isLoading: false,
     error: null,
   },
   reducers: {},
   extraReducers: (builder) => {
     builder
-      .addCase(fetchFiscalYears.pending, (state) => {
+      .addCase(fetchBaseUnits.pending, (state) => {
         state.isLoading = true;
         state.error = null;
       })
-      .addCase(fetchFiscalYears.fulfilled, (state, action) => {
+      .addCase(fetchBaseUnits.fulfilled, (state, action) => {
         state.isLoading = false;
-        state.fiscalYears = Array.isArray(action.payload) ? action.payload : [];
+        state.baseUnits = Array.isArray(action.payload) ? action.payload : [];
       })
-      .addCase(fetchFiscalYears.rejected, (state, action) => {
+      .addCase(fetchBaseUnits.rejected, (state, action) => {
         state.isLoading = false;
-        state.error = action.error.message || 'Failed to fetch fiscal years';
-        console.warn('Failed to fetch fiscal years, using mock data.', state.error);
-        state.fiscalYears = mockFiscalYears;
+        state.error = action.error.message || 'Failed to fetch base units';
+        console.warn('Failed to fetch base units, using mock data.', state.error);
+        state.baseUnits = mockBaseUnits;
       })
-      .addCase(addFiscalYear.pending, (state) => {
+      .addCase(addBaseUnit.pending, (state) => {
         state.isLoading = true;
         state.error = null;
       })
-      .addCase(addFiscalYear.fulfilled, (state, action) => {
+      .addCase(addBaseUnit.fulfilled, (state, action) => {
         state.isLoading = false;
-        if (!Array.isArray(state.fiscalYears)) {
-          state.fiscalYears = [];
+        if (!Array.isArray(state.baseUnits)) {
+          state.baseUnits = [];
         }
-        state.fiscalYears.push(action.payload);
+        state.baseUnits.push(action.payload);
       })
-      .addCase(addFiscalYear.rejected, (state, action) => {
+      .addCase(addBaseUnit.rejected, (state, action) => {
         state.isLoading = false;
-        state.error = action.error.message || 'Failed to add fiscal year';
-        console.error('Failed to add fiscal year:', state.error);
+        state.error = action.error.message || 'Failed to add base unit';
+        console.error('Failed to add base unit:', state.error);
       })
-      .addCase(updateFiscalYear.pending, (state) => {
+      .addCase(updateBaseUnit.pending, (state) => {
         state.isLoading = true;
         state.error = null;
       })
-      .addCase(updateFiscalYear.fulfilled, (state, action) => {
+      .addCase(updateBaseUnit.fulfilled, (state, action) => {
         state.isLoading = false;
-        const index = state.fiscalYears.findIndex(item => item.ID === action.payload.ID);
+        const index = state.baseUnits.findIndex(item => item.ID === action.payload.ID);
         if (index !== -1) {
-          if (!Array.isArray(state.fiscalYears)) {
-            state.fiscalYears = [];
+          if (!Array.isArray(state.baseUnits)) {
+            state.baseUnits = [];
           }
-          state.fiscalYears[index] = action.payload;
+          state.baseUnits[index] = action.payload;
         }
       })
-      .addCase(deleteFiscalYear.pending, (state) => {
+      .addCase(deleteBaseUnit.pending, (state) => {
         state.isLoading = true;
         state.error = null;
       })
-      .addCase(deleteFiscalYear.fulfilled, (state, action) => {
+      .addCase(deleteBaseUnit.fulfilled, (state, action) => {
         state.isLoading = false;
-        if (!Array.isArray(state.fiscalYears)) {
-          state.fiscalYears = [];
+        if (!Array.isArray(state.baseUnits)) {
+          state.baseUnits = [];
         }
-        state.fiscalYears = state.fiscalYears.filter(item => item.ID !== action.payload);
+        state.baseUnits = state.baseUnits.filter(item => item.ID !== action.payload);
       })
-      .addCase(deleteFiscalYear.rejected, (state, action) => {
+      .addCase(deleteBaseUnit.rejected, (state, action) => {
         state.isLoading = false;
-        state.error = action.error.message || 'Failed to delete fiscal year';
-        console.error('Failed to delete fiscal year:', state.error);
+        state.error = action.error.message || 'Failed to delete base unit';
+        console.error('Failed to delete base unit:', state.error);
       });
   },
 });
 
-export const fiscalYearsReducer = fiscalYearsSlice.reducer;
+export const baseUnitsReducer = baseUnitsSlice.reducer;

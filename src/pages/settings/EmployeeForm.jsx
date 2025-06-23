@@ -51,8 +51,7 @@ const employeeSchema = Yup.object().shape({
     .required('Address is required')
     .max(200, 'Address must be at most 200 characters'),
   MobileNumber: Yup.string()
-    .required('Contact number is required')
-    .matches(/^[0-9+\-() ]+$/, 'Invalid contact number format'),
+    .required('Contact number is required'),
   EmailAddress: Yup.string()
     .email('Invalid email address')
     .required('Email is required'),
@@ -65,17 +64,13 @@ const employeeSchema = Yup.object().shape({
   DateHired: Yup.date()
     .required('Date hired is required'),
   TIN: Yup.string()
-    .required('TIN is required')
-    .matches(/^\d{3}-\d{3}-\d{3}-\d{3}$/, 'Invalid TIN format (e.g., 123-456-789-000)'),
+    .required('TIN is required'),
   SSS: Yup.string()
-    .required('SSS number is required')
-    .matches(/^\d{2}-\d{7}-\d{1}$/, 'Invalid SSS number format (e.g., 12-3456789-0)'),
+    .required('SSS number is required'),
   Philhealth: Yup.string()
-    .required('PhilHealth number is required')
-    .matches(/^\d{2}-\d{9}-\d{1}$/, 'Invalid PhilHealth number format (e.g., 12-345678901-2)'),
+    .required('PhilHealth number is required'),
   Pagibig: Yup.string()
-    .required('Pag-IBIG number is required')
-    .matches(/^\d{4}-\d{4}-\d{4}$/, 'Invalid Pag-IBIG number format (e.g., 1234-5678-9012)'),
+    .required('Pag-IBIG number is required'),
   Active: Yup.string()
     .required('Status is required'),
 });

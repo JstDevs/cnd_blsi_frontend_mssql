@@ -36,6 +36,7 @@ import { userrolesReducer } from '../features/settings/userrolesSlice';
 import { nationalityReducer } from '../features/settings/nationalitiesSlice';
 import { vendorCustomerTypesReducer } from '../features/settings/vendorCustomerTypeSlice';
 import { vendorTypesReducer } from '../features/settings/vendorTypeSlice';
+import { baseUnitsReducer } from '../features/settings/baseUnitSlice';
 import { regionsReducer } from '../features/settings/regionsSlice';
 import { provincesReducer } from '../features/settings/provincesSlice';
 import { municipalitiesReducer } from '../features/settings/municipalitiesSlice';
@@ -48,6 +49,7 @@ import { ppeSuppliersReducer } from '../features/settings/ppeSuppliersSlice';
 import { subFundsReducer } from '../features/budget/subFundsSlice';
 import { budgetDashboardReducer } from '../features/budget/budgetDashboardSlice';
 import { vendorDetailsReducer } from '../features/settings/vendorDetailsSlice';
+import { customersReducer } from '../features/settings/customersSlice';
 
 import communityTaxReducer from '../features/communityTax/communityTaxSlice';
 import generalServiceReceiptsReducer from '../features/collections/generalServiceReceiptsSlice';
@@ -97,6 +99,7 @@ export const store = configureStore({
     nationalities: nationalityReducer,
     vendorCustomerTypes: vendorCustomerTypesReducer,
     vendorTypes: vendorTypesReducer,
+    baseUnits: baseUnitsReducer,
     regions: regionsReducer,
     provinces: provincesReducer,
     municipalities: municipalitiesReducer,
@@ -112,6 +115,7 @@ export const store = configureStore({
     subFunds: subFundsReducer,
     budgetDashboard: budgetDashboardReducer,
     vendorDetails: vendorDetailsReducer,
+    customers: customersReducer,
   },
   middleware: (getDefaultMiddleware) => 
     getDefaultMiddleware({

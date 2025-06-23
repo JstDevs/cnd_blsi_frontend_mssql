@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchUserroles } from "../features/settings/userrolesSlice";
+import { fetchModules } from "../features/settings/modulesSlice";
 
 const API_URL = import.meta.env.VITE_API_URL;
 
@@ -15,82 +16,135 @@ const defaultPermissions = {
 
 export default function UserAccessPage() {
   const dispatch = useDispatch();
-  const { userroles, isLoading, error } = useSelector((state) => state.userroles);
 
-  const [selectedRole, setSelectedRole] = useState("");
-  const [modules, setModules] = useState([]);
+  const { userroles, isLoading, error } = useSelector((state) => state.userroles);
+  const modules = useSelector((state) => state.modules.modules);
+
+  const [selectedRole, setSelectedRole] = useState(null); // role object
   const [permissions, setPermissions] = useState({});
 
-  // Fetch user roles from Redux
+  // Fetch roles and modules
   useEffect(() => {
     dispatch(fetchUserroles());
+    dispatch(fetchModules());
   }, [dispatch]);
 
-  // Set default selected role
+  // Auto-select first role
   useEffect(() => {
     if (userroles.length > 0 && !selectedRole) {
-      setSelectedRole(userroles[0]?.Description || userroles[0]);
+      setSelectedRole(userroles[0]);
     }
   }, [userroles]);
 
-  // Fetch modules from API (no Redux)
+  // Fetch module access for selected role
   useEffect(() => {
-    const fetchModules = async () => {
+    if (!selectedRole?.ID || modules.length === 0) return;
+
+    const fetchModuleAccess = async () => {
       try {
-        const response = await fetch(`${API_URL}/modules`, {
+        const response = await fetch(`${API_URL}/moduleAccess/${selectedRole.ID}`, {
           headers: {
             Authorization: `Bearer ${localStorage.getItem("token")}`,
           },
         });
+
         const res = await response.json();
+        if (!response.ok) throw new Error(res.message || "Failed to fetch access");
 
-        if (!response.ok) throw new Error(res.message || "Failed to fetch modules");
+        const accessMap = {};
+        res.forEach((entry) => {
+          accessMap[entry.ModuleID] = {
+            id: entry.ID,
+            view: !!entry.View,
+            add: !!entry.Add,
+            edit: !!entry.Edit,
+            delete: !!entry.Delete,
+            print: !!entry.Print,
+            mayor: !!entry.Mayor,
+          };
+        });
 
-        setModules(res);
+        const permissionsByModule = {};
+        modules.forEach((mod) => {
+          permissionsByModule[mod.ID] = accessMap[mod.ID] || { ...defaultPermissions };
+        });
 
-        // Initialize permissions state for each module
-        const initialPermissions = res.reduce((acc, mod) => {
-          const moduleName = mod.Description || mod.Name || mod.Module || mod; // fallback if string
-          acc[moduleName] = { ...defaultPermissions };
-          return acc;
-        }, {});
-
-        setPermissions(initialPermissions);
+        setPermissions(permissionsByModule);
       } catch (err) {
-        console.error("Failed to fetch modules:", err.message);
+        console.error("Error loading module access:", err.message);
       }
     };
 
-    fetchModules();
-  }, []);
+    fetchModuleAccess();
+  }, [selectedRole, modules]);
 
-  const togglePermission = (module, key) => {
+  const togglePermission = (moduleId, key) => {
     setPermissions((prev) => ({
       ...prev,
-      [module]: { ...prev[module], [key]: !prev[module][key] },
+      [moduleId]: {
+        ...prev[moduleId],
+        [key]: !prev[moduleId][key],
+      },
     }));
+  };
+
+  const handleSave = async () => {
+    if (!selectedRole?.ID) return;
+
+    const modulesPayload = Object.entries(permissions).map(([moduleId, perms]) => ({
+      id: perms.id || null, // may be undefined for new entries (optional handling)
+      ModuleID: parseInt(moduleId),
+      View: perms.view ? 1 : 0,
+      Add: perms.add ? 1 : 0,
+      Edit: perms.edit ? 1 : 0,
+      Delete: perms.delete ? 1 : 0,
+      Print: perms.print ? 1 : 0,
+      Mayor: perms.mayor ? 1 : 0,
+    }));
+
+    try {
+      const response = await fetch(`${API_URL}/moduleAccess`, {
+        method: "PUT", // or PUT, depending on your route setup
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+        body: JSON.stringify({
+          UserAccessID: selectedRole.ID,
+          modules: modulesPayload,
+        }),
+      });
+
+      if (!response.ok) {
+        const res = await response.json();
+        throw new Error(res.message || "Failed to save permissions");
+      }
+
+      alert("Permissions saved successfully!");
+    } catch (err) {
+      console.error("Save failed:", err.message);
+      alert("Error saving permissions.");
+    }
   };
 
   return (
     <div className="p-4 space-y-4">
-      {/* Header: search + actions */}
+      {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
         <input
           type="text"
           placeholder="Search role..."
           className="border px-3 py-2 rounded-md w-full sm:w-60"
         />
-        <div className="flex gap-2">
-          <button className="px-4 py-2 rounded text-white bg-green-600">Save</button>
-        </div>
+        <button className="px-4 py-2 rounded text-white bg-green-600" onClick={handleSave}>
+          Save
+        </button>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-4">
         {/* Role List */}
         <div className="lg:col-span-3 bg-white border rounded shadow">
-          <div className="border-b p-2 bg-blue-100 font-medium text-center">
-            Roles
-          </div>
+          <div className="border-b p-2 bg-blue-100 font-medium text-center">Roles</div>
           {isLoading ? (
             <div className="p-4 text-center">Loading roles...</div>
           ) : error ? (
@@ -102,9 +156,9 @@ export default function UserAccessPage() {
               {userroles.map((role) => (
                 <li
                   key={role.ID}
-                  onClick={() => setSelectedRole(role.Description)}
+                  onClick={() => setSelectedRole(role)}
                   className={`px-4 py-2 cursor-pointer hover:bg-blue-50 ${
-                    role.Description === selectedRole ? "bg-blue-200 font-semibold" : ""
+                    selectedRole?.ID === role.ID ? "bg-blue-200 font-semibold" : ""
                   }`}
                 >
                   {role.Description}
@@ -117,36 +171,33 @@ export default function UserAccessPage() {
         {/* Permissions Table */}
         <div className="lg:col-span-9 bg-white border rounded shadow overflow-x-auto">
           <div className="border-b p-2 bg-blue-100 font-medium text-center">
-            Permissions for: {selectedRole}
+            Permissions for: {selectedRole?.Description || "—"}
           </div>
           <table className="min-w-[700px] w-full text-sm text-left">
             <thead className="bg-gray-100">
               <tr>
                 <th className="px-4 py-2">Module</th>
                 {["view", "add", "edit", "delete", "print", "mayor"].map((perm) => (
-                  <th key={perm} className="px-2 capitalize">{perm}</th>
+                  <th key={perm} className="px-2 capitalize text-center">{perm}</th>
                 ))}
               </tr>
             </thead>
             <tbody>
-              {modules.map((mod) => {
-                const moduleName = mod.Description || mod.Name || mod.Module || mod; // fallback
-                return (
-                  <tr key={moduleName} className="border-t">
-                    <td className="px-4 py-1">{moduleName}</td>
-                    {["view", "add", "edit", "delete", "print", "mayor"].map((perm) => (
-                      <td key={perm} className="text-center">
-                        <input
-                          type="checkbox"
-                          checked={permissions[moduleName]?.[perm] || false}
-                          onChange={() => togglePermission(moduleName, perm)}
-                          className="accent-blue-600"
-                        />
-                      </td>
-                    ))}
-                  </tr>
-                );
-              })}
+              {modules.map((mod) => (
+                <tr key={mod.ID} className="border-t">
+                  <td className="px-4 py-1">{mod.Description}</td>
+                  {["view", "add", "edit", "delete", "print", "mayor"].map((perm) => (
+                    <td key={perm} className="text-center">
+                      <input
+                        type="checkbox"
+                        checked={permissions[mod.ID]?.[perm] || false}
+                        onChange={() => togglePermission(mod.ID, perm)}
+                        className="accent-blue-600"
+                      />
+                    </td>
+                  ))}
+                </tr>
+              ))}
             </tbody>
           </table>
         </div>

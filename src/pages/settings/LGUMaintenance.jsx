@@ -1,43 +1,194 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { useFormik } from "formik";
+import * as Yup from "yup";
 import { Building } from "lucide-react";
+import FormField from "../../components/common/FormField";
+import { fetchBarangays } from "../../features/settings/barangaysSlice";
+import { fetchMunicipalities } from "../../features/settings/municipalitiesSlice";
+import { fetchProvinces } from "../../features/settings/provincesSlice";
+import { fetchRegions } from "../../features/settings/regionsSlice";
+
 
 const LGUMaintenance = () => {
+  const dispatch = useDispatch();
+  const [logoFile, setLogoFile] = useState(null);
+
+
+  useEffect(() => {
+    dispatch(fetchBarangays());
+    dispatch(fetchMunicipalities());
+    dispatch(fetchProvinces());
+    dispatch(fetchRegions());
+    fetchLguData();
+  }, [dispatch]);
+
+  const API_URL = import.meta.env.VITE_API_URL;
+  const fetchLguData = async () => {
+    try {
+
+      const token = localStorage.getItem('token');
+
+      const response = await fetch(`${API_URL}/lgu`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      if (!response.ok) {
+        throw new Error("Failed to fetch LGU data");
+      }
+      const data = await response.json();
+      setLgu(data);
+      setImage(data.Logo || "https://placehold.co/150x150?text=LGU+Logo");
+    } catch (error) {
+      console.error("Error loading LGU data:", error);
+    }
+  };
+
+  // const updateLguData = async (values) => {
+  //   try {
+  //     const token = localStorage.getItem("token");
+
+  //     const response = await fetch(`${API_URL}/lgu/${values.ID}`, {
+  //       method: "PUT", // or "PATCH"
+  //       headers: {
+  //         "Content-Type": "application/json",
+  //         Authorization: `Bearer ${token}`,
+  //       },
+  //       body: JSON.stringify(values),
+  //     });
+
+  //     if (!response.ok) {
+  //       throw new Error("Failed to update LGU");
+  //     }
+
+  //     const updated = await response.json();
+  //     setLgu(updated);
+  //     setImage(updated.LogoUrl || "https://placehold.co/150x150?text=LGU+Logo");
+  //     return true;
+  //   } catch (error) {
+  //     console.error("Update error:", error);
+  //     return false;
+  //   }
+  // };
+  const updateLguData = async (values, file) => {
+  try {
+      const token = localStorage.getItem("token");
+
+      const formData = new FormData();
+      // Append fields
+      Object.entries(values).forEach(([key, val]) => {
+        formData.append(key, val);
+      });
+
+      // Append file (if selected)
+      if (file) {
+        formData.append("Logo", file);
+      }
+
+      const response = await fetch(`${API_URL}/lgu/${values.ID}`, {
+        method: "PUT",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          // Do not manually set Content-Type!
+        },
+        body: formData,
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to update LGU");
+      }
+
+      const updated = await response.json();
+      setLgu(updated);
+      setImage(updated.Logo || "https://placehold.co/150x150?text=LGU+Logo");
+      return true;
+    } catch (error) {
+      console.error("Update error:", error);
+      return false;
+    }
+  };
+
+
+
+  const { barangays } = useSelector((state) => state.barangays);
+  const { municipalities } = useSelector((state) => state.municipalities);
+  const { provinces } = useSelector((state) => state.provinces);
+  const { regions } = useSelector((state) => state.regions);
+
   const [lgu, setLgu] = useState({
-    id: "1",
-    code: "LGU001",
-    name: "Sample LGU",
-    tin: "123-456-789",
-    rdo: "RDO123",
-    staddress: "123 Main Street",
-    barangayId: "1",
-    municipalityId: "1",
-    regionId: "1",
-    zipcode: "1234",
-    number: "123-4567",
-    email: "info@samplelgu.gov.ph",
-    website: "www.samplelgu.gov.ph",
+    ID: "1",
+    Code: "LGU001",
+    Name: "Sample LGU",
+    TIN: "123-456-789",
+    RDO: "RDO123",
+    StreetAddress: "123 Main Street",
+    BarangayName: "Sample Barangay",
+    MunicipalityName: "Sample Municipality",
+    ProvinceName: "Sample Province",
+    RegionName: "Sample Region",
+    ZIPCode: "1234",
+    PhoneNumber: "123-4567",
+    EmailAddress: "info@samplelgu.gov.ph",
+    Website: "www.samplelgu.gov.ph",
   });
 
-  const [image, setImage] = useState("https://picsum.photos/200/300");
+  const [image, setImage] = useState("https://placehold.co/150x150?text=LGU+Logo");
   const [isEditing, setIsEditing] = useState(false);
-  const [formData, setFormData] = useState(lgu);
+
+  const validationSchema = Yup.object({
+    Code: Yup.string().required("Code is required"),
+    Name: Yup.string().required("Name is required"),
+    TIN: Yup.string().required("TIN is required"),
+    RDO: Yup.string().required("RDO is required"),
+    StreetAddress: Yup.string().required("Street Address is required"),
+    BarangayID: Yup.string().required("Barangay is required"),
+    MunicipalityID: Yup.string().required("Municipality is required"),
+    ProvinceID: Yup.string().required("Province is required"),
+    RegionID: Yup.string().required("Region is required"),
+    ZIPCode: Yup.string().required("Zip Code is required"),
+    PhoneNumber: Yup.string().required("Phone Number is required"),
+    EmailAddress: Yup.string().email("Invalid email").required("Email is required"),
+    Website: Yup.string().required("Website is required"),
+  });
+
+  const formik = useFormik({
+    initialValues: lgu,
+    validationSchema,
+    enableReinitialize: true,
+    
+    onSubmit: async (values, { setSubmitting }) => {
+      // const success = await updateLguData(values);
+      const success = await updateLguData(values, logoFile);
+      if (success) {
+        setIsEditing(false);
+      }
+      setSubmitting(false);
+    },
+  });
 
   const handleImageChange = (e) => {
     const file = e.target.files?.[0];
     if (file) {
+      setLogoFile(file); // store file to send later
+
       const reader = new FileReader();
       reader.onloadend = () => {
-        setImage(reader.result);
+        setImage(reader.result); // show preview
       };
       reader.readAsDataURL(file);
     }
   };
-
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    setLgu(formData);
-    setIsEditing(false);
-  };
+  // const handleImageChange = (e) => {
+  //   const file = e.target.files?.[0];
+  //   if (file) {
+  //     const reader = new FileReader();
+  //     reader.onloadend = () => {
+  //       setImage(reader.result);
+  //     };
+  //     reader.readAsDataURL(file);
+  //   }
+  // };
 
   return (
     <div className="py-6 px-4">
@@ -65,7 +216,6 @@ const LGUMaintenance = () => {
           )}
         </div>
 
-        {/* Card Content */}
         <div className="p-6">
           <div className="flex flex-col items-center mb-6">
             <img
@@ -78,202 +228,201 @@ const LGUMaintenance = () => {
                 type="file"
                 accept="image/*"
                 onChange={handleImageChange}
-                className="mt-2 w-auto"
+                className="mt-2"
               />
             )}
           </div>
 
           {isEditing ? (
-            <form onSubmit={handleSubmit} className="space-y-4">
+            <form onSubmit={formik.handleSubmit} className="space-y-4">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="space-y-1">
-                  <label className="block text-sm font-medium text-gray-700">
-                    LGU Code
-                  </label>
-                  <input
-                    type="text"
-                    value={formData.code}
-                    onChange={(e) =>
-                      setFormData({ ...formData, code: e.target.value })
-                    }
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-                    required
-                  />
-                </div>
-                <div className="space-y-1">
-                  <label className="block text-sm font-medium text-gray-700">
-                    LGU Name
-                  </label>
-                  <input
-                    type="text"
-                    value={formData.name}
-                    onChange={(e) =>
-                      setFormData({ ...formData, name: e.target.value })
-                    }
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-                    required
-                  />
-                </div>
-                <div className="space-y-1">
-                  <label className="block text-sm font-medium text-gray-700">
-                    TIN
-                  </label>
-                  <input
-                    type="text"
-                    value={formData.tin}
-                    onChange={(e) =>
-                      setFormData({ ...formData, tin: e.target.value })
-                    }
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-                    required
-                  />
-                </div>
-                <div className="space-y-1">
-                  <label className="block text-sm font-medium text-gray-700">
-                    RDO
-                  </label>
-                  <input
-                    type="text"
-                    value={formData.rdo}
-                    onChange={(e) =>
-                      setFormData({ ...formData, rdo: e.target.value })
-                    }
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-                    required
-                  />
-                </div>
-                <div className="space-y-1">
-                  <label className="block text-sm font-medium text-gray-700">
-                    Street Address
-                  </label>
-                  <input
-                    type="text"
-                    value={formData.staddress}
-                    onChange={(e) =>
-                      setFormData({ ...formData, staddress: e.target.value })
-                    }
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-                    required
-                  />
-                </div>
-                <div className="space-y-1">
-                  <label className="block text-sm font-medium text-gray-700">
-                    Zip Code
-                  </label>
-                  <input
-                    type="text"
-                    value={formData.zipcode}
-                    onChange={(e) =>
-                      setFormData({ ...formData, zipcode: e.target.value })
-                    }
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-                    required
-                  />
-                </div>
-                <div className="space-y-1">
-                  <label className="block text-sm font-medium text-gray-700">
-                    Contact Number
-                  </label>
-                  <input
-                    type="text"
-                    value={formData.number}
-                    onChange={(e) =>
-                      setFormData({ ...formData, number: e.target.value })
-                    }
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-                    required
-                  />
-                </div>
-                <div className="space-y-1">
-                  <label className="block text-sm font-medium text-gray-700">
-                    Email
-                  </label>
-                  <input
-                    type="email"
-                    value={formData.email}
-                    onChange={(e) =>
-                      setFormData({ ...formData, email: e.target.value })
-                    }
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-                    required
-                  />
-                </div>
-                <div className="space-y-1">
-                  <label className="block text-sm font-medium text-gray-700">
-                    Website
-                  </label>
-                  <input
-                    type="text"
-                    value={formData.website}
-                    onChange={(e) =>
-                      setFormData({ ...formData, website: e.target.value })
-                    }
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-                    required
-                  />
-                </div>
+                <FormField
+                  label="LGU Code"
+                  name="Code"
+                  value={formik.values.Code}
+                  onChange={formik.handleChange}
+                  onBlur={formik.handleBlur}
+                  error={formik.errors.Code}
+                  touched={formik.touched.Code}
+                  required
+                />
+                <FormField
+                  label="LGU Name"
+                  name="Name"
+                  value={formik.values.Name}
+                  onChange={formik.handleChange}
+                  onBlur={formik.handleBlur}
+                  error={formik.errors.Name}
+                  touched={formik.touched.Name}
+                  required
+                />
+                <FormField
+                  label="TIN"
+                  name="TIN"
+                  value={formik.values.TIN}
+                  onChange={formik.handleChange}
+                  onBlur={formik.handleBlur}
+                  error={formik.errors.TIN}
+                  touched={formik.touched.TIN}
+                  required
+                />
+                <FormField
+                  label="RDO"
+                  name="RDO"
+                  value={formik.values.RDO}
+                  onChange={formik.handleChange}
+                  onBlur={formik.handleBlur}
+                  error={formik.errors.RDO}
+                  touched={formik.touched.RDO}
+                  required
+                />
+                <FormField
+                  label="Street Address"
+                  name="StreetAddress"
+                  value={formik.values.StreetAddress}
+                  onChange={formik.handleChange}
+                  onBlur={formik.handleBlur}
+                  error={formik.errors.StreetAddress}
+                  touched={formik.touched.StreetAddress}
+                  required
+                />
+                <FormField
+                  label="Barangay"
+                  name="BarangayID"
+                  type="select"
+                  value={formik.values.BarangayID}
+                  onChange={formik.handleChange}
+                  onBlur={formik.handleBlur}
+                  error={formik.errors.BarangayID}
+                  touched={formik.touched.BarangayID}
+                  options={barangays.map((b) => ({ value: b.ID, label: b.Name }))}
+                  required
+                />
+
+                <FormField
+                  label="Municipality"
+                  name="MunicipalityID"
+                  type="select"
+                  value={formik.values.MunicipalityID}
+                  onChange={formik.handleChange}
+                  onBlur={formik.handleBlur}
+                  error={formik.errors.MunicipalityID}
+                  touched={formik.touched.MunicipalityID}
+                  options={municipalities.map((m) => ({ value: m.ID, label: m.Name }))}
+                  required
+                />
+
+                <FormField
+                  label="Province"
+                  name="ProvinceID"
+                  type="select"
+                  value={formik.values.ProvinceID}
+                  onChange={formik.handleChange}
+                  onBlur={formik.handleBlur}
+                  error={formik.errors.ProvinceID}
+                  touched={formik.touched.ProvinceID}
+                  options={provinces.map((p) => ({ value: p.ID, label: p.Name }))}
+                  required
+                />
+
+                <FormField
+                  label="Region"
+                  name="RegionID"
+                  type="select"
+                  value={formik.values.RegionID}
+                  onChange={formik.handleChange}
+                  onBlur={formik.handleBlur}
+                  error={formik.errors.RegionID}
+                  touched={formik.touched.RegionID}
+                  options={regions.map((r) => ({ value: r.ID, label: r.Name }))}
+                  required
+                />
+
+                <FormField
+                  label="Zip Code"
+                  name="ZIPCode"
+                  value={formik.values.ZIPCode}
+                  onChange={formik.handleChange}
+                  onBlur={formik.handleBlur}
+                  error={formik.errors.ZIPCode}
+                  touched={formik.touched.ZIPCode}
+                  required
+                />
+                <FormField
+                  label="Mobile Number"
+                  name="PhoneNumber"
+                  value={formik.values.PhoneNumber}
+                  onChange={formik.handleChange}
+                  onBlur={formik.handleBlur}
+                  error={formik.errors.PhoneNumber}
+                  touched={formik.touched.PhoneNumber}
+                  required
+                />
+                <FormField
+                  label="Email"
+                  name="EmailAddress"
+                  type="email"
+                  value={formik.values.EmailAddress}
+                  onChange={formik.handleChange}
+                  onBlur={formik.handleBlur}
+                  error={formik.errors.EmailAddress}
+                  touched={formik.touched.EmailAddress}
+                  required
+                />
+                <FormField
+                  label="Website"
+                  name="Website"
+                  value={formik.values.Website}
+                  onChange={formik.handleChange}
+                  onBlur={formik.handleBlur}
+                  error={formik.errors.Website}
+                  touched={formik.touched.Website}
+                  required
+                />
               </div>
-              <div className="flex justify-end space-x-3 mt-6">
+
+              <div className="flex justify-end space-x-3 pt-4 border-t border-gray-200">
                 <button
                   type="button"
                   onClick={() => {
-                    setFormData(lgu);
+                    formik.resetForm();
                     setIsEditing(false);
                   }}
-                  className="px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+                  className="btn btn-outline"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
-                  className="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+                  className="btn btn-primary"
+                  disabled={formik.isSubmitting}
                 >
-                  Save Changes
+                  {formik.isSubmitting ? "Saving..." : "Save"}
                 </button>
               </div>
             </form>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="space-y-1">
-                <h3 className="text-sm font-medium text-gray-500">LGU Code</h3>
-                <p className="mt-1 text-sm text-gray-900">{lgu.code}</p>
-              </div>
-              <div className="space-y-1">
-                <h3 className="text-sm font-medium text-gray-500">LGU Name</h3>
-                <p className="mt-1 text-sm text-gray-900">{lgu.name}</p>
-              </div>
-              <div className="space-y-1">
-                <h3 className="text-sm font-medium text-gray-500">TIN</h3>
-                <p className="mt-1 text-sm text-gray-900">{lgu.tin}</p>
-              </div>
-              <div className="space-y-1">
-                <h3 className="text-sm font-medium text-gray-500">RDO</h3>
-                <p className="mt-1 text-sm text-gray-900">{lgu.rdo}</p>
-              </div>
-              <div className="space-y-1">
-                <h3 className="text-sm font-medium text-gray-500">
-                  Street Address
-                </h3>
-                <p className="mt-1 text-sm text-gray-900">{lgu.staddress}</p>
-              </div>
-              <div className="space-y-1">
-                <h3 className="text-sm font-medium text-gray-500">Zip Code</h3>
-                <p className="mt-1 text-sm text-gray-900">{lgu.zipcode}</p>
-              </div>
-              <div className="space-y-1">
-                <h3 className="text-sm font-medium text-gray-500">
-                  Contact Number
-                </h3>
-                <p className="mt-1 text-sm text-gray-900">{lgu.number}</p>
-              </div>
-              <div className="space-y-1">
-                <h3 className="text-sm font-medium text-gray-500">Email</h3>
-                <p className="mt-1 text-sm text-gray-900">{lgu.email}</p>
-              </div>
-              <div className="space-y-1">
-                <h3 className="text-sm font-medium text-gray-500">Website</h3>
-                <p className="mt-1 text-sm text-gray-900">{lgu.website}</p>
-              </div>
+              {Object.entries({
+                Code: "LGU Code",
+                Name: "LGU Name",
+                TIN: "TIN",
+                RDO: "RDO",
+                StreetAddress: "Street Address",
+                BarangayName: "Barangay",
+                MunicipalityName: "Municipality",
+                ProvinceName: "Province",
+                RegionName: "Region",
+                ZIPCode: "ZIP Code",
+                PhoneNumber: "Phone Number",
+                EmailAddress: "Email Address",
+                Website: "Website",
+              }).map(([key, label]) => (
+                <div key={key} className="space-y-1">
+                  <h3 className="text-sm font-medium text-gray-500">{label}</h3>
+                  <p className="mt-1 text-sm text-gray-900">{lgu[key]}</p>
+                </div>
+              ))}
             </div>
           )}
         </div>
