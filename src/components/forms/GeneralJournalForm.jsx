@@ -1,25 +1,26 @@
-import React from "react";
-import { Formik, Form } from "formik";
-import * as Yup from "yup";
-import FormField from "../common/FormField";
-import DatePickerField from "../common/DatePickerField";
+import React from 'react';
+import { Formik, Form } from 'formik';
+import * as Yup from 'yup';
+import FormField from '../common/FormField';
+import DatePickerField from '../common/DatePickerField';
 
 // Mock options for fund select
 const fundOptions = [
-  { value: "all", label: "All Funds" },
-  { value: "general", label: "General Fund" },
-  { value: "special", label: "Special Education Fund" },
-  { value: "trust", label: "Trust Fund" },
-  { value: "development", label: "Development Fund" },
+  { value: 'all', label: 'All Funds' },
+  { value: 'general', label: 'General Fund' },
+  { value: 'special', label: 'Special Education Fund' },
+  { value: 'trust', label: 'Trust Fund' },
+  { value: 'development', label: 'Development Fund' },
 ];
 
 // Validation schema using Yup
 const validationSchema = Yup.object({
-  fromDate: Yup.date().required("From Date is required"),
-  toDate: Yup.date()
-    .required("To Date is required")
-    .min(Yup.ref("fromDate"), "To Date cannot be before From Date"),
-  fund: Yup.string().required("Fund is required"),
+  fromDate: Yup.date().required('From Date is required'),
+  toDate: Yup.date().required('To Date is required').min(
+    Yup.ref('fromDate'),
+    'To Date cannot be before From Date'
+  ),
+  fund: Yup.string().required('Fund is required'),
 });
 
 function GeneralJournalForm({ initialData, onSubmit, onExport, onClose }) {
@@ -33,13 +34,11 @@ function GeneralJournalForm({ initialData, onSubmit, onExport, onClose }) {
 
   return (
     <Formik
-      initialValues={
-        initialData || {
-          fromDate: "",
-          toDate: "",
-          fund: "",
-        }
-      }
+      initialValues={initialData || { 
+        fromDate: '', 
+        toDate: '', 
+        fund: '', 
+      }}
       validationSchema={validationSchema}
       onSubmit={handleSubmit}
     >
@@ -49,7 +48,7 @@ function GeneralJournalForm({ initialData, onSubmit, onExport, onClose }) {
             <DatePickerField name="fromDate" label="From Date" required />
             <DatePickerField name="toDate" label="To Date" required />
           </div>
-
+          
           <FormField
             name="fund"
             label="Fund"
@@ -58,28 +57,28 @@ function GeneralJournalForm({ initialData, onSubmit, onExport, onClose }) {
             required
           />
 
-          <div className="grid grid-cols-1 gap-4 sm:flex justify-end pt-4 border-t border-neutral-200">
+          <div className="flex justify-end space-x-4 pt-4 border-t border-neutral-200">
             <button
-              type="button"
-              onClick={() => handleExport(values)}
-              className="btn btn-success w-full sm:w-auto"
+              type="submit"
+              className="btn btn-primary"
               disabled={isSubmitting}
             >
-              Export to Excel
+              {isSubmitting ? 'Loading...' : 'View'}
             </button>
             <button
               type="button"
-              className="btn btn-secondary  w-full sm:w-auto"
+              className="btn btn-secondary"
               disabled={isSubmitting}
             >
               Generate
             </button>
             <button
-              type="submit"
-              className="btn btn-primary  w-full sm:w-auto"
+              type="button"
+              onClick={() => handleExport(values)}
+              className="btn btn-outline"
               disabled={isSubmitting}
             >
-              {isSubmitting ? "Loading..." : "View"}
+              Export to Excel
             </button>
           </div>
         </Form>
@@ -88,4 +87,4 @@ function GeneralJournalForm({ initialData, onSubmit, onExport, onClose }) {
   );
 }
 
-export default GeneralJournalForm;
+export default GeneralJournalForm; 

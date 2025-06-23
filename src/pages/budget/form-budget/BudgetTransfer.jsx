@@ -278,7 +278,7 @@ const BudgetTransfer = () => {
         <div className="xl:col-span-2 bg-white rounded-lg shadow-sm border border-gray-200">
           {/* Transfer Header */}
           <div className="border-b border-gray-200 p-6">
-            <div className="flex items-center justify-between">
+            <div className="flex items-center justify-between gap-2">
               <div>
                 <h3 className="text-lg font-semibold text-gray-900">
                   {currentTransfer
@@ -306,7 +306,8 @@ const BudgetTransfer = () => {
               </div>
 
               {currentTransfer && (
-                <div className="flex items-center space-x-2">
+                // <div className="flex items-center space-x-2">
+                <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-y-2 sm:space-x-2 w-full sm:w-auto">
                   {currentTransfer.status === "pending" && (
                     <>
                       <button
@@ -385,16 +386,17 @@ const BudgetTransfer = () => {
 
           {/* Transfer Form */}
           {currentTransfer && (
-            <div className="p-6">
+            <div className="p-2 sm:p-6">
               {/* Transfer Overview */}
-              <div className="bg-gray-50 rounded-lg p-6 mb-6">
+              <div className="bg-gray-50 rounded-lg p-0 sm:p-6 mb-6">
+              {/* <div className="bg-gray-50 rounded-lg p-6 mb-6"> */}
                 <h4 className="text-lg font-semibold text-gray-900 mb-4">
                   Transfer Overview
                 </h4>
-                <div className="flex items-center justify-between">
+                <div className="flex items-center justify-between gap-1">
                   <div className="text-center">
                     <p className="text-sm text-gray-600">From</p>
-                    <p className="text-lg font-semibold text-red-600">
+                    <p className="text-md sm:text-lg font-semibold text-red-600">
                       {currentTransfer.sourceBudget}
                     </p>
                     <p className="text-sm text-gray-500">
@@ -402,17 +404,17 @@ const BudgetTransfer = () => {
                     </p>
                   </div>
                   <div className="flex items-center">
-                    <ArrowRightLeft className="w-8 h-8 text-blue-600" />
-                    <div className="ml-4 text-center">
+                    <ArrowRightLeft className="w-7 h-7 sm:w-8 sm:h-8 text-blue-600" />
+                    <div className="ml-2 sm:ml-4 text-center">
                       <p className="text-sm text-gray-600">Amount</p>
-                      <p className="text-2xl font-bold text-blue-600">
+                      <p className="text-xl sm:text-2xl font-bold text-blue-600">
                         ${currentTransfer.transferAmount.toLocaleString()}
                       </p>
                     </div>
                   </div>
                   <div className="text-center">
                     <p className="text-sm text-gray-600">To</p>
-                    <p className="text-lg font-semibold text-green-600">
+                    <p className="text-md sm:text-lg font-semibold text-green-600">
                       {currentTransfer.targetBudget}
                     </p>
                     <p className="text-sm text-gray-500">
@@ -634,31 +636,35 @@ const BudgetTransfer = () => {
               </div>
 
               <div className="grid grid-cols-2 gap-2">
-                <select
-                  value={filterStatus}
-                  onChange={(e) => setFilterStatus(e.target.value)}
-                  className="px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
-                >
-                  {statuses.map((status) => (
-                    <option key={status} value={status}>
-                      {status === "all"
-                        ? "All Status"
-                        : status.charAt(0).toUpperCase() + status.slice(1)}
-                    </option>
-                  ))}
-                </select>
+                <div className="relative">
+                  <select
+                    value={filterStatus}
+                    onChange={(e) => setFilterStatus(e.target.value)}
+                    className="px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
+                  >
+                    {statuses.map((status) => (
+                      <option key={status} value={status}>
+                        {status === "all"
+                          ? "All Status"
+                          : status.charAt(0).toUpperCase() + status.slice(1)}
+                      </option>
+                    ))}
+                  </select>
+                </div>
 
-                <select
-                  value={filterDepartment}
-                  onChange={(e) => setFilterDepartment(e.target.value)}
-                  className="px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
-                >
-                  {departments.map((dept) => (
-                    <option key={dept} value={dept}>
-                      {dept === "all" ? "All Departments" : dept}
-                    </option>
-                  ))}
-                </select>
+                <div className="relative">
+                  <select
+                    value={filterDepartment}
+                    onChange={(e) => setFilterDepartment(e.target.value)}
+                    className="px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
+                  >
+                    {departments.map((dept) => (
+                      <option key={dept} value={dept}>
+                        {dept === "all" ? "All Departments" : dept}
+                      </option>
+                    ))}
+                  </select>
+                </div>
               </div>
             </div>
           </div>

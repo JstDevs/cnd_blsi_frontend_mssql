@@ -1,7 +1,7 @@
 import { useState } from "react";
 import FormField from "@/components/common/FormField";
 import Modal from "@/components/common/Modal";
-import Button from "@/components/common/Button";
+import { Button } from "@/components/common/Button";
 import { Trash2, Pencil, Plus } from "lucide-react";
 const dummyData = [
   {
@@ -33,12 +33,16 @@ export default function BaseUnitValue() {
 
   return (
     <div className="p-4">
-      <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center mb-6 space-y-4 sm:space-y-0">
+      <div className="flex items-center justify-between mb-4">
         <h2 className="text-xl font-semibold">Base Unit Value</h2>
-
-        <Button className="bg-blue-600 text-white" onClick={() => openModal()}>
-          <Plus className="w-4 h-4 mr-1" /> Add
-        </Button>
+        <div className="space-x-2">
+          <Button
+            className="bg-blue-600 text-white"
+            onClick={() => openModal()}
+          >
+            <Plus className="w-4 h-4 mr-1" /> Add
+          </Button>
+        </div>
       </div>
 
       <div className="overflow-x-auto">
@@ -65,21 +69,24 @@ export default function BaseUnitValue() {
                 <td className="px-4 py-2 border">{record.actualUse}</td>
                 <td className="px-4 py-2 border">{record.subClass}</td>
                 <td className="px-4 py-2 border">{record.price}</td>
-                <td className="px-4 py-2 border space-x-2">
-                  <Button
-                    size="sm"
-                    variant="outline"
-                    onClick={() => openModal(record)}
-                  >
-                    <Pencil className="w-4 h-4" />
-                  </Button>
-                  <Button
-                    size="sm"
-                    variant="destructive"
-                    onClick={() => deleteRecord(index)}
-                  >
-                    <Trash2 className="w-4 h-4" />
-                  </Button>
+                
+                <td className="px-4 py-2 border">
+                  <div className="flex items-center gap-2">
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={() => openModal(record)}
+                    >
+                      <Pencil className="w-4 h-4" />
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant="destructive"
+                      onClick={() => deleteRecord(index)}
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </Button>
+                  </div>
                 </td>
               </tr>
             ))}

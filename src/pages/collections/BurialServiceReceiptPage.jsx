@@ -1,8 +1,8 @@
-import { useState } from "react";
-import { PlusIcon } from "@heroicons/react/24/outline";
-import BurialServiceReceiptForm from "../../components/forms/BurialServiceReceiptForm";
-import Modal from "../../components/common/Modal";
-import DataTable from "../../components/common/DataTable";
+import { useState } from 'react';
+import { PlusIcon } from '@heroicons/react/24/outline';
+import BurialServiceReceiptForm from '../../components/forms/BurialServiceReceiptForm';
+import Modal from '../../components/common/Modal';
+import DataTable from '../../components/common/DataTable';
 
 function BurialServiceReceiptPage() {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -10,30 +10,30 @@ function BurialServiceReceiptPage() {
   const [receipts, setReceipts] = useState([
     {
       id: 1,
-      receiptNo: "BSR-001",
-      name: "John Doe",
-      cityMunicipality: "Sample City",
-      province: "Sample Province",
-      deceasedName: "Jane Doe",
-      nationality: "Filipino",
+      receiptNo: 'BSR-001',
+      name: 'John Doe',
+      cityMunicipality: 'Sample City',
+      province: 'Sample Province',
+      deceasedName: 'Jane Doe',
+      nationality: 'Filipino',
       age: 75,
-      sex: "Female",
-      dateOfDeath: "2024-03-15",
-      causeOfDeath: "Natural Causes",
-      cemeteryName: "Sample Cemetery",
-      serviceType: "inter",
+      sex: 'Female',
+      dateOfDeath: '2024-03-15',
+      causeOfDeath: 'Natural Causes',
+      cemeteryName: 'Sample Cemetery',
+      serviceType: 'inter',
     },
   ]);
 
   const columns = [
-    { header: "Receipt No", accessor: "receiptNo" },
-    { header: "Name", accessor: "name" },
-    { header: "Deceased Name", accessor: "deceasedName" },
-    { header: "Date of Death", accessor: "dateOfDeath" },
-    { header: "Service Type", accessor: "serviceType" },
+    { header: 'Receipt No', accessor: 'receiptNo' },
+    { header: 'Name', accessor: 'name' },
+    { header: 'Deceased Name', accessor: 'deceasedName' },
+    { header: 'Date of Death', accessor: 'dateOfDeath' },
+    { header: 'Service Type', accessor: 'serviceType' },
     {
-      header: "Actions",
-      accessor: "actions",
+      header: 'Actions',
+      accessor: 'actions',
       cell: (row) => (
         <div className="flex space-x-2">
           <button
@@ -64,7 +64,7 @@ function BurialServiceReceiptPage() {
   };
 
   const handleDelete = (id) => {
-    setReceipts(receipts.filter((receipt) => receipt.id !== id));
+    setReceipts(receipts.filter(receipt => receipt.id !== id));
   };
 
   const handleCloseModal = () => {
@@ -75,13 +75,9 @@ function BurialServiceReceiptPage() {
   const handleFormSubmit = (values) => {
     if (selectedReceipt) {
       // Update existing receipt
-      setReceipts(
-        receipts.map((receipt) =>
-          receipt.id === selectedReceipt.id
-            ? { ...values, id: receipt.id }
-            : receipt
-        )
-      );
+      setReceipts(receipts.map(receipt => 
+        receipt.id === selectedReceipt.id ? { ...values, id: receipt.id } : receipt
+      ));
     } else {
       // Add new receipt
       const newReceipt = {
@@ -94,14 +90,12 @@ function BurialServiceReceiptPage() {
   };
 
   return (
-    <div className="container mx-auto">
-      <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center mb-6 space-y-4 sm:space-y-0">
-        <h1 className="text-2xl font-semibold text-gray-900">
-          Burial Service Receipts
-        </h1>
+    <div className="container mx-auto px-4 py-8">
+      <div className="flex justify-between items-center mb-6">
+        <h1 className="text-2xl font-semibold text-gray-900">Burial Service Receipts</h1>
         <button
           onClick={handleAdd}
-          className="btn btn-primary flex items-center justify-center"
+          className="btn btn-primary flex items-center"
         >
           <PlusIcon className="h-5 w-5 mr-2" />
           Add New Receipt
@@ -119,11 +113,7 @@ function BurialServiceReceiptPage() {
       <Modal
         isOpen={isModalOpen}
         onClose={handleCloseModal}
-        title={
-          selectedReceipt
-            ? "Edit Burial Service Receipt"
-            : "New Burial Service Receipt"
-        }
+        title={selectedReceipt ? 'Edit Burial Service Receipt' : 'New Burial Service Receipt'}
       >
         <BurialServiceReceiptForm
           initialData={selectedReceipt}
@@ -135,4 +125,4 @@ function BurialServiceReceiptPage() {
   );
 }
 
-export default BurialServiceReceiptPage;
+export default BurialServiceReceiptPage; 

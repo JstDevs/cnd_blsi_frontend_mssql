@@ -1,47 +1,49 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
+const API_URL = import.meta.env.VITE_API_URL;
 
 // Mock initial data
-const initialUsers = [
-  {
-    id: 1,
-    username: 'admin',
-    firstName: 'Admin',
-    lastName: 'User',
-    email: 'admin@lgu.gov.ph',
-    departmentId: 4,
-    departmentName: 'Information Technology Department',
-    position: 'System Administrator',
-    role: 'Administrator',
-    status: 'Active',
-    lastLoginDate: '2024-01-15T08:30:00'
-  },
-  {
-    id: 2,
-    username: 'jsmith',
-    firstName: 'John',
-    lastName: 'Smith',
-    email: 'jsmith@lgu.gov.ph',
-    departmentId: 2,
-    departmentName: 'Accounting Department',
-    position: 'Accountant III',
-    role: 'Department Head',
-    status: 'Active',
-    lastLoginDate: '2024-01-15T09:15:00'
-  },
-  {
-    id: 3,
-    username: 'mgarcia',
-    firstName: 'Maria',
-    lastName: 'Garcia',
-    email: 'mgarcia@lgu.gov.ph',
-    departmentId: 1,
-    departmentName: 'Office of the Mayor',
-    position: 'Executive Assistant',
-    role: 'Staff',
-    status: 'Active',
-    lastLoginDate: '2024-01-15T08:45:00'
-  }
-];
+const initialUsers = [];
+// const initialUsers = [
+//   {
+//     id: 1,
+//     username: 'admin',
+//     firstName: 'Admin',
+//     lastName: 'User',
+//     email: 'admin@lgu.gov.ph',
+//     departmentId: 4,
+//     departmentName: 'Information Technology Department',
+//     position: 'System Administrator',
+//     role: 'Administrator',
+//     status: 'Active',
+//     lastLoginDate: '2024-01-15T08:30:00'
+//   },
+//   {
+//     id: 2,
+//     username: 'jsmith',
+//     firstName: 'John',
+//     lastName: 'Smith',
+//     email: 'jsmith@lgu.gov.ph',
+//     departmentId: 2,
+//     departmentName: 'Accounting Department',
+//     position: 'Accountant III',
+//     role: 'Department Head',
+//     status: 'Active',
+//     lastLoginDate: '2024-01-15T09:15:00'
+//   },
+//   {
+//     id: 3,
+//     username: 'mgarcia',
+//     firstName: 'Maria',
+//     lastName: 'Garcia',
+//     email: 'mgarcia@lgu.gov.ph',
+//     departmentId: 1,
+//     departmentName: 'Office of the Mayor',
+//     position: 'Executive Assistant',
+//     role: 'Staff',
+//     status: 'Active',
+//     lastLoginDate: '2024-01-15T08:45:00'
+//   }
+// ];
 
 const initialState = {
   users: initialUsers,
@@ -51,54 +53,132 @@ const initialState = {
 };
 
 // Thunks for API calls
+// export const fetchUsers = createAsyncThunk(
+//   'users/fetchUsers',
+//   async (_, thunkAPI) => {
+//     try {
+//       // Simulate API call
+//       return new Promise((resolve) => {
+//         setTimeout(() => {
+//           resolve(initialUsers);
+//         }, 500);
+//       });
+//     } catch (error) {
+//       return thunkAPI.rejectWithValue(error.message);
+//     }
+//   }
+// );
+
 export const fetchUsers = createAsyncThunk(
   'users/fetchUsers',
   async (_, thunkAPI) => {
     try {
-      // Simulate API call
-      return new Promise((resolve) => {
-        setTimeout(() => {
-          resolve(initialUsers);
-        }, 500);
+      const token = localStorage.getItem('token');
+
+      const response = await fetch(`${API_URL}/users`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
       });
+
+      const res = await response.json();
+
+      if (!response.ok) {
+        throw new Error(res.message || 'Failed to fetch');
+      }
+
+      return res;
     } catch (error) {
       return thunkAPI.rejectWithValue(error.message);
     }
   }
 );
+
+// export const addUser = createAsyncThunk(
+//   'users/addUser',
+//   async (user, thunkAPI) => {
+//     try {
+//       // Simulate API call
+//       return new Promise((resolve) => {
+//         setTimeout(() => {
+//           const newUser = {
+//             ...user,
+//             id: Date.now(),
+//             status: user.status || 'Active',
+//             lastLoginDate: null
+//           };
+//           resolve(newUser);
+//         }, 500);
+//       });
+//     } catch (error) {
+//       return thunkAPI.rejectWithValue(error.message);
+//     }
+//   }
+// );
 
 export const addUser = createAsyncThunk(
   'users/addUser',
   async (user, thunkAPI) => {
     try {
-      // Simulate API call
-      return new Promise((resolve) => {
-        setTimeout(() => {
-          const newUser = {
-            ...user,
-            id: Date.now(),
-            status: user.status || 'Active',
-            lastLoginDate: null
-          };
-          resolve(newUser);
-        }, 500);
+      const response = await fetch(`${API_URL}/users`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${localStorage.getItem('token')}`,
+        },
+        body: JSON.stringify(user),
       });
+
+      const res = await response.json();
+      if (!response.ok ) {
+        throw new Error(res.message || res.error || 'Failed to add user');
+      }
+
+      return res;
     } catch (error) {
       return thunkAPI.rejectWithValue(error.message);
     }
   }
 );
 
+// export const updateUser = createAsyncThunk(
+//   'users/updateUser',
+//   async (user, thunkAPI) => {
+//     try {
+//       // Simulate API call
+//       return new Promise((resolve) => {
+//         setTimeout(() => {
+//           resolve(user);
+//         }, 500);
+//       });
+//     } catch (error) {
+//       return thunkAPI.rejectWithValue(error.message);
+//     }
+//   }
+// );
+
 export const updateUser = createAsyncThunk(
   'users/updateUser',
   async (user, thunkAPI) => {
     try {
-      // Simulate API call
-      return new Promise((resolve) => {
-        setTimeout(() => {
-          resolve(user);
-        }, 500);
+      const response = await fetch(`${API_URL}/users/${user.ID}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${localStorage.getItem('token')}`,
+        },
+        body: JSON.stringify(user),
       });
+
+      const res = await response.json();
+
+      if (!response.ok) {
+        throw new Error(res.message || res.error || 'Failed to update user');
+      }
+
+      return res;
     } catch (error) {
       return thunkAPI.rejectWithValue(error.message);
     }
@@ -109,12 +189,20 @@ export const deleteUser = createAsyncThunk(
   'users/deleteUser',
   async (id, thunkAPI) => {
     try {
-      // Simulate API call
-      return new Promise((resolve) => {
-        setTimeout(() => {
-          resolve(id);
-        }, 500);
+      const response = await fetch(`${API_URL}/users/${id}`, {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${localStorage.getItem('token')}`,
+        },
       });
+
+      if (!response.ok) {
+        const res = await response.json();
+        throw new Error(res.message || 'Failed to delete');
+      }
+
+      return id;
     } catch (error) {
       return thunkAPI.rejectWithValue(error.message);
     }
@@ -168,7 +256,7 @@ const userSlice = createSlice({
       .addCase(updateUser.fulfilled, (state, action) => {
         state.isLoading = false;
         const index = state.users.findIndex(
-          (user) => user.id === action.payload.id
+          (user) => user.ID === action.payload.ID
         );
         if (index !== -1) {
           state.users[index] = action.payload;
@@ -186,7 +274,7 @@ const userSlice = createSlice({
       .addCase(deleteUser.fulfilled, (state, action) => {
         state.isLoading = false;
         state.users = state.users.filter(
-          (user) => user.id !== action.payload
+          (user) => user.ID !== action.payload
         );
         state.error = null;
       })

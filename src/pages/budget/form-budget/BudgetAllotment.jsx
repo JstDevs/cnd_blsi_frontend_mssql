@@ -381,7 +381,9 @@ const BudgetAllotment = () => {
                 {currentOrder.budgetName} • {currentOrder.department}
               </p>
             </div>
-            <div className="flex items-center space-x-2">
+            {/* <div className="flex items-center space-x-2"> */}
+            {/* <div className="flex flex-wrap items-center gap-2 justify-end"> */}
+            <div className="flex flex-col md:flex-row items-stretch md:items-center gap-2 md:space-x-2">
               <span
                 className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium border ${getStatusColor(
                   currentOrder.status

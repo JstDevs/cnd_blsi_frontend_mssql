@@ -4,9 +4,9 @@ import FormField from '../common/FormField';
 
 function PaymentTermsForm({ initialData, onSubmit, onClose }) {
   const validationSchema = Yup.object({
-    code: Yup.string().required('Code is required'),
-    name: Yup.string().required('Name is required'),
-    numberOfDays: Yup.number()
+    Code: Yup.string().required('Code is required'),
+    Name: Yup.string().required('Name is required'),
+    NumberOfDays: Yup.number()
       .required('Number of Days is required')
       .integer('Number of Days must be an integer')
       .min(0, 'Number of Days cannot be negative'),
@@ -14,9 +14,9 @@ function PaymentTermsForm({ initialData, onSubmit, onClose }) {
 
   const formik = useFormik({
     initialValues: initialData || {
-      code: '',
-      name: '',
-      numberOfDays: 0,
+      Code: '',
+      Name: '',
+      NumberOfDays: 0,
     },
     validationSchema,
     onSubmit: (values) => {
@@ -28,21 +28,36 @@ function PaymentTermsForm({ initialData, onSubmit, onClose }) {
     <form onSubmit={formik.handleSubmit} className="space-y-4">
       <FormField
         label="Code"
-        name="code"
+        name="Code"
         type="text"
-        formik={formik}
+        value={formik.values.Code}
+        onChange={formik.handleChange}
+        onBlur={formik.handleBlur}
+        error={formik.errors.Code}
+        touched={formik.touched.Code}
+        required
       />
       <FormField
         label="Name"
-        name="name"
+        name="Name"
         type="text"
-        formik={formik}
+        value={formik.values.Name}
+        onChange={formik.handleChange}
+        onBlur={formik.handleBlur}
+        error={formik.errors.Name}
+        touched={formik.touched.Name}
+        required
       />
       <FormField
         label="Number of Days"
-        name="numberOfDays"
+        name="NumberOfDays"
         type="number"
-        formik={formik}
+        value={formik.values.NumberOfDays}
+        onChange={formik.handleChange}
+        onBlur={formik.handleBlur}
+        error={formik.errors.NumberOfDays}
+        touched={formik.touched.NumberOfDays}
+        required
       />
 
       <div className="flex justify-end space-x-3 pt-4 border-t border-neutral-200">
@@ -65,4 +80,4 @@ function PaymentTermsForm({ initialData, onSubmit, onClose }) {
   );
 }
 
-export default PaymentTermsForm; 
+export default PaymentTermsForm;

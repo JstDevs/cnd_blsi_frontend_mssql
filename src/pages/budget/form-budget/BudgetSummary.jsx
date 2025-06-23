@@ -235,7 +235,8 @@ const BudgetSummary = () => {
   return (
     <div className="space-y-4 sm:space-y-6">
       {/* Header & Primary Actions */}
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+      {/* <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4"> */}
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-y-4 gap-x-6">
         <div>
           <h2 className="text-xl sm:text-2xl font-bold text-gray-900">
             Budget Summary
@@ -244,7 +245,8 @@ const BudgetSummary = () => {
             Comprehensive budget overview and management dashboard
           </p>
         </div>
-        <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 w-full sm:w-auto">
+        {/* <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 w-full sm:w-auto"> */}
+        <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-y-3 sm:gap-x-3 w-full sm:w-auto">
           <div className="flex items-center bg-gray-100 rounded-lg p-1">
             <button
               onClick={() => setViewMode("grid")}

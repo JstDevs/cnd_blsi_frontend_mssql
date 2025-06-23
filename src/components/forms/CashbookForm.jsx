@@ -66,25 +66,25 @@ function CashbookForm({ onSubmit }) {
             options={[{ value: "general", label: "General Fund" }]}
           />
 
-          <div className="grid grid-cols-1 gap-4 sm:flex justify-end pt-4 border-t border-neutral-200 w-full">
+          <div className="flex justify-end space-x-3 pt-4 border-t border-neutral-200">
             <button
               type="button"
               onClick={() => onSubmit({ ...values, action: "view" })}
-              className="btn btn-primary w-full sm:w-auto"
+              className="btn btn-primary"
             >
               View
             </button>
             <button
               type="button"
               onClick={() => onSubmit({ ...values, action: "generate" })}
-              className="btn btn-secondary  w-full sm:w-auto"
+              className="btn btn-secondary"
             >
               Generate Cashbook
             </button>
             <button
               type="button"
               onClick={() => onSubmit({ ...values, action: "export" })}
-              className="btn btn-outline  w-full sm:w-auto"
+              className="btn btn-outline"
             >
               Export to Excel
             </button>

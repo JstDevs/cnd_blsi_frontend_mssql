@@ -218,24 +218,21 @@ const FundsManagement = () => {
   return (
     <div className="space-y-6">
       {/* Header & Actions */}
-      <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-        {/* Title and Description */}
-        <div className="space-y-1">
-          <h2 className="text-xl sm:text-2xl font-bold text-gray-900">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+        <div>
+          <h2 className="text-2xl font-bold text-gray-900">
             Funds & Sub-Funds Management
           </h2>
-          <p className="text-sm sm:text-base text-gray-600">
+          <p className="text-gray-600">
             Comprehensive fund hierarchy and allocation management
           </p>
         </div>
-
-        {/* Controls Section */}
-        <div className="flex flex-col md:flex-row gap-2 md:gap-3 w-full md:w-auto">
-          {/* Tab Switches */}
-          <div className="flex w-full md:w-auto bg-gray-100 rounded-lg p-1">
+        <div className="flex flex-wrap items-center gap-2">
+          {/* Funds/Subfunds Toggle */}
+          <div className="flex items-center bg-gray-100 rounded-lg p-1">
             <button
               onClick={() => setActiveTab("funds")}
-              className={`flex-1 md:flex-none px-3 py-1.5 rounded-md text-sm font-medium transition-colors ${
+              className={`px-3 py-1 rounded-md text-sm font-medium transition-colors ${
                 activeTab === "funds"
                   ? "bg-white text-gray-900 shadow-sm"
                   : "text-gray-600"
@@ -245,7 +242,7 @@ const FundsManagement = () => {
             </button>
             <button
               onClick={() => setActiveTab("subfunds")}
-              className={`flex-1 md:flex-none px-3 py-1.5 rounded-md text-sm font-medium transition-colors ${
+              className={`px-3 py-1 rounded-md text-sm font-medium transition-colors ${
                 activeTab === "subfunds"
                   ? "bg-white text-gray-900 shadow-sm"
                   : "text-gray-600"
@@ -255,11 +252,11 @@ const FundsManagement = () => {
             </button>
           </div>
 
-          {/* View Mode Switches */}
-          <div className="flex w-full sm:w-auto bg-gray-100 rounded-lg p-1">
+          {/* Grid/Table Toggle */}
+          <div className="flex items-center bg-gray-100 rounded-lg p-1">
             <button
               onClick={() => setViewMode("grid")}
-              className={`flex-1 md:flex-none px-3 py-1.5 rounded-md text-sm font-medium transition-colors ${
+              className={`px-3 py-1 rounded-md text-sm font-medium transition-colors ${
                 viewMode === "grid"
                   ? "bg-white text-gray-900 shadow-sm"
                   : "text-gray-600"
@@ -269,7 +266,7 @@ const FundsManagement = () => {
             </button>
             <button
               onClick={() => setViewMode("table")}
-              className={`flex-1 md:flex-none px-3 py-1.5 rounded-md text-sm font-medium transition-colors ${
+              className={`px-3 py-1 rounded-md text-sm font-medium transition-colors ${
                 viewMode === "table"
                   ? "bg-white text-gray-900 shadow-sm"
                   : "text-gray-600"
@@ -279,15 +276,16 @@ const FundsManagement = () => {
             </button>
           </div>
 
-          {/* Add New Button */}
+          {/* New Button */}
           <button
             onClick={() => setShowAddForm(true)}
-            className="flex items-center justify-center px-4 py-1.5 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors w-full sm:w-auto text-sm whitespace-nowrap"
+            className="flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm"
           >
             <Plus className="w-4 h-4 mr-2" />
             New {activeTab === "funds" ? "Fund" : "Sub-Fund"}
           </button>
         </div>
+
       </div>
 
       {/* Summary Dashboard */}
@@ -384,7 +382,9 @@ const FundsManagement = () => {
                 Fund
               </p>
             </div>
-            <div className="flex items-center space-x-2">
+            {/* <div className="flex items-center space-x-2"> */}
+            <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 sm:space-x-2">
+
               <span
                 className={`inline-flex px-2 py-1 text-xs font-medium rounded-full ${getFundTypeColor(
                   currentFund.type
@@ -571,7 +571,7 @@ const FundsManagement = () => {
               />
             </div>
           </div>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-1 sm:mt-0">
             {activeTab === "funds" && (
               <select
                 value={filterType}

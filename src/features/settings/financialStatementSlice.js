@@ -1,110 +1,195 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 
-// Mock Data
-const mockFinancialStatements = [
-  { id: '1', code: 'BS', name: 'Balance Sheet' },
-  { id: '2', code: 'IS', name: 'Income Statement' },
-  { id: '3', code: 'CF', name: 'Cash Flow Statement' },
-];
+const API_URL = import.meta.env.VITE_API_URL;
 
-// Async Thunks (Mock API calls)
-export const fetchFinancialStatements = createAsyncThunk('financialStatements/fetchFinancialStatements', async () => {
-  console.log('Mock API call: Fetching financial statements');
-  return new Promise(resolve => setTimeout(() => resolve(mockFinancialStatements), 500));
-});
+// Mock initial data
+const initialFinancialStatements = [];
+const initialState = {
+  financialStatements: initialFinancialStatements,
+  financialStatement: null,
+  isLoading: false,
+  error: null,
+};
 
-export const addFinancialStatement = createAsyncThunk('financialStatements/addFinancialStatement', async (financialStatement) => {
-  console.log('Mock API call: Adding financial statement', financialStatement);
-  const newFinancialStatement = { ...financialStatement, id: Date.now().toString() }; // Assign a mock ID
-  return new Promise(resolve => setTimeout(() => resolve(newFinancialStatement), 500));
-});
+export const fetchFinancialStatements = createAsyncThunk(
+  'financialStatements/fetchFinancialStatements',
+  async (_, thunkAPI) => {
+    try {
+      const token = localStorage.getItem('token');
 
-export const updateFinancialStatement = createAsyncThunk('financialStatements/updateFinancialStatement', async (financialStatement) => {
-  console.log('Mock API call: Updating financial statement', financialStatement);
-  return new Promise(resolve => setTimeout(() => resolve(financialStatement), 500));
-});
+      const response = await fetch(`${API_URL}/financialStatement`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+      });
 
-export const deleteFinancialStatement = createAsyncThunk('financialStatements/deleteFinancialStatement', async (id) => {
-  console.log('Mock API call: Deleting financial statement with ID', id);
-  return new Promise(resolve => setTimeout(() => resolve(id), 500));
-});
+      const res = await response.json();
 
-const financialStatementsSlice = createSlice({
+      if (!response.ok) {
+        throw new Error(res.message || 'Failed to fetch');
+      }
+
+      return res;
+    } catch (error) {
+      return thunkAPI.rejectWithValue(error.message);
+    }
+  }
+);
+
+export const addFinancialStatement = createAsyncThunk(
+  'financialStatements/addFinancialStatement',
+  async (financialStatement, thunkAPI) => {
+    try {
+      const response = await fetch(`${API_URL}/financialStatement`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${localStorage.getItem('token')}`,
+        },
+        body: JSON.stringify(financialStatement),
+      });
+
+      const res = await response.json();
+
+      if (!response.ok) {
+        throw new Error(res.message || 'Failed to add');
+      }
+
+      return res;
+    } catch (error) {
+      return thunkAPI.rejectWithValue(error.message);
+    }
+  }
+);
+
+export const updateFinancialStatement = createAsyncThunk(
+  'financialStatements/updateFinancialStatement',
+  async (financialStatement, thunkAPI) => {
+    try {
+      const response = await fetch(`${API_URL}/financialStatement/${financialStatement.ID}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${localStorage.getItem('token')}`,
+        },
+        body: JSON.stringify(financialStatement),
+      });
+
+      const res = await response.json();
+
+      if (!response.ok) {
+        throw new Error(res.message || 'Failed to update');
+      }
+
+      return res;
+    } catch (error) {
+      return thunkAPI.rejectWithValue(error.message);
+    }
+  }
+);
+
+export const deleteFinancialStatement = createAsyncThunk(
+  'financialStatements/deleteFinancialStatement',
+  async (ID, thunkAPI) => {
+    try {
+      const response = await fetch(`${API_URL}/financialStatement/${ID}`, {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${localStorage.getItem('token')}`,
+        },
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'Failed to delete');
+      }
+
+      return ID; // Return ID so you can remove it from Redux state
+    } catch (error) {
+      return thunkAPI.rejectWithValue(error.message);
+    }
+  }
+);
+
+const financialStatementSlice = createSlice({
   name: 'financialStatements',
-  initialState: {
-    financialStatements: [],
-    isLoading: false,
-    error: null,
+  initialState,
+  reducers: {
+    setFinancialStatement: (state, action) => {
+      state.financialStatement = action.payload;
+    },
+    resetFinancialStatementState: (state) => {
+      state.financialStatement = null;
+      state.error = null;
+    },
   },
-  reducers: {},
   extraReducers: (builder) => {
     builder
+      // Fetch financial statements
       .addCase(fetchFinancialStatements.pending, (state) => {
         state.isLoading = true;
-        state.error = null;
       })
       .addCase(fetchFinancialStatements.fulfilled, (state, action) => {
         state.isLoading = false;
-        state.financialStatements = Array.isArray(action.payload) ? action.payload : [];
+        state.financialStatements = action.payload;
+        state.error = null;
       })
       .addCase(fetchFinancialStatements.rejected, (state, action) => {
         state.isLoading = false;
-        state.error = action.error.message || 'Failed to fetch financial statements';
-        console.warn('Failed to fetch financial statements, using mock data.', state.error);
-        state.financialStatements = mockFinancialStatements;
+        state.error = action.payload;
       })
+      // Add financial statement
       .addCase(addFinancialStatement.pending, (state) => {
         state.isLoading = true;
-        state.error = null;
       })
       .addCase(addFinancialStatement.fulfilled, (state, action) => {
         state.isLoading = false;
-         if (!Array.isArray(state.financialStatements)) {
-          state.financialStatements = [];
-        }
         state.financialStatements.push(action.payload);
+        state.error = null;
       })
       .addCase(addFinancialStatement.rejected, (state, action) => {
         state.isLoading = false;
-        state.error = action.error.message || 'Failed to add financial statement';
-        console.error('Failed to add financial statement:', state.error);
+        state.error = action.payload;
       })
+      // Update financial statement
       .addCase(updateFinancialStatement.pending, (state) => {
         state.isLoading = true;
-        state.error = null;
       })
       .addCase(updateFinancialStatement.fulfilled, (state, action) => {
         state.isLoading = false;
-        const index = state.financialStatements.findIndex(statement => statement.id === action.payload.id);
+        const index = state.financialStatements.findIndex(
+          (financialStatement) => financialStatement.ID === action.payload.ID
+        );
         if (index !== -1) {
-           if (!Array.isArray(state.financialStatements)) {
-             state.financialStatements = [];
-          }
           state.financialStatements[index] = action.payload;
         }
+        state.error = null;
       })
       .addCase(updateFinancialStatement.rejected, (state, action) => {
         state.isLoading = false;
-        state.error = action.error.message || 'Failed to update financial statement';
-        console.error('Failed to update financial statement:', state.error);
+        state.error = action.payload;
       })
+      // Delete financial statement
       .addCase(deleteFinancialStatement.pending, (state) => {
         state.isLoading = true;
-        state.error = null;
       })
       .addCase(deleteFinancialStatement.fulfilled, (state, action) => {
         state.isLoading = false;
-         if (!Array.isArray(state.financialStatements)) {
-          state.financialStatements = [];
-        }
-        state.financialStatements = state.financialStatements.filter(statement => statement.id !== action.payload);
+        state.financialStatements = state.financialStatements.filter(
+          (financialStatement) => financialStatement.ID !== action.payload
+        );
+        state.error = null;
       })
       .addCase(deleteFinancialStatement.rejected, (state, action) => {
         state.isLoading = false;
-        state.error = action.error.message || 'Failed to delete financial statement';
-        console.error('Failed to delete financial statement:', state.error);
+        state.error = action.payload;
       });
   },
 });
 
-export const financialStatementsReducer = financialStatementsSlice.reducer; 
+export const { setFinancialStatement, resetFinancialStatementState } = financialStatementSlice.actions;
+
+export default financialStatementSlice.reducer;

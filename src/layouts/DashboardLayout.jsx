@@ -58,7 +58,7 @@ function DashboardLayout() {
         <Header toggleSidebar={toggleSidebar} isSidebarOpen={isSidebarOpen} />
 
         <main className="flex-1 relative overflow-y-auto focus:outline-none">
-          <div className="p-3 sm:p-6 lg:px-8">
+          <div className="py-6 px-4 sm:px-6 lg:px-8">
             <Outlet />
           </div>
         </main>

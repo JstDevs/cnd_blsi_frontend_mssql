@@ -12,32 +12,32 @@ const validationSchema = Yup.object().shape({
   chartOfAccounts: Yup.string().required('Chart of Accounts is required'),
   fund: Yup.string().required('Fund is required'),
   project: Yup.string().required('Project is required'),
-  appropriation: Yup.number()
-    .required('Appropriation is required')
-    .min(0, 'Appropriation must be positive'),
-  charges: Yup.number()
-    .required('Charges is required')
-    .min(0, 'Charges must be positive'),
-  totalAmount: Yup.number()
-    .required('Total Amount is required')
-    .min(0, 'Total Amount must be positive'),
-  balance: Yup.number()
-    .required('Balance is required')
-    .min(0, 'Balance must be positive'),
+  // appropriation: Yup.number()
+  //   .required('Appropriation is required')
+  //   .min(0, 'Appropriation must be positive'),
+  // charges: Yup.number()
+  //   .required('Charges is required')
+  //   .min(0, 'Charges must be positive'),
+  // totalAmount: Yup.number()
+  //   .required('Total Amount is required')
+  //   .min(0, 'Total Amount must be positive'),
+  // balance: Yup.number()
+  //   .required('Balance is required')
+  //   .min(0, 'Balance must be positive'),
 
   // Monthly Information
-  january: Yup.string(),
-  february: Yup.string(),
-  march: Yup.string(),
-  april: Yup.string(),
-  may: Yup.string(),
-  june: Yup.string(),
-  july: Yup.string(),
-  august: Yup.string(),
-  september: Yup.string(),
-  october: Yup.string(),
-  november: Yup.string(),
-  december: Yup.string(),
+  january: Yup.string().required('January is required'),
+  february: Yup.string().required('February is required'),
+  march: Yup.string().required('March is required'),
+  april: Yup.string().required('April is required'),
+  may: Yup.string().required('May is required'),
+  june: Yup.string().required('June is required'),
+  july: Yup.string().required('July is required'),
+  august: Yup.string().required('August is required'),
+  september: Yup.string().required('September is required'),
+  october: Yup.string().required('October is required'),
+  november: Yup.string().required('November is required'),
+  december: Yup.string().required('December is required'),
 });
 
 const initialValues = {
@@ -101,6 +101,7 @@ function BudgetForm({ initialData, onSubmit, onClose }) {
   const handleSubmit = (values, { setSubmitting }) => {
     onSubmit(values);
     setSubmitting(false);
+    console.log('Form submitted with values:', values);
   };
 
   return (
@@ -109,7 +110,7 @@ function BudgetForm({ initialData, onSubmit, onClose }) {
       validationSchema={validationSchema}
       onSubmit={handleSubmit}
     >
-      {({ isSubmitting, values }) => (
+      {({ values, errors, touched, handleChange, handleBlur, isSubmitting }) => (
         <Form className="space-y-6">
           <div className="bg-white shadow-sm rounded-lg p-6">
             <h3 className="text-lg font-medium text-gray-900 mb-4">Basic Information</h3>
@@ -118,12 +119,22 @@ function BudgetForm({ initialData, onSubmit, onClose }) {
                 label="Budget Name"
                 name="budgetName"
                 type="text"
+                onChange={handleChange}
+                onBlur={handleBlur}
+                value={values.budgetName}
+                error={errors.budgetName}
+                touched={touched.budgetName}
                 required
               />
               <FormField
                 label="Fiscal Year"
                 name="fiscalYear"
                 type="select"
+                onChange={handleChange}
+                onBlur={handleBlur}
+                value={values.fiscalYear}
+                error={errors.fiscalYear}
+                touched={touched.fiscalYear}
                 options={fiscalYears}
                 required
               />
@@ -131,6 +142,11 @@ function BudgetForm({ initialData, onSubmit, onClose }) {
                 label="Department"
                 name="department"
                 type="select"
+                onChange={handleChange}
+                onBlur={handleBlur}
+                value={values.department}
+                error={errors.department}
+                touched={touched.department}
                 options={departments}
                 required
               />
@@ -138,6 +154,11 @@ function BudgetForm({ initialData, onSubmit, onClose }) {
                 label="Sub-Department"
                 name="subDepartment"
                 type="select"
+                onChange={handleChange}
+                onBlur={handleBlur}
+                value={values.subDepartment}
+                error={errors.subDepartment}
+                touched={touched.subDepartment}
                 options={subDepartments}
                 required
               />
@@ -145,6 +166,11 @@ function BudgetForm({ initialData, onSubmit, onClose }) {
                 label="Chart of Accounts"
                 name="chartOfAccounts"
                 type="select"
+                onChange={handleChange}
+                onBlur={handleBlur}
+                value={values.chartOfAccounts}
+                error={errors.chartOfAccounts}
+                touched={touched.chartOfAccounts}
                 options={chartOfAccounts}
                 required
               />
@@ -152,6 +178,11 @@ function BudgetForm({ initialData, onSubmit, onClose }) {
                 label="Fund"
                 name="fund"
                 type="select"
+                onChange={handleChange}
+                onBlur={handleBlur}
+                value={values.fund}
+                error={errors.fund}
+                touched={touched.fund}
                 options={[{ value: 'General Fund', label: 'General Fund' }]}
                 required
               />
@@ -159,32 +190,53 @@ function BudgetForm({ initialData, onSubmit, onClose }) {
                 label="Project"
                 name="project"
                 type="select"
+                onChange={handleChange}
+                onBlur={handleBlur}
+                value={values.project}
+                error={errors.project}
+                touched={touched.project} 
                 options={projects}
                 required
               />
+            </div>
+          </div>
+
+          {/* Row 1: Appropriation (readonly) + Charges */}
+          <div className="bg-white shadow-sm rounded-lg p-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <FormField
                 label="Appropriation"
                 name="appropriation"
                 type="number"
+                className='bg-gray-100 text-gray-500'
                 required
+                readOnly
               />
               <FormField
                 label="Charges"
                 name="charges"
                 type="number"
+                className='bg-gray-100 text-gray-500'
                 required
+                readOnly
               />
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
               <FormField
                 label="Total Amount"
                 name="totalAmount"
                 type="number"
+                className='bg-gray-100 text-gray-500'
                 required
+                readOnly
               />
               <FormField
                 label="Balance"
                 name="balance"
                 type="number"
+                className='bg-gray-100 text-gray-500'
                 required
+                readOnly
               />
             </div>
           </div>
@@ -195,62 +247,122 @@ function BudgetForm({ initialData, onSubmit, onClose }) {
               <FormField
                 label="January"
                 name="january"
-                type="text"
+                type="number"
+                onChange={handleChange}
+                onBlur={handleBlur}
+                value={values.january}
+                error={errors.january}
+                touched={touched.january}
               />
               <FormField
                 label="February"
                 name="february"
-                type="text"
+                type="number"
+                onChange={handleChange}
+                onBlur={handleBlur}
+                value={values.february}
+                error={errors.february}
+                touched={touched.february}
               />
               <FormField
                 label="March"
                 name="march"
-                type="text"
+                type="number"
+                onChange={handleChange}
+                onBlur={handleBlur}
+                value={values.march}
+                error={errors.march}
+                touched={touched.march}
               />
               <FormField
                 label="April"
                 name="april"
-                type="text"
+                type="number"
+                onChange={handleChange}
+                onBlur={handleBlur}
+                value={values.april}
+                error={errors.april}
+                touched={touched.april}
               />
               <FormField
                 label="May"
                 name="may"
-                type="text"
+                type="number"
+                onChange={handleChange}
+                onBlur={handleBlur}
+                value={values.may}
+                error={errors.may}
+                touched={touched.may}
               />
               <FormField
                 label="June"
                 name="june"
-                type="text"
+                type="number"
+                onChange={handleChange}
+                onBlur={handleBlur}
+                value={values.june}
+                error={errors.june}
+                touched={touched.june}
               />
               <FormField
                 label="July"
                 name="july"
-                type="text"
+                type="number"
+                onChange={handleChange}
+                onBlur={handleBlur}
+                value={values.july}
+                error={errors.july}
+                touched={touched.july}
               />
               <FormField
                 label="August"
                 name="august"
-                type="text"
+                type="number"
+                onChange={handleChange}
+                onBlur={handleBlur}
+                value={values.august}
+                error={errors.august}
+                touched={touched.august}
               />
               <FormField
                 label="September"
                 name="september"
-                type="text"
+                type="number"
+                onChange={handleChange}
+                onBlur={handleBlur}
+                value={values.september}
+                error={errors.september}
+                touched={touched.september}
               />
               <FormField
                 label="October"
                 name="october"
-                type="text"
+                type="number"
+                onChange={handleChange}
+                onBlur={handleBlur}
+                value={values.october}
+                error={errors.october}
+                touched={touched.october}
               />
               <FormField
                 label="November"
                 name="november"
-                type="text"
+                type="number"
+                onChange={handleChange}
+                onBlur={handleBlur}
+                value={values.november}
+                error={errors.november}
+                touched={touched.november}
               />
               <FormField
                 label="December"
                 name="december"
-                type="text"
+                type="number"
+                onChange={handleChange}
+                onBlur={handleBlur}
+                value={values.december}
+                error={errors.december}
+                touched={touched.december}
               />
             </div>
           </div>

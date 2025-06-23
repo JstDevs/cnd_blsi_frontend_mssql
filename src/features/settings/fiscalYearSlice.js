@@ -1,32 +1,111 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
+const API_URL = import.meta.env.VITE_API_URL;
 
 // Mock Data
-const mockFiscalYears = [
-  { id: 'fy1', startDate: '2023-01-01', endDate: '2023-12-31' },
-  { id: 'fy2', startDate: '2024-01-01', endDate: '2024-12-31' },
-];
+const mockFiscalYears = [];
+export const fetchFiscalYears = createAsyncThunk(
+  'fiscalYears/fetchFiscalYears',
+  async (_, thunkAPI) => {
+    try {
+      const token = localStorage.getItem('token');
 
-// Async Thunks (Mock API calls)
-export const fetchFiscalYears = createAsyncThunk('fiscalYears/fetchFiscalYears', async () => {
-  console.log('Mock API call: Fetching fiscal years');
-  return new Promise(resolve => setTimeout(() => resolve(mockFiscalYears), 500));
-});
+      const response = await fetch(`${API_URL}/fiscalYear`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+      });
 
-export const addFiscalYear = createAsyncThunk('fiscalYears/addFiscalYear', async (fiscalYear) => {
-  console.log('Mock API call: Adding fiscal year', fiscalYear);
-  const newFiscalYear = { ...fiscalYear, id: Date.now().toString() }; // Assign a mock ID
-  return new Promise(resolve => setTimeout(() => resolve(newFiscalYear), 500));
-});
+      const res = await response.json();
 
-export const updateFiscalYear = createAsyncThunk('fiscalYears/updateFiscalYear', async (fiscalYear) => {
-  console.log('Mock API call: Updating fiscal year', fiscalYear);
-  return new Promise(resolve => setTimeout(() => resolve(fiscalYear), 500));
-});
+      if (!response.ok) {
+        throw new Error(res.message || 'Failed to fetch');
+      }
 
-export const deleteFiscalYear = createAsyncThunk('fiscalYears/deleteFiscalYear', async (id) => {
-  console.log('Mock API call: Deleting fiscal year with ID', id);
-  return new Promise(resolve => setTimeout(() => resolve(id), 500));
-});
+      return res;
+    } catch (error) {
+      return thunkAPI.rejectWithValue(error.message);
+    }
+  }
+);
+
+
+export const addFiscalYear = createAsyncThunk(
+  'fiscalYears/addFiscalYear',
+  async (fiscalYear, thunkAPI) => {
+    try {
+      const response = await fetch(`${API_URL}/fiscalYear`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${localStorage.getItem('token')}`,
+        },
+        body: JSON.stringify(fiscalYear),
+      });
+
+      const res = await response.json();
+
+      if (!response.ok) {
+        throw new Error(res.message || 'Failed to add');
+      }
+
+      return res;
+    } catch (error) {
+      return thunkAPI.rejectWithValue(error.message);
+    }
+  }
+);
+
+export const updateFiscalYear = createAsyncThunk(
+  'fiscalYears/updateFiscalYear',
+  async (fiscalYear, thunkAPI) => {
+    try {
+      const response = await fetch(`${API_URL}/fiscalYear/${fiscalYear.id}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${localStorage.getItem('token')}`,
+        },
+        body: JSON.stringify(fiscalYear),
+      });
+
+      const res = await response.json();
+
+      if (!response.ok) {
+        throw new Error(res.message || 'Failed to update');
+      }
+
+      return res;
+    } catch (error) {
+      return thunkAPI.rejectWithValue(error.message);
+    }
+  }
+);
+
+export const deleteFiscalYear = createAsyncThunk(
+  'fiscalYears/deleteFiscalYear',
+  async (ID, thunkAPI) => {
+    try {
+      const response = await fetch(`${API_URL}/fiscalYear/${ID}`, {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${localStorage.getItem('token')}`,
+        },
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'Failed to delete');
+      }
+
+      return ID; // Return ID so you can remove it from Redux state
+    } catch (error) {
+      return thunkAPI.rejectWithValue(error.message);
+    }
+  }
+);
 
 const fiscalYearsSlice = createSlice({
   name: 'fiscalYears',
@@ -58,7 +137,7 @@ const fiscalYearsSlice = createSlice({
       })
       .addCase(addFiscalYear.fulfilled, (state, action) => {
         state.isLoading = false;
-         if (!Array.isArray(state.fiscalYears)) {
+        if (!Array.isArray(state.fiscalYears)) {
           state.fiscalYears = [];
         }
         state.fiscalYears.push(action.payload);
@@ -74,18 +153,13 @@ const fiscalYearsSlice = createSlice({
       })
       .addCase(updateFiscalYear.fulfilled, (state, action) => {
         state.isLoading = false;
-        const index = state.fiscalYears.findIndex(year => year.id === action.payload.id);
+        const index = state.fiscalYears.findIndex(item => item.id === action.payload.id);
         if (index !== -1) {
-           if (!Array.isArray(state.fiscalYears)) {
-             state.fiscalYears = [];
+          if (!Array.isArray(state.fiscalYears)) {
+            state.fiscalYears = [];
           }
           state.fiscalYears[index] = action.payload;
         }
-      })
-      .addCase(updateFiscalYear.rejected, (state, action) => {
-        state.isLoading = false;
-        state.error = action.error.message || 'Failed to update fiscal year';
-        console.error('Failed to update fiscal year:', state.error);
       })
       .addCase(deleteFiscalYear.pending, (state) => {
         state.isLoading = true;
@@ -93,10 +167,10 @@ const fiscalYearsSlice = createSlice({
       })
       .addCase(deleteFiscalYear.fulfilled, (state, action) => {
         state.isLoading = false;
-         if (!Array.isArray(state.fiscalYears)) {
+        if (!Array.isArray(state.fiscalYears)) {
           state.fiscalYears = [];
         }
-        state.fiscalYears = state.fiscalYears.filter(year => year.id !== action.payload);
+        state.fiscalYears = state.fiscalYears.filter(item => item.id !== action.payload);
       })
       .addCase(deleteFiscalYear.rejected, (state, action) => {
         state.isLoading = false;
@@ -106,4 +180,4 @@ const fiscalYearsSlice = createSlice({
   },
 });
 
-export const fiscalYearsReducer = fiscalYearsSlice.reducer; 
+export const fiscalYearsReducer = fiscalYearsSlice.reducer;

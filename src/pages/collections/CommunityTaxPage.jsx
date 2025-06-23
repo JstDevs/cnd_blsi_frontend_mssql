@@ -1,46 +1,41 @@
-import React, { useState, useEffect } from "react";
-import { Formik, Form } from "formik";
-import { communityTaxSchema } from "../../utils/validationSchemas";
-import Modal from "../../components/common/Modal";
-import FormField from "../../components/common/FormField";
-import DataTable from "../../components/common/DataTable";
-import { useDispatch, useSelector } from "react-redux";
-import toast from "react-hot-toast";
-import { FiPrinter, FiSearch, FiFilter } from "react-icons/fi";
+import React, { useState, useEffect } from 'react';
+import { Formik, Form } from 'formik';
+import { communityTaxSchema } from '../../utils/validationSchemas';
+import Modal from '../../components/common/Modal';
+import FormField from '../../components/common/FormField';
+import DataTable from '../../components/common/DataTable';
+import { useDispatch, useSelector } from 'react-redux';
+import  toast  from 'react-hot-toast';
+import { FiPrinter, FiSearch, FiFilter } from 'react-icons/fi';
 
 const CommunityTaxPage = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [searchTerm, setSearchTerm] = useState("");
+  const [searchTerm, setSearchTerm] = useState('');
   const [selectedRecord, setSelectedRecord] = useState(null);
   const [isPrintModalOpen, setIsPrintModalOpen] = useState(false);
   const dispatch = useDispatch();
-  const { records, loading, error } = useSelector(
-    (state) => state.communityTax
-  );
+  const { records, loading, error } = useSelector((state) => state.communityTax);
 
   useEffect(() => {
     // Fetch records on component mount
-    dispatch({ type: "communityTax/fetchRecords" });
+    dispatch({ type: 'communityTax/fetchRecords' });
   }, [dispatch]);
 
   const handleSubmit = async (values, { setSubmitting, resetForm }) => {
     try {
       await communityTaxSchema.validate(values, { abortEarly: false });
       if (selectedRecord) {
-        await dispatch({
-          type: "communityTax/updateRecord",
-          payload: { id: selectedRecord.id, ...values },
-        });
-        toast.success("Record updated successfully");
+        await dispatch({ type: 'communityTax/updateRecord', payload: { id: selectedRecord.id, ...values } });
+        toast.success('Record updated successfully');
       } else {
-        await dispatch({ type: "communityTax/createRecord", payload: values });
-        toast.success("Record created successfully");
+        await dispatch({ type: 'communityTax/createRecord', payload: values });
+        toast.success('Record created successfully');
       }
       setIsModalOpen(false);
       resetForm();
       setSelectedRecord(null);
     } catch (err) {
-      toast.error(err.message || "An error occurred");
+      toast.error(err.message || 'An error occurred');
     } finally {
       setSubmitting(false);
     }
@@ -56,31 +51,28 @@ const CommunityTaxPage = () => {
     setIsPrintModalOpen(true);
   };
 
-  const filteredRecords = records?.filter(
-    (record) =>
-      record.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      record.certificateNo.toLowerCase().includes(searchTerm.toLowerCase())
+  const filteredRecords = records?.filter(record => 
+    record.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    record.certificateNo.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   return (
-    <div className="container mx-auto">
-      <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center mb-6 space-y-4 sm:space-y-0">
-        <h1 className="text-2xl font-bold text-gray-800">
-          Community Tax Certificates
-        </h1>
+    <div className="container mx-auto px-4 py-8">
+      <div className="flex justify-between items-center mb-6">
+        <h1 className="text-2xl font-bold text-gray-800">Community Tax Certificates</h1>
         <button
           onClick={() => {
             setSelectedRecord(null);
             setIsModalOpen(true);
           }}
-          className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors"
+          className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-primary-dark transition-colors"
         >
           Add New Certificate
         </button>
       </div>
 
       <div className="bg-white rounded-lg shadow-md p-6 mb-6">
-        <div className="flex gap-4 mb-4">
+        <div className="flex flex-wrap items-start gap-4 mb-4">
           <div className="flex-1">
             <div className="relative">
               <FiSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
@@ -93,27 +85,25 @@ const CommunityTaxPage = () => {
               />
             </div>
           </div>
-          <button className="flex items-center gap-2 px-4 py-2 border rounded-lg hover:bg-gray-50">
+
+          <button className="flex items-center gap-2 px-4 py-2 border rounded-lg hover:bg-gray-50 whitespace-nowrap">
             <FiFilter />
             Filter
           </button>
         </div>
 
+
         <DataTable
           columns={[
-            { header: "Certificate No.", accessor: "certificateNo" },
-            { header: "Date", accessor: "date" },
-            { header: "Name", accessor: "name" },
-            { header: "Address", accessor: "address" },
+            { header: 'Certificate No.', accessor: 'certificateNo' },
+            { header: 'Date', accessor: 'date' },
+            { header: 'Name', accessor: 'name' },
+            { header: 'Address', accessor: 'address' },
+            { header: 'Amount', accessor: 'amount', cell: (value) => `₱${value ? value.toFixed(2) : '0.00'}` },
+            { header: 'Purpose', accessor: 'purpose' },
             {
-              header: "Amount",
-              accessor: "amount",
-              cell: (value) => `₱${value ? value.toFixed(2) : "0.00"}`,
-            },
-            { header: "Purpose", accessor: "purpose" },
-            {
-              header: "Actions",
-              accessor: "actions",
+              header: 'Actions',
+              accessor: 'actions',
               cell: (_, record) => (
                 <div className="flex gap-2">
                   <button
@@ -143,36 +133,32 @@ const CommunityTaxPage = () => {
           setIsModalOpen(false);
           setSelectedRecord(null);
         }}
-        title={
-          selectedRecord ? "Edit Certificate" : "New Community Tax Certificate"
-        }
+        title={selectedRecord ? 'Edit Certificate' : 'New Community Tax Certificate'}
       >
         <Formik
-          initialValues={
-            selectedRecord || {
-              certificateNo: "",
-              date: new Date().toISOString().split("T")[0],
-              placeOfIssue: "",
-              name: "",
-              address: "",
-              tin: "",
-              civilStatus: "",
-              nationality: "",
-              occupation: "",
-              placeOfBirth: "",
-              dateOfBirth: "",
-              gender: "",
-              height: "",
-              weight: "",
-              contactNumber: "",
-              businessGrossReceipts: "",
-              occupationGrossReceipts: "",
-              realPropertyIncome: "",
-              purpose: "",
-              amount: "",
-              interest: "",
-            }
-          }
+          initialValues={selectedRecord || {
+            certificateNo: '',
+            date: new Date().toISOString().split('T')[0],
+            placeOfIssue: '',
+            name: '',
+            address: '',
+            tin: '',
+            civilStatus: '',
+            nationality: '',
+            occupation: '',
+            placeOfBirth: '',
+            dateOfBirth: '',
+            gender: '',
+            height: '',
+            weight: '',
+            contactNumber: '',
+            businessGrossReceipts: '',
+            occupationGrossReceipts: '',
+            realPropertyIncome: '',
+            purpose: '',
+            amount: '',
+            interest: ''
+          }}
           validationSchema={communityTaxSchema}
           onSubmit={handleSubmit}
           enableReinitialize
@@ -186,7 +172,12 @@ const CommunityTaxPage = () => {
                   type="text"
                   required
                 />
-                <FormField label="Date" name="date" type="date" required />
+                <FormField
+                  label="Date"
+                  name="date"
+                  type="date"
+                  required
+                />
               </div>
 
               <FormField
@@ -196,11 +187,25 @@ const CommunityTaxPage = () => {
                 required
               />
 
-              <FormField label="Full Name" name="name" type="text" required />
+              <FormField
+                label="Full Name"
+                name="name"
+                type="text"
+                required
+              />
 
-              <FormField label="Address" name="address" type="text" required />
+              <FormField
+                label="Address"
+                name="address"
+                type="text"
+                required
+              />
 
-              <FormField label="TIN (If Any)" name="tin" type="text" />
+              <FormField
+                label="TIN (If Any)"
+                name="tin"
+                type="text"
+              />
 
               <div className="grid grid-cols-2 gap-4">
                 <FormField
@@ -208,11 +213,11 @@ const CommunityTaxPage = () => {
                   name="civilStatus"
                   type="select"
                   options={[
-                    { value: "single", label: "Single" },
-                    { value: "married", label: "Married" },
-                    { value: "widowed", label: "Widowed" },
-                    { value: "separated", label: "Separated" },
-                    { value: "divorced", label: "Divorced" },
+                    { value: 'single', label: 'Single' },
+                    { value: 'married', label: 'Married' },
+                    { value: 'widowed', label: 'Widowed' },
+                    { value: 'separated', label: 'Separated' },
+                    { value: 'divorced', label: 'Divorced' }
                   ]}
                   required
                 />
@@ -221,8 +226,8 @@ const CommunityTaxPage = () => {
                   name="gender"
                   type="select"
                   options={[
-                    { value: "male", label: "Male" },
-                    { value: "female", label: "Female" },
+                    { value: 'male', label: 'Male' },
+                    { value: 'female', label: 'Female' }
                   ]}
                   required
                 />
@@ -244,8 +249,16 @@ const CommunityTaxPage = () => {
               </div>
 
               <div className="grid grid-cols-2 gap-4">
-                <FormField label="Height" name="height" type="number" />
-                <FormField label="Weight" name="weight" type="number" />
+                 <FormField
+                  label="Height"
+                  name="height"
+                  type="number"
+                />
+                 <FormField
+                  label="Weight"
+                  name="weight"
+                  type="number"
+                />
               </div>
 
               <FormField
@@ -268,9 +281,7 @@ const CommunityTaxPage = () => {
                 type="tel"
               />
 
-              <h3 className="text-lg font-semibold">
-                Additional Community Tax Basis
-              </h3>
+              <h3 className="text-lg font-semibold">Additional Community Tax Basis</h3>
 
               <FormField
                 label="Gross Receipts/Earnings from Business (Preceding Year)"
@@ -297,9 +308,18 @@ const CommunityTaxPage = () => {
                 required
               />
 
-              <FormField label="Amount" name="amount" type="number" required />
+              <FormField
+                label="Amount"
+                name="amount"
+                type="number"
+                required
+              />
 
-              <FormField label="Interest (%)" name="interest" type="number" />
+               <FormField
+                label="Interest (%)"
+                name="interest"
+                type="number"
+              />
 
               {/* Placeholder fields for calculated values */}
               {/*
@@ -345,7 +365,7 @@ const CommunityTaxPage = () => {
                   disabled={isSubmitting}
                   className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-primary-dark disabled:opacity-50"
                 >
-                  {isSubmitting ? "Saving..." : "Save"}
+                  {isSubmitting ? 'Saving...' : 'Save'}
                 </button>
               </div>
             </Form>
@@ -363,13 +383,8 @@ const CommunityTaxPage = () => {
           <div className="p-6">
             <div className="text-center mb-8">
               <h2 className="text-xl font-bold">COMMUNITY TAX CERTIFICATE</h2>
-              <p className="text-sm text-gray-600">
-                Republic of the Philippines
-              </p>
-              <p className="text-sm text-gray-600">
-                City/Municipality of{" "}
-                {selectedRecord.placeOfIssue || "[Your City]"}
-              </p>
+              <p className="text-sm text-gray-600">Republic of the Philippines</p>
+              <p className="text-sm text-gray-600">City/Municipality of {selectedRecord.placeOfIssue || '[Your City]'}</p>
             </div>
 
             <div className="space-y-4 text-sm">
@@ -412,7 +427,7 @@ const CommunityTaxPage = () => {
                 </div>
               </div>
 
-              <div className="grid grid-cols-2 gap-4">
+               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <p className="font-semibold">Height:</p>
                   <p>{selectedRecord.height} cm</p>
@@ -445,63 +460,41 @@ const CommunityTaxPage = () => {
                 </div>
               </div>
 
-              {selectedRecord.contactNumber && (
+               {selectedRecord.contactNumber && (
+                 <div>
+                   <p className="font-semibold">Contact Number:</p>
+                   <p>{selectedRecord.contactNumber}</p>
+                 </div>
+               )}
+
+               <div>
+                 <p className="font-semibold">Basic Community Tax:</p>
+                 <p>₱{selectedRecord.basicTax || '5.00'}</p> {/* Assuming a default basic tax */}
+               </div>
+
+              {(selectedRecord.businessGrossReceipts || selectedRecord.occupationGrossReceipts || selectedRecord.realPropertyIncome) && (
                 <div>
-                  <p className="font-semibold">Contact Number:</p>
-                  <p>{selectedRecord.contactNumber}</p>
+                  <p className="font-semibold">Additional Community Tax Basis:</p>
+                   {selectedRecord.businessGrossReceipts && <p>Business Gross Receipts: ₱{selectedRecord.businessGrossReceipts.toFixed(2)}</p>}
+                   {selectedRecord.occupationGrossReceipts && <p>Occupation Gross Receipts: ₱{selectedRecord.occupationGrossReceipts.toFixed(2)}</p>}
+                   {selectedRecord.realPropertyIncome && <p>Real Property Income: ₱{selectedRecord.realPropertyIncome.toFixed(2)}</p>}
                 </div>
               )}
 
-              <div>
-                <p className="font-semibold">Basic Community Tax:</p>
-                <p>₱{selectedRecord.basicTax || "5.00"}</p>{" "}
-                {/* Assuming a default basic tax */}
-              </div>
+               <div>
+                 <p className="font-semibold">Taxable Amount:</p>
+                 <p>₱{selectedRecord.taxableAmount || '0.00'}</p> {/* Placeholder */}
+               </div>
 
-              {(selectedRecord.businessGrossReceipts ||
-                selectedRecord.occupationGrossReceipts ||
-                selectedRecord.realPropertyIncome) && (
+               <div>
+                 <p className="font-semibold">Community Tax Due:</p>
+                 <p>₱{selectedRecord.communityTaxDue || '0.00'}</p> {/* Placeholder */}
+               </div>
+
                 <div>
-                  <p className="font-semibold">
-                    Additional Community Tax Basis:
-                  </p>
-                  {selectedRecord.businessGrossReceipts && (
-                    <p>
-                      Business Gross Receipts: ₱
-                      {selectedRecord.businessGrossReceipts.toFixed(2)}
-                    </p>
-                  )}
-                  {selectedRecord.occupationGrossReceipts && (
-                    <p>
-                      Occupation Gross Receipts: ₱
-                      {selectedRecord.occupationGrossReceipts.toFixed(2)}
-                    </p>
-                  )}
-                  {selectedRecord.realPropertyIncome && (
-                    <p>
-                      Real Property Income: ₱
-                      {selectedRecord.realPropertyIncome.toFixed(2)}
-                    </p>
-                  )}
-                </div>
-              )}
-
-              <div>
-                <p className="font-semibold">Taxable Amount:</p>
-                <p>₱{selectedRecord.taxableAmount || "0.00"}</p>{" "}
-                {/* Placeholder */}
-              </div>
-
-              <div>
-                <p className="font-semibold">Community Tax Due:</p>
-                <p>₱{selectedRecord.communityTaxDue || "0.00"}</p>{" "}
-                {/* Placeholder */}
-              </div>
-
-              <div>
-                <p className="font-semibold">Interest:</p>
-                <p>{selectedRecord.interest || "0.00"}%</p>
-              </div>
+                 <p className="font-semibold">Interest:</p>
+                 <p>{selectedRecord.interest || '0.00'}%</p>
+               </div>
 
               <div>
                 <p className="font-semibold">Purpose:</p>
@@ -510,21 +503,17 @@ const CommunityTaxPage = () => {
 
               <div>
                 <p className="font-semibold">Total Amount Paid:</p>
-                <p className="text-lg font-bold">
-                  ₱
-                  {selectedRecord.amount
-                    ? selectedRecord.amount.toFixed(2)
-                    : "0.00"}
-                </p>
+                <p className="text-lg font-bold">₱{selectedRecord.amount ? selectedRecord.amount.toFixed(2) : '0.00'}</p>
               </div>
 
-              {/* Placeholder for Amount in Words */}
-              {/*
+               {/* Placeholder for Amount in Words */}
+               {/*
                <div>
                  <p className="font-semibold">Amount in Words:</p>
                  <p>{selectedRecord.totalAmountPaidWords || '[Amount in Words]'}</p>
                </div>
                */}
+
             </div>
 
             <div className="mt-8 text-center">

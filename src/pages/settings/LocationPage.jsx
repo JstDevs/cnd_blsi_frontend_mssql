@@ -1,235 +1,177 @@
-import { useState } from "react";
-import { PlusIcon, PencilIcon, TrashIcon } from "@heroicons/react/24/outline";
-import DataTable from "../../components/common/DataTable";
-import Modal from "../../components/common/Modal";
-import FormField from "../../components/common/FormField";
+import { useEffect, useState } from 'react';
+import { useFormik } from 'formik';
+import * as Yup from 'yup';
+import { PlusIcon, PencilIcon, TrashIcon } from '@heroicons/react/24/outline';
+import { useDispatch, useSelector } from 'react-redux';
+import DataTable from '../../components/common/DataTable';
+import Modal from '../../components/common/Modal';
+import FormField from '../../components/common/FormField';
 import {
   regionSchema,
   provinceSchema,
   municipalitySchema,
   barangaySchema,
-} from "../../utils/validationSchemas";
-import Button from "../../components/common/Button";
+} from '../../utils/validationSchemas';
+import {
+  fetchRegions,
+  addRegion,
+  updateRegion,
+  deleteRegion,
+} from '../../features/settings/regionsSlice';
+import {
+  fetchProvinces,
+  addProvince,
+  updateProvince,
+  deleteProvince,
+} from '../../features/settings/provincesSlice';
+import {
+  fetchMunicipalities,
+  addMunicipality,
+  updateMunicipality,
+  deleteMunicipality,
+} from '../../features/settings/municipalitiesSlice';
+import {
+  fetchBarangays,
+  addBarangay,
+  updateBarangay,
+  deleteBarangay,
+} from '../../features/settings/barangaysSlice';
 
 function LocationPage() {
-  const [activeTab, setActiveTab] = useState("region");
+  const [activeTab, setActiveTab] = useState('region');
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [currentLocation, setCurrentLocation] = useState(null);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [locationToDelete, setLocationToDelete] = useState(null);
 
-  // Mock data for locations
-  const mockData = {
-    regions: [
-      {
-        id: 1,
-        code: "REG001",
-        name: "Region I",
-        description: "Ilocos Region",
-        status: "Active",
-      },
-      {
-        id: 2,
-        code: "REG002",
-        name: "Region II",
-        description: "Cagayan Valley",
-        status: "Active",
-      },
-    ],
-    provinces: [
-      {
-        id: 1,
-        code: "PRV001",
-        name: "Ilocos Norte",
-        regionId: 1,
-        regionName: "Region I",
-        status: "Active",
-      },
-      {
-        id: 2,
-        code: "PRV002",
-        name: "Ilocos Sur",
-        regionId: 1,
-        regionName: "Region I",
-        status: "Active",
-      },
-    ],
-    municipalities: [
-      {
-        id: 1,
-        code: "MUN001",
-        name: "Laoag City",
-        provinceId: 1,
-        provinceName: "Ilocos Norte",
-        status: "Active",
-      },
-      {
-        id: 2,
-        code: "MUN002",
-        name: "Batac City",
-        provinceId: 1,
-        provinceName: "Ilocos Norte",
-        status: "Active",
-      },
-    ],
-    barangays: [
-      {
-        id: 1,
-        code: "BRG001",
-        name: "Barangay 1",
-        municipalityId: 1,
-        municipalityName: "Laoag City",
-        status: "Active",
-      },
-      {
-        id: 2,
-        code: "BRG002",
-        name: "Barangay 2",
-        municipalityId: 1,
-        municipalityName: "Laoag City",
-        status: "Active",
-      },
-    ],
-  };
+  const dispatch = useDispatch();
 
-  // Get validation schema based on active tab
+  const { regions } = useSelector(state => state.regions);
+  const { provinces } = useSelector(state => state.provinces);
+  const { municipalities } = useSelector(state => state.municipalities);
+  const { barangays } = useSelector(state => state.barangays);
+
+  useEffect(() => {
+    dispatch(fetchRegions());
+    dispatch(fetchProvinces());
+    dispatch(fetchMunicipalities());
+    dispatch(fetchBarangays());
+  }, [dispatch]);
+
   const getValidationSchema = () => {
     switch (activeTab) {
-      case "region":
+      case 'region':
         return regionSchema;
-      case "province":
+      case 'province':
         return provinceSchema;
-      case "municipality":
+      case 'municipality':
         return municipalitySchema;
-      case "barangay":
+      case 'barangay':
         return barangaySchema;
       default:
         return regionSchema;
     }
   };
 
-  // Get columns based on active tab
   const getColumns = () => {
-    const baseColumns = [
-      {
-        key: "code",
-        header: "Code",
-        sortable: true,
-        className: "font-medium text-neutral-900",
-      },
-      {
-        key: "name",
-        header: "Name",
-        sortable: true,
-      },
-    ];
-
     switch (activeTab) {
-      case "barangay":
+      case 'region':
+        return [{ key: 'Name', header: 'Region', sortable: true }];
+      case 'province':
         return [
-          ...baseColumns,
-          { key: "municipalityName", header: "Municipality", sortable: true },
-          {
-            key: "status",
-            header: "Status",
-            sortable: true,
-            render: (value) => (
-              <span
-                className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
-                  value === "Active"
-                    ? "bg-success-100 text-success-800"
-                    : "bg-neutral-100 text-neutral-800"
-                }`}
-              >
-                {value}
-              </span>
-            ),
-          },
+          { key: 'RegionName', header: 'Region', sortable: true },
+          { key: 'Name', header: 'Province', sortable: true },
         ];
-      case "municipality":
+      case 'municipality':
         return [
-          ...baseColumns,
-          { key: "provinceName", header: "Province", sortable: true },
-          {
-            key: "status",
-            header: "Status",
-            sortable: true,
-            render: (value) => (
-              <span
-                className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
-                  value === "Active"
-                    ? "bg-success-100 text-success-800"
-                    : "bg-neutral-100 text-neutral-800"
-                }`}
-              >
-                {value}
-              </span>
-            ),
-          },
+          { key: 'RegionName', header: 'Region', sortable: true },
+          { key: 'ProvinceName', header: 'Province', sortable: true },
+          { key: 'Name', header: 'Municipality', sortable: true },
         ];
-      case "province":
+      case 'barangay':
         return [
-          ...baseColumns,
-          { key: "regionName", header: "Region", sortable: true },
-          {
-            key: "status",
-            header: "Status",
-            sortable: true,
-            render: (value) => (
-              <span
-                className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
-                  value === "Active"
-                    ? "bg-success-100 text-success-800"
-                    : "bg-neutral-100 text-neutral-800"
-                }`}
-              >
-                {value}
-              </span>
-            ),
-          },
+          { key: 'RegionName', header: 'Region', sortable: true },
+          { key: 'ProvinceName', header: 'Province', sortable: true },
+          { key: 'MunicipalityName', header: 'Municipality', sortable: true },
+          { key: 'Name', header: 'Barangay', sortable: true },
         ];
       default:
-        return [
-          ...baseColumns,
-          { key: "description", header: "Description", sortable: true },
-          {
-            key: "status",
-            header: "Status",
-            sortable: true,
-            render: (value) => (
-              <span
-                className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
-                  value === "Active"
-                    ? "bg-success-100 text-success-800"
-                    : "bg-neutral-100 text-neutral-800"
-                }`}
-              >
-                {value}
-              </span>
-            ),
-          },
-        ];
+        return [];
     }
   };
 
-  // Get data based on active tab
-  const getData = () => mockData[`${activeTab}s`] || [];
+  const getData = () => {
+    switch (activeTab) {
+      case 'region':
+        return regions;
+      case 'province':
+        return provinces;
+      case 'municipality':
+        return municipalities;
+      case 'barangay':
+        return barangays;
+      default:
+        return [];
+    }
+  };
 
-  // Actions for table rows
+  const getAddAction = () => {
+    switch (activeTab) {
+      case 'region':
+        return addRegion;
+      case 'province':
+        return addProvince;
+      case 'municipality':
+        return addMunicipality;
+      case 'barangay':
+        return addBarangay;
+      default:
+        return null;
+    }
+  };
+
+  const getUpdateAction = () => {
+    switch (activeTab) {
+      case 'region':
+        return updateRegion;
+      case 'province':
+        return updateProvince;
+      case 'municipality':
+        return updateMunicipality;
+      case 'barangay':
+        return updateBarangay;
+      default:
+        return null;
+    }
+  };
+
+  const getDeleteAction = () => {
+    switch (activeTab) {
+      case 'region':
+        return deleteRegion;
+      case 'province':
+        return deleteProvince;
+      case 'municipality':
+        return deleteMunicipality;
+      case 'barangay':
+        return deleteBarangay;
+      default:
+        return null;
+    }
+  };
+
   const actions = [
     {
       icon: PencilIcon,
-      title: "Edit",
+      title: 'Edit',
       onClick: (location) => handleEditLocation(location),
-      className:
-        "text-primary-600 hover:text-primary-900 p-1 rounded-full hover:bg-primary-50",
+      className: 'text-primary-600 hover:text-primary-900 p-1 rounded-full hover:bg-primary-50'
     },
     {
       icon: TrashIcon,
-      title: "Delete",
+      title: 'Delete',
       onClick: (location) => handleDeleteLocation(location),
-      className:
-        "text-error-600 hover:text-error-900 p-1 rounded-full hover:bg-error-50",
+      className: 'text-error-600 hover:text-error-900 p-1 rounded-full hover:bg-error-50'
     },
   ];
 
@@ -250,141 +192,205 @@ function LocationPage() {
 
   const confirmDelete = () => {
     if (locationToDelete) {
-      // Handle delete logic here
+      dispatch(getDeleteAction()(locationToDelete.ID));
       setIsDeleteModalOpen(false);
       setLocationToDelete(null);
     }
   };
 
-  // Get form fields based on active tab
-  const getFormFields = () => {
-    const baseFields = (
-      <>
-        <FormField
-          className="p-3 focus:outline-none"
-          label="Code"
-          name="code"
-          type="text"
-          required
-          placeholder={`Enter ${activeTab} code`}
-        />
+  useEffect(() => {
+    if (isModalOpen) {
+      formik.resetForm({
+        values: currentLocation || {
+          Name: '',
+          RegionCode: '',
+          ProvinceCode: '',
+          MunicipalityCode: '',
+        }
+      });
+    }
+  }, [isModalOpen, currentLocation]);
 
-        <FormField
-          className="p-3 focus:outline-none"
-          label="Name"
-          name="name"
-          type="text"
-          required
-          placeholder={`Enter ${activeTab} name`}
-        />
-      </>
-    );
+  const formik = useFormik({
+    initialValues: currentLocation || {
+      Name: '',
+      RegionCode: '',
+      ProvinceCode: '',
+      MunicipalityCode: '',
+    },
+    enableReinitialize: true,
+    validationSchema: getValidationSchema(),
+    onSubmit: async (values, { setSubmitting }) => {
+      const action = currentLocation ? getUpdateAction() : getAddAction();
+      const payload = currentLocation ? { ...currentLocation, ...values } : values;
+      await dispatch(action(payload));
+      setIsModalOpen(false);
+      setSubmitting(false);
+    },
+  });
+
+  const getFormFields = () => {
+    const commonProps = {
+      formik,
+      onChange: formik.handleChange,
+      onBlur: formik.handleBlur,
+      required: true,
+    };
 
     switch (activeTab) {
-      case "region":
+      case 'region':
         return (
-          <>
-            {baseFields}
-            <FormField
-              className="p-3 focus:outline-none"
-              label="Description"
-              name="description"
-              type="textarea"
-              required
-              placeholder="Enter region description"
-              rows={3}
-            />
-          </>
+          <FormField
+            label="Region"
+            name="Name"
+            type="text"
+            placeholder="Enter region name"
+            value={formik.values.Name}
+            error={formik.errors.Name}
+            touched={formik.touched.Name}
+            {...commonProps}
+          />
         );
-      case "province":
+      case 'province':
         return (
           <>
-            {baseFields}
             <FormField
-              className="p-3 focus:outline-none"
-              label="Region"
-              name="regionId"
-              type="select"
-              required
-              options={mockData.regions.map((region) => ({
-                value: region.id,
-                label: region.name,
-              }))}
-            />
-          </>
-        );
-      case "municipality":
-        return (
-          <>
-            {baseFields}
-            <FormField
-              className="p-3 focus:outline-none"
               label="Province"
-              name="provinceId"
+              name="Name"
+              type="text"
+              placeholder="Enter province name"
+              value={formik.values.Name}
+              error={formik.errors.Name}
+              touched={formik.touched.Name}
+              {...commonProps}
+            />
+            <FormField
+              label="Region"
+              name="RegionCode"
               type="select"
-              required
-              options={mockData.provinces.map((province) => ({
-                value: province.id,
-                label: province.name,
-              }))}
+              options={regions.map(r => ({ value: r.ID, label: r.Name }))}
+              value={formik.values.RegionCode}
+              error={formik.errors.RegionCode}
+              touched={formik.touched.RegionCode}
+              {...commonProps}
             />
           </>
         );
-      case "barangay":
+      case 'municipality':
         return (
           <>
-            {baseFields}
             <FormField
-              className="p-3 focus:outline-none"
               label="Municipality"
-              name="municipalityId"
+              name="Name"
+              type="text"
+              value={formik.values.Name}
+              error={formik.errors.Name}
+              touched={formik.touched.Name}
+              placeholder="Enter municipality name"
+              {...commonProps}
+            />
+            <FormField
+              label="Province"
+              name="ProvinceCode"
               type="select"
-              required
-              options={mockData.municipalities.map((municipality) => ({
-                value: municipality.id,
-                label: municipality.name,
-              }))}
+              options={provinces.map(p => ({ value: p.ID, label: p.Name }))}
+              value={formik.values.ProvinceCode}
+              error={formik.errors.ProvinceCode}
+              touched={formik.touched.ProvinceCode}
+              {...commonProps}
+            />
+            <FormField
+              label="Region"
+              name="RegionCode"
+              type="select"
+              options={regions.map(r => ({ value: r.ID, label: r.Name }))}
+              value={formik.values.RegionCode}
+              error={formik.errors.RegionCode}
+              touched={formik.touched.RegionCode}
+              {...commonProps}
+            />
+          </>
+        );
+      case 'barangay':
+        return (
+          <>
+            <FormField
+              label="Barangay"
+              name="Name"
+              type="text"
+              value={formik.values.Name}
+              error={formik.errors.Name}
+              touched={formik.touched.Name}
+              placeholder="Enter barangay name"
+              {...commonProps}
+            />
+            <FormField
+              label="Municipality"
+              name="MunicipalityCode"
+              type="select"
+              options={municipalities.map(m => ({ value: m.ID, label: m.Name }))}
+              value={formik.values.MunicipalityCode}
+              error={formik.errors.MunicipalityCode}
+              touched={formik.touched.MunicipalityCode}
+              {...commonProps}
+            />
+            <FormField
+              label="Province"
+              name="ProvinceCode"
+              type="select"
+              options={provinces.map(p => ({ value: p.ID, label: p.Name }))}
+              value={formik.values.ProvinceCode}
+              error={formik.errors.ProvinceCode}
+              touched={formik.touched.ProvinceCode}
+              {...commonProps}
+            />
+            <FormField
+              label="Region"
+              name="RegionCode"
+              type="select"
+              options={regions.map(r => ({ value: r.ID, label: r.Name }))}
+              value={formik.values.RegionCode}
+              error={formik.errors.RegionCode}
+              touched={formik.touched.RegionCode}
+              {...commonProps}
             />
           </>
         );
       default:
-        return baseFields;
+        return null;
     }
   };
 
   return (
     <div>
       <div className="page-header">
-        <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center mb-6 space-y-4 sm:space-y-0">
+        <div className="flex justify-between items-center">
           <div>
             <h1>Locations</h1>
             <p>Manage regions, provinces, municipalities, and barangays</p>
           </div>
-          <Button
+          <button
             type="button"
             onClick={handleCreateLocation}
             className="btn btn-primary flex items-center"
           >
             <PlusIcon className="h-5 w-5 mr-2" />
             Add {activeTab.charAt(0).toUpperCase() + activeTab.slice(1)}
-          </Button>
+          </button>
         </div>
       </div>
 
-      <div className="mb-6 border-b border-neutral-200">
-        <nav className="-mb-px flex space-x-8">
-          {["region", "province", "municipality", "barangay"].map((tab) => (
+      <div className="flex mb-6 border-b border-neutral-200">
+        <nav className="-mb-px flex flex-wrap gap-x-10 gap-y-0">
+          {['region', 'province', 'municipality', 'barangay'].map((tab) => (
             <button
               key={tab}
               onClick={() => setActiveTab(tab)}
-              className={`
-                whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm
-                ${
-                  activeTab === tab
-                    ? "border-primary-500 text-primary-600"
-                    : "border-transparent text-neutral-500 hover:text-neutral-700 hover:border-neutral-300"
-                }
-              `}
+              className={`whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm ${
+                activeTab === tab
+                  ? 'border-primary-500 text-primary-600'
+                  : 'border-transparent text-neutral-500 hover:text-neutral-700 hover:border-neutral-300'
+              }`}
             >
               {tab.charAt(0).toUpperCase() + tab.slice(1)}s
             </button>
@@ -404,27 +410,10 @@ function LocationPage() {
       <Modal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
-        title={
-          currentLocation
-            ? `Edit ${activeTab.charAt(0).toUpperCase() + activeTab.slice(1)}`
-            : `New ${activeTab.charAt(0).toUpperCase() + activeTab.slice(1)}`
-        }
+        title={currentLocation ? `Edit ${activeTab}` : `New ${activeTab}`}
       >
-        <div className="p-4 space-y-4">
+        <form onSubmit={formik.handleSubmit} className="p-4 space-y-4">
           {getFormFields()}
-
-          <FormField
-            className="p-3 focus:outline-none"
-            label="Status"
-            name="status"
-            type="select"
-            required
-            options={[
-              { value: "Active", label: "Active" },
-              { value: "Inactive", label: "Inactive" },
-            ]}
-          />
-
           <div className="flex justify-end space-x-3 pt-4 border-t border-neutral-200">
             <button
               type="button"
@@ -433,11 +422,15 @@ function LocationPage() {
             >
               Cancel
             </button>
-            <button type="submit" className="btn btn-primary">
-              {currentLocation ? "Update" : "Save"}
+            <button
+              type="submit"
+              className="btn btn-primary"
+              disabled={formik.isSubmitting}
+            >
+              {formik.isSubmitting ? 'Saving...' : currentLocation ? 'Update' : 'Save'}
             </button>
           </div>
-        </div>
+        </form>
       </Modal>
 
       <Modal
@@ -452,7 +445,6 @@ function LocationPage() {
           <p className="text-sm text-neutral-500 mt-2">
             This action cannot be undone.
           </p>
-
           <div className="flex justify-end space-x-3 pt-4 mt-4 border-t border-neutral-200">
             <button
               type="button"

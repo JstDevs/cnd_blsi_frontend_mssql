@@ -1,33 +1,111 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
+const API_URL = import.meta.env.VITE_API_URL;
 
 // Mock Data
-const mockItemUnits = [
-  { id: '1', code: 'PC', name: 'Piece' },
-  { id: '2', code: 'BOX', name: 'Box' },
-  { id: '3', code: 'KG', name: 'Kilogram' },
-];
+const mockItemUnits = [];
+export const fetchItemUnits = createAsyncThunk(
+  'itemUnits/fetchItemUnits',
+  async (_, thunkAPI) => {
+    try {
+      const token = localStorage.getItem('token');
 
-// Async Thunks (Mock API calls)
-export const fetchItemUnits = createAsyncThunk('itemUnits/fetchItemUnits', async () => {
-  console.log('Mock API call: Fetching item units');
-  return new Promise(resolve => setTimeout(() => resolve(mockItemUnits), 500));
-});
+      const response = await fetch(`${API_URL}/itemUnit`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+      });
 
-export const addItemUnit = createAsyncThunk('itemUnits/addItemUnit', async (itemUnit) => {
-  console.log('Mock API call: Adding item unit', itemUnit);
-  const newItemUnit = { ...itemUnit, id: Date.now().toString() }; // Assign a mock ID
-  return new Promise(resolve => setTimeout(() => resolve(newItemUnit), 500));
-});
+      const res = await response.json();
 
-export const updateItemUnit = createAsyncThunk('itemUnits/updateItemUnit', async (itemUnit) => {
-  console.log('Mock API call: Updating item unit', itemUnit);
-  return new Promise(resolve => setTimeout(() => resolve(itemUnit), 500));
-});
+      if (!response.ok) {
+        throw new Error(res.message || 'Failed to fetch');
+      }
 
-export const deleteItemUnit = createAsyncThunk('itemUnits/deleteItemUnit', async (id) => {
-  console.log('Mock API call: Deleting item unit with ID', id);
-  return new Promise(resolve => setTimeout(() => resolve(id), 500));
-});
+      return res;
+    } catch (error) {
+      return thunkAPI.rejectWithValue(error.message);
+    }
+  }
+);
+
+
+export const addItemUnit = createAsyncThunk(
+  'itemUnits/addItemUnit',
+  async (itemUnit, thunkAPI) => {
+    try {
+      const response = await fetch(`${API_URL}/itemUnit`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${localStorage.getItem('token')}`,
+        },
+        body: JSON.stringify(itemUnit),
+      });
+
+      const res = await response.json();
+
+      if (!response.ok) {
+        throw new Error(res.message || 'Failed to add');
+      }
+
+      return res;
+    } catch (error) {
+      return thunkAPI.rejectWithValue(error.message);
+    }
+  }
+);
+
+export const updateItemUnit = createAsyncThunk(
+  'itemUnits/updateItemUnit',
+  async (itemUnit, thunkAPI) => {
+    try {
+      const response = await fetch(`${API_URL}/itemUnit/${itemUnit.ID}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${localStorage.getItem('token')}`,
+        },
+        body: JSON.stringify(itemUnit),
+      });
+
+      const res = await response.json();
+
+      if (!response.ok) {
+        throw new Error(res.message || 'Failed to update');
+      }
+
+      return res;
+    } catch (error) {
+      return thunkAPI.rejectWithValue(error.message);
+    }
+  }
+);
+
+export const deleteItemUnit = createAsyncThunk(
+  'itemUnits/deleteItemUnit',
+  async (ID, thunkAPI) => {
+    try {
+      const response = await fetch(`${API_URL}/itemUnit/${ID}`, {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${localStorage.getItem('token')}`,
+        },
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'Failed to delete');
+      }
+
+      return ID; // Return ID so you can remove it from Redux state
+    } catch (error) {
+      return thunkAPI.rejectWithValue(error.message);
+    }
+  }
+);
 
 const itemUnitsSlice = createSlice({
   name: 'itemUnits',
@@ -45,13 +123,11 @@ const itemUnitsSlice = createSlice({
       })
       .addCase(fetchItemUnits.fulfilled, (state, action) => {
         state.isLoading = false;
-        // Ensure state.itemUnits is treated as an array
         state.itemUnits = Array.isArray(action.payload) ? action.payload : [];
       })
       .addCase(fetchItemUnits.rejected, (state, action) => {
         state.isLoading = false;
         state.error = action.error.message || 'Failed to fetch item units';
-        // Fallback to mock data on error for development
         console.warn('Failed to fetch item units, using mock data.', state.error);
         state.itemUnits = mockItemUnits;
       })
@@ -61,7 +137,6 @@ const itemUnitsSlice = createSlice({
       })
       .addCase(addItemUnit.fulfilled, (state, action) => {
         state.isLoading = false;
-        // Ensure state.itemUnits is treated as an array before pushing
         if (!Array.isArray(state.itemUnits)) {
           state.itemUnits = [];
         }
@@ -78,19 +153,13 @@ const itemUnitsSlice = createSlice({
       })
       .addCase(updateItemUnit.fulfilled, (state, action) => {
         state.isLoading = false;
-        const index = state.itemUnits.findIndex(unit => unit.id === action.payload.id);
+        const index = state.itemUnits.findIndex(item => item.ID === action.payload.ID);
         if (index !== -1) {
-          // Ensure state.itemUnits is treated as an array before splicing
           if (!Array.isArray(state.itemUnits)) {
-             state.itemUnits = [];
+            state.itemUnits = [];
           }
           state.itemUnits[index] = action.payload;
         }
-      })
-      .addCase(updateItemUnit.rejected, (state, action) => {
-        state.isLoading = false;
-        state.error = action.error.message || 'Failed to update item unit';
-        console.error('Failed to update item unit:', state.error);
       })
       .addCase(deleteItemUnit.pending, (state) => {
         state.isLoading = true;
@@ -98,11 +167,10 @@ const itemUnitsSlice = createSlice({
       })
       .addCase(deleteItemUnit.fulfilled, (state, action) => {
         state.isLoading = false;
-        // Ensure state.itemUnits is treated as an array before filtering
         if (!Array.isArray(state.itemUnits)) {
           state.itemUnits = [];
         }
-        state.itemUnits = state.itemUnits.filter(unit => unit.id !== action.payload);
+        state.itemUnits = state.itemUnits.filter(item => item.ID !== action.payload);
       })
       .addCase(deleteItemUnit.rejected, (state, action) => {
         state.isLoading = false;
@@ -112,4 +180,4 @@ const itemUnitsSlice = createSlice({
   },
 });
 
-export const itemUnitsReducer = itemUnitsSlice.reducer; 
+export const itemUnitsReducer = itemUnitsSlice.reducer;

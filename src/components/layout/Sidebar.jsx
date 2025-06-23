@@ -26,11 +26,13 @@ const navigation = [
     submenu: [
       { name: "Departments", href: "/settings/departments" },
       { name: "Subdepartments", href: "/settings/subdepartments" },
+      { name: "Modules", href: "/settings/modules" },
       {
         name: "Users",
         submenu: [
           { name: "Approval Matrix", href: "/settings/approval-matrix" },
           { name: "User Access", href: "/settings/user-access" },
+          { name: "User Roles", href: "/settings/user-roles" },
           { name: "User", href: "/settings/users" },
         ],
       },
@@ -47,11 +49,17 @@ const navigation = [
         submenu: [
           {
             name: "Bank Details",
-            href: "/settings/bank",
+            submenu: [
+              { name: "Bank", href: "/settings/bank" },
+              { name: "Currency", href: "/settings/currency" },
+            ],
           },
           {
             name: "Document Details",
-            href: "/settings/document-details",
+            submenu: [
+              { name: "Document Type", href: "/settings/document-details" },
+              { name: "Document Type Category", href: "/settings/document-type-categories" },
+            ],
           },
           {
             name: "Items Settings",
@@ -84,10 +92,40 @@ const navigation = [
       },
       { name: "Locations", href: "/settings/locations" },
       { name: "Customer", href: "/settings/customer" },
-      { name: "Chart of Accounts", href: "/settings/chart-of-accounts" },
-      { name: "Vendors", href: "/settings/vendors" },
-      { name: "Employees", href: "/settings/employees" },
-      { name: "PPE", href: "/settings/ppe" },
+      {
+        name: "Chart of Accounts Settings",
+        submenu: [
+          { name: "Chart of Accounts", href: "/settings/chart-of-accounts" },
+          { name: "Account Group", href: "/settings/account-group" },
+          { name: "Major Account Group", href: "/settings/major-account-group" },
+          { name: "Sub Major Account Group", href: "/settings/sub-major-account-group" },
+        ],
+      },
+      {
+        name: "Vendors",
+        submenu: [
+          { name: "Vendor Details", href: "/settings/vendors" },
+          { name: "Vendor Customer Type", href: "/settings/vendor-customer-type" },
+          { name: "Vendor Type", href: "/settings/vendor-type" },
+        ],
+      },
+      {
+        name: "Employees",
+        submenu: [
+          { name: "Employees", href: "/settings/employees" },
+          { name: "Employment Status", href: "/settings/employmentStatus" },
+          { name: "Positions", href: "/settings/positions" },
+          { name: "Nationalities", href: "/settings/nationalities" },
+        ],
+      },
+      {
+        name: "PPE Settings",
+        submenu: [
+          { name: "PPE List", href: "/settings/ppe" },
+          { name: "PPE Categories", href: "/settings/ppe-categories" },
+          { name: "PPE Suppliers", href: "/settings/ppe-suppliers" },
+        ],
+      },
       { name: "LGU Maintenance", href: "/settings/lgu-maintenance" },
     ],
   },
@@ -166,7 +204,7 @@ const navigation = [
       { name: "Budget Transfer", href: "/budget/transfer" },
       { name: "Budget Report", href: "/budget/report" },
       { name: "Funds", href: "/budget/funds" },
-      // { name: 'Sub-funds', href: '/budget/sub-funds' },
+      { name: "Sub-funds", href: "/budget/sub-funds" },
       { name: "Fund Transfer", href: "/budget/fund-transfer" },
       { name: "Statement of Comparison", href: "/budget/statement-comparison" },
       {

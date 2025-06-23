@@ -10,7 +10,6 @@ import {
   updateProjectType,
   deleteProjectType,
 } from "@/features/settings/projectTypesSlice";
-import Button from "../../../../components/common/Button";
 
 function ProjectTypePage() {
   const dispatch = useDispatch();
@@ -45,7 +44,7 @@ function ProjectTypePage() {
   const confirmDelete = async () => {
     if (projectTypeToDelete) {
       try {
-        await dispatch(deleteProjectType(projectTypeToDelete.id)).unwrap();
+        await dispatch(deleteProjectType(projectTypeToDelete.ID)).unwrap();
         setIsDeleteModalOpen(false);
         setProjectTypeToDelete(null);
       } catch (error) {
@@ -56,7 +55,7 @@ function ProjectTypePage() {
 
   const handleSubmit = (values) => {
     if (currentProjectType) {
-      dispatch(updateProjectType({ ...values, id: currentProjectType.id }));
+      dispatch(updateProjectType({ ...values, ID: currentProjectType.ID }));
     } else {
       dispatch(addProjectType(values));
     }
@@ -65,13 +64,13 @@ function ProjectTypePage() {
 
   const columns = [
     {
-      key: "code",
-      header: "Code",
+      key: "Type",
+      header: "Type",
       sortable: true,
     },
     {
-      key: "name",
-      header: "Name",
+      key: "Description",
+      header: "Description",
       sortable: true,
     },
   ];
@@ -96,19 +95,19 @@ function ProjectTypePage() {
   return (
     <div>
       <div className="page-header">
-        <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center mb-6 space-y-4 sm:space-y-0">
+        <div className="flex justify-between items-center">
           <div>
             <h1>Project Types</h1>
             <p>Manage project types</p>
           </div>
-          <Button
+          <button
             type="button"
             onClick={handleAdd}
             className="btn btn-primary flex items-center"
           >
             <PlusIcon className="h-5 w-5 mr-2" aria-hidden="true" />
             Add Project Type
-          </Button>
+          </button>
         </div>
       </div>
 
@@ -144,7 +143,7 @@ function ProjectTypePage() {
         <div className="py-3">
           <p className="text-neutral-700">
             Are you sure you want to delete the project type "
-            {projectTypeToDelete?.name}"?
+            {projectTypeToDelete?.Type}"?
           </p>
           <p className="text-sm text-neutral-500 mt-2">
             This action cannot be undone.

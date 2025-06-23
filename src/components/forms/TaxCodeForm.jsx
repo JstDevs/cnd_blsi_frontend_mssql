@@ -1,85 +1,113 @@
-import { useFormik } from 'formik';
+import { Formik } from 'formik';
 import * as Yup from 'yup';
 import FormField from '../common/FormField';
 
 // Mock data for Tax Type select
 const mockTaxTypes = [
-  { value: 'vat', label: 'VAT' },
-  { value: 'ewt', label: 'EWT' },
-  { value: 'other', label: 'Other' },
+  { value: 'Individual', label: 'Individual' },
+  { value: 'Corporate', label: 'Corporate' },
 ];
 
 function TaxCodeForm({ initialData, onSubmit, onClose }) {
   const validationSchema = Yup.object({
-    type: Yup.string().required('Type is required'),
-    code: Yup.string().required('Code is required'),
-    natureOfPayment: Yup.string().required('Nature of Payment is required'),
-    rate: Yup.number()
+    Type: Yup.string().required('Type is required'),
+    Code: Yup.string().required('Code is required'),
+    Name: Yup.string().required('Nature of Payment is required'),
+    Rate: Yup.number()
       .required('Rate is required')
       .min(0, 'Rate cannot be negative')
-      .max(1, 'Rate cannot exceed 1 (or 100%)'), // Assuming rate is stored as a decimal (e.g., 0.12 for 12%)
-  });
-
-  const formik = useFormik({
-    initialValues: initialData || {
-      type: '',
-      code: '',
-      natureOfPayment: '',
-      rate: 0,
-    },
-    validationSchema,
-    onSubmit: (values) => {
-      onSubmit(values);
-    },
+      .max(100, 'Rate cannot exceed 100%'),
   });
 
   return (
-    <form onSubmit={formik.handleSubmit} className="space-y-4">
-      <FormField
-        label="Type"
-        name="type"
-        type="select"
-        options={mockTaxTypes}
-        formik={formik}
-      />
-      <FormField
-        label="Code"
-        name="code"
-        type="text"
-        formik={formik}
-      />
-      <FormField
-        label="Nature of Payment"
-        name="natureOfPayment"
-        type="text"
-        formik={formik}
-      />
-      <FormField
-        label="Rate (%)"
-        name="rate"
-        type="number"
-        formik={formik}
-        step="0.01"
-      />
+    <Formik
+      initialValues={initialData || {
+        Type: '',
+        Code: '',
+        Name: '',
+        Rate: 0,
+      }}
+      validationSchema={validationSchema}
+      onSubmit={onSubmit}
+      enableReinitialize
+    >
+      {({
+        values,
+        errors,
+        touched,
+        handleChange,
+        handleBlur,
+        handleSubmit,
+        isSubmitting,
+      }) => (
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <FormField
+            label="Type"
+            name="Type"
+            type="select"
+            options={mockTaxTypes}
+            value={values.Type}
+            onChange={handleChange}
+            onBlur={handleBlur}
+            error={errors.Type}
+            touched={touched.Type}
+            required
+          />
+          <FormField
+            label="Code"
+            name="Code"
+            type="text"
+            value={values.Code}
+            onChange={handleChange}
+            onBlur={handleBlur}
+            error={errors.Code}
+            touched={touched.Code}
+            required
+          />
+          <FormField
+            label="Rate (%)"
+            name="Rate"
+            type="number"
+            step="0.01"
+            value={values.Rate}
+            onChange={handleChange}
+            onBlur={handleBlur}
+            error={errors.Rate}
+            touched={touched.Rate}
+            required
+          />
+          <FormField
+            label="Nature of Payment"
+            name="Name"
+            type="textarea"
+            value={values.Name}
+            onChange={handleChange}
+            onBlur={handleBlur}
+            error={errors.Name}
+            touched={touched.Name}
+            required
+          />
 
-      <div className="flex justify-end space-x-3 pt-4 border-t border-neutral-200">
-        <button
-          type="button"
-          onClick={onClose}
-          className="btn btn-outline"
-        >
-          Cancel
-        </button>
-        <button
-          type="submit"
-          className="btn btn-primary"
-          disabled={formik.isSubmitting}
-        >
-          {formik.isSubmitting ? 'Saving...' : 'Save'}
-        </button>
-      </div>
-    </form>
+          <div className="flex justify-end space-x-3 pt-4 border-t border-neutral-200">
+            <button
+              type="button"
+              onClick={onClose}
+              className="btn btn-outline"
+            >
+              Cancel
+            </button>
+            <button
+              type="submit"
+              className="btn btn-primary"
+              disabled={isSubmitting}
+            >
+              {isSubmitting ? 'Saving...' : 'Save'}
+            </button>
+          </div>
+        </form>
+      )}
+    </Formik>
   );
 }
 
-export default TaxCodeForm; 
+export default TaxCodeForm;

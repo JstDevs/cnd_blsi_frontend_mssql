@@ -368,7 +368,7 @@ const TrialBalance = () => {
 
           <button
             onClick={handlePrint}
-            className="flex items-center justify-center px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors w-full sm:w-auto"
+            className="flex items-center mt-2 sm:mt-0 justify-center px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors w-full sm:w-auto"
           >
             <Printer className="w-4 h-4 mr-2" />
             Print
@@ -376,7 +376,7 @@ const TrialBalance = () => {
 
           <button
             onClick={handleExport}
-            className="flex items-center justify-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors w-full sm:w-auto"
+            className="flex items-center mt-2 sm:mt-0 justify-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors w-full sm:w-auto"
           >
             <Download className="w-4 h-4 mr-2" />
             Export
@@ -547,7 +547,7 @@ const TrialBalance = () => {
           <div className="flex items-end">
             <button
               onClick={handleView}
-              className="w-full flex items-center justify-center px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
+              className="w-full flex items-center mt-2 sm:mt-0 justify-center px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
             >
               <Eye className="w-4 h-4 mr-2" />
               Generate
@@ -586,7 +586,7 @@ const TrialBalance = () => {
           <div className="flex items-center gap-2">
             <button
               onClick={handleGenerateCashbook}
-              className="flex items-center justify-center px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors"
+              className="flex items-center mt-2 sm:mt-0 justify-center px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors"
             >
               <BookOpen className="w-4 h-4 mr-2" />
               Cashbook

@@ -2,44 +2,40 @@ import React, { useState } from 'react';
 import { Formik, Form } from 'formik';
 import * as Yup from 'yup';
 import { useDispatch, useSelector } from 'react-redux';
-import { addDocumentDetail, updateDocumentDetail, addDocumentCategory } from '../../features/settings/documentDetailsSlice';
+import { addDocumentDetail, updateDocumentDetail } from '../../features/settings/documentDetailsSlice';
 import FormField from '../common/FormField';
 
-const DocumentDetailsForm = ({ document, onClose }) => {
+const DocumentDetailsForm = ({ document, onClose, documentTypeCategoryOptions = [] }) => {
   const dispatch = useDispatch();
-  const categories = useSelector((state) => state.documentDetails.categories);
-  const [showCategoryForm, setShowCategoryForm] = useState(false);
-  const [newCategory, setNewCategory] = useState('');
 
   const validationSchema = Yup.object({
-    name: Yup.string().required('Name is required'),
-    code: Yup.string().required('Code is required'),
-    prefix: Yup.string().required('Prefix is required'),
-    suffix: Yup.string().required('Suffix is required'),
-    startNumber: Yup.number()
+    Name: Yup.string().required('Name is required'),
+    Code: Yup.string().required('Code is required'),
+    Prefix: Yup.string().required('Prefix is required'),
+    Suffix: Yup.string().required('Suffix is required'),
+    StartNumber: Yup.number()
       .required('Start number is required')
       .min(1, 'Start number must be at least 1'),
-    currentNumber: Yup.number()
+    CurrentNumber: Yup.number()
       .required('Current number is required')
       .min(1, 'Current number must be at least 1'),
-    documentTypeCategory: Yup.string().required('Document type category is required')
+    DocumentTypeCategoryID: Yup.string().required('Document type category is required')
   });
 
   const initialValues = {
-    name: document?.name || '',
-    code: document?.code || '',
-    prefix: document?.prefix || '',
-    suffix: document?.suffix || '',
-    startNumber: document?.startNumber || 1,
-    currentNumber: document?.currentNumber || 1,
-    documentTypeCategory: document?.documentTypeCategory || '',
-    status: document?.status || 'Active'
+    Name: document?.Name || '',
+    Code: document?.Code || '',
+    Prefix: document?.Prefix || '',
+    Suffix: document?.Suffix || '',
+    StartNumber: document?.StartNumber || 1,
+    CurrentNumber: document?.CurrentNumber || 1,
+    DocumentTypeCategoryID: document?.DocumentTypeCategoryID || '',
   };
 
   const handleSubmit = async (values, { setSubmitting }) => {
     try {
       if (document) {
-        await dispatch(updateDocumentDetail({ ...values, id: document.id })).unwrap();
+        await dispatch(updateDocumentDetail({ ...values, ID: document.ID })).unwrap();
       } else {
         await dispatch(addDocumentDetail(values)).unwrap();
       }
@@ -48,22 +44,6 @@ const DocumentDetailsForm = ({ document, onClose }) => {
       console.error('Failed to save document details:', error);
     } finally {
       setSubmitting(false);
-    }
-  };
-
-  const handleAddCategory = async () => {
-    if (newCategory.trim()) {
-      try {
-        const result = await dispatch(addDocumentCategory(newCategory.trim())).unwrap();
-        setNewCategory('');
-        setShowCategoryForm(false);
-        // Update the form's documentTypeCategory field with the new category
-        if (result && result.value) {
-          document.formik.setFieldValue('documentTypeCategory', result.value);
-        }
-      } catch (error) {
-        console.error('Failed to add category:', error);
-      }
     }
   };
 
@@ -78,27 +58,27 @@ const DocumentDetailsForm = ({ document, onClose }) => {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <FormField
               label="Name"
-              name="name"
+              name="Name"
               type="text"
               required
-              value={values.name}
+              value={values.Name}
               onChange={handleChange}
               onBlur={handleBlur}
-              error={errors.name}
-              touched={touched.name}
+              error={errors.Name}
+              touched={touched.Name}
               placeholder="Enter document name"
             />
 
             <FormField
               label="Code"
-              name="code"
+              name="Code"
               type="text"
               required
-              value={values.code}
+              value={values.Code}
               onChange={handleChange}
               onBlur={handleBlur}
-              error={errors.code}
-              touched={touched.code}
+              error={errors.Code}
+              touched={touched.Code}
               placeholder="Enter document code"
             />
           </div>
@@ -106,27 +86,27 @@ const DocumentDetailsForm = ({ document, onClose }) => {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <FormField
               label="Prefix"
-              name="prefix"
+              name="Prefix"
               type="text"
               required
-              value={values.prefix}
+              value={values.Prefix}
               onChange={handleChange}
               onBlur={handleBlur}
-              error={errors.prefix}
-              touched={touched.prefix}
+              error={errors.Prefix}
+              touched={touched.Prefix}
               placeholder="Enter document prefix"
             />
 
             <FormField
               label="Suffix"
-              name="suffix"
+              name="Suffix"
               type="text"
               required
-              value={values.suffix}
+              value={values.Suffix}
               onChange={handleChange}
               onBlur={handleBlur}
-              error={errors.suffix}
-              touched={touched.suffix}
+              error={errors.Suffix}
+              touched={touched.Suffix}
               placeholder="Enter document suffix"
             />
           </div>
@@ -134,27 +114,27 @@ const DocumentDetailsForm = ({ document, onClose }) => {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <FormField
               label="Start Number"
-              name="startNumber"
+              name="StartNumber"
               type="number"
               required
-              value={values.startNumber}
+              value={values.StartNumber}
               onChange={handleChange}
               onBlur={handleBlur}
-              error={errors.startNumber}
-              touched={touched.startNumber}
+              error={errors.StartNumber}
+              touched={touched.StartNumber}
               min="1"
             />
 
             <FormField
               label="Current Number"
-              name="currentNumber"
+              name="CurrentNumber"
               type="number"
               required
-              value={values.currentNumber}
+              value={values.CurrentNumber}
               onChange={handleChange}
               onBlur={handleBlur}
-              error={errors.currentNumber}
-              touched={touched.currentNumber}
+              error={errors.CurrentNumber}
+              touched={touched.CurrentNumber}
               min="1"
             />
           </div>
@@ -162,74 +142,17 @@ const DocumentDetailsForm = ({ document, onClose }) => {
           <div className="space-y-2">
             <FormField
               label="Document Type Category"
-              name="documentTypeCategory"
+              name="DocumentTypeCategoryID"
               type="select"
               required
-              value={values.documentTypeCategory}
-              onChange={(e) => {
-                handleChange(e);
-                if (e.target.value === 'custom') {
-                  setShowCategoryForm(true);
-                  setFieldValue('documentTypeCategory', '');
-                }
-              }}
+              value={values.DocumentTypeCategoryID}
+              onChange={handleChange}
               onBlur={handleBlur}
-              error={errors.documentTypeCategory}
-              touched={touched.documentTypeCategory}
-              options={[
-                ...categories,
-                { value: 'custom', label: '+ Add Custom Category' }
-              ]}
+              error={errors.DocumentTypeCategoryID}
+              touched={touched.DocumentTypeCategoryID}
+              options={documentTypeCategoryOptions}
             />
-
-            {showCategoryForm && (
-              <div className="p-4 border border-neutral-200 rounded-md space-y-4">
-                <h3 className="font-medium text-sm">Add Custom Category</h3>
-                <div className="flex items-center space-x-2">
-                  <input
-                    type="text"
-                    value={newCategory}
-                    onChange={(e) => setNewCategory(e.target.value)}
-                    placeholder="Enter new category"
-                    className="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
-                  />
-                  <button
-                    type="button"
-                    onClick={handleAddCategory}
-                    className="inline-flex items-center rounded-md border border-transparent bg-indigo-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
-                  >
-                    Add
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setShowCategoryForm(false);
-                      setNewCategory('');
-                    }}
-                    className="inline-flex items-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
-                  >
-                    Cancel
-                  </button>
-                </div>
-              </div>
-            )}
           </div>
-
-          <FormField
-            label="Status"
-            name="status"
-            type="select"
-            required
-            value={values.status}
-            onChange={handleChange}
-            onBlur={handleBlur}
-            error={errors.status}
-            touched={touched.status}
-            options={[
-              { value: 'Active', label: 'Active' },
-              { value: 'Inactive', label: 'Inactive' }
-            ]}
-          />
 
           <div className="flex justify-end space-x-3 pt-4 border-t border-neutral-200">
             <button

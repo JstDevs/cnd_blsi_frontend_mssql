@@ -4,14 +4,14 @@ import FormField from '../common/FormField';
 
 function ModeOfPaymentForm({ initialData, onSubmit, onClose }) {
   const validationSchema = Yup.object({
-    code: Yup.string().required('Code is required'),
-    name: Yup.string().required('Name is required'),
+    Code: Yup.string().required('Code is required'),
+    Name: Yup.string().required('Name is required'),
   });
 
   const formik = useFormik({
     initialValues: initialData || {
-      code: '',
-      name: '',
+      Code: '',
+      Name: '',
     },
     validationSchema,
     onSubmit: (values) => {
@@ -23,15 +23,25 @@ function ModeOfPaymentForm({ initialData, onSubmit, onClose }) {
     <form onSubmit={formik.handleSubmit} className="space-y-4">
       <FormField
         label="Code"
-        name="code"
+        name="Code"
         type="text"
-        formik={formik}
+        value={formik.values.Code}
+        onChange={formik.handleChange}
+        onBlur={formik.handleBlur}
+        error={formik.errors.Code}
+        touched={formik.touched.Code}
+        required
       />
       <FormField
         label="Name"
-        name="name"
+        name="Name"
         type="text"
-        formik={formik}
+        value={formik.values.Name}
+        onChange={formik.handleChange}
+        onBlur={formik.handleBlur}
+        error={formik.errors.Name}
+        touched={formik.touched.Name}
+        required
       />
 
       <div className="flex justify-end space-x-3 pt-4 border-t border-neutral-200">
@@ -54,4 +64,4 @@ function ModeOfPaymentForm({ initialData, onSubmit, onClose }) {
   );
 }
 
-export default ModeOfPaymentForm; 
+export default ModeOfPaymentForm;

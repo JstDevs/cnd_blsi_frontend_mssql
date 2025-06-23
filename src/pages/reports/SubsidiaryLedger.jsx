@@ -129,7 +129,7 @@ function SubsidiaryLedger() {
   ];
 
   return (
-    <>
+    <div className="p-4 md:p-6">
       <div className="page-header">
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
           <div>
@@ -143,14 +143,14 @@ function SubsidiaryLedger() {
           <div className="flex flex-wrap gap-2 w-full md:w-auto">
             <button
               type="button"
-              className="btn btn-outline flex items-center justify-center w-full md:w-auto"
+              className="btn btn-outline mt-2 sm:mt-0 flex items-center justify-center w-full md:w-auto"
             >
               <ArrowDownTrayIcon className="h-5 w-5 mr-2" />
               <span>Export</span>
             </button>
             <button
               type="button"
-              className="btn btn-outline flex items-center justify-center w-full md:w-auto"
+              className="btn btn-outline mt-2 sm:mt-0 flex items-center justify-center w-full md:w-auto"
             >
               <PrinterIcon className="h-5 w-5 mr-2" />
               <span>Print</span>
@@ -221,7 +221,7 @@ function SubsidiaryLedger() {
         <div className="flex flex-wrap justify-end mt-4 gap-2">
           <button
             type="button"
-            className="btn btn-secondary w-full sm:w-auto"
+            className="btn mt-2 sm:mt-0 btn-secondary w-full sm:w-auto"
             onClick={() =>
               setFilters({
                 startDate: "",
@@ -236,7 +236,7 @@ function SubsidiaryLedger() {
           </button>
           <button
             type="button"
-            className="btn btn-primary w-full sm:w-auto"
+            className="btn mt-2 sm:mt-0 btn-primary w-full sm:w-auto"
             onClick={() => {
               // Handle filter application
               console.log("Filters applied:", filters);
@@ -256,7 +256,7 @@ function SubsidiaryLedger() {
           className="min-w-full"
         />
       </div>
-    </>
+    </div>
   );
 }
 

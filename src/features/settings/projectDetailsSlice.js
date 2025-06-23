@@ -1,59 +1,116 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
+const API_URL = import.meta.env.VITE_API_URL;
 
 // Mock Data
-const mockProjectTypes = [
-  { value: 'residential', label: 'Residential' },
-  { value: 'commercial', label: 'Commercial' },
-  { value: 'infrastructure', label: 'Infrastructure' },
-  { value: 'institutional', label: 'Institutional' },
-];
+const mockProjectDetails = [];
+export const fetchProjectDetails = createAsyncThunk(
+  'projectDetails/fetchProjectDetails',
+  async (_, thunkAPI) => {
+    try {
+      const token = localStorage.getItem('token');
 
-const mockProjectDetails = [
-  { 
-    id: '1', 
-    projectTitle: 'Green Oaks Housing', 
-    startDate: '2023-01-15', 
-    endDate: '2024-12-31', 
-    projectType: 'residential', 
-    description: 'Development of 50 residential units with community park.' 
-  },
-  { 
-    id: '2', 
-    projectTitle: 'Downtown Business Hub', 
-    startDate: '2024-03-01', 
-    endDate: '2025-06-30', 
-    projectType: 'commercial', 
-    description: 'Construction of a multi-story commercial building.' 
-  },
-];
+      const response = await fetch(`${API_URL}/project`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+      });
 
-// Async Thunks (Mock API calls)
-export const fetchProjectDetails = createAsyncThunk('projectDetails/fetchProjectDetails', async () => {
-  console.log('Mock API call: Fetching project details');
-  return new Promise(resolve => setTimeout(() => resolve(mockProjectDetails), 500));
-});
+      const res = await response.json();
 
-export const addProjectDetail = createAsyncThunk('projectDetails/addProjectDetail', async (projectDetail) => {
-  console.log('Mock API call: Adding project detail', projectDetail);
-  const newProjectDetail = { ...projectDetail, id: Date.now().toString() }; // Assign a mock ID
-  return new Promise(resolve => setTimeout(() => resolve(newProjectDetail), 500));
-});
+      if (!response.ok) {
+        throw new Error(res.message || 'Failed to fetch');
+      }
 
-export const updateProjectDetail = createAsyncThunk('projectDetails/updateProjectDetail', async (projectDetail) => {
-  console.log('Mock API call: Updating project detail', projectDetail);
-  return new Promise(resolve => setTimeout(() => resolve(projectDetail), 500));
-});
+      return res;
+    } catch (error) {
+      return thunkAPI.rejectWithValue(error.message);
+    }
+  }
+);
 
-export const deleteProjectDetail = createAsyncThunk('projectDetails/deleteProjectDetail', async (id) => {
-  console.log('Mock API call: Deleting project detail with ID', id);
-  return new Promise(resolve => setTimeout(() => resolve(id), 500));
-});
+
+export const addProjectDetail = createAsyncThunk(
+  'projectDetails/addProjectDetail',
+  async (projectDetail, thunkAPI) => {
+    try {
+      const response = await fetch(`${API_URL}/project`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${localStorage.getItem('token')}`,
+        },
+        body: JSON.stringify(projectDetail),
+      });
+
+      const res = await response.json();
+
+      if (!response.ok) {
+        throw new Error(res.message || 'Failed to add');
+      }
+
+      return res;
+    } catch (error) {
+      return thunkAPI.rejectWithValue(error.message);
+    }
+  }
+);
+
+export const updateProjectDetail = createAsyncThunk(
+  'projectDetails/updateProjectDetail',
+  async (projectDetail, thunkAPI) => {
+    try {
+      const response = await fetch(`${API_URL}/project/${projectDetail.ID}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${localStorage.getItem('token')}`,
+        },
+        body: JSON.stringify(projectDetail),
+      });
+
+      const res = await response.json();
+
+      if (!response.ok) {
+        throw new Error(res.message || 'Failed to update');
+      }
+
+      return res;
+    } catch (error) {
+      return thunkAPI.rejectWithValue(error.message);
+    }
+  }
+);
+
+export const deleteProjectDetail = createAsyncThunk(
+  'projectDetails/deleteProjectDetail',
+  async (ID, thunkAPI) => {
+    try {
+      const response = await fetch(`${API_URL}/project/${ID}`, {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${localStorage.getItem('token')}`,
+        },
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'Failed to delete');
+      }
+
+      return ID; // Return ID so you can remove it from Redux state
+    } catch (error) {
+      return thunkAPI.rejectWithValue(error.message);
+    }
+  }
+);
 
 const projectDetailsSlice = createSlice({
   name: 'projectDetails',
   initialState: {
     projectDetails: [],
-    projectTypes: mockProjectTypes,
     isLoading: false,
     error: null,
   },
@@ -80,7 +137,7 @@ const projectDetailsSlice = createSlice({
       })
       .addCase(addProjectDetail.fulfilled, (state, action) => {
         state.isLoading = false;
-         if (!Array.isArray(state.projectDetails)) {
+        if (!Array.isArray(state.projectDetails)) {
           state.projectDetails = [];
         }
         state.projectDetails.push(action.payload);
@@ -96,18 +153,13 @@ const projectDetailsSlice = createSlice({
       })
       .addCase(updateProjectDetail.fulfilled, (state, action) => {
         state.isLoading = false;
-        const index = state.projectDetails.findIndex(detail => detail.id === action.payload.id);
+        const index = state.projectDetails.findIndex(item => item.ID === action.payload.ID);
         if (index !== -1) {
-           if (!Array.isArray(state.projectDetails)) {
-             state.projectDetails = [];
+          if (!Array.isArray(state.projectDetails)) {
+            state.projectDetails = [];
           }
           state.projectDetails[index] = action.payload;
         }
-      })
-      .addCase(updateProjectDetail.rejected, (state, action) => {
-        state.isLoading = false;
-        state.error = action.error.message || 'Failed to update project detail';
-        console.error('Failed to update project detail:', state.error);
       })
       .addCase(deleteProjectDetail.pending, (state) => {
         state.isLoading = true;
@@ -115,10 +167,10 @@ const projectDetailsSlice = createSlice({
       })
       .addCase(deleteProjectDetail.fulfilled, (state, action) => {
         state.isLoading = false;
-         if (!Array.isArray(state.projectDetails)) {
+        if (!Array.isArray(state.projectDetails)) {
           state.projectDetails = [];
         }
-        state.projectDetails = state.projectDetails.filter(detail => detail.id !== action.payload);
+        state.projectDetails = state.projectDetails.filter(item => item.ID !== action.payload);
       })
       .addCase(deleteProjectDetail.rejected, (state, action) => {
         state.isLoading = false;
@@ -128,4 +180,4 @@ const projectDetailsSlice = createSlice({
   },
 });
 
-export const projectDetailsReducer = projectDetailsSlice.reducer; 
+export const projectDetailsReducer = projectDetailsSlice.reducer;

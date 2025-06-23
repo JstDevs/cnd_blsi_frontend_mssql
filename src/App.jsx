@@ -14,21 +14,37 @@ import NotFoundPage from "./pages/NotFoundPage";
 
 // Settings pages
 import DepartmentPage from "./pages/settings/DepartmentPage";
+import CurrencyPage from "./pages/settings/CurrencyPage";
 import SubdepartmentPage from "./pages/settings/SubdepartmentPage";
 import UserPage from "./pages/settings/UserPage";
 import ChartOfAccountsPage from "./pages/settings/ChartOfAccountsPage";
-import VendorPage from "./pages/settings/VendorPage";
+import AccountGroupPage from "./pages/settings/AccountGroupPage";
+import MajorAccountGroupPage from "./pages/settings/MajorAccountGroupPage";
+import SubMajorAccountGroupPage from "./pages/settings/SubMajorAccountGroupPage";
+import VendorDetailsPage from "./pages/settings/VendorDetailsPage";
+import VendorCustomerTypePage from "./pages/settings/VendorCustomerTypePage";
+import VendorTypePage from "./pages/settings/VendorTypePage";
+import ModulesPage from "./pages/settings/ModulesPage";
+
 import EmployeePage from "./pages/settings/EmployeePage";
+import EmploymentStatus from "./pages/settings/EmploymentStatus";
+import PositionPage from "./pages/settings/PositionPage";
+import UserrolesPage from "./pages/settings/UserrolesPage";
+import NationalitiesPage from "./pages/settings/NationalitiesPage";
 import LocationPage from "./pages/settings/LocationPage";
 import PPEPage from "./pages/settings/PPE/PPEPage";
+import PpeCategoriesPage from "./pages/settings/PpeCategoriesPage";
+import PpeSuppliersPage from "./pages/settings/PpeSuppliersPage";
+
 import ApprovalMatrixPage from "./pages/settings/ApprovalMatrixPage";
 import BankPage from "./pages/settings/BankPage";
 import DocumentDetailsPage from "./pages/settings/DocumentDetailsPage";
+import DocumentTypeCategoriesPage from "./pages/settings/DocumentTypeCategoriesPage";
 import ItemPage from "./pages/settings/ItemPage";
 import InvoiceChargeAccountsPage from "./pages/settings/InvoiceChargeAccountsPage";
 import ItemUnitPage from "./pages/settings/ItemUnitPage";
 import ProjectTypePage from "./pages/settings/Accounting/Project/ProjectTypePage";
-import ProjectDetails from "./pages/settings/Accounting/Project/ProjectDetails";
+import ProjectDetailsPage from "./pages/settings/ProjectDetailsPage";
 import FinancialStatementPage from "./pages/settings/FinancialStatementPage";
 import FiscalYearPage from "./pages/settings/FiscalYearPage";
 import TaxCodePage from "./pages/settings/TaxCodePage";
@@ -69,15 +85,18 @@ import BudgetAllotment from "./pages/budget/form-budget/BudgetAllotment";
 import BudgetReport from "./pages/budget/form-budget/BudgetReport";
 import BudgetTransfer from "./pages/budget/form-budget/BudgetTransfer";
 import BudgetDetails from "./pages/budget/form-budget/BudgetDetails";
+import NewBudgetPage from "./pages/budget/newBudget";
 import BudgetSummary from "./pages/budget/form-budget/BudgetSummary";
 import BudgetSupplemental from "./pages/budget/form-budget/BudgetSupplemental";
 import FundsManagement from "./pages/budget/form-budget/FundsManagement";
+import SubFundsPage from "./pages/budget/SubFundsPage";
 import FundTransfer from "./pages/budget/form-budget/FundTransfer";
 import TrialBalance from "./pages/budget/form-budget/TrialBalance";
 import BudgetPage from "./pages/budget/BudgetPage";
 import StatementComparison from "./pages/budget/form-budget/StatementComparison";
 import StatementAppropriation from "./pages/budget/form-budget/StatementAppropriation";
 import LGUMaintenance from "./pages/settings/LGUMaintenance";
+
 // Applications pages
 import BusinessPermitPage from "./pages/applications/BusinessPermitPage";
 import ChequeGeneratorPage from "./pages/applications/ChequeGeneratorPage";
@@ -91,6 +110,10 @@ import BirReportPage from "./pages/reports/BirReportPage";
 // User Access
 import UserAccessPage from "./pages/userAccess";
 import ChangePassword from "./pages/auth/ChangePassword";
+import UserProfilePage from './pages/userProfile';
+import BudgetDashboardPage from './pages/budget/BudgetDashboardPage';
+import DisbursementDashboardPage from './pages/disbursement/DisbursementDashboardPage';
+import CollectionDashboardPage from './pages/collections/CollectionDashboardPage';
 
 function App() {
   const { isAuthenticated, isLoading } = useSelector((state) => state.auth);
@@ -181,6 +204,12 @@ function App() {
         >
           <Route path="/dashboard" element={<DashboardPage />} />
 
+          {/* user profile */}
+          <Route path="/profile" element={<UserProfilePage />} />
+          <Route path="/budget-dashboard" element={<BudgetDashboardPage />} />
+          <Route path="/disbursement-dashboard" element={<DisbursementDashboardPage />} />
+          <Route path="/collection-dashboard" element={<CollectionDashboardPage />} />
+
           {/*-------------------------- Settings module-------------------- */}
           <Route path="/settings/departments" element={<DepartmentPage />} />
           <Route path="/settings/customer" element={<Customer />} />
@@ -192,24 +221,51 @@ function App() {
             path="/settings/subdepartments"
             element={<SubdepartmentPage />}
           />
+          <Route path="/settings/modules" element={<ModulesPage />} />
           <Route path="/settings/users" element={<UserPage />} />
+          <Route path="/settings/user-roles" element={<UserrolesPage />} />
           <Route path="/settings/user-access" element={<UserAccessPage />} />
           <Route
             path="/settings/chart-of-accounts"
             element={<ChartOfAccountsPage />}
           />
-          <Route path="/settings/vendors" element={<VendorPage />} />
+          <Route
+            path="/settings/account-group"
+            element={<AccountGroupPage />}
+          />
+          <Route
+            path="/settings/major-account-group"
+            element={<MajorAccountGroupPage />}
+          />
+          <Route
+            path="/settings/sub-major-account-group"
+            element={<SubMajorAccountGroupPage />}
+          />
+          <Route path="/settings/vendors" element={<VendorDetailsPage />} />
+          <Route path="/settings/vendor-customer-type" element={<VendorCustomerTypePage />} />
+          <Route path="/settings/vendor-type" element={<VendorTypePage />} />
           <Route path="/settings/employees" element={<EmployeePage />} />
+          <Route path="/settings/employmentStatus" element={<EmploymentStatus />} />
+          <Route path="/settings/positions" element={<PositionPage />} />
+          <Route path="/settings/nationalities" element={<NationalitiesPage />} />
           <Route path="/settings/locations" element={<LocationPage />} />
           <Route path="/settings/ppe" element={<PPEPage />} />
+          <Route path="/settings/ppe-categories" element={<PpeCategoriesPage />} />
+          <Route path="/settings/ppe-suppliers" element={<PpeSuppliersPage />} />
+
           <Route
             path="/settings/approval-matrix"
             element={<ApprovalMatrixPage />}
           />
           <Route path="/settings/bank" element={<BankPage />} />
+          <Route path="/settings/currency" element={<CurrencyPage />} />
           <Route
             path="/settings/document-details"
             element={<DocumentDetailsPage />}
+          />
+          <Route
+            path="/settings/document-type-categories"
+            element={<DocumentTypeCategoriesPage />}
           />
           <Route path="/settings/items" element={<ItemPage />} />
           <Route
@@ -235,7 +291,7 @@ function App() {
           <Route path="/settings/industry" element={<IndustryPage />} />
           <Route
             path="/settings/project-details"
-            element={<ProjectDetails />}
+            element={<ProjectDetailsPage />}
           />
           {/* ---SETTING--REAL--PROJECT------> */}
           <Route
@@ -334,11 +390,13 @@ function App() {
 
           <Route path="/budget/allotment" element={<BudgetAllotment />} />
           <Route path="/budget/details" element={<BudgetDetails />} />
+          <Route path="/budget/new" element={<NewBudgetPage />} />
           <Route path="/budget/summary" element={<BudgetSummary />} />
           <Route path="/budget/supplemental" element={<BudgetSupplemental />} />
           <Route path="/budget/transfer" element={<BudgetTransfer />} />
           <Route path="/budget/report" element={<BudgetReport />} />
           <Route path="/budget/funds" element={<FundsManagement />} />
+          <Route path="/budget/sub-funds" element={<SubFundsPage />} />
 
           <Route path="/budget/fund-transfer" element={<FundTransfer />} />
           <Route

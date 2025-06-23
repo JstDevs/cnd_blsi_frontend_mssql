@@ -1,33 +1,111 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
+const API_URL = import.meta.env.VITE_API_URL;
 
 // Mock Data
-const mockIndustries = [
-  { id: '1', code: 'TECH', name: 'Technology', industryType: 'Software' },
-  { id: '2', code: 'FIN', name: 'Finance', industryType: 'Banking' },
-  { id: '3', code: 'HEALTH', name: 'Healthcare', industryType: 'Pharmaceuticals' },
-];
+const mockIndustries = [];
+export const fetchIndustries = createAsyncThunk(
+  'industries/fetchIndustries',
+  async (_, thunkAPI) => {
+    try {
+      const token = localStorage.getItem('token');
 
-// Async Thunks (Mock API calls)
-export const fetchIndustries = createAsyncThunk('industries/fetchIndustries', async () => {
-  console.log('Mock API call: Fetching industries');
-  return new Promise(resolve => setTimeout(() => resolve(mockIndustries), 500));
-});
+      const response = await fetch(`${API_URL}/industryType`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+      });
 
-export const addIndustry = createAsyncThunk('industries/addIndustry', async (industry) => {
-  console.log('Mock API call: Adding industry', industry);
-  const newIndustry = { ...industry, id: Date.now().toString() }; // Assign a mock ID
-  return new Promise(resolve => setTimeout(() => resolve(newIndustry), 500));
-});
+      const res = await response.json();
 
-export const updateIndustry = createAsyncThunk('industries/updateIndustry', async (industry) => {
-  console.log('Mock API call: Updating industry', industry);
-  return new Promise(resolve => setTimeout(() => resolve(industry), 500));
-});
+      if (!response.ok) {
+        throw new Error(res.message || 'Failed to fetch');
+      }
 
-export const deleteIndustry = createAsyncThunk('industries/deleteIndustry', async (id) => {
-  console.log('Mock API call: Deleting industry with ID', id);
-  return new Promise(resolve => setTimeout(() => resolve(id), 500));
-});
+      return res;
+    } catch (error) {
+      return thunkAPI.rejectWithValue(error.message);
+    }
+  }
+);
+
+
+export const addIndustry = createAsyncThunk(
+  'industries/addIndustry',
+  async (industry, thunkAPI) => {
+    try {
+      const response = await fetch(`${API_URL}/industryType`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${localStorage.getItem('token')}`,
+        },
+        body: JSON.stringify(industry),
+      });
+
+      const res = await response.json();
+
+      if (!response.ok) {
+        throw new Error(res.message || 'Failed to add');
+      }
+
+      return res;
+    } catch (error) {
+      return thunkAPI.rejectWithValue(error.message);
+    }
+  }
+);
+
+export const updateIndustry = createAsyncThunk(
+  'industries/updateIndustry',
+  async (industry, thunkAPI) => {
+    try {
+      const response = await fetch(`${API_URL}/industryType/${industry.ID}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${localStorage.getItem('token')}`,
+        },
+        body: JSON.stringify(industry),
+      });
+
+      const res = await response.json();
+
+      if (!response.ok) {
+        throw new Error(res.message || 'Failed to update');
+      }
+
+      return res;
+    } catch (error) {
+      return thunkAPI.rejectWithValue(error.message);
+    }
+  }
+);
+
+export const deleteIndustry = createAsyncThunk(
+  'industries/deleteIndustry',
+  async (ID, thunkAPI) => {
+    try {
+      const response = await fetch(`${API_URL}/industryType/${ID}`, {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${localStorage.getItem('token')}`,
+        },
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'Failed to delete');
+      }
+
+      return ID; // Return ID so you can remove it from Redux state
+    } catch (error) {
+      return thunkAPI.rejectWithValue(error.message);
+    }
+  }
+);
 
 const industriesSlice = createSlice({
   name: 'industries',
@@ -59,7 +137,7 @@ const industriesSlice = createSlice({
       })
       .addCase(addIndustry.fulfilled, (state, action) => {
         state.isLoading = false;
-         if (!Array.isArray(state.industries)) {
+        if (!Array.isArray(state.industries)) {
           state.industries = [];
         }
         state.industries.push(action.payload);
@@ -75,10 +153,10 @@ const industriesSlice = createSlice({
       })
       .addCase(updateIndustry.fulfilled, (state, action) => {
         state.isLoading = false;
-        const index = state.industries.findIndex(item => item.id === action.payload.id);
+        const index = state.industries.findIndex(item => item.ID === action.payload.ID);
         if (index !== -1) {
-           if (!Array.isArray(state.industries)) {
-             state.industries = [];
+          if (!Array.isArray(state.industries)) {
+            state.industries = [];
           }
           state.industries[index] = action.payload;
         }
@@ -89,10 +167,10 @@ const industriesSlice = createSlice({
       })
       .addCase(deleteIndustry.fulfilled, (state, action) => {
         state.isLoading = false;
-         if (!Array.isArray(state.industries)) {
+        if (!Array.isArray(state.industries)) {
           state.industries = [];
         }
-        state.industries = state.industries.filter(item => item.id !== action.payload);
+        state.industries = state.industries.filter(item => item.ID !== action.payload);
       })
       .addCase(deleteIndustry.rejected, (state, action) => {
         state.isLoading = false;
@@ -102,4 +180,4 @@ const industriesSlice = createSlice({
   },
 });
 
-export const industryReducer = industriesSlice.reducer; 
+export const industriesReducer = industriesSlice.reducer;

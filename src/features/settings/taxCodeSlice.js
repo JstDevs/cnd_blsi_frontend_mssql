@@ -1,33 +1,111 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
+const API_URL = import.meta.env.VITE_API_URL;
 
 // Mock Data
-const mockTaxCodes = [
-  { id: '1', code: 'VAT', name: 'Value Added Tax', rate: 0.12 },
-  { id: '2', code: 'EWT', name: 'Expanded Withholding Tax', rate: 0.02 },
-  { id: '3', code: 'NONE', name: 'No Tax', rate: 0.00 },
-];
+const mockTaxCodes = [];
+export const fetchTaxCodes = createAsyncThunk(
+  'taxCodes/fetchTaxCodes',
+  async (_, thunkAPI) => {
+    try {
+      const token = localStorage.getItem('token');
 
-// Async Thunks (Mock API calls)
-export const fetchTaxCodes = createAsyncThunk('taxCodes/fetchTaxCodes', async () => {
-  console.log('Mock API call: Fetching tax codes');
-  return new Promise(resolve => setTimeout(() => resolve(mockTaxCodes), 500));
-});
+      const response = await fetch(`${API_URL}/taxCode`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+      });
 
-export const addTaxCode = createAsyncThunk('taxCodes/addTaxCode', async (taxCode) => {
-  console.log('Mock API call: Adding tax code', taxCode);
-  const newTaxCode = { ...taxCode, id: Date.now().toString() }; // Assign a mock ID
-  return new Promise(resolve => setTimeout(() => resolve(newTaxCode), 500));
-});
+      const res = await response.json();
 
-export const updateTaxCode = createAsyncThunk('taxCodes/updateTaxCode', async (taxCode) => {
-  console.log('Mock API call: Updating tax code', taxCode);
-  return new Promise(resolve => setTimeout(() => resolve(taxCode), 500));
-});
+      if (!response.ok) {
+        throw new Error(res.message || 'Failed to fetch');
+      }
 
-export const deleteTaxCode = createAsyncThunk('taxCodes/deleteTaxCode', async (id) => {
-  console.log('Mock API call: Deleting tax code with ID', id);
-  return new Promise(resolve => setTimeout(() => resolve(id), 500));
-});
+      return res;
+    } catch (error) {
+      return thunkAPI.rejectWithValue(error.message);
+    }
+  }
+);
+
+
+export const addTaxCode = createAsyncThunk(
+  'taxCodes/addTaxCode',
+  async (taxCode, thunkAPI) => {
+    try {
+      const response = await fetch(`${API_URL}/taxCode`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${localStorage.getItem('token')}`,
+        },
+        body: JSON.stringify(taxCode),
+      });
+
+      const res = await response.json();
+
+      if (!response.ok) {
+        throw new Error(res.message || 'Failed to add');
+      }
+
+      return res;
+    } catch (error) {
+      return thunkAPI.rejectWithValue(error.message);
+    }
+  }
+);
+
+export const updateTaxCode = createAsyncThunk(
+  'taxCodes/updateTaxCode',
+  async (taxCode, thunkAPI) => {
+    try {
+      const response = await fetch(`${API_URL}/taxCode/${taxCode.ID}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${localStorage.getItem('token')}`,
+        },
+        body: JSON.stringify(taxCode),
+      });
+
+      const res = await response.json();
+
+      if (!response.ok) {
+        throw new Error(res.message || 'Failed to update');
+      }
+
+      return res;
+    } catch (error) {
+      return thunkAPI.rejectWithValue(error.message);
+    }
+  }
+);
+
+export const deleteTaxCode = createAsyncThunk(
+  'taxCodes/deleteTaxCode',
+  async (ID, thunkAPI) => {
+    try {
+      const response = await fetch(`${API_URL}/taxCode/${ID}`, {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${localStorage.getItem('token')}`,
+        },
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'Failed to delete');
+      }
+
+      return ID; // Return ID so you can remove it from Redux state
+    } catch (error) {
+      return thunkAPI.rejectWithValue(error.message);
+    }
+  }
+);
 
 const taxCodesSlice = createSlice({
   name: 'taxCodes',
@@ -59,7 +137,7 @@ const taxCodesSlice = createSlice({
       })
       .addCase(addTaxCode.fulfilled, (state, action) => {
         state.isLoading = false;
-         if (!Array.isArray(state.taxCodes)) {
+        if (!Array.isArray(state.taxCodes)) {
           state.taxCodes = [];
         }
         state.taxCodes.push(action.payload);
@@ -75,18 +153,13 @@ const taxCodesSlice = createSlice({
       })
       .addCase(updateTaxCode.fulfilled, (state, action) => {
         state.isLoading = false;
-        const index = state.taxCodes.findIndex(code => code.id === action.payload.id);
+        const index = state.taxCodes.findIndex(item => item.ID === action.payload.ID);
         if (index !== -1) {
-           if (!Array.isArray(state.taxCodes)) {
-             state.taxCodes = [];
+          if (!Array.isArray(state.taxCodes)) {
+            state.taxCodes = [];
           }
           state.taxCodes[index] = action.payload;
         }
-      })
-      .addCase(updateTaxCode.rejected, (state, action) => {
-        state.isLoading = false;
-        state.error = action.error.message || 'Failed to update tax code';
-        console.error('Failed to update tax code:', state.error);
       })
       .addCase(deleteTaxCode.pending, (state) => {
         state.isLoading = true;
@@ -94,10 +167,10 @@ const taxCodesSlice = createSlice({
       })
       .addCase(deleteTaxCode.fulfilled, (state, action) => {
         state.isLoading = false;
-         if (!Array.isArray(state.taxCodes)) {
+        if (!Array.isArray(state.taxCodes)) {
           state.taxCodes = [];
         }
-        state.taxCodes = state.taxCodes.filter(code => code.id !== action.payload);
+        state.taxCodes = state.taxCodes.filter(item => item.ID !== action.payload);
       })
       .addCase(deleteTaxCode.rejected, (state, action) => {
         state.isLoading = false;
@@ -107,4 +180,4 @@ const taxCodesSlice = createSlice({
   },
 });
 
-export const taxCodesReducer = taxCodesSlice.reducer; 
+export const taxCodesReducer = taxCodesSlice.reducer;

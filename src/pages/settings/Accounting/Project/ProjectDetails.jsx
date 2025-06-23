@@ -1,8 +1,10 @@
-import React, { useState } from "react";
+import { useState } from "react";
+import { Formik } from "formik";
+import * as Yup from "yup";
+import { PlusIcon, PencilIcon, TrashIcon } from "@heroicons/react/24/outline";
 import Modal from "@/components/common/Modal";
-import FormField from "@/components/common/FormField"; // assuming reusable field
-import { Pencil, Trash2, PlusCircle } from "lucide-react";
-import Button from "../../../../components/common/Button";
+import FormField from "@/components/common/FormField";
+import DataTable from "@/components/common/DataTable";
 
 const sampleProjects = [
   {
@@ -21,139 +23,213 @@ const sampleProjects = [
   },
 ];
 
-const ProjectDetails = () => {
+function ProjectDetails() {
   const [projects, setProjects] = useState(sampleProjects);
-  const [selectedProject, setSelectedProject] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
-
-  const handleEdit = (project) => {
-    setSelectedProject(project);
-    setIsModalOpen(true);
-  };
+  const [selectedProject, setSelectedProject] = useState(null);
 
   const handleAdd = () => {
     setSelectedProject(null);
     setIsModalOpen(true);
   };
 
-  return (
-    <div className="p-6 bg-gray-100 min-h-screen">
-      <div className="max-w-6xl mx-auto">
-        <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center mb-6 space-y-4 sm:space-y-0">
-          <h2 className="text-2xl font-semibold">Project Details</h2>
-          <Button
-            onClick={handleAdd}
-            className="flex items-center gap-2 bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
-          >
-            <PlusCircle size={18} /> Add Project
-          </Button>
-        </div>
+  const handleEdit = (project) => {
+    setSelectedProject(project);
+    setIsModalOpen(true);
+  };
 
-        <div className="overflow-auto shadow rounded-lg bg-white">
-          <table className="w-full text-sm text-left text-gray-600">
-            <thead className="bg-gray-100 text-gray-700 uppercase text-xs">
-              <tr>
-                <th className="px-4 py-2">Title</th>
-                <th className="px-4 py-2">Type</th>
-                <th className="px-4 py-2">Description</th>
-                <th className="px-4 py-2">Start Date</th>
-                <th className="px-4 py-2">End Date</th>
-                <th className="px-4 py-2">Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {projects.map((project, index) => (
-                <tr key={index} className="border-t">
-                  <td className="px-4 py-2">{project.title}</td>
-                  <td className="px-4 py-2">{project.type}</td>
-                  <td className="px-4 py-2">{project.description}</td>
-                  <td className="px-4 py-2">{project.startDate}</td>
-                  <td className="px-4 py-2">{project.endDate}</td>
-                  <td className="px-4 py-2 flex gap-2">
-                    <button
-                      onClick={() => handleEdit(project)}
-                      className="text-blue-600 hover:text-blue-800"
-                    >
-                      <Pencil size={16} />
-                    </button>
-                    <button className="text-red-600 hover:text-red-800">
-                      <Trash2 size={16} />
-                    </button>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+  const handleDelete = (projectToDelete) => {
+    setProjects((prev) => prev.filter((p) => p.title !== projectToDelete.title));
+  };
+
+  const handleFormSubmit = (values, { setSubmitting }) => {
+    if (selectedProject) {
+      setProjects((prev) =>
+        prev.map((p) => (p.title === selectedProject.title ? values : p))
+      );
+    } else {
+      setProjects((prev) => [...prev, values]);
+    }
+    setSubmitting(false);
+    setIsModalOpen(false);
+  };
+
+  const columns = [
+    { key: "title", header: "Title", sortable: true },
+    { key: "type", header: "Type", sortable: true },
+    { key: "description", header: "Description" },
+    { key: "startDate", header: "Start Date" },
+    { key: "endDate", header: "End Date" },
+  ];
+
+  const actions = [
+    {
+      icon: PencilIcon,
+      title: "Edit",
+      onClick: handleEdit,
+      className: "text-primary-600 hover:text-primary-900 p-1 rounded-full hover:bg-primary-50",
+    },
+    {
+      icon: TrashIcon,
+      title: "Delete",
+      onClick: handleDelete,
+      className: "text-error-600 hover:text-error-900 p-1 rounded-full hover:bg-error-50",
+    },
+  ];
+
+  const validationSchema = Yup.object({
+    title: Yup.string().required("Title is required"),
+    type: Yup.string().required("Type is required"),
+    description: Yup.string().required("Description is required"),
+    startDate: Yup.string().required("Start date is required"),
+    endDate: Yup.string().required("End date is required"),
+  });
+
+  return (
+    <div>
+      <div className="page-header">
+        <div className="flex justify-between items-center">
+          <div>
+            <h1>Projects</h1>
+            <p>Manage project details</p>
+          </div>
+          <button
+            type="button"
+            onClick={handleAdd}
+            className="btn btn-primary flex items-center"
+          >
+            <PlusIcon className="h-5 w-5 mr-2" aria-hidden="true" />
+            Add Project
+          </button>
         </div>
       </div>
 
-      {/* Modal for Add/Edit */}
+      <div className="mt-4">
+        <DataTable
+          columns={columns}
+          data={projects}
+          actions={actions}
+          emptyMessage="No projects found. Click 'Add Project' to create one."
+        />
+      </div>
+
+      {/* Form Modal */}
       <Modal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
-        title={selectedProject ? "Edit Project" : "New Project"}
-        size="lg"
+        title={selectedProject ? "Edit Project" : "Add Project"}
       >
-        <div className="p-4 space-y-4">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <FormField
-              label="Project Title"
-              name="projectTitle"
-              type="text"
-              defaultValue={selectedProject?.title}
-              placeholder="Enter project title"
-            />
-            <FormField
-              label="Project Type"
-              name="projectType"
-              type="select"
-              options={[
-                { value: "Type A", label: "Type A" },
-                { value: "Type B", label: "Type B" },
-              ]}
-              defaultValue={selectedProject?.type}
-            />
-          </div>
+        <Formik
+          enableReinitialize
+          initialValues={{
+            title: selectedProject?.title || "",
+            type: selectedProject?.type || "",
+            description: selectedProject?.description || "",
+            startDate: selectedProject?.startDate || "",
+            endDate: selectedProject?.endDate || "",
+          }}
+          validationSchema={validationSchema}
+          onSubmit={handleFormSubmit}
+        >
+          {({
+            values,
+            errors,
+            touched,
+            handleChange,
+            handleBlur,
+            handleSubmit,
+            isSubmitting,
+          }) => (
+            <form onSubmit={handleSubmit} className="space-y-4">
+              <FormField
+                label="Project Title"
+                name="title"
+                type="text"
+                value={values.title}
+                onChange={handleChange}
+                onBlur={handleBlur}
+                error={errors.title}
+                touched={touched.title}
+                required
+              />
 
-          <FormField
-            label="Description"
-            name="description"
-            type="textarea"
-            defaultValue={selectedProject?.description}
-            rows={3}
-          />
+              <FormField
+                label="Project Type"
+                name="type"
+                type="select"
+                options={[
+                  { label: "Type A", value: "Type A" },
+                  { label: "Type B", value: "Type B" },
+                ]}
+                value={values.type}
+                onChange={handleChange}
+                onBlur={handleBlur}
+                error={errors.type}
+                touched={touched.type}
+                required
+              />
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <FormField
-              label="Start Date"
-              name="startDate"
-              type="date"
-              defaultValue={selectedProject?.startDate}
-            />
-            <FormField
-              label="End Date"
-              name="endDate"
-              type="date"
-              defaultValue={selectedProject?.endDate}
-            />
-          </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <FormField
+                  label="Start Date"
+                  name="startDate"
+                  type="date"
+                  value={values.startDate}
+                  onChange={handleChange}
+                  onBlur={handleBlur}
+                  error={errors.startDate}
+                  touched={touched.startDate}
+                  required
+                />
 
-          <div className="flex justify-end space-x-3 pt-4 border-t">
-            <button
-              type="button"
-              onClick={() => setIsModalOpen(false)}
-              className="btn btn-outline"
-            >
-              Cancel
-            </button>
-            <button type="submit" className="btn btn-primary">
-              {selectedProject ? "Update" : "Create"}
-            </button>
-          </div>
-        </div>
+                <FormField
+                  label="End Date"
+                  name="endDate"
+                  type="date"
+                  value={values.endDate}
+                  onChange={handleChange}
+                  onBlur={handleBlur}
+                  error={errors.endDate}
+                  touched={touched.endDate}
+                  required
+                />
+              </div>
+
+              <FormField
+                label="Description"
+                name="description"
+                type="textarea"
+                rows={3}
+                value={values.description}
+                onChange={handleChange}
+                onBlur={handleBlur}
+                error={errors.description}
+                touched={touched.description}
+                required
+              />
+
+              <div className="flex justify-end space-x-3 pt-4 border-t border-neutral-200">
+                <button
+                  type="button"
+                  onClick={() => setIsModalOpen(false)}
+                  className="btn btn-outline"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className="btn btn-primary"
+                  disabled={isSubmitting}
+                >
+                  {selectedProject ? "Update" : "Create"}
+                </button>
+              </div>
+            </form>
+          )}
+        </Formik>
       </Modal>
     </div>
   );
-};
+}
 
 export default ProjectDetails;

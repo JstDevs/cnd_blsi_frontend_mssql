@@ -1,33 +1,111 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
+const API_URL = import.meta.env.VITE_API_URL;
 
 // Mock Data
-const mockModeOfPayments = [
-  { id: '1', code: 'CASH', name: 'Cash' },
-  { id: '2', code: 'BANK_TRF', name: 'Bank Transfer' },
-  { id: '3', code: 'CHEQUE', name: 'Cheque' },
-];
+const mockModeOfPayments = [];
+export const fetchModeOfPayments = createAsyncThunk(
+  'modeOfPayments/fetchModeOfPayments',
+  async (_, thunkAPI) => {
+    try {
+      const token = localStorage.getItem('token');
 
-// Async Thunks (Mock API calls)
-export const fetchModeOfPayments = createAsyncThunk('modeOfPayments/fetchModeOfPayments', async () => {
-  console.log('Mock API call: Fetching mode of payments');
-  return new Promise(resolve => setTimeout(() => resolve(mockModeOfPayments), 500));
-});
+      const response = await fetch(`${API_URL}/paymentMethod`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+      });
 
-export const addModeOfPayment = createAsyncThunk('modeOfPayments/addModeOfPayment', async (modeOfPayment) => {
-  console.log('Mock API call: Adding mode of payment', modeOfPayment);
-  const newModeOfPayment = { ...modeOfPayment, id: Date.now().toString() }; // Assign a mock ID
-  return new Promise(resolve => setTimeout(() => resolve(newModeOfPayment), 500));
-});
+      const res = await response.json();
 
-export const updateModeOfPayment = createAsyncThunk('modeOfPayments/updateModeOfPayment', async (modeOfPayment) => {
-  console.log('Mock API call: Updating mode of payment', modeOfPayment);
-  return new Promise(resolve => setTimeout(() => resolve(modeOfPayment), 500));
-});
+      if (!response.ok) {
+        throw new Error(res.message || 'Failed to fetch');
+      }
 
-export const deleteModeOfPayment = createAsyncThunk('modeOfPayments/deleteModeOfPayment', async (id) => {
-  console.log('Mock API call: Deleting mode of payment with ID', id);
-  return new Promise(resolve => setTimeout(() => resolve(id), 500));
-});
+      return res;
+    } catch (error) {
+      return thunkAPI.rejectWithValue(error.message);
+    }
+  }
+);
+
+
+export const addModeOfPayment = createAsyncThunk(
+  'modeOfPayments/addModeOfPayment',
+  async (modeOfPayment, thunkAPI) => {
+    try {
+      const response = await fetch(`${API_URL}/paymentMethod`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${localStorage.getItem('token')}`,
+        },
+        body: JSON.stringify(modeOfPayment),
+      });
+
+      const res = await response.json();
+
+      if (!response.ok) {
+        throw new Error(res.message || 'Failed to add');
+      }
+
+      return res;
+    } catch (error) {
+      return thunkAPI.rejectWithValue(error.message);
+    }
+  }
+);
+
+export const updateModeOfPayment = createAsyncThunk(
+  'modeOfPayments/updateModeOfPayment',
+  async (modeOfPayment, thunkAPI) => {
+    try {
+      const response = await fetch(`${API_URL}/paymentMethod/${modeOfPayment.ID}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${localStorage.getItem('token')}`,
+        },
+        body: JSON.stringify(modeOfPayment),
+      });
+
+      const res = await response.json();
+
+      if (!response.ok) {
+        throw new Error(res.message || 'Failed to update');
+      }
+
+      return res;
+    } catch (error) {
+      return thunkAPI.rejectWithValue(error.message);
+    }
+  }
+);
+
+export const deleteModeOfPayment = createAsyncThunk(
+  'modeOfPayments/deleteModeOfPayment',
+  async (ID, thunkAPI) => {
+    try {
+      const response = await fetch(`${API_URL}/paymentMethod/${ID}`, {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${localStorage.getItem('token')}`,
+        },
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'Failed to delete');
+      }
+
+      return ID; // Return ID so you can remove it from Redux state
+    } catch (error) {
+      return thunkAPI.rejectWithValue(error.message);
+    }
+  }
+);
 
 const modeOfPaymentsSlice = createSlice({
   name: 'modeOfPayments',
@@ -59,7 +137,7 @@ const modeOfPaymentsSlice = createSlice({
       })
       .addCase(addModeOfPayment.fulfilled, (state, action) => {
         state.isLoading = false;
-         if (!Array.isArray(state.modeOfPayments)) {
+        if (!Array.isArray(state.modeOfPayments)) {
           state.modeOfPayments = [];
         }
         state.modeOfPayments.push(action.payload);
@@ -75,18 +153,13 @@ const modeOfPaymentsSlice = createSlice({
       })
       .addCase(updateModeOfPayment.fulfilled, (state, action) => {
         state.isLoading = false;
-        const index = state.modeOfPayments.findIndex(item => item.id === action.payload.id);
+        const index = state.modeOfPayments.findIndex(item => item.ID === action.payload.ID);
         if (index !== -1) {
-           if (!Array.isArray(state.modeOfPayments)) {
-             state.modeOfPayments = [];
+          if (!Array.isArray(state.modeOfPayments)) {
+            state.modeOfPayments = [];
           }
           state.modeOfPayments[index] = action.payload;
         }
-      })
-      .addCase(updateModeOfPayment.rejected, (state, action) => {
-        state.isLoading = false;
-        state.error = action.error.message || 'Failed to update mode of payment';
-        console.error('Failed to update mode of payment:', state.error);
       })
       .addCase(deleteModeOfPayment.pending, (state) => {
         state.isLoading = true;
@@ -94,10 +167,10 @@ const modeOfPaymentsSlice = createSlice({
       })
       .addCase(deleteModeOfPayment.fulfilled, (state, action) => {
         state.isLoading = false;
-         if (!Array.isArray(state.modeOfPayments)) {
+        if (!Array.isArray(state.modeOfPayments)) {
           state.modeOfPayments = [];
         }
-        state.modeOfPayments = state.modeOfPayments.filter(item => item.id !== action.payload);
+        state.modeOfPayments = state.modeOfPayments.filter(item => item.ID !== action.payload);
       })
       .addCase(deleteModeOfPayment.rejected, (state, action) => {
         state.isLoading = false;
@@ -107,4 +180,4 @@ const modeOfPaymentsSlice = createSlice({
   },
 });
 
-export const modeOfPaymentsReducer = modeOfPaymentsSlice.reducer; 
+export const modeOfPaymentsReducer = modeOfPaymentsSlice.reducer;

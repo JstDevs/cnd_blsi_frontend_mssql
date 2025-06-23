@@ -285,7 +285,7 @@ const FundTransfer = () => {
         <div className="xl:col-span-2 bg-white rounded-lg shadow-sm border border-gray-200">
           {/* Transfer Header */}
           <div className="border-b border-gray-200 p-6">
-            <div className="flex items-center justify-between">
+            <div className="flex items-center justify-between gap-4 sm:gap-0">
               <div>
                 <h3 className="text-lg font-semibold text-gray-900">
                   {currentTransfer
@@ -293,7 +293,7 @@ const FundTransfer = () => {
                     : "Select a Transfer"}
                 </h3>
                 {currentTransfer && (
-                  <div className="flex items-center mt-2 space-x-4">
+                  <div className="flex flex-col sm:flex-row items-center mt-2 space-x-4 space-y-2 sm:space-y-0">
                     <span
                       className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium border ${getStatusColor(
                         currentTransfer.status
@@ -320,7 +320,9 @@ const FundTransfer = () => {
               </div>
 
               {currentTransfer && (
-                <div className="flex items-center space-x-2">
+                // <div className="flex items-center space-x-2">
+                <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 sm:space-x-2 sm:gap-0 mt-4 sm:mt-0">
+
                   {currentTransfer.status === "pending" && (
                     <>
                       <button
@@ -373,19 +375,19 @@ const FundTransfer = () => {
 
           {/* Transfer Form */}
           {currentTransfer && (
-            <div className="p-6">
+            <div className="p-2 sm:p-6">
               {/* Transfer Overview */}
-              <div className="bg-gradient-to-r from-blue-50 to-green-50 rounded-lg p-6 mb-6">
+              <div className="bg-gradient-to-r from-blue-50 to-green-50 rounded-lg p-2 sm:p-6 mb-6">
                 <h4 className="text-lg font-semibold text-gray-900 mb-4">
                   Fund Transfer Overview
                 </h4>
-                <div className="flex items-center justify-between">
+                <div className="flex items-center justify-between gap-1 sm:gap-0">
                   <div className="text-center">
                     <div className="flex items-center justify-center w-12 h-12 bg-red-100 rounded-full mb-2">
                       <Building2 className="w-6 h-6 text-red-600" />
                     </div>
                     <p className="text-sm text-gray-600">From</p>
-                    <p className="text-lg font-semibold text-red-600">
+                    <p className="text-md sm:text-lg font-semibold text-red-600">
                       {currentTransfer.sourceFund}
                     </p>
                     {currentTransfer.sourceSubFund && (
@@ -399,10 +401,10 @@ const FundTransfer = () => {
                   </div>
 
                   <div className="flex items-center">
-                    <ArrowRightLeft className="w-8 h-8 text-blue-600" />
-                    <div className="ml-4 text-center">
+                    <ArrowRightLeft className="w-7 h-7 sm:w-8 sm:h-8 text-blue-600" />
+                    <div className="ml-0 sm:ml-4 text-center">
                       <p className="text-sm text-gray-600">Amount</p>
-                      <p className="text-2xl font-bold text-blue-600">
+                      <p className="text-xl sm:text-2xl font-bold text-blue-600">
                         ${currentTransfer.transferAmount.toLocaleString()}
                       </p>
                       <p className="text-sm text-gray-500">
@@ -416,7 +418,7 @@ const FundTransfer = () => {
                       <Building2 className="w-6 h-6 text-green-600" />
                     </div>
                     <p className="text-sm text-gray-600">To</p>
-                    <p className="text-lg font-semibold text-green-600">
+                    <p className="text-md sm:text-lg font-semibold text-green-600">
                       {currentTransfer.targetFund}
                     </p>
                     {currentTransfer.targetSubFund && (

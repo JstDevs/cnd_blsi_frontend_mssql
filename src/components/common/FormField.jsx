@@ -73,29 +73,31 @@ function FormField({
 
       case "checkbox":
         return (
-          <div className="flex items-center">
-            <input
-              id={name}
-              name={name}
-              type="checkbox"
-              disabled={disabled}
-              checked={value}
-              onChange={onChange}
-              onBlur={onBlur}
-              className={clsx(
-                "form-checkbox",
-                isInvalid &&
-                  "border-error-300 text-error-900 focus:ring-error-500 focus:border-error-500",
-                className
-              )}
-              {...props}
-            />
-            <label
-              htmlFor={name}
-              className="ml-2 block text-sm text-neutral-700"
-            >
-              {label}
-            </label>
+          <div className="flex items-center h-full">
+            <div className="flex items-center">
+              <input
+                id={name}
+                name={name}
+                type="checkbox"
+                disabled={disabled}
+                checked={value}
+                onChange={onChange}
+                onBlur={onBlur}
+                className={clsx(
+                  "form-checkbox",
+                  isInvalid &&
+                    "border-error-300 text-error-900 focus:ring-error-500 focus:border-error-500",
+                  className
+                )}
+                {...props}
+              />
+              <label
+                htmlFor={name}
+                className="ml-2 block text-sm text-neutral-700"
+              >
+                {label}
+              </label>
+            </div>
           </div>
         );
 

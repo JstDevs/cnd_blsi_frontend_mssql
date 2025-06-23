@@ -82,8 +82,8 @@ function Header({ toggleSidebar, isSidebarOpen }) {
                 <Menu.Button className="bg-white rounded-full flex focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500">
                   <span className="sr-only">Open user menu</span>
                   <div className="h-8 w-8 rounded-full bg-primary-700 flex items-center justify-center text-white">
-                    {user?.firstName?.charAt(0) || ""}
-                    {user?.lastName?.charAt(0) || ""}
+                    {user?.first_name?.charAt(0) || ""}
+                    {user?.last_name?.charAt(0) || ""}
                   </div>
                 </Menu.Button>
 
@@ -99,7 +99,7 @@ function Header({ toggleSidebar, isSidebarOpen }) {
                     <div className="py-1">
                       <div className="px-4 py-2">
                         <p className="text-sm font-medium text-neutral-900 truncate">
-                          {user?.firstName} {user?.lastName}
+                          {user?.first_name} {user?.middle_name} {user?.last_name}
                         </p>
                         <p className="text-xs text-neutral-500">
                           {user?.email}
@@ -135,6 +135,24 @@ function Header({ toggleSidebar, isSidebarOpen }) {
                         )}
                       </Menu.Item>
                     </div> */}
+                    
+                    <div className="py-1">
+                      <Menu.Item>
+                        {({ active }) => (
+                          <button
+                            onClick={() => navigate("/profile")}
+                            className={`${
+                              active
+                                ? "bg-neutral-100 text-neutral-900"
+                                : "text-neutral-700"
+                            } flex items-center px-4 py-2 text-sm w-full text-left`}
+                          >
+                            <UserCircleIcon className="mr-3 h-5 w-5 text-neutral-400" aria-hidden="true" />
+                            Profile
+                          </button>
+                        )}
+                      </Menu.Item>
+                    </div>
                     <div className="py-1">
                       <Menu.Item>
                         {({ active }) => (

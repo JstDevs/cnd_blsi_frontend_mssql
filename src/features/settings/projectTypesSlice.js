@@ -1,34 +1,110 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
+const API_URL = import.meta.env.VITE_API_URL;
 
 // Mock Data
-const mockProjectTypes = [
-  { id: 'pt1', code: 'RES', name: 'Residential' },
-  { id: 'pt2', code: 'COM', name: 'Commercial' },
-  { id: 'pt3', code: 'INF', name: 'Infrastructure' },
-  { id: 'pt4', code: 'INS', name: 'Institutional' },
-];
+const mockProjectTypes = [];
+export const fetchProjectTypes = createAsyncThunk(
+  'projectTypes/fetchProjectTypes',
+  async (_, thunkAPI) => {
+    try {
+      const token = localStorage.getItem('token');
 
-// Async Thunks (Mock API calls)
-export const fetchProjectTypes = createAsyncThunk('projectTypes/fetchProjectTypes', async () => {
-  console.log('Mock API call: Fetching project types');
-  return new Promise(resolve => setTimeout(() => resolve(mockProjectTypes), 500));
-});
+      const response = await fetch(`${API_URL}/projectType`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+      });
 
-export const addProjectType = createAsyncThunk('projectTypes/addProjectType', async (projectType) => {
-  console.log('Mock API call: Adding project type', projectType);
-  const newProjectType = { ...projectType, id: Date.now().toString() }; // Assign a mock ID
-  return new Promise(resolve => setTimeout(() => resolve(newProjectType), 500));
-});
+      const res = await response.json();
 
-export const updateProjectType = createAsyncThunk('projectTypes/updateProjectType', async (projectType) => {
-  console.log('Mock API call: Updating project type', projectType);
-  return new Promise(resolve => setTimeout(() => resolve(projectType), 500));
-});
+      if (!response.ok) {
+        throw new Error(res.message || 'Failed to fetch');
+      }
 
-export const deleteProjectType = createAsyncThunk('projectTypes/deleteProjectType', async (id) => {
-  console.log('Mock API call: Deleting project type with ID', id);
-  return new Promise(resolve => setTimeout(() => resolve(id), 500));
-});
+      return res;
+    } catch (error) {
+      return thunkAPI.rejectWithValue(error.message);
+    }
+  }
+);
+
+export const addProjectType = createAsyncThunk(
+  'projectTypes/addProjectType',
+  async (projectType, thunkAPI) => {
+    try {
+      const response = await fetch(`${API_URL}/projectType`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${localStorage.getItem('token')}`,
+        },
+        body: JSON.stringify(projectType),
+      });
+
+      const res = await response.json();
+
+      if (!response.ok) {
+        throw new Error(res.message || 'Failed to add');
+      }
+
+      return res;
+    } catch (error) {
+      return thunkAPI.rejectWithValue(error.message);
+    }
+  }
+);
+
+export const updateProjectType = createAsyncThunk(
+  'projectTypes/updateProjectType',
+  async (projectType, thunkAPI) => {
+    try {
+      const response = await fetch(`${API_URL}/projectType/${projectType.ID}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${localStorage.getItem('token')}`,
+        },
+        body: JSON.stringify(projectType),
+      });
+
+      const res = await response.json();
+
+      if (!response.ok) {
+        throw new Error(res.message || 'Failed to update');
+      }
+
+      return res;
+    } catch (error) {
+      return thunkAPI.rejectWithValue(error.message);
+    }
+  }
+);
+
+export const deleteProjectType = createAsyncThunk(
+  'projectTypes/deleteProjectType',
+  async (ID, thunkAPI) => {
+    try {
+      const response = await fetch(`${API_URL}/projectType/${ID}`, {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${localStorage.getItem('token')}`,
+        },
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'Failed to delete');
+      }
+
+      return ID; // Return ID so you can remove it from Redux state
+    } catch (error) {
+      return thunkAPI.rejectWithValue(error.message);
+    }
+  }
+);
 
 const projectTypesSlice = createSlice({
   name: 'projectTypes',
@@ -60,7 +136,7 @@ const projectTypesSlice = createSlice({
       })
       .addCase(addProjectType.fulfilled, (state, action) => {
         state.isLoading = false;
-         if (!Array.isArray(state.projectTypes)) {
+        if (!Array.isArray(state.projectTypes)) {
           state.projectTypes = [];
         }
         state.projectTypes.push(action.payload);
@@ -76,18 +152,13 @@ const projectTypesSlice = createSlice({
       })
       .addCase(updateProjectType.fulfilled, (state, action) => {
         state.isLoading = false;
-        const index = state.projectTypes.findIndex(type => type.id === action.payload.id);
+        const index = state.projectTypes.findIndex(item => item.ID === action.payload.ID);
         if (index !== -1) {
-           if (!Array.isArray(state.projectTypes)) {
-             state.projectTypes = [];
+          if (!Array.isArray(state.projectTypes)) {
+            state.projectTypes = [];
           }
           state.projectTypes[index] = action.payload;
         }
-      })
-      .addCase(updateProjectType.rejected, (state, action) => {
-        state.isLoading = false;
-        state.error = action.error.message || 'Failed to update project type';
-        console.error('Failed to update project type:', state.error);
       })
       .addCase(deleteProjectType.pending, (state) => {
         state.isLoading = true;
@@ -95,10 +166,10 @@ const projectTypesSlice = createSlice({
       })
       .addCase(deleteProjectType.fulfilled, (state, action) => {
         state.isLoading = false;
-         if (!Array.isArray(state.projectTypes)) {
+        if (!Array.isArray(state.projectTypes)) {
           state.projectTypes = [];
         }
-        state.projectTypes = state.projectTypes.filter(type => type.id !== action.payload);
+        state.projectTypes = state.projectTypes.filter(item => item.ID !== action.payload);
       })
       .addCase(deleteProjectType.rejected, (state, action) => {
         state.isLoading = false;
@@ -108,4 +179,4 @@ const projectTypesSlice = createSlice({
   },
 });
 
-export const projectTypesReducer = projectTypesSlice.reducer; 
+export const projectTypesReducer = projectTypesSlice.reducer;

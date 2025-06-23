@@ -1,45 +1,8 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { fetchUserroles } from "../features/settings/userrolesSlice";
 
-const roles = [
-  "Administrator",
-  "Melvin's Access",
-  "Accounting Admin",
-  "Non Accounting Access",
-  "Check Printing",
-  "Budget Head",
-  "Special Access",
-];
-
-const modules = [
-  "2307",
-  "Approval Matrix",
-  "Bank",
-  "Barangay",
-  "Base Unit Value",
-  "Beginning Balance",
-  "Budget",
-  "Budget Allotment",
-  "Budget Report",
-  "Budget Summary",
-  "Budget Supplemental",
-  "Budget Transfer",
-  "Burial Service Invoice",
-  "Business Permit",
-  "Cashbook",
-  "Chart of Accounts",
-  "Check & Cash Disbursement",
-  "Check Generator",
-  "Community Tax",
-  "Community Tax Corporation",
-  "Comparison Position",
-  "Currency",
-  "Customer",
-  "Department",
-  "Disbursement Voucher",
-  "Document Type",
-  "Document Type Category",
-  "Employee",
-];
+const API_URL = import.meta.env.VITE_API_URL;
 
 const defaultPermissions = {
   view: false,
@@ -51,13 +14,55 @@ const defaultPermissions = {
 };
 
 export default function UserAccessPage() {
-  const [selectedRole, setSelectedRole] = useState(roles[0]);
-  const [permissions, setPermissions] = useState(
-    modules.reduce((acc, module) => {
-      acc[module] = { ...defaultPermissions };
-      return acc;
-    }, {})
-  );
+  const dispatch = useDispatch();
+  const { userroles, isLoading, error } = useSelector((state) => state.userroles);
+
+  const [selectedRole, setSelectedRole] = useState("");
+  const [modules, setModules] = useState([]);
+  const [permissions, setPermissions] = useState({});
+
+  // Fetch user roles from Redux
+  useEffect(() => {
+    dispatch(fetchUserroles());
+  }, [dispatch]);
+
+  // Set default selected role
+  useEffect(() => {
+    if (userroles.length > 0 && !selectedRole) {
+      setSelectedRole(userroles[0]?.Description || userroles[0]);
+    }
+  }, [userroles]);
+
+  // Fetch modules from API (no Redux)
+  useEffect(() => {
+    const fetchModules = async () => {
+      try {
+        const response = await fetch(`${API_URL}/modules`, {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+        });
+        const res = await response.json();
+
+        if (!response.ok) throw new Error(res.message || "Failed to fetch modules");
+
+        setModules(res);
+
+        // Initialize permissions state for each module
+        const initialPermissions = res.reduce((acc, mod) => {
+          const moduleName = mod.Description || mod.Name || mod.Module || mod; // fallback if string
+          acc[moduleName] = { ...defaultPermissions };
+          return acc;
+        }, {});
+
+        setPermissions(initialPermissions);
+      } catch (err) {
+        console.error("Failed to fetch modules:", err.message);
+      }
+    };
+
+    fetchModules();
+  }, []);
 
   const togglePermission = (module, key) => {
     setPermissions((prev) => ({
@@ -68,87 +73,80 @@ export default function UserAccessPage() {
 
   return (
     <div className="p-4 space-y-4">
-      <div className="flex items-center justify-between gap-2">
+      {/* Header: search + actions */}
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
         <input
           type="text"
           placeholder="Search role..."
-          className="border px-3 py-2 rounded-md w-60"
+          className="border px-3 py-2 rounded-md w-full sm:w-60"
         />
-        {/* Controls */}
         <div className="flex gap-2">
-          {["Add", "Save"].map((action) => (
-            <button
-              key={action}
-              className={`px-4 py-2 rounded text-white ${
-                action === "Close"
-                  ? "bg-red-600"
-                  : action === "Save"
-                  ? "bg-green-600"
-                  : "bg-blue-500"
-              }`}
-            >
-              {action}
-            </button>
-          ))}
+          <button className="px-4 py-2 rounded text-white bg-green-600">Save</button>
         </div>
       </div>
 
-      <div className="grid grid-cols-12 gap-4">
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-4">
         {/* Role List */}
-        <div className="col-span-3 bg-white border rounded shadow">
+        <div className="lg:col-span-3 bg-white border rounded shadow">
           <div className="border-b p-2 bg-blue-100 font-medium text-center">
             Roles
           </div>
-          <ul>
-            {roles.map((role) => (
-              <li
-                key={role}
-                onClick={() => setSelectedRole(role)}
-                className={`px-4 py-2 cursor-pointer hover:bg-blue-50 ${
-                  role === selectedRole ? "bg-blue-200 font-semibold" : ""
-                }`}
-              >
-                {role}
-              </li>
-            ))}
-          </ul>
+          {isLoading ? (
+            <div className="p-4 text-center">Loading roles...</div>
+          ) : error ? (
+            <div className="p-4 text-center text-red-500">{error}</div>
+          ) : userroles.length === 0 ? (
+            <div className="p-4 text-center text-gray-500">No roles found.</div>
+          ) : (
+            <ul>
+              {userroles.map((role) => (
+                <li
+                  key={role.ID}
+                  onClick={() => setSelectedRole(role.Description)}
+                  className={`px-4 py-2 cursor-pointer hover:bg-blue-50 ${
+                    role.Description === selectedRole ? "bg-blue-200 font-semibold" : ""
+                  }`}
+                >
+                  {role.Description}
+                </li>
+              ))}
+            </ul>
+          )}
         </div>
 
-        {/* Module Permissions */}
-        <div className="col-span-9 overflow-auto bg-white border rounded shadow">
+        {/* Permissions Table */}
+        <div className="lg:col-span-9 bg-white border rounded shadow overflow-x-auto">
           <div className="border-b p-2 bg-blue-100 font-medium text-center">
             Permissions for: {selectedRole}
           </div>
-          <table className="w-full text-sm text-left">
+          <table className="min-w-[700px] w-full text-sm text-left">
             <thead className="bg-gray-100">
               <tr>
                 <th className="px-4 py-2">Module</th>
-                <th className="px-2">View</th>
-                <th className="px-2">Add</th>
-                <th className="px-2">Edit</th>
-                <th className="px-2">Delete</th>
-                <th className="px-2">Print</th>
-                <th className="px-2">Mayor</th>
+                {["view", "add", "edit", "delete", "print", "mayor"].map((perm) => (
+                  <th key={perm} className="px-2 capitalize">{perm}</th>
+                ))}
               </tr>
             </thead>
             <tbody>
-              {modules.map((mod) => (
-                <tr key={mod} className="border-t">
-                  <td className="px-4 py-1">{mod}</td>
-                  {["view", "add", "edit", "delete", "print", "mayor"].map(
-                    (perm) => (
+              {modules.map((mod) => {
+                const moduleName = mod.Description || mod.Name || mod.Module || mod; // fallback
+                return (
+                  <tr key={moduleName} className="border-t">
+                    <td className="px-4 py-1">{moduleName}</td>
+                    {["view", "add", "edit", "delete", "print", "mayor"].map((perm) => (
                       <td key={perm} className="text-center">
                         <input
                           type="checkbox"
-                          checked={permissions[mod][perm]}
-                          onChange={() => togglePermission(mod, perm)}
+                          checked={permissions[moduleName]?.[perm] || false}
+                          onChange={() => togglePermission(moduleName, perm)}
                           className="accent-blue-600"
                         />
                       </td>
-                    )
-                  )}
-                </tr>
-              ))}
+                    ))}
+                  </tr>
+                );
+              })}
             </tbody>
           </table>
         </div>

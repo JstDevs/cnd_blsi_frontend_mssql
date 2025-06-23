@@ -17,36 +17,37 @@ import {
   updateUser,
   deleteUser,
 } from "@/features/settings/userSlice";
-import { fetchDepartments } from "@/features/settings/departmentSlice";
-import Button from "../../components/common/Button";
+import { fetchEmployees } from '../../features/settings/employeeSlice';
+// import EmployeeForm from "./EmployeeForm";
+import { fetchUserroles } from "../../features/settings/userrolesSlice";
 
 // User Access options
-const userAccessOptions = [
-  { value: "Accounting admin", label: "Accounting admin" },
-  { value: "Administrator", label: "Administrator" },
-  { value: "Budget Head", label: "Budget Head" },
-  { value: "Check Printing", label: "Check Printing" },
-  { value: "Melvin's Access", label: "Melvin's Access" },
-  { value: "Non Acounting Access", label: "Non Acounting Access" },
-  { value: "Special Access", label: "Special Access" },
-];
-const employeeOptions = [
-  { value: "emp1", label: "John Doe" },
-  { value: "emp2", label: "Jane Smith" },
-  { value: "emp3", label: "Alice Johnson" },
-  { value: "emp4", label: "Bob Williams" },
-];
+// const userAccessOptions = [
+//   { value: "Accounting admin", label: "Accounting admin" },
+//   { value: "Administrator", label: "Administrator" },
+//   { value: "Budget Head", label: "Budget Head" },
+//   { value: "Check Printing", label: "Check Printing" },
+//   { value: "Melvin's Access", label: "Melvin's Access" },
+//   { value: "Non Acounting Access", label: "Non Acounting Access" },
+//   { value: "Special Access", label: "Special Access" },
+// ];
+// const employeeOptions = [
+//   { value: "emp1", label: "John Doe" },
+//   { value: "emp2", label: "Jane Smith" },
+//   { value: "emp3", label: "Alice Johnson" },
+//   { value: "emp4", label: "Bob Williams" },
+// ];
 
 const userSchema = Yup.object().shape({
-  username: Yup.string().required("User name is required"),
-  userAccess: Yup.string().required("User Access is required"),
-  password: Yup.string()
+  UserName: Yup.string().required("User name is required"),
+  UserAccessID: Yup.string().required("User Access is required"),
+  Password: Yup.string()
     .required("Password is required")
     .min(6, "Password must be at least 6 characters"),
-  confirmPassword: Yup.string()
-    .oneOf([Yup.ref("password"), null], "Passwords must match")
+  ConfirmPassword: Yup.string()
+    .oneOf([Yup.ref("Password"), null], "Passwords must match")
     .required("Confirm Password is required"),
-  employee: Yup.string().required("Choose Employee is required"),
+  EmployeeID: Yup.string().required("Choose Employee is required"),
 });
 
 function UserPage() {
@@ -64,8 +65,24 @@ function UserPage() {
 
   useEffect(() => {
     dispatch(fetchUsers());
-    dispatch(fetchDepartments());
+    dispatch(fetchEmployees());
+    dispatch(fetchUserroles());
   }, [dispatch]);
+
+  const { userroles, isLoading: isLoadingRoles } = useSelector((state) => state.userroles);
+
+
+  const userAccessOptions = userroles.map((role) => ({
+    value: role.ID,
+    label: role.Description,
+  }));
+
+  const { employees } = useSelector((state) => state.employees);
+  const isLoadingEmployees = useSelector((state) => state.employees.isLoading);
+  const employeeOptions = employees.map((emp) => ({
+    value: emp.ID,
+    label: `${emp.FirstName} ${emp.LastName}`,
+  }));
 
   const handleAddUser = () => {
     setCurrentUser(null);
@@ -89,31 +106,64 @@ function UserPage() {
 
   const confirmDelete = () => {
     if (userToDelete) {
-      dispatch(deleteUser(userToDelete.id));
+      dispatch(deleteUser(userToDelete.ID));
       setIsDeleteModalOpen(false);
       setUserToDelete(null);
     }
   };
 
-  const handleSubmit = (values, { resetForm }) => {
-    const departmentName =
-      departments.find((d) => d.id === Number(values.departmentId))
-        ?.departmentName || "";
+  // const handleSubmit = (values, { resetForm }) => {
+  //   // const departmentName =
+  //   //   departments.find((d) => d.ID === Number(values.departmentId))
+  //   //     ?.departmentName || "";
 
-    const submissionData = {
-      ...values,
-      departmentId: Number(values.departmentId),
-      departmentName,
-    };
+  //   const submissionData = {
+  //     ...values,
+  //     // departmentId: Number(values.departmentId),
+  //     // departmentName,
+  //   };
 
-    if (currentUser) {
-      dispatch(updateUser({ ...submissionData, id: currentUser.id }));
-    } else {
-      dispatch(addUser(submissionData));
+  //   if (currentUser) {
+  //     dispatch(updateUser({ ...submissionData, ID: currentUser.ID }));
+  //   } else {
+  //     dispatch(addUser(submissionData));
+  //   }
+  //   setIsModalOpen(false);
+  //   resetForm();
+  // };
+
+  const handleSubmit = async (values, { resetForm, setErrors, setSubmitting }) => {
+    const submissionData = { ...values };
+
+    try {
+      if (currentUser) {
+        const result = await dispatch(updateUser({ ...submissionData, ID: currentUser.ID }));
+
+        if (updateUser.fulfilled.match(result)) {
+          setIsModalOpen(false);
+          resetForm();
+        } else if (updateUser.rejected.match(result)) {
+          setErrors({ general: result.payload || "Failed to update user." });
+        }
+      } else {
+        const result = await dispatch(addUser(submissionData));
+
+        if (addUser.fulfilled.match(result)) {
+          setIsModalOpen(false);
+          resetForm();
+        } else if (addUser.rejected.match(result)) {
+          setErrors({ general: result.payload || "Failed to add user." });
+        }
+      }
+    } catch (error) {
+      setErrors({ general: "Unexpected error occurred." });
+    } finally {
+      setSubmitting(false);
     }
-    setIsModalOpen(false);
-    resetForm();
   };
+
+
+
 
   // Format date for display
   const formatDate = (dateString) => {
@@ -123,9 +173,9 @@ function UserPage() {
 
   // Table columns definition
   const columns = [
-    { key: "username", header: "User Name", sortable: true },
-    { key: "userAccess", header: "User Access", sortable: true },
-    { key: "employee", header: "Employee", sortable: true },
+    { key: "UserName", header: "User Name", sortable: true },
+    { key: "UserAccessID", header: "User Access", sortable: true },
+    { key: "Employee", header: "Employee", sortable: true },
   ];
 
   // Actions for table rows
@@ -149,19 +199,19 @@ function UserPage() {
   return (
     <div>
       <div className="page-header">
-        <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center mb-6 space-y-4 sm:space-y-0">
+        <div className="flex justify-between items-center">
           <div>
             <h1>Users</h1>
             <p>Manage system users and their access rights</p>
           </div>
-          <Button
+          <button
             type="button"
             onClick={handleAddUser}
             className="btn btn-primary flex items-center"
           >
             <PlusIcon className="h-5 w-5 mr-2" aria-hidden="true" />
             Add User
-          </Button>
+          </button>
         </div>
       </div>
 
@@ -182,11 +232,11 @@ function UserPage() {
       >
         <Formik
           initialValues={{
-            username: currentUser?.username || "",
-            userAccess: currentUser?.userAccess || "",
-            password: "",
-            confirmPassword: "",
-            employee: currentUser?.employee || "",
+            UserName: currentUser?.UserName || "",
+            UserAccessID: currentUser?.UserAccessID || "",
+            Password: "",
+            ConfirmPassword: "",
+            EmployeeID: currentUser?.EmployeeID || "",
           }}
           validationSchema={userSchema}
           onSubmit={handleSubmit}
@@ -200,69 +250,74 @@ function UserPage() {
             isSubmitting,
           }) => (
             <Form className="space-y-4">
+              {errors.general && (
+                <div className="text-red-600 bg-red-50 p-2 rounded text-sm">
+                  {errors.general}
+                </div>
+              )}
               <FormField
                 className="p-3 focus:outline-none"
                 label="User Name"
-                name="username"
+                name="UserName"
                 type="text"
                 required
                 placeholder="Enter user name"
-                value={values.username}
+                value={values.UserName}
                 onChange={handleChange}
                 onBlur={handleBlur}
-                error={errors.username}
-                touched={touched.username}
+                error={errors.UserName}
+                touched={touched.UserName}
               />
               <FormField
                 className="p-3 focus:outline-none"
                 label="User Access"
-                name="userAccess"
+                name="UserAccessID"
                 type="select"
                 required
-                value={values.userAccess}
+                value={values.UserAccessID}
                 onChange={handleChange}
                 onBlur={handleBlur}
-                error={errors.userAccess}
-                touched={touched.userAccess}
+                error={errors.UserAccessID}
+                touched={touched.UserAccessID}
                 options={userAccessOptions}
               />
               <FormField
                 className="p-3 focus:outline-none"
                 label="Password"
-                name="password"
+                name="Password"
                 type="password"
                 required
                 placeholder="Enter password"
-                value={values.password}
+                value={values.Password}
                 onChange={handleChange}
                 onBlur={handleBlur}
-                error={errors.password}
-                touched={touched.password}
+                error={errors.Password}
+                touched={touched.Password}
               />
               <FormField
                 className="p-3 focus:outline-none"
                 label="Confirm Password"
-                name="confirmPassword"
+                name="ConfirmPassword"
                 type="password"
                 required
                 placeholder="Confirm password"
-                value={values.confirmPassword}
+                value={values.ConfirmPassword}
                 onChange={handleChange}
                 onBlur={handleBlur}
-                error={errors.confirmPassword}
-                touched={touched.confirmPassword}
+                error={errors.ConfirmPassword}
+                touched={touched.ConfirmPassword}
               />
               <FormField
                 className="p-3 focus:outline-none"
                 label="Choose Employee"
-                name="employee"
+                name="EmployeeID"
                 type="select"
                 required
-                value={values.employee}
+                value={values.EmployeeID}
                 onChange={handleChange}
                 onBlur={handleBlur}
-                error={errors.employee}
-                touched={touched.employee}
+                error={errors.EmployeeID}
+                touched={touched.EmployeeID}
                 options={employeeOptions}
               />
               <div className="flex justify-end space-x-3 pt-4 border-t border-neutral-200">
@@ -295,7 +350,7 @@ function UserPage() {
         <div className="py-3">
           <p className="text-neutral-700">
             Are you sure you want to delete the user{" "}
-            <span className="font-medium">{userToDelete?.username}</span>?
+            <span className="font-medium">{userToDelete?.UserName}</span>?
           </p>
           <p className="text-sm text-neutral-500 mt-2">
             This action cannot be undone and may affect related records in the

@@ -1,74 +1,76 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
+const API_URL = import.meta.env.VITE_API_URL;
 
 // Mock initial data
-const initialPPEs = [
-  {
-    id: 1,
-    category: 'Building',
-    description: 'Municipal Hall',
-    depreciationRate: 5,
-    depreciationValue: 10000,
-    netBookValue: 90000,
-    supplier: 'Supplier1',
-    ppeNumber: 1001,
-    unit: 'pcs',
-    barcode: 1234567890,
-    quantity: 1,
-    cost: 100000,
-    dateAcquired: '2022-01-01',
-    usefulLife: 10,
-    poNumber: 1234,
-    prNumber: 5678,
-    invoiceNumber: 91011,
-    airNumber: 1213,
-    risNumber: 1415,
-    remarks: 'Main government building',
-  },
-  {
-    id: 2,
-    category: 'Equipment',
-    description: 'Desktop Computer',
-    depreciationRate: 20,
-    depreciationValue: 8000,
-    netBookValue: 12000,
-    supplier: 'Supplier2',
-    ppeNumber: 2002,
-    unit: 'set',
-    barcode: 2233445566,
-    quantity: 10,
-    cost: 20000,
-    dateAcquired: '2023-03-15',
-    usefulLife: 5,
-    poNumber: 2345,
-    prNumber: 6789,
-    invoiceNumber: 11213,
-    airNumber: 1415,
-    risNumber: 1617,
-    remarks: 'IT Department computers',
-  },
-  {
-    id: 3,
-    category: 'Vehicle',
-    description: 'Service Van',
-    depreciationRate: 10,
-    depreciationValue: 50000,
-    netBookValue: 450000,
-    supplier: 'Supplier1',
-    ppeNumber: 3003,
-    unit: 'unit',
-    barcode: 3344556677,
-    quantity: 2,
-    cost: 500000,
-    dateAcquired: '2021-07-10',
-    usefulLife: 8,
-    poNumber: 3456,
-    prNumber: 7890,
-    invoiceNumber: 13141,
-    airNumber: 1516,
-    risNumber: 1718,
-    remarks: 'Transport for field work',
-  },
-];
+const initialPPEs = [];
+// const initialPPEs = [
+//   {
+//     id: 1,
+//     category: 'Building',
+//     description: 'Municipal Hall',
+//     depreciationRate: 5,
+//     depreciationValue: 10000,
+//     netBookValue: 90000,
+//     supplier: 'Supplier1',
+//     ppeNumber: 1001,
+//     unit: 'pcs',
+//     barcode: 1234567890,
+//     quantity: 1,
+//     cost: 100000,
+//     dateAcquired: '2022-01-01',
+//     usefulLife: 10,
+//     poNumber: 1234,
+//     prNumber: 5678,
+//     invoiceNumber: 91011,
+//     airNumber: 1213,
+//     risNumber: 1415,
+//     remarks: 'Main government building',
+//   },
+//   {
+//     id: 2,
+//     category: 'Equipment',
+//     description: 'Desktop Computer',
+//     depreciationRate: 20,
+//     depreciationValue: 8000,
+//     netBookValue: 12000,
+//     supplier: 'Supplier2',
+//     ppeNumber: 2002,
+//     unit: 'set',
+//     barcode: 2233445566,
+//     quantity: 10,
+//     cost: 20000,
+//     dateAcquired: '2023-03-15',
+//     usefulLife: 5,
+//     poNumber: 2345,
+//     prNumber: 6789,
+//     invoiceNumber: 11213,
+//     airNumber: 1415,
+//     risNumber: 1617,
+//     remarks: 'IT Department computers',
+//   },
+//   {
+//     id: 3,
+//     category: 'Vehicle',
+//     description: 'Service Van',
+//     depreciationRate: 10,
+//     depreciationValue: 50000,
+//     netBookValue: 450000,
+//     supplier: 'Supplier1',
+//     ppeNumber: 3003,
+//     unit: 'unit',
+//     barcode: 3344556677,
+//     quantity: 2,
+//     cost: 500000,
+//     dateAcquired: '2021-07-10',
+//     usefulLife: 8,
+//     poNumber: 3456,
+//     prNumber: 7890,
+//     invoiceNumber: 13141,
+//     airNumber: 1516,
+//     risNumber: 1718,
+//     remarks: 'Transport for field work',
+//   },
+// ];
 
 const initialCategories = [
   { value: 'Building', label: 'Building' },
@@ -90,34 +92,55 @@ const initialState = {
   suppliers: initialSuppliers,
 };
 
+
 export const fetchPPEs = createAsyncThunk(
   'ppes/fetchPPEs',
   async (_, thunkAPI) => {
     try {
-      return new Promise((resolve) => {
-        setTimeout(() => {
-          resolve(initialPPEs);
-        }, 500);
+      const token = localStorage.getItem('token');
+
+      const response = await fetch(`${API_URL}/ppe`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
       });
+
+      const res = await response.json();
+
+      if (!response.ok) {
+        throw new Error(res.message || 'Failed to fetch');
+      }
+
+      return res;
     } catch (error) {
       return thunkAPI.rejectWithValue(error.message);
     }
   }
 );
 
+
 export const addPPE = createAsyncThunk(
   'ppes/addPPE',
   async (ppe, thunkAPI) => {
     try {
-      return new Promise((resolve) => {
-        setTimeout(() => {
-          const newPPE = {
-            ...ppe,
-            id: Date.now(),
-          };
-          resolve(newPPE);
-        }, 500);
+      const response = await fetch(`${API_URL}/ppe`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${localStorage.getItem('token')}`,
+        },
+        body: JSON.stringify(ppe),
       });
+
+      const res = await response.json();
+
+      if (!response.ok) {
+        throw new Error(res.message || 'Failed to add');
+      }
+
+      return res;
     } catch (error) {
       return thunkAPI.rejectWithValue(error.message);
     }
@@ -128,11 +151,22 @@ export const updatePPE = createAsyncThunk(
   'ppes/updatePPE',
   async (ppe, thunkAPI) => {
     try {
-      return new Promise((resolve) => {
-        setTimeout(() => {
-          resolve(ppe);
-        }, 500);
+      const response = await fetch(`${API_URL}/ppe/${ppe.ID}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${localStorage.getItem('token')}`,
+        },
+        body: JSON.stringify(ppe),
       });
+
+      const res = await response.json();
+
+      if (!response.ok) {
+        throw new Error(res.message || 'Failed to update');
+      }
+
+      return res;
     } catch (error) {
       return thunkAPI.rejectWithValue(error.message);
     }
@@ -141,13 +175,22 @@ export const updatePPE = createAsyncThunk(
 
 export const deletePPE = createAsyncThunk(
   'ppes/deletePPE',
-  async (id, thunkAPI) => {
+  async (ID, thunkAPI) => {
     try {
-      return new Promise((resolve) => {
-        setTimeout(() => {
-          resolve(id);
-        }, 500);
+      const response = await fetch(`${API_URL}/ppe/${ID}`, {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${localStorage.getItem('token')}`,
+        },
       });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'Failed to delete');
+      }
+
+      return ID; // Return ID so you can remove it from Redux state
     } catch (error) {
       return thunkAPI.rejectWithValue(error.message);
     }

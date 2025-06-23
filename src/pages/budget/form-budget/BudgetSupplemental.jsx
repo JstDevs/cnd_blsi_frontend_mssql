@@ -281,7 +281,7 @@ const BudgetSupplemental = () => {
         <div className="xl:col-span-2 bg-white rounded-lg shadow-sm border border-gray-200">
           {/* Request Header */}
           <div className="border-b border-gray-200 p-6">
-            <div className="flex items-center justify-between">
+            <div className="flex items-center justify-between gap-2">
               <div>
                 <h3 className="text-lg font-semibold text-gray-900">
                   {currentRequest
@@ -309,7 +309,9 @@ const BudgetSupplemental = () => {
               </div>
 
               {currentRequest && (
-                <div className="flex items-center space-x-2">
+                // <div className="flex items-center space-x-2">
+                <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-y-2 sm:space-x-2 w-full sm:w-auto">
+
                   {currentRequest.status === "pending" && (
                     <>
                       <button
