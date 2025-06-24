@@ -1,99 +1,114 @@
 import { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { PlusIcon, PencilIcon, TrashIcon } from '@heroicons/react/24/outline';
-import DataTable from '../../../components/common/DataTable';
-import Modal from '../../../components/common/Modal';
-import BaseUnitForm from '../../../components/forms/BaseUnitForm';
+import DataTable from '../../components/common/DataTable';
+import Modal from '../../components/common/Modal';
+import TaxDeclarationForm from '../../components/forms/TaxDeclarationForm';
 import {
-  fetchBaseUnits,
-  addBaseUnit,
-  updateBaseUnit,
-  deleteBaseUnit
-} from '../../../features/settings/baseUnitSlice';
+  fetchTaxDeclarations,
+  addTaxDeclaration,
+  updateTaxDeclaration,
+  deleteTaxDeclaration
+} from '../../features/settings/taxDeclarationSlice';
 
-function BaseUnitValue() {
+function TaxDeclarationPage() {
   const dispatch = useDispatch();
-  const { baseUnits, isLoading } = useSelector(state => state.baseUnits);
+  const { taxDeclarations, isLoading } = useSelector(state => state.taxDeclarations);
 
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [currentBaseUnit, setCurrentBaseUnit] = useState(null);
+  const [currentTaxDeclaration, setCurrentTaxDeclaration] = useState(null);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
-  const [baseUnitToDelete, setBaseUnitToDelete] = useState(null);
+  const [taxDeclarationToDelete, setTaxDeclarationToDelete] = useState(null);
 
   useEffect(() => {
-    dispatch(fetchBaseUnits());
+    dispatch(fetchTaxDeclarations());
   }, [dispatch]);
 
   const handleAdd = () => {
-    setCurrentBaseUnit(null);
+    setCurrentTaxDeclaration(null);
     setIsModalOpen(true);
   };
 
-  const handleEdit = (baseUnit) => {
-    setCurrentBaseUnit(baseUnit);
+  const handleEdit = (taxDeclaration) => {
+    setCurrentTaxDeclaration(taxDeclaration);
     setIsModalOpen(true);
   };
 
-  const handleDelete = (baseUnit) => {
-    setBaseUnitToDelete(baseUnit);
+  const handleDelete = (taxDeclaration) => {
+    setTaxDeclarationToDelete(taxDeclaration);
     setIsDeleteModalOpen(true);
   };
 
   const confirmDelete = async () => {
-    if (baseUnitToDelete) {
+    if (taxDeclarationToDelete) {
       try {
-        await dispatch(deleteBaseUnit(baseUnitToDelete.ID)).unwrap();
+        await dispatch(deleteTaxDeclaration(taxDeclarationToDelete.ID)).unwrap();
         setIsDeleteModalOpen(false);
-        setBaseUnitToDelete(null);
+        setTaxDeclarationToDelete(null);
       } catch (error) {
-        console.error('Failed to delete base unit:', error);
+        console.error('Failed to delete tax declaration:', error);
       }
     }
   };
 
   const handleSubmit = (values) => {
-    if (currentBaseUnit) {
-      dispatch(updateBaseUnit({ ...values, ID: currentBaseUnit.ID }));
+    if (currentTaxDeclaration) {
+      dispatch(updateTaxDeclaration({ ...values, ID: currentTaxDeclaration.ID }));
     } else {
-      dispatch(addBaseUnit(values));
+      dispatch(addTaxDeclaration(values));
     }
     setIsModalOpen(false);
   };
 
   const columns = [
     {
-      key: 'GeneralRevisionYear',
-      header: 'General Revision Year',
+      key: 'T_D_No',
+      header: 'Tax Declaration No.',
       sortable: true
     },
     {
-      key: 'Classification',
-      header: 'Classification',
+      key: 'PropertyID',
+      header: 'Property ID',
       sortable: true
     },
     {
-      key: 'Location',
-      header: 'Location',
+      key: 'OwnerID',
+      header: 'Owner ID',
       sortable: true
     },
     {
-      key: 'Unit',
-      header: 'Unit',
+      key: 'OwnerTIN',
+      header: 'Owner TIN',
       sortable: true
     },
     {
-      key: 'ActualUse',
-      header: 'Actual Use',
+      key: 'OwnerAddress',
+      header: 'Owner Address',
       sortable: true
     },
     {
-      key: 'SubClassification',
-      header: 'Sub Classification',
+      key: 'OwnerTelephoneNumber',
+      header: 'Owner Telephone No.',
       sortable: true
     },
     {
-      key: 'Price',
-      header: 'Sub Classification',
+      key: 'BeneficialorAdminUserID',
+      header: 'Beneficial/Administrator User',
+      sortable: true
+    },
+    {
+      key: 'BeneficialorAdminTIN',
+      header: 'Beneficial/Administrator TIN',
+      sortable: true
+    },
+    {
+      key: 'BeneficialorAdminAddress',
+      header: 'Beneficial/Administrator Address',
+      sortable: true
+    },
+    {
+      key: 'BeneficialorAdminTelephoneNumber',
+      header: 'Beneficial/Administrator Telephone No.',
       sortable: true
     }
   ];
@@ -118,8 +133,8 @@ function BaseUnitValue() {
       <div className="page-header">
         <div className="flex justify-between items-center">
           <div>
-            <h1>Base Units</h1>
-            <p>Manage Base Units</p>
+            <h1>Tax Declarations</h1>
+            <p>Manage Tax Declarations</p>
           </div>
           <button
             type="button"
@@ -127,7 +142,7 @@ function BaseUnitValue() {
             className="btn btn-primary flex items-center"
           >
             <PlusIcon className="h-5 w-5 mr-2" aria-hidden="true" />
-            Add Base Unit
+            Add Tax Declaration
           </button>
         </div>
       </div>
@@ -135,21 +150,22 @@ function BaseUnitValue() {
       <div className="mt-4">
         <DataTable
           columns={columns}
-          data={baseUnits}
+          data={taxDeclarations}
           actions={actions}
           loading={isLoading}
-          emptyMessage="No base units found. Click 'Add Base Unit' to create one."
+          emptyMessage="No tax declarations found. Click 'Add Tax Declaration' to create one."
         />
       </div>
 
       {/* Form Modal */}
       <Modal
+        size='xl'
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
-        title={currentBaseUnit ? "Edit Base Unit" : "Add Base Unit"}
+        title={currentTaxDeclaration ? "Edit Tax Declaration" : "Add Tax Declaration"}
       >
-        <BaseUnitForm
-          initialData={currentBaseUnit}
+        <TaxDeclarationForm
+          initialData={currentTaxDeclaration}
           onClose={() => setIsModalOpen(false)}
           onSubmit={handleSubmit}
         />
@@ -163,7 +179,7 @@ function BaseUnitValue() {
       >
         <div className="py-3">
           <p className="text-neutral-700">
-            Are you sure you want to delete the base unit "{baseUnitToDelete?.Name}"?
+            Are you sure you want to delete the tax declaration "{taxDeclarationToDelete?.T_D_No}"?
           </p>
           <p className="text-sm text-neutral-500 mt-2">
             This action cannot be undone.
@@ -190,4 +206,4 @@ function BaseUnitValue() {
   );
 }
 
-export default BaseUnitValue;
+export default TaxDeclarationPage;

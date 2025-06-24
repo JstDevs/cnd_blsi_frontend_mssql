@@ -10,20 +10,20 @@ function BaseUnitForm({ initialData, onSubmit, onClose }) {
     Classification: Yup.string().required('Classification is required'),
     Unit: Yup.string().required('Unit is required'),
     ActualUse: Yup.string().required('Actual Use is required'),
-    SubClassNo: Yup.string().required('Sub Class No is required'),
-    UnitValue: Yup.number().required('Unit Value is required'),
-    LocationDescription: Yup.string().required('Location or Description is required'),
+    SubClassification: Yup.string().required('Sub Class No is required'),
+    Price: Yup.number().required('Unit Value is required'),
+    Location: Yup.string().required('Location or Description is required'),
   });
 
   const formik = useFormik({
     initialValues: initialData || {
-      generalRevisionYear: currentYear,
-      classification: '',
-      unit: '',
-      actualUse: '',
-      subClassNo: '',
-      unitValue: '',
-      locationDescription: '',
+      GeneralRevisionYear: currentYear,
+      Classification: '',
+      Unit: '',
+      ActualUse: '',
+      SubClassification: '',
+      Price: '',
+      Location: '',
     },
     validationSchema,
     onSubmit: (values) => {
@@ -35,85 +35,85 @@ function BaseUnitForm({ initialData, onSubmit, onClose }) {
     <form onSubmit={formik.handleSubmit} className="space-y-4">
       <FormField
         label="General Revision Year"
-        name="generalRevisionYear"
+        name="GeneralRevisionYear"
         type="number"
-        value={formik.values.generalRevisionYear}
+        value={formik.values.GeneralRevisionYear}
         onChange={formik.handleChange}
         onBlur={formik.handleBlur}
-        error={formik.errors.generalRevisionYear}
-        touched={formik.touched.generalRevisionYear}
+        error={formik.errors.GeneralRevisionYear}
+        touched={formik.touched.GeneralRevisionYear}
         required
       />
 
       <FormField
         label="Classification"
-        name="classification"
+        name="Classification"
         type="text"
-        value={formik.values.classification}
+        value={formik.values.Classification}
         onChange={formik.handleChange}
         onBlur={formik.handleBlur}
-        error={formik.errors.classification}
-        touched={formik.touched.classification}
+        error={formik.errors.Classification}
+        touched={formik.touched.Classification}
         required
       />
 
       <FormField
         label="Unit"
-        name="unit"
+        name="Unit"
         type="text"
-        value={formik.values.unit}
+        value={formik.values.Unit}
         onChange={formik.handleChange}
         onBlur={formik.handleBlur}
-        error={formik.errors.unit}
-        touched={formik.touched.unit}
+        error={formik.errors.Unit}
+        touched={formik.touched.Unit}
         required
       />
 
       <FormField
         label="Actual Use"
-        name="actualUse"
+        name="ActualUse"
         type="text"
-        value={formik.values.actualUse}
+        value={formik.values.ActualUse}
         onChange={formik.handleChange}
         onBlur={formik.handleBlur}
-        error={formik.errors.actualUse}
-        touched={formik.touched.actualUse}
+        error={formik.errors.ActualUse}
+        touched={formik.touched.ActualUse}
         required
       />
 
       <FormField
         label="Sub Class No"
-        name="subClassNo"
+        name="SubClassification"
         type="text"
-        value={formik.values.subClassNo}
+        value={formik.values.SubClassification}
         onChange={formik.handleChange}
         onBlur={formik.handleBlur}
-        error={formik.errors.subClassNo}
-        touched={formik.touched.subClassNo}
+        error={formik.errors.SubClassification}
+        touched={formik.touched.SubClassification}
         required
       />
 
       <FormField
         label="Unit Value"
-        name="unitValue"
+        name="Price"
         type="number"
-        value={formik.values.unitValue}
+        value={formik.values.Price}
         onChange={formik.handleChange}
         onBlur={formik.handleBlur}
-        error={formik.errors.unitValue}
-        touched={formik.touched.unitValue}
+        error={formik.errors.Price}
+        touched={formik.touched.Price}
         required
       />
 
       <FormField
         label="Location or Description"
-        name="locationDescription"
+        name="Location"
         type="textarea"
-        value={formik.values.locationDescription}
+        value={formik.values.Location}
         onChange={formik.handleChange}
         onBlur={formik.handleBlur}
-        error={formik.errors.locationDescription}
-        touched={formik.touched.locationDescription}
+        error={formik.errors.Location}
+        touched={formik.touched.Location}
         required
       />
 

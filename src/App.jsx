@@ -53,7 +53,8 @@ import PaymentTermsPage from "./pages/settings/PaymentTermsPage";
 import IndustryPage from "./pages/settings/IndustryPage";
 import Customer from "./pages/settings/Customer";
 // Setting --> real Prohject
-import TaxDeclaration from "./pages/settings/RealProject/TaxDeclaration";
+// import TaxDeclaration from "./pages/settings/RealProject/TaxDeclaration";
+import TaxDeclarationPage from "./pages/settings/TaxDeclarationPage";
 import GeneralRevision from "./pages/settings/RealProject/GeneralRevision";
 import BaseUnitValue from "./pages/settings/RealProject/BaseUnitValue";
 // Disbursement pages
@@ -296,7 +297,7 @@ function App() {
           {/* ---SETTING--REAL--PROJECT------> */}
           <Route
             path="/settings/tax-declaration"
-            element={<TaxDeclaration />}
+            element={<TaxDeclarationPage />}
           />
           <Route path="/settings/base-unit-value" element={<BaseUnitValue />} />
           <Route
