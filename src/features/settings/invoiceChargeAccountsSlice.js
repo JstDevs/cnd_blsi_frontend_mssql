@@ -1,4 +1,5 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
+const API_URL = import.meta.env.VITE_API_URL;
 
 // Mock data for development
 const mockData = [
@@ -26,17 +27,31 @@ export const accountOptions = [
 ];
 
 // Async thunks
+
+// Thunks for API calls
 export const fetchInvoiceChargeAccounts = createAsyncThunk(
-  'invoiceChargeAccounts/fetchInvoiceChargeAccounts',
-  async () => {
+  'chartOfAccounts/fetchInvoiceChargeAccounts',
+  async (_, thunkAPI) => {
     try {
-      // Replace with actual API call
-      // const response = await api.get('/api/invoice-charge-accounts');
-      // return response.data;
-      return mockData;
+      const token = localStorage.getItem('token');
+
+      const response = await fetch(`${API_URL}/serviceInvoiceAccounts`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      const res = await response.json();
+
+      if (!response.ok) {
+        throw new Error(res.message || 'Failed to fetch');
+      }
+
+      return res;
     } catch (error) {
-      console.warn('Failed to fetch invoice charge accounts:', error);
-      return mockData;
+      return thunkAPI.rejectWithValue(error.message);
     }
   }
 );
@@ -58,15 +73,26 @@ export const addInvoiceChargeAccount = createAsyncThunk(
 
 export const updateInvoiceChargeAccount = createAsyncThunk(
   'invoiceChargeAccounts/updateInvoiceChargeAccount',
-  async (data) => {
+  async (invoiceChargeAccount, thunkAPI) => {
     try {
-      // Replace with actual API call
-      // const response = await api.put(`/api/invoice-charge-accounts/${data.id}`, data);
-      // return response.data;
-      return data;
+      const response = await fetch(`${API_URL}/serviceInvoiceAccounts/1`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${localStorage.getItem('token')}`,
+        },
+        body: JSON.stringify(invoiceChargeAccount),
+      });
+
+      const res = await response.json();
+
+      if (!response.ok) {
+        throw new Error(res.message || 'Failed to update');
+      }
+
+      return res;
     } catch (error) {
-      console.warn('Failed to update invoice charge account:', error);
-      throw error;
+      return thunkAPI.rejectWithValue(error.message);
     }
   }
 );

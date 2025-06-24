@@ -173,7 +173,9 @@ function TaxDeclarationForm({ initialData, onSubmit, onClose }) {
       </fieldset>
 
       <fieldset className="grid grid-cols-1 md:grid-cols-2 gap-4 p-4 border border-gray-300">
-        <FormField label="Beneficial/Administrator User" name="BeneficialorAdminUserID" type="select" options={[{ value: 'MElvin Alvarez', label: 'MElvin Alvarez' }]} {...{ value: values.BeneficialorAdminUserID, onChange: handleChange, onBlur: handleBlur, error: errors.BeneficialorAdminUserID, touched: touched.BeneficialorAdminUserID }} />
+        <FormField label="Beneficial/Administrator User"
+        options={customers.map(customer => ({ value: customer.ID, label: customer.Name }))} 
+        name="BeneficialorAdminUserID" type="select" {...{ value: values.BeneficialorAdminUserID, onChange: handleChange, onBlur: handleBlur, error: errors.BeneficialorAdminUserID, touched: touched.BeneficialorAdminUserID }} />
         <FormField label="Beneficial/Admin User TIN" name="BeneficialorAdminTIN" type="number" {...{ value: values.BeneficialorAdminTIN, onChange: handleChange, onBlur: handleBlur, error: errors.BeneficialorAdminTIN, touched: touched.BeneficialorAdminTIN }} />
         <FormField label="Beneficial/Administrator Telephone No." name="BeneficialorAdminTelephoneNumber" type="number" {...{ value: values.BeneficialorAdminTelephoneNumber, onChange: handleChange, onBlur: handleBlur, error: errors.BeneficialorAdminTelephoneNumber, touched: touched.BeneficialorAdminTelephoneNumber }} />
         <FormField label="Beneficial/Administrator Address" name="BeneficialorAdminAddress" type="text" {...{ value: values.BeneficialorAdminAddress, onChange: handleChange, onBlur: handleBlur, error: errors.BeneficialorAdminAddress, touched: touched.BeneficialorAdminAddress }} />

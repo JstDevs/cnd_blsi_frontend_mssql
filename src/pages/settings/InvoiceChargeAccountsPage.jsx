@@ -11,20 +11,13 @@ function InvoiceChargeAccountsPage() {
   const dispatch = useDispatch();
   const { invoiceChargeAccounts } = useSelector(state => state.invoiceChargeAccounts);
 
-  const [currentAccount, setCurrentAccount] = useState(null);
-
   useEffect(() => {
     dispatch(fetchInvoiceChargeAccounts());
   }, [dispatch]);
 
   const handleSubmit = async (values, { setSubmitting }) => {
     try {
-      if (currentAccount) {
-        await dispatch(updateInvoiceChargeAccount({ ...values, id: currentAccount.id })).unwrap();
-      } else {
-        await dispatch(addInvoiceChargeAccount(values)).unwrap();
-      }
-      setCurrentAccount(null);
+      await dispatch(updateInvoiceChargeAccount(values)).unwrap();
       setSubmitting(false);
     } catch (error) {
       console.error('Failed to save invoice charge account:', error);
@@ -37,9 +30,8 @@ function InvoiceChargeAccountsPage() {
 
       <div className="bg-white p-6 rounded-lg shadow border">
         <InvoiceChargeAccountForm
-          initialData={currentAccount}
-          onClose={() => setCurrentAccount(null)}
           onSubmit={handleSubmit}
+          invoiceChargeAccounts={invoiceChargeAccounts}
         />
       </div>
     </div>
