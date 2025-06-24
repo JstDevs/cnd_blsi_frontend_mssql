@@ -30,7 +30,6 @@ export const fetchMunicipalities = createAsyncThunk(
   }
 );
 
-
 export const addMunicipality = createAsyncThunk(
   'municipalities/addMunicipality',
   async (municipality, thunkAPI) => {
@@ -61,14 +60,17 @@ export const updateMunicipality = createAsyncThunk(
   'municipalities/updateMunicipality',
   async (municipality, thunkAPI) => {
     try {
-      const response = await fetch(`${API_URL}/municipality/${municipality.ID}`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${localStorage.getItem('token')}`,
-        },
-        body: JSON.stringify(municipality),
-      });
+      const response = await fetch(
+        `${API_URL}/municipality/${municipality.ID}`,
+        {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${localStorage.getItem('token')}`,
+          },
+          body: JSON.stringify(municipality),
+        }
+      );
 
       const res = await response.json();
 
@@ -123,12 +125,17 @@ const municipalitiesSlice = createSlice({
       })
       .addCase(fetchMunicipalities.fulfilled, (state, action) => {
         state.isLoading = false;
-        state.municipalities = Array.isArray(action.payload) ? action.payload : [];
+        state.municipalities = Array.isArray(action.payload)
+          ? action.payload
+          : [];
       })
       .addCase(fetchMunicipalities.rejected, (state, action) => {
         state.isLoading = false;
         state.error = action.error.message || 'Failed to fetch municipalities';
-        console.warn('Failed to fetch municipalities, using mock data.', state.error);
+        console.warn(
+          'Failed to fetch municipalities, using mock data.',
+          state.error
+        );
         state.municipalities = mockMunicipalities;
       })
       .addCase(addMunicipality.pending, (state) => {
@@ -153,7 +160,9 @@ const municipalitiesSlice = createSlice({
       })
       .addCase(updateMunicipality.fulfilled, (state, action) => {
         state.isLoading = false;
-        const index = state.municipalities.findIndex(item => item.ID === action.payload.ID);
+        const index = state.municipalities.findIndex(
+          (item) => item.ID === action.payload.ID
+        );
         if (index !== -1) {
           if (!Array.isArray(state.municipalities)) {
             state.municipalities = [];
@@ -170,7 +179,9 @@ const municipalitiesSlice = createSlice({
         if (!Array.isArray(state.municipalities)) {
           state.municipalities = [];
         }
-        state.municipalities = state.municipalities.filter(item => item.ID !== action.payload);
+        state.municipalities = state.municipalities.filter(
+          (item) => item.ID !== action.payload
+        );
       })
       .addCase(deleteMunicipality.rejected, (state, action) => {
         state.isLoading = false;

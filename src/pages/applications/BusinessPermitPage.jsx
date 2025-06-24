@@ -1,60 +1,91 @@
+// BusinessPermitForm.js
 import { useState } from 'react';
-import { PlusIcon, EyeIcon, PencilIcon } from '@heroicons/react/24/outline';
+import { PlusIcon, EyeIcon, PencilIcon, TrashIcon } from 'lucide-react';
 import DataTable from '../../components/common/DataTable';
 import Modal from '../../components/common/Modal';
-import FormField from '../../components/common/FormField';
+import BusinessPermitFormFields from './BusinessPermitFormFields';
 
 function BusinessPermitPage() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [currentPermit, setCurrentPermit] = useState(null);
+  const [searchTerm, setSearchTerm] = useState('');
 
-  // Mock data for table
   const permits = [
     {
       id: 1,
-      permitNumber: 'BP-2024-01-0001',
+      applicantType: 'Renewal',
+      modeOfPayment: 'Annually',
+      applicationDate: '1/13/2025',
+      dtiSecCdaRegistration: '21447756',
+      dtiRegistrationDate: '1/13/2025',
       businessName: 'ABC Store',
       ownerName: 'John Smith',
-      businessType: 'Retail',
-      address: '123 Main St.',
       status: 'Active',
-      issueDate: '2024-01-15',
-      expiryDate: '2024-12-31',
     },
     {
       id: 2,
-      permitNumber: 'BP-2024-01-0002',
+      applicantType: 'New',
+      modeOfPayment: 'Semi-Annually',
+      applicationDate: '1/14/2025',
+      dtiSecCdaRegistration: '21447757',
+      dtiRegistrationDate: '1/14/2025',
       businessName: 'XYZ Restaurant',
       ownerName: 'Jane Doe',
-      businessType: 'Food Service',
-      address: '456 Market St.',
       status: 'Pending',
-      issueDate: null,
-      expiryDate: null,
     },
   ];
 
-  // Table columns
+  const [formData, setFormData] = useState({
+    applicantType: 'new',
+    modeOfPayment: 'annually',
+    dateOfApplication: '',
+    dtiSecCdaRegistrationNo: '',
+    dtiSecCdaRegistrationDate: '',
+    tinNo: '',
+    typeOfBusiness: 'single',
+    amendmentFrom: 'single',
+    amendmentTo: 'single',
+    taxIncentiveFromGovEntity: 'no',
+    lastName: '',
+    firstName: '',
+    middleName: '',
+    businessName: '',
+    tradeNameFranchise: '',
+    businessRegion: '',
+    businessProvince: '',
+    businessMunicipality: '',
+    businessBarangay: '',
+    businessStreetAddress: '',
+    postalCode: '',
+    emailAddress: '',
+    telephoneNo: '',
+    mobileNo: '',
+    ownerStreetAddress: '',
+    ownerBarangay: '',
+    ownerMunicipality: '',
+    ownerRegion: '',
+    status: 'Pending',
+  });
+
   const columns = [
     {
-      key: 'permitNumber',
-      header: 'Permit No.',
-      sortable: true,
-      className: 'font-medium text-neutral-900',
-    },
-    {
-      key: 'businessName',
-      header: 'Business Name',
+      key: 'applicantType',
+      header: 'Applicant Type',
       sortable: true,
     },
     {
-      key: 'ownerName',
-      header: 'Owner',
+      key: 'modeOfPayment',
+      header: 'Mode of Payment',
       sortable: true,
     },
     {
-      key: 'businessType',
-      header: 'Type',
+      key: 'applicationDate',
+      header: 'Application Date',
+      sortable: true,
+    },
+    {
+      key: 'dtiSecCdaRegistration',
+      header: 'DTI/SEC/CDA Registration',
       sortable: true,
     },
     {
@@ -66,49 +97,70 @@ function BusinessPermitPage() {
           className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
             value === 'Active'
               ? 'bg-success-100 text-success-800'
-              : value === 'Pending'
-              ? 'bg-warning-100 text-warning-800'
-              : 'bg-neutral-100 text-neutral-800'
+              : 'bg-warning-100 text-warning-800'
           }`}
         >
           {value}
         </span>
       ),
     },
-    {
-      key: 'issueDate',
-      header: 'Issue Date',
-      sortable: true,
-      render: (value) => (value ? new Date(value).toLocaleDateString() : '-'),
-    },
-    {
-      key: 'expiryDate',
-      header: 'Expiry Date',
-      sortable: true,
-      render: (value) => (value ? new Date(value).toLocaleDateString() : '-'),
-    },
   ];
 
-  // Actions for table rows
   const actions = [
     {
       icon: EyeIcon,
       title: 'View',
       onClick: (permit) => handleViewPermit(permit),
-      className:
-        'text-primary-600 hover:text-primary-900 p-1 rounded-full hover:bg-primary-50',
     },
     {
       icon: PencilIcon,
       title: 'Edit',
       onClick: (permit) => handleEditPermit(permit),
-      className:
-        'text-primary-600 hover:text-primary-900 p-1 rounded-full hover:bg-primary-50',
+    },
+    {
+      icon: TrashIcon,
+      title: 'Delete',
+      onClick: (permit) => handleDeletePermit(permit),
     },
   ];
 
+  const handleInputChange = (field, value) => {
+    setFormData((prev) => ({ ...prev, [field]: value }));
+  };
+
   const handleCreatePermit = () => {
     setCurrentPermit(null);
+    setFormData({
+      applicantType: 'new',
+      modeOfPayment: 'annually',
+      dateOfApplication: '',
+      dtiSecCdaRegistrationNo: '',
+      dtiSecCdaRegistrationDate: '',
+      tinNo: '',
+      typeOfBusiness: 'single',
+      amendmentFrom: 'single',
+      amendmentTo: 'single',
+      taxIncentiveFromGovEntity: 'no',
+      lastName: '',
+      firstName: '',
+      middleName: '',
+      businessName: '',
+      tradeNameFranchise: '',
+      businessRegion: '',
+      businessProvince: '',
+      businessMunicipality: '',
+      businessBarangay: '',
+      businessStreetAddress: '',
+      postalCode: '',
+      emailAddress: '',
+      telephoneNo: '',
+      mobileNo: '',
+      ownerStreetAddress: '',
+      ownerBarangay: '',
+      ownerMunicipality: '',
+      ownerRegion: '',
+      status: 'Pending',
+    });
     setIsModalOpen(true);
   };
 
@@ -122,13 +174,31 @@ function BusinessPermitPage() {
     setIsModalOpen(true);
   };
 
+  const handleDeletePermit = (permit) => {
+    if (window.confirm('Are you sure you want to delete this permit?')) {
+      console.log('Deleting permit:', permit);
+    }
+  };
+
+  const handleSave = () => {
+    console.log('Saving form data:', formData);
+    setIsModalOpen(false);
+  };
+
+  const filteredPermits = permits.filter(
+    (permit) =>
+      permit.businessName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      permit.ownerName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      permit.dtiSecCdaRegistration.includes(searchTerm)
+  );
+
   return (
     <div>
       <div className="page-header">
         <div className="flex justify-between items-center">
           <div>
-            <h1>Business Permits</h1>
-            <p>Manage business permits and licenses</p>
+            <h1>Business Permit Applications</h1>
+            <p>Manage business permit applications and registrations</p>
           </div>
           <button
             type="button"
@@ -136,103 +206,48 @@ function BusinessPermitPage() {
             className="btn btn-primary flex items-center"
           >
             <PlusIcon className="h-5 w-5 mr-2" />
-            New Permit
+            New Application
           </button>
         </div>
       </div>
 
       <div className="mt-4">
-        <DataTable
-          columns={columns}
-          data={permits}
-          actions={actions}
-          pagination={true}
-        />
+        <div className="bg-white rounded-lg shadow p-4">
+          <div className="mb-4">
+            <input
+              type="text"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="w-full md:w-1/3 px-4 py-2 border border-gray-300 rounded-lg"
+              placeholder="Search applications..."
+            />
+          </div>
+          <DataTable
+            columns={columns}
+            data={filteredPermits}
+            actions={actions}
+            pagination={true}
+          />
+        </div>
       </div>
 
       <Modal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
-        title={currentPermit ? 'Edit Business Permit' : 'New Business Permit'}
-        size="lg"
+        title={
+          currentPermit
+            ? 'Edit Business Application'
+            : 'New Business Application'
+        }
+        size="xl"
       >
-        <div className="p-4 space-y-4">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <FormField
-              label="Business Name"
-              name="businessName"
-              type="text"
-              required
-              placeholder="Enter business name"
-            />
-
-            <FormField
-              label="Owner Name"
-              name="ownerName"
-              type="text"
-              required
-              placeholder="Enter owner name"
-            />
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <FormField
-              label="Business Type"
-              name="businessType"
-              type="select"
-              required
-              options={[
-                { value: 'Retail', label: 'Retail' },
-                { value: 'Food Service', label: 'Food Service' },
-                {
-                  value: 'Professional Service',
-                  label: 'Professional Service',
-                },
-                { value: 'Manufacturing', label: 'Manufacturing' },
-              ]}
-            />
-
-            <FormField
-              label="Status"
-              name="status"
-              type="select"
-              required
-              options={[
-                { value: 'Active', label: 'Active' },
-                { value: 'Pending', label: 'Pending' },
-                { value: 'Expired', label: 'Expired' },
-              ]}
-            />
-          </div>
-
-          <FormField
-            label="Business Address"
-            name="address"
-            type="textarea"
-            required
-            placeholder="Enter complete business address"
-            rows={2}
-          />
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <FormField label="Issue Date" name="issueDate" type="date" />
-
-            <FormField label="Expiry Date" name="expiryDate" type="date" />
-          </div>
-
-          <div className="flex justify-end space-x-3 pt-4 border-t border-neutral-200">
-            <button
-              type="button"
-              onClick={() => setIsModalOpen(false)}
-              className="btn btn-outline"
-            >
-              Cancel
-            </button>
-            <button type="submit" className="btn btn-primary">
-              {currentPermit ? 'Update' : 'Create'}
-            </button>
-          </div>
-        </div>
+        <BusinessPermitFormFields
+          formData={formData}
+          handleInputChange={handleInputChange}
+          handleSave={handleSave}
+          onCancel={() => setIsModalOpen(false)}
+          isEdit={!!currentPermit}
+        />
       </Modal>
     </div>
   );

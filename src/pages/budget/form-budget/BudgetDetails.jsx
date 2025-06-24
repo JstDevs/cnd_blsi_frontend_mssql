@@ -37,10 +37,10 @@ const BudgetDetails = () => {
     setIsModalOpen(true);
   };
 
-  const handleEdit = (record) => {
-    setSelectedRecord(record);
-    setIsModalOpen(true);
-  };
+  // const handleEdit = (record) => {
+  //   setSelectedRecord(record);
+  //   setIsModalOpen(true);
+  // };
 
   const handleDelete = (record) => {
     // Implement delete functionality

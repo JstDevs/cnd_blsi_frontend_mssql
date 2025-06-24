@@ -110,4 +110,4 @@ function MarriageServiceReceiptPage() {
   );
 }
 
-export default MarriageServiceReceiptPage; 
+export default MarriageServiceReceiptPage;

@@ -254,13 +254,30 @@ function MarriageServiceReceiptForm({ initialData, onClose, onSubmit }) {
             touched={touched.amountDue}
             placeholder="Enter amount due"
           />
-
+          <div className="space-y-2">
+            <label className="block text-sm font-medium text-gray-700">
+              Attachments
+            </label>
+            <input
+              type="file"
+              onChange={(event) => {
+                setFieldValue('attachments', event.currentTarget.files[0]);
+              }}
+              className="block w-full text-sm text-gray-500
+                file:mr-4 file:py-2 file:px-4
+                file:rounded-full file:border-0
+                file:text-sm file:font-semibold
+                file:bg-blue-50 file:text-blue-700
+                hover:file:bg-blue-100"
+            />
+            {errors.attachments && touched.attachments && (
+              <div className="text-red-500 text-sm mt-1">
+                {errors.attachments}
+              </div>
+            )}
+          </div>
           <div className="flex justify-end space-x-3 pt-4 border-t border-neutral-200">
-            <button
-              type="button"
-              onClick={onClose}
-              className="btn btn-outline"
-            >
+            <button type="button" onClick={onClose} className="btn btn-outline">
               Cancel
             </button>
             <button
@@ -277,4 +294,4 @@ function MarriageServiceReceiptForm({ initialData, onClose, onSubmit }) {
   );
 }
 
-export default MarriageServiceReceiptForm; 
+export default MarriageServiceReceiptForm;

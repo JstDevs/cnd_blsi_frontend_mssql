@@ -1,9 +1,9 @@
-import { useState } from "react";
+import { useState } from 'react';
 import {
   ChevronUpIcon,
   ChevronDownIcon,
   MagnifyingGlassIcon,
-} from "@heroicons/react/24/solid";
+} from '@heroicons/react/24/solid';
 
 function DataTable({
   columns,
@@ -13,12 +13,12 @@ function DataTable({
   actions = [],
   loading = false,
   onRowClick = null,
-  emptyMessage = "No data available",
+  emptyMessage = 'No data available',
 }) {
   const [currentPage, setCurrentPage] = useState(1);
   const [rowsPerPage, setRowsPerPage] = useState(10);
-  const [searchTerm, setSearchTerm] = useState("");
-  const [sortConfig, setSortConfig] = useState({ key: null, direction: "asc" });
+  const [searchTerm, setSearchTerm] = useState('');
+  const [sortConfig, setSortConfig] = useState({ key: null, direction: 'asc' });
 
   // Ensure data is an array
   const safeData = Array.isArray(data) ? data : [];
@@ -43,13 +43,13 @@ function DataTable({
     if (aValue === null || aValue === undefined) return 1;
     if (bValue === null || bValue === undefined) return -1;
 
-    if (typeof aValue === "string" && typeof bValue === "string") {
-      return sortConfig.direction === "asc"
+    if (typeof aValue === 'string' && typeof bValue === 'string') {
+      return sortConfig.direction === 'asc'
         ? aValue.localeCompare(bValue)
         : bValue.localeCompare(aValue);
     }
 
-    return sortConfig.direction === "asc" ? aValue - bValue : bValue - aValue;
+    return sortConfig.direction === 'asc' ? aValue - bValue : bValue - aValue;
   });
 
   // Pagination
@@ -61,9 +61,9 @@ function DataTable({
 
   // Sort handler
   const requestSort = (key) => {
-    let direction = "asc";
-    if (sortConfig.key === key && sortConfig.direction === "asc") {
-      direction = "desc";
+    let direction = 'asc';
+    if (sortConfig.key === key && sortConfig.direction === 'asc') {
+      direction = 'desc';
     }
     setSortConfig({ key, direction });
   };
@@ -159,29 +159,33 @@ function DataTable({
                 <th
                   key={column.key}
                   scope="col"
-                  className="px-6 py-3 text-left text-xs font-medium text-neutral-500 uppercase tracking-wider cursor-pointer"
+                  className="px-6 py-3 text-left text-xs font-medium text-neutral-500 uppercase tracking-wider cursor-pointer whitespace-nowrap" // Added whitespace-nowrap
                   onClick={() =>
                     column.sortable !== false && requestSort(column.key)
                   }
                 >
-                  <div className="flex items-center space-x-1">
+                  <div className="flex items-center gap-1">
+                    {' '}
+                    {/* Changed space-x-1 to gap-1 for better consistency */}
                     <span>{column.header}</span>
                     {column.sortable !== false && (
-                      <span className="flex flex-col">
+                      <span className="flex flex-col shrink-0">
+                        {' '}
+                        {/* Added shrink-0 to prevent icons from shrinking */}
                         <ChevronUpIcon
                           className={`h-3 w-3 ${
                             sortConfig.key === column.key &&
-                            sortConfig.direction === "asc"
-                              ? "text-primary-600"
-                              : "text-neutral-400"
+                            sortConfig.direction === 'asc'
+                              ? 'text-primary-600'
+                              : 'text-neutral-400'
                           }`}
                         />
                         <ChevronDownIcon
                           className={`h-3 w-3 -mt-1 ${
                             sortConfig.key === column.key &&
-                            sortConfig.direction === "desc"
-                              ? "text-primary-600"
-                              : "text-neutral-400"
+                            sortConfig.direction === 'desc'
+                              ? 'text-primary-600'
+                              : 'text-neutral-400'
                           }`}
                         />
                       </span>
@@ -190,7 +194,10 @@ function DataTable({
                 </th>
               ))}
               {actions.length > 0 && (
-                <th scope="col" className="relative px-6 py-3">
+                <th
+                  scope="col"
+                  className="relative px-6 py-3 whitespace-nowrap"
+                >
                   <span className="sr-only">Actions</span>
                 </th>
               )}
@@ -201,7 +208,7 @@ function DataTable({
               <tr
                 key={row.id || rowIndex}
                 className={
-                  onRowClick ? "hover:bg-neutral-50 cursor-pointer" : ""
+                  onRowClick ? 'hover:bg-neutral-50 cursor-pointer' : ''
                 }
                 onClick={onRowClick ? () => onRowClick(row) : undefined}
               >
@@ -209,7 +216,7 @@ function DataTable({
                   <td
                     key={`${row.id || rowIndex}-${column.key}`}
                     className={`px-6 py-4 whitespace-nowrap text-sm ${
-                      column.className || "text-neutral-500"
+                      column.className || 'text-neutral-500'
                     }`}
                   >
                     {column.render
@@ -228,7 +235,7 @@ function DataTable({
                         }}
                         className={
                           action.className ||
-                          "text-primary-600 hover:text-primary-900"
+                          'text-primary-600 hover:text-primary-900'
                         }
                         title={action.title}
                       >
@@ -251,14 +258,14 @@ function DataTable({
         <div className="px-2 py-3 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 border-t border-neutral-200 bg-neutral-50 sm:px-6">
           {/* Pagination Summary */}
           <div className="text-sm text-neutral-700 text-center sm:text-left">
-            Showing{" "}
+            Showing{' '}
             <span className="font-medium">
               {Math.min((currentPage - 1) * rowsPerPage + 1, sortedData.length)}
-            </span>{" "}
-            to{" "}
+            </span>{' '}
+            to{' '}
             <span className="font-medium">
               {Math.min(currentPage * rowsPerPage, sortedData.length)}
-            </span>{" "}
+            </span>{' '}
             of <span className="font-medium">{sortedData.length}</span> results
           </div>
 
