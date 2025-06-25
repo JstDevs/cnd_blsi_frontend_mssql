@@ -17,8 +17,8 @@ import generalReceiptReducer from '../features/collections/generalReceiptSlice';
 import ppeReducer from '../features/settings/ppeSlice';
 import approvalMatrixReducer from '../features/settings/approvalMatrixSlice';
 import bankReducer from '../features/settings/bankSlice';
-import {documentDetailsReducer} from '../features/settings/documentDetailsSlice';
-import {itemReducer} from '../features/settings/itemSlice';
+import { documentDetailsReducer } from '../features/settings/documentDetailsSlice';
+import { itemReducer } from '../features/settings/itemSlice';
 import invoiceChargeAccountsReducer from '../features/settings/invoiceChargeAccountsSlice';
 import { itemUnitsReducer } from '../features/settings/itemUnitsSlice';
 import { projectDetailsReducer } from '../features/settings/projectDetailsSlice';
@@ -59,6 +59,10 @@ import disbursementJournalReducer from '../features/disbursement/disbursementJou
 import generalJournalReducer from '../features/disbursement/generalJournalSlice';
 import realPropertyTaxReducer from '../features/collections/realPropertyTaxSlice';
 import budgetReducer from '../features/budget/budgetSlice';
+import { burialRecordsReducer } from '@/features/collections/burialServiceSlice';
+import { marriageRecordsReducer } from '@/features/collections/MarriageSlice';
+import { publicMarketTicketingReducer } from '@/features/collections/PublicMarketTicketingSlice';
+// import { publicMarketTicketingReducer } from '@/features/collections/PublicMarketTicketingSlice';
 
 export const store = configureStore({
   reducer: {
@@ -119,9 +123,13 @@ export const store = configureStore({
     subFunds: subFundsReducer,
     budgetDashboard: budgetDashboardReducer,
     vendorDetails: vendorDetailsReducer,
+    // ----------------COLLECTION SLICE-------------
+    burialRecords: burialRecordsReducer,
+    marriageRecords: marriageRecordsReducer,
+    publicMarketTicketing: publicMarketTicketingReducer,
     customers: customersReducer,
   },
-  middleware: (getDefaultMiddleware) => 
+  middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware({
       serializableCheck: false,
     }),

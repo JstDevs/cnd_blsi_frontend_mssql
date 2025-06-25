@@ -20,7 +20,15 @@ const burialServiceReceiptSchema = Yup.object().shape({
   serviceType: Yup.string().required('Service type is required'),
 });
 
-function BurialServiceReceiptForm({ initialData, onClose, onSubmit }) {
+function BurialServiceReceiptForm({
+  initialData,
+  onClose,
+  onSubmit,
+  nationalities = [],
+  municipalities = [],
+  provinces = [],
+  users = [],
+}) {
   const initialValues = initialData || {
     receiptNo: '',
     name: '',
@@ -41,13 +49,42 @@ function BurialServiceReceiptForm({ initialData, onClose, onSubmit }) {
     onSubmit(values);
   };
 
+  // Prepare select options
+  const userOptions = users.items.map((user) => ({
+    value: user.ID,
+    label: `${user.UserName} `,
+  }));
+
+  const nationalityOptions = nationalities.map((nat) => ({
+    value: nat.ID,
+    label: nat.Name,
+  }));
+
+  const municipalityOptions = municipalities.map((muni) => ({
+    value: muni.ID,
+    label: muni.Name,
+  }));
+
+  const provinceOptions = provinces.map((prov) => ({
+    value: prov.ID,
+    label: prov.Name,
+  }));
+
   return (
     <Formik
       initialValues={initialValues}
       validationSchema={burialServiceReceiptSchema}
       onSubmit={handleSubmit}
     >
-      {({ values, errors, touched, handleChange, handleBlur, setFieldValue, isSubmitting }) => (
+      {({
+        values,
+        errors,
+        touched,
+        handleChange,
+        handleBlur,
+        setFieldValue,
+        isSubmitting,
+      }) => (
         <Form className="space-y-4">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <FormField
@@ -66,14 +103,15 @@ function BurialServiceReceiptForm({ initialData, onClose, onSubmit }) {
             <FormField
               label="Name"
               name="name"
-              type="text"
+              type="select"
               required
               value={values.name}
               onChange={handleChange}
               onBlur={handleBlur}
               error={errors.name}
               touched={touched.name}
-              placeholder="Enter name"
+              options={userOptions}
+              placeholder="Select user"
             />
           </div>
 
@@ -81,27 +119,29 @@ function BurialServiceReceiptForm({ initialData, onClose, onSubmit }) {
             <FormField
               label="To the City Municipality of"
               name="cityMunicipality"
-              type="text"
+              type="select"
               required
               value={values.cityMunicipality}
               onChange={handleChange}
               onBlur={handleBlur}
               error={errors.cityMunicipality}
               touched={touched.cityMunicipality}
-              placeholder="Enter city/municipality"
+              options={municipalityOptions}
+              placeholder="Select municipality"
             />
 
             <FormField
               label="Province of"
               name="province"
-              type="text"
+              type="select"
               required
               value={values.province}
               onChange={handleChange}
               onBlur={handleBlur}
               error={errors.province}
               touched={touched.province}
-              placeholder="Enter province"
+              options={provinceOptions}
+              placeholder="Select province"
             />
           </div>
 
@@ -122,14 +162,15 @@ function BurialServiceReceiptForm({ initialData, onClose, onSubmit }) {
             <FormField
               label="Nationality"
               name="nationality"
-              type="text"
+              type="select"
               required
               value={values.nationality}
               onChange={handleChange}
               onBlur={handleBlur}
               error={errors.nationality}
               touched={touched.nationality}
-              placeholder="Enter nationality"
+              options={nationalityOptions}
+              placeholder="Select nationality"
             />
           </div>
 
@@ -203,7 +244,9 @@ function BurialServiceReceiptForm({ initialData, onClose, onSubmit }) {
           />
 
           <div className="space-y-2">
-            <label className="block text-sm font-medium text-gray-700">Service Type</label>
+            <label className="block text-sm font-medium text-gray-700">
+              Service Type
+            </label>
             <div className="flex space-x-4">
               <label className="inline-flex items-center">
                 <input
@@ -240,16 +283,20 @@ function BurialServiceReceiptForm({ initialData, onClose, onSubmit }) {
               </label>
             </div>
             {errors.serviceType && touched.serviceType && (
-              <div className="text-red-500 text-sm mt-1">{errors.serviceType}</div>
+              <div className="text-red-500 text-sm mt-1">
+                {errors.serviceType}
+              </div>
             )}
           </div>
 
           <div className="space-y-2">
-            <label className="block text-sm font-medium text-gray-700">Attachments</label>
+            <label className="block text-sm font-medium text-gray-700">
+              Attachments
+            </label>
             <input
               type="file"
               onChange={(event) => {
-                setFieldValue("attachments", event.currentTarget.files[0]);
+                setFieldValue('attachments', event.currentTarget.files[0]);
               }}
               className="block w-full text-sm text-gray-500
                 file:mr-4 file:py-2 file:px-4
@@ -259,16 +306,14 @@ function BurialServiceReceiptForm({ initialData, onClose, onSubmit }) {
                 hover:file:bg-blue-100"
             />
             {errors.attachments && touched.attachments && (
-              <div className="text-red-500 text-sm mt-1">{errors.attachments}</div>
+              <div className="text-red-500 text-sm mt-1">
+                {errors.attachments}
+              </div>
             )}
           </div>
 
           <div className="flex justify-end space-x-3 pt-4 border-t border-neutral-200">
-            <button
-              type="button"
-              onClick={onClose}
-              className="btn btn-outline"
-            >
+            <button type="button" onClick={onClose} className="btn btn-outline">
               Cancel
             </button>
             <button
@@ -285,4 +330,4 @@ function BurialServiceReceiptForm({ initialData, onClose, onSubmit }) {
   );
 }
 
-export default BurialServiceReceiptForm; 
+export default BurialServiceReceiptForm;

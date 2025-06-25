@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import  DataTable  from '../../components/common/DataTable';
+import DataTable from '../../components/common/DataTable';
 import FundUtilizationRequestForm from '../../components/forms/FundUtilizationRequestForm';
 import { Button } from '../../components/common/Button';
 import  Modal  from '../../components/common/Modal';
@@ -14,7 +14,7 @@ const mockData = [
     total: 1500.00,
     fiscalYear: '2024',
     project: 'Project 1',
-    customerId: 'CUST-001'
+    customerId: 'CUST-001',
   },
   {
     id: 2,
@@ -27,7 +27,7 @@ const mockData = [
     customerId: 'CUST-002'
   },
   // Add more mock data as needed
-]
+];
 
 const columns = [
   { header: 'Status', accessor: 'status' },
@@ -36,7 +36,7 @@ const columns = [
   { 
     header: 'Total', 
     accessor: 'total',
-    cell: (value) => `$${value.toFixed(2)}`
+    cell: (value) => `$${value.toFixed(2)}`,
   },
   { header: 'Fiscal Year', accessor: 'fiscalYear' },
   { header: 'Project', accessor: 'project' },
@@ -44,16 +44,16 @@ const columns = [
 ];
 
 function FundUtilizationRequestPage() {
-  const [isModalOpen, setIsModalOpen] = useState(false)
-  const [requests, setRequests] = useState(mockData)
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [requests, setRequests] = useState(mockData);
 
   const handleSubmit = (values) => {
     // Here you would typically make an API call to save the request
     console.log('Form submitted:', values);
     setIsModalOpen(false);
     // Add the new request to the table
-    setRequests([...requests, { id: requests.length + 1, ...values }])
-  }
+    setRequests([...requests, { id: requests.length + 1, ...values }]);
+  };
 
   return (
     <div className="container mx-auto px-4 py-8">
@@ -70,7 +70,7 @@ function FundUtilizationRequestPage() {
       <DataTable
         columns={columns}
         data={requests}
-        className='bg-white rounded-lg shadow'
+        className="bg-white rounded-lg shadow"
       />
 
       <Modal
@@ -84,7 +84,7 @@ function FundUtilizationRequestPage() {
         />
       </Modal>
     </div>
-  )
+  );
 }
 
 export default FundUtilizationRequestPage; 

@@ -6,7 +6,12 @@ import { PlusIcon, PencilIcon, TrashIcon } from '@heroicons/react/24/outline';
 import DataTable from '../../components/common/DataTable';
 import FormField from '../../components/common/FormField';
 import Modal from '../../components/common/Modal';
-import { fetchSubdepartments, addSubdepartment, updateSubdepartment, deleteSubdepartment } from '../../features/settings/subdepartmentSlice';
+import {
+  fetchSubdepartments,
+  addSubdepartment,
+  updateSubdepartment,
+  deleteSubdepartment,
+} from '../../features/settings/subdepartmentSlice';
 import { fetchDepartments } from '../../features/settings/departmentSlice';
 
 // Validation schema for subdepartment form
@@ -17,45 +22,46 @@ const subdepartmentSchema = Yup.object().shape({
   Name: Yup.string()
     .required('Subdepartment name is required')
     .max(100, 'Subdepartment name must be at most 100 characters'),
-  DepartmentID: Yup.number()
-    .required('Department is required'),
+  DepartmentID: Yup.number().required('Department is required'),
 });
 
 function SubdepartmentPage() {
   const dispatch = useDispatch();
-  const { subdepartments, isLoading } = useSelector(state => state.subdepartments || {});
-  const { departments } = useSelector(state => state.departments);
-  
+  const { subdepartments, isLoading } = useSelector(
+    (state) => state.subdepartments || {}
+  );
+  const { departments } = useSelector((state) => state.departments);
+
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [currentSubdepartment, setCurrentSubdepartment] = useState(null);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [subdepartmentToDelete, setSubdepartmentToDelete] = useState(null);
-  
+
   useEffect(() => {
     dispatch(fetchSubdepartments());
     dispatch(fetchDepartments());
   }, [dispatch]);
 
-  const enrichedSubdepartments = subdepartments.map(sub => ({
+  const enrichedSubdepartments = subdepartments.items.map((sub) => ({
     ...sub,
-    departmentName: sub.Department?.Name || ''
+    departmentName: sub.Department?.Name || '',
   }));
-  
+
   const handleAddSubdepartment = () => {
     setCurrentSubdepartment(null);
     setIsModalOpen(true);
   };
-  
+
   const handleEditSubdepartment = (subdepartment) => {
     setCurrentSubdepartment(subdepartment);
     setIsModalOpen(true);
   };
-  
+
   const handleDeleteSubdepartment = (subdepartment) => {
     setSubdepartmentToDelete(subdepartment);
     setIsDeleteModalOpen(true);
   };
-  
+
   const confirmDelete = () => {
     if (subdepartmentToDelete) {
       dispatch(deleteSubdepartment(subdepartmentToDelete.ID));
@@ -63,24 +69,27 @@ function SubdepartmentPage() {
       setSubdepartmentToDelete(null);
     }
   };
-  
+
   const handleSubmit = (values, { resetForm }) => {
-    const departmentName = departments.find(d => d.ID === Number(values.DepartmentID))?.Name || '';
+    const departmentName =
+      departments.find((d) => d.ID === Number(values.DepartmentID))?.Name || '';
 
     const submissionData = {
       ...values,
-      departmentName
+      departmentName,
     };
-    
+
     if (currentSubdepartment) {
-      dispatch(updateSubdepartment({ ...submissionData, ID: currentSubdepartment.ID }));
+      dispatch(
+        updateSubdepartment({ ...submissionData, ID: currentSubdepartment.ID })
+      );
     } else {
       dispatch(addSubdepartment(submissionData));
     }
     setIsModalOpen(false);
     resetForm();
   };
-  
+
   // Table columns definition
   const columns = [
     {
@@ -100,20 +109,22 @@ function SubdepartmentPage() {
       sortable: true,
     },
   ];
-  
+
   // Actions for table rows
   const actions = [
     {
       icon: PencilIcon,
       title: 'Edit',
       onClick: handleEditSubdepartment,
-      className: 'text-primary-600 hover:text-primary-900 p-1 rounded-full hover:bg-primary-50'
+      className:
+        'text-primary-600 hover:text-primary-900 p-1 rounded-full hover:bg-primary-50',
     },
     {
       icon: TrashIcon,
       title: 'Delete',
       onClick: handleDeleteSubdepartment,
-      className: 'text-error-600 hover:text-error-900 p-1 rounded-full hover:bg-error-50'
+      className:
+        'text-error-600 hover:text-error-900 p-1 rounded-full hover:bg-error-50',
     },
   ];
 
@@ -135,7 +146,7 @@ function SubdepartmentPage() {
           </button>
         </div>
       </div>
-      
+
       <div className="mt-4">
         <DataTable
           columns={columns}
@@ -144,12 +155,14 @@ function SubdepartmentPage() {
           loading={isLoading}
         />
       </div>
-      
+
       {/* Subdepartment Form Modal */}
       <Modal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
-        title={currentSubdepartment ? "Edit Subdepartment" : "Add Subdepartment"}
+        title={
+          currentSubdepartment ? 'Edit Subdepartment' : 'Add Subdepartment'
+        }
       >
         <Formik
           initialValues={{
@@ -160,10 +173,17 @@ function SubdepartmentPage() {
           validationSchema={subdepartmentSchema}
           onSubmit={handleSubmit}
         >
-          {({ values, errors, touched, handleChange, handleBlur, isSubmitting }) => (
+          {({
+            values,
+            errors,
+            touched,
+            handleChange,
+            handleBlur,
+            isSubmitting,
+          }) => (
             <Form className="space-y-4">
               <FormField
-                className='p-3 focus:outline-none'
+                className="p-3 focus:outline-none"
                 label="Subdepartment Code"
                 name="Code"
                 type="text"
@@ -176,7 +196,7 @@ function SubdepartmentPage() {
                 touched={touched.Code}
               />
               <FormField
-                className='p-3 focus:outline-none'
+                className="p-3 focus:outline-none"
                 label="Subdepartment Name"
                 name="Name"
                 type="text"
@@ -189,7 +209,7 @@ function SubdepartmentPage() {
                 touched={touched.Name}
               />
               <FormField
-                className='p-3 focus:outline-none'
+                className="p-3 focus:outline-none"
                 label="Department"
                 name="DepartmentID"
                 type="select"
@@ -199,9 +219,9 @@ function SubdepartmentPage() {
                 onBlur={handleBlur}
                 error={errors.DepartmentID}
                 touched={touched.DepartmentID}
-                options={departments.map(dept => ({
+                options={departments.map((dept) => ({
                   value: dept.ID,
-                  label: dept.Name
+                  label: dept.Name,
                 }))}
               />
               <div className="flex justify-end space-x-3 pt-4 border-t border-neutral-200">
@@ -224,7 +244,7 @@ function SubdepartmentPage() {
           )}
         </Formik>
       </Modal>
-      
+
       {/* Delete Confirmation Modal */}
       <Modal
         isOpen={isDeleteModalOpen}
@@ -233,10 +253,15 @@ function SubdepartmentPage() {
       >
         <div className="py-3">
           <p className="text-neutral-700">
-            Are you sure you want to delete the subdepartment <span className="font-medium">{subdepartmentToDelete?.subdepartmentName}</span>?
+            Are you sure you want to delete the subdepartment{' '}
+            <span className="font-medium">
+              {subdepartmentToDelete?.subdepartmentName}
+            </span>
+            ?
           </p>
           <p className="text-sm text-neutral-500 mt-2">
-            This action cannot be undone and may affect related records in the system.
+            This action cannot be undone and may affect related records in the
+            system.
           </p>
         </div>
         <div className="flex justify-end space-x-3 pt-4 border-t border-neutral-200">

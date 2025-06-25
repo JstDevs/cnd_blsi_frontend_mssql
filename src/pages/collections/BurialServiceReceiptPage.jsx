@@ -1,10 +1,25 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { PlusIcon } from '@heroicons/react/24/outline';
 import BurialServiceReceiptForm from '../../components/forms/BurialServiceReceiptForm';
 import Modal from '../../components/common/Modal';
 import DataTable from '../../components/common/DataTable';
-
+import { fetchNationalities } from '../../features/settings/nationalitiesSlice';
+import { useDispatch, useSelector } from 'react-redux';
+import { fetchMunicipalities } from '@/features/settings/municipalitiesSlice';
+import { fetchUsers } from '@/features/settings/userSlice';
+import { fetchProvinces } from '@/features/settings/provincesSlice';
 function BurialServiceReceiptPage() {
+  const dispatch = useDispatch();
+  const { nationalities, isLoading: nationalityLoading } = useSelector(
+    (state) => state.nationalities
+  );
+  const { users, isLoading: userLoading } = useSelector((state) => state.users);
+  const { municipalities, isLoading: municipalityLoading } = useSelector(
+    (state) => state.municipalities
+  );
+  const { provinces, isLoading: provinceLoading } = useSelector(
+    (state) => state.provinces
+  );
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedReceipt, setSelectedReceipt] = useState(null);
   const [receipts, setReceipts] = useState([
@@ -24,6 +39,13 @@ function BurialServiceReceiptPage() {
       serviceType: 'inter',
     },
   ]);
+
+  useEffect(() => {
+    dispatch(fetchNationalities());
+    dispatch(fetchUsers());
+    dispatch(fetchMunicipalities());
+    dispatch(fetchProvinces());
+  }, [dispatch]);
 
   const columns = [
     { header: 'Receipt No', accessor: 'receiptNo' },
@@ -64,7 +86,7 @@ function BurialServiceReceiptPage() {
   };
 
   const handleDelete = (id) => {
-    setReceipts(receipts.filter(receipt => receipt.id !== id));
+    setReceipts(receipts.filter((receipt) => receipt.id !== id));
   };
 
   const handleCloseModal = () => {
@@ -75,9 +97,13 @@ function BurialServiceReceiptPage() {
   const handleFormSubmit = (values) => {
     if (selectedReceipt) {
       // Update existing receipt
-      setReceipts(receipts.map(receipt => 
-        receipt.id === selectedReceipt.id ? { ...values, id: receipt.id } : receipt
-      ));
+      setReceipts(
+        receipts.map((receipt) =>
+          receipt.id === selectedReceipt.id
+            ? { ...values, id: receipt.id }
+            : receipt
+        )
+      );
     } else {
       // Add new receipt
       const newReceipt = {
@@ -92,7 +118,9 @@ function BurialServiceReceiptPage() {
   return (
     <div className="container mx-auto px-4 py-8">
       <div className="flex justify-between items-center mb-6">
-        <h1 className="text-2xl font-semibold text-gray-900">Burial Service Receipts</h1>
+        <h1 className="text-2xl font-semibold text-gray-900">
+          Burial Service Receipts
+        </h1>
         <button
           onClick={handleAdd}
           className="btn btn-primary flex items-center"
@@ -113,16 +141,24 @@ function BurialServiceReceiptPage() {
       <Modal
         isOpen={isModalOpen}
         onClose={handleCloseModal}
-        title={selectedReceipt ? 'Edit Burial Service Receipt' : 'New Burial Service Receipt'}
+        title={
+          selectedReceipt
+            ? 'Edit Burial Service Receipt'
+            : 'New Burial Service Receipt'
+        }
       >
         <BurialServiceReceiptForm
           initialData={selectedReceipt}
           onClose={handleCloseModal}
           onSubmit={handleFormSubmit}
+          nationalities={nationalities}
+          municipalities={municipalities}
+          provinces={provinces}
+          users={users}
         />
       </Modal>
     </div>
   );
 }
 
-export default BurialServiceReceiptPage; 
+export default BurialServiceReceiptPage;

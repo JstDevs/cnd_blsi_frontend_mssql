@@ -8,9 +8,11 @@ dist/
 package-lock.json
 .vite/
 
-# System files
-.DS_Store
-Thumbs.db
+# Compiled Java class files
+*.class
+
+# Compiled Python bytecode
+*.py[cod]
 
 # Log files
 npm-debug.log*

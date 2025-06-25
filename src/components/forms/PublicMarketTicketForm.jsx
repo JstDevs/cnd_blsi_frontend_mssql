@@ -1,12 +1,15 @@
+// components/forms/PublicMarketTicketForm.js
 import { Formik, Form } from 'formik';
 import * as Yup from 'yup';
 import { useState } from 'react';
 import { useDispatch } from 'react-redux';
 import { toast } from 'react-hot-toast';
-import { FiPlus, FiX } from 'react-icons/fi';
-import FormField from '../common/FormField'
+import FormField from '../common/FormField';
 import Button from '../common/Button';
-import { addTicket, updateTicket } from '../../features/collections/publicMarketTicketSlice';
+import {
+  addPublicMarketTicket,
+  updatePublicMarketTicket,
+} from '@/features/collections/PublicMarketTicketingSlice';
 
 const validationSchema = Yup.object().shape({
   items: Yup.string().required('Items type is required'),
@@ -40,10 +43,12 @@ const PublicMarketTicketForm = ({ ticket, onClose }) => {
     try {
       setIsSubmitting(true);
       if (ticket) {
-        await dispatch(updateTicket({ id: ticket.id, ...values })).unwrap();
+        await dispatch(
+          updatePublicMarketTicket({ id: ticket.id, ...values })
+        ).unwrap();
         toast.success('Ticket updated successfully');
       } else {
-        await dispatch(addTicket(values)).unwrap();
+        await dispatch(addPublicMarketTicket(values)).unwrap();
         toast.success('Ticket added successfully');
       }
       onClose();
@@ -59,6 +64,7 @@ const PublicMarketTicketForm = ({ ticket, onClose }) => {
       initialValues={ticket || initialValues}
       validationSchema={validationSchema}
       onSubmit={handleSubmit}
+      enableReinitialize
     >
       {({ isValid, dirty }) => (
         <Form className="space-y-4">
@@ -69,27 +75,15 @@ const PublicMarketTicketForm = ({ ticket, onClose }) => {
               type="text"
               placeholder="Enter items type"
             />
-            <FormField
-              label="Start Time"
-              name="startTime"
-              type="time"
-            />
-            <FormField
-              label="End Time"
-              name="endTime"
-              type="time"
-            />
+            <FormField label="Start Time" name="startTime" type="time" />
+            <FormField label="End Time" name="endTime" type="time" />
             <FormField
               label="Issued By"
               name="issuedBy"
               type="text"
               placeholder="Enter issuer name"
             />
-            <FormField
-              label="Date Issued"
-              name="dateIssued"
-              type="date"
-            />
+            <FormField label="Date Issued" name="dateIssued" type="date" />
             <FormField
               label="Posting Period"
               name="postingPeriod"
@@ -100,6 +94,8 @@ const PublicMarketTicketForm = ({ ticket, onClose }) => {
               name="amountIssued"
               type="number"
               placeholder="Enter amount"
+              min="0"
+              step="0.01"
             />
             <div className="md:col-span-2">
               <FormField
@@ -135,4 +131,4 @@ const PublicMarketTicketForm = ({ ticket, onClose }) => {
   );
 };
 
-export default PublicMarketTicketForm; 
+export default PublicMarketTicketForm;

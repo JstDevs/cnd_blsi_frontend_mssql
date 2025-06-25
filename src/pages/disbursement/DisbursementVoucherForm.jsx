@@ -4,60 +4,82 @@ import { Formik, Form, FieldArray } from 'formik';
 import * as Yup from 'yup';
 import FormField from '../../components/common/FormField';
 import { PlusIcon, TrashIcon } from '@heroicons/react/24/outline';
-import { createDisbursementVoucher, updateDisbursementVoucher } from '../../features/disbursement/disbursementVoucherSlice';
+import {
+  createDisbursementVoucher,
+  updateDisbursementVoucher,
+} from '../../features/disbursement/disbursementVoucherSlice';
 
 // Mock data for dropdowns
+const payeeTypes = [
+  { value: 'Employee', label: 'Employee' },
+  { value: 'Supplier', label: 'Supplier' },
+  { value: 'Contractor', label: 'Contractor' },
+  { value: 'Government', label: 'Government Agency' },
+];
+
+const paymentRequests = [
+  { value: 'Salary', label: 'Salary' },
+  { value: 'Travel', label: 'Travel Expense' },
+  { value: 'Supplies', label: 'Office Supplies' },
+  { value: 'Maintenance', label: 'Maintenance' },
+];
+
 const paymentModes = [
   { value: 'Cash', label: 'Cash' },
   { value: 'Cheque', label: 'Cheque' },
   { value: 'Bank Transfer', label: 'Bank Transfer' },
 ];
 
-const departments = [
-  { value: 'Office of the Mayor', label: 'Office of the Mayor' },
-  { value: 'Accounting Department', label: 'Accounting Department' },
-  { value: 'Treasury Department', label: 'Treasury Department' },
-  { value: 'IT Department', label: 'IT Department' },
+const taxTypes = [
+  { value: 'Withholding Tax', label: 'Withholding Tax (2%)', rate: 0.02 },
+  { value: 'VAT', label: 'VAT (12%)', rate: 0.12 },
+  {
+    value: 'Expanded Withholding',
+    label: 'Expanded Withholding Tax (1%)',
+    rate: 0.01,
+  },
 ];
 
 const accountCodes = [
-  { value: '5-01-01-010', label: '5-01-01-010 - Salaries and Wages - Regular' },
-  { value: '5-01-01-020', label: '5-01-01-020 - Salaries and Wages - Casual' },
-  { value: '5-01-02-010', label: '5-01-02-010 - Office Supplies' },
-  { value: '5-02-03-010', label: '5-02-03-010 - Traveling Expenses - Local' },
-  { value: '5-02-03-020', label: '5-02-03-020 - Traveling Expenses - Foreign' },
-  { value: '5-02-12-990', label: '5-02-12-990 - Other Maintenance and Operating Expenses' },
-];
-
-const deductionTypes = [
-  { value: 'Withholding Tax', label: 'Withholding Tax' },
-  { value: 'SSS Premium', label: 'SSS Premium' },
-  { value: 'PhilHealth Premium', label: 'PhilHealth Premium' },
-  { value: 'Pag-IBIG Premium', label: 'Pag-IBIG Premium' },
-  { value: 'Loan Payment', label: 'Loan Payment' },
+  { value: '1.02-05-991', label: '1.02-05-991 - Travel Expenses' },
+  { value: '1.02-05-992', label: '1.02-05-992 - Office Supplies' },
+  { value: '1.02-05-993', label: '1.02-05-993 - Maintenance' },
+  { value: '1.02-05-994', label: '1.02-05-994 - Salaries' },
 ];
 
 // Validation schema
 const disbursementVoucherSchema = Yup.object().shape({
   dvDate: Yup.date().required('Date is required'),
+  paymentDate: Yup.date().required('Payment date is required'),
+  payeeType: Yup.string().required('Payee type is required'),
   payeeName: Yup.string().required('Payee name is required'),
-  payeeAddress: Yup.string(),
-  orsNumber: Yup.string(),
-  particulars: Yup.string().required('Particulars are required'),
+  payeeId: Yup.string().required('Payee ID is required'),
+  payeeAddress: Yup.string().required('Address is required'),
+  officeUnitProject: Yup.string().required('Office/Unit/Project is required'),
+  orsNumber: Yup.string().required('ORS Number is required'),
+  responsibilityCenter: Yup.string().required(
+    'Responsibility Center is required'
+  ),
+  requestForPayment: Yup.string().required('Request for Payment is required'),
   modeOfPayment: Yup.string().required('Mode of payment is required'),
-  department: Yup.string().required('Department is required'),
-  grossAmount: Yup.number().required('Gross amount is required').min(0, 'Amount must be greater than 0'),
-  accountingEntries: Yup.array().of(
+  items: Yup.array()
+    .of(
+      Yup.object().shape({
+        description: Yup.string().required('Item description is required'),
+        amount: Yup.number()
+          .required('Amount is required')
+          .min(0, 'Amount must be greater than 0'),
+        accountCode: Yup.string().required('Account code is required'),
+      })
+    )
+    .min(1, 'At least one item is required'),
+  taxes: Yup.array().of(
     Yup.object().shape({
-      accountCode: Yup.string().required('Account code is required'),
-      debitAmount: Yup.number().min(0, 'Amount must be greater than 0'),
-      creditAmount: Yup.number().min(0, 'Amount must be greater than 0'),
-    })
-  ).min(1, 'At least one accounting entry is required'),
-  deductions: Yup.array().of(
-    Yup.object().shape({
-      deductionType: Yup.string().required('Deduction type is required'),
-      amount: Yup.number().required('Amount is required').min(0, 'Amount must be greater than 0'),
+      taxType: Yup.string().required('Tax type is required'),
+      rate: Yup.number().required('Rate is required'),
+      amount: Yup.number()
+        .required('Amount is required')
+        .min(0, 'Amount must be greater than 0'),
     })
   ),
 });
@@ -65,48 +87,75 @@ const disbursementVoucherSchema = Yup.object().shape({
 function DisbursementVoucherForm({ initialData, onClose }) {
   const dispatch = useDispatch();
   const [isSubmitting, setIsSubmitting] = useState(false);
-  
-  const calculateTotalDeductions = (deductions) => {
-    return deductions.reduce((sum, deduction) => sum + Number(deduction.amount || 0), 0);
+
+  const calculateTotals = (items, taxes) => {
+    const grossAmount = items.reduce(
+      (sum, item) => sum + Number(item.amount || 0),
+      0
+    );
+    const totalTaxes = taxes.reduce(
+      (sum, tax) => sum + Number(tax.amount || 0),
+      0
+    );
+    const netAmount = grossAmount - totalTaxes;
+
+    return { grossAmount, totalTaxes, netAmount };
   };
 
-  const defaultAccountingEntry = {
+  const defaultItem = {
+    description: '',
+    amount: '',
     accountCode: '',
-    debitAmount: '',
-    creditAmount: '',
+  };
+
+  const defaultTax = {
+    taxType: '',
+    rate: '',
+    amount: '',
   };
 
   const initialValues = {
     dvDate: initialData?.dvDate || new Date().toISOString().split('T')[0],
+    paymentDate:
+      initialData?.paymentDate || new Date().toISOString().split('T')[0],
+    payeeType: initialData?.payeeType || '',
     payeeName: initialData?.payeeName || '',
+    payeeId: initialData?.payeeId || '',
     payeeAddress: initialData?.payeeAddress || '',
+    officeUnitProject: initialData?.officeUnitProject || '',
     orsNumber: initialData?.orsNumber || '',
-    particulars: initialData?.particulars || '',
+    responsibilityCenter: initialData?.responsibilityCenter || 'Treasury',
+    requestForPayment: initialData?.requestForPayment || '',
     modeOfPayment: initialData?.modeOfPayment || '',
-    department: initialData?.department || '',
-    grossAmount: initialData?.grossAmount || '',
-    accountingEntries: Array.isArray(initialData?.accountingEntries) && initialData.accountingEntries.length > 0
-      ? initialData.accountingEntries
-      : [defaultAccountingEntry],
-    deductions: Array.isArray(initialData?.deductions) ? initialData.deductions : [],
+    items:
+      Array.isArray(initialData?.items) && initialData.items.length > 0
+        ? initialData.items
+        : [defaultItem],
+    taxes: Array.isArray(initialData?.taxes) ? initialData.taxes : [],
   };
 
   const handleSubmit = (values) => {
     setIsSubmitting(true);
-    
-    // Calculate total deductions and net amount
-    const totalDeductions = calculateTotalDeductions(values.deductions);
+
+    const { grossAmount, totalTaxes, netAmount } = calculateTotals(
+      values.items,
+      values.taxes
+    );
     const dataToSubmit = {
       ...values,
-      totalDeductions,
-      netAmount: Number(values.grossAmount) - totalDeductions,
+      grossAmount,
+      totalTaxes,
+      netAmount,
     };
-    
-    // Dispatch action based on whether we're creating or updating
-    const action = initialData 
-      ? updateDisbursementVoucher({ ...dataToSubmit, id: initialData.id, dvNumber: initialData.dvNumber }) 
+
+    const action = initialData
+      ? updateDisbursementVoucher({
+          ...dataToSubmit,
+          id: initialData.id,
+          dvNumber: initialData.dvNumber,
+        })
       : createDisbursementVoucher(dataToSubmit);
-    
+
     dispatch(action)
       .unwrap()
       .then(() => {
@@ -127,127 +176,336 @@ function DisbursementVoucherForm({ initialData, onClose }) {
       onSubmit={handleSubmit}
       enableReinitialize
     >
-      {({ values, errors, touched, handleChange, handleBlur, isValid }) => (
-        <Form className="space-y-4">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      {({
+        values,
+        errors,
+        touched,
+        handleChange,
+        handleBlur,
+        setFieldValue,
+        isValid,
+      }) => {
+        const { grossAmount, totalTaxes, netAmount } = calculateTotals(
+          values.items,
+          values.taxes
+        );
+
+        const handleTaxTypeChange = (index, value) => {
+          const selectedTax = taxTypes.find((tax) => tax.value === value);
+          if (selectedTax) {
+            setFieldValue(`taxes.${index}.taxType`, selectedTax.value);
+            setFieldValue(`taxes.${index}.rate`, selectedTax.rate);
+            setFieldValue(
+              `taxes.${index}.amount`,
+              (grossAmount * selectedTax.rate).toFixed(2)
+            );
+          }
+        };
+
+        const handleItemAmountChange = (index, value) => {
+          setFieldValue(`items.${index}.amount`, value);
+          // Recalculate tax amounts when item amounts change
+          values.taxes.forEach((tax, taxIndex) => {
+            if (tax.taxType) {
+              const selectedTax = taxTypes.find((t) => t.value === tax.taxType);
+              if (selectedTax) {
+                setFieldValue(
+                  `taxes.${taxIndex}.amount`,
+                  (grossAmount * selectedTax.rate).toFixed(2)
+                );
+              }
+            }
+          });
+        };
+
+        return (
+          <Form className="space-y-4">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <FormField
+                label="Payee Type"
+                name="payeeType"
+                type="select"
+                required
+                value={values.payeeType}
+                onChange={handleChange}
+                onBlur={handleBlur}
+                error={errors.payeeType}
+                touched={touched.payeeType}
+                options={payeeTypes}
+              />
+
+              <FormField
+                label="Request for Payment"
+                name="requestForPayment"
+                type="select"
+                required
+                value={values.requestForPayment}
+                onChange={handleChange}
+                onBlur={handleBlur}
+                error={errors.requestForPayment}
+                touched={touched.requestForPayment}
+                options={paymentRequests}
+              />
+
+              <FormField
+                label="Mode of Payment"
+                name="modeOfPayment"
+                type="select"
+                required
+                value={values.modeOfPayment}
+                onChange={handleChange}
+                onBlur={handleBlur}
+                error={errors.modeOfPayment}
+                touched={touched.modeOfPayment}
+                options={paymentModes}
+              />
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <FormField
+                label="DV Date"
+                name="dvDate"
+                type="date"
+                required
+                value={values.dvDate}
+                onChange={handleChange}
+                onBlur={handleBlur}
+                error={errors.dvDate}
+                touched={touched.dvDate}
+              />
+
+              <FormField
+                label="Payment Date"
+                name="paymentDate"
+                type="date"
+                required
+                value={values.paymentDate}
+                onChange={handleChange}
+                onBlur={handleBlur}
+                error={errors.paymentDate}
+                touched={touched.paymentDate}
+              />
+
+              <FormField
+                label="ORS Number"
+                name="orsNumber"
+                type="text"
+                required
+                value={values.orsNumber}
+                onChange={handleChange}
+                onBlur={handleBlur}
+                error={errors.orsNumber}
+                touched={touched.orsNumber}
+              />
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <FormField
+                label="Payee Name"
+                name="payeeName"
+                type="text"
+                required
+                value={values.payeeName}
+                onChange={handleChange}
+                onBlur={handleBlur}
+                error={errors.payeeName}
+                touched={touched.payeeName}
+              />
+
+              <FormField
+                label="Payee ID (TIN/Employee No.)"
+                name="payeeId"
+                type="text"
+                required
+                value={values.payeeId}
+                onChange={handleChange}
+                onBlur={handleBlur}
+                error={errors.payeeId}
+                touched={touched.payeeId}
+              />
+            </div>
+
             <FormField
-              label="DV Date"
-              name="dvDate"
-              type="date"
+              label="Payee Address"
+              name="payeeAddress"
+              type="textarea"
               required
-              value={values.dvDate}
+              value={values.payeeAddress}
               onChange={handleChange}
               onBlur={handleBlur}
-              error={errors.dvDate}
-              touched={touched.dvDate}
+              error={errors.payeeAddress}
+              touched={touched.payeeAddress}
+              rows={2}
             />
-            
-            <FormField
-              label="Mode of Payment"
-              name="modeOfPayment"
-              type="select"
-              required
-              value={values.modeOfPayment}
-              onChange={handleChange}
-              onBlur={handleBlur}
-              error={errors.modeOfPayment}
-              touched={touched.modeOfPayment}
-              options={paymentModes}
-            />
-          </div>
-          
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <FormField
-              label="Payee Name"
-              name="payeeName"
-              type="text"
-              required
-              placeholder="Enter payee name"
-              value={values.payeeName}
-              onChange={handleChange}
-              onBlur={handleBlur}
-              error={errors.payeeName}
-              touched={touched.payeeName}
-            />
-            
-            <FormField
-              label="ORS Number"
-              name="orsNumber"
-              type="text"
-              placeholder="Enter ORS number"
-              value={values.orsNumber}
-              onChange={handleChange}
-              onBlur={handleBlur}
-              error={errors.orsNumber}
-              touched={touched.orsNumber}
-            />
-          </div>
-          
-          <FormField
-            label="Payee Address"
-            name="payeeAddress"
-            type="textarea"
-            placeholder="Enter payee address"
-            value={values.payeeAddress}
-            onChange={handleChange}
-            onBlur={handleBlur}
-            error={errors.payeeAddress}
-            touched={touched.payeeAddress}
-            rows={2}
-          />
-          
-          <FormField
-            label="Department"
-            name="department"
-            type="select"
-            required
-            value={values.department}
-            onChange={handleChange}
-            onBlur={handleBlur}
-            error={errors.department}
-            touched={touched.department}
-            options={departments}
-          />
-          
-          <FormField
-            label="Particulars"
-            name="particulars"
-            type="textarea"
-            required
-            placeholder="Enter purpose of disbursement"
-            value={values.particulars}
-            onChange={handleChange}
-            onBlur={handleBlur}
-            error={errors.particulars}
-            touched={touched.particulars}
-          />
-          
-          <FormField
-            label="Gross Amount"
-            name="grossAmount"
-            type="number"
-            required
-            placeholder="0.00"
-            value={values.grossAmount}
-            onChange={handleChange}
-            onBlur={handleBlur}
-            error={errors.grossAmount}
-            touched={touched.grossAmount}
-            min="0"
-            step="0.01"
-          />
-          
-          <div className="mt-6">
-            <label className="block text-sm font-medium text-neutral-700 mb-2">Accounting Entries</label>
-            
-            <FieldArray name="accountingEntries">
-              {({ remove, push }) => (
-                <div className="space-y-3">
-                  {values.accountingEntries.map((_, index) => (
-                    <div key={index} className="bg-neutral-50 p-3 rounded-lg border border-neutral-200 space-y-3">
-                      <div className="flex justify-between items-center">
-                        <h4 className="text-sm font-medium text-neutral-700">Entry #{index + 1}</h4>
-                        {values.accountingEntries.length > 1 && (
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <FormField
+                label="Office/Unit/Project"
+                name="officeUnitProject"
+                type="text"
+                required
+                value={values.officeUnitProject}
+                onChange={handleChange}
+                onBlur={handleBlur}
+                error={errors.officeUnitProject}
+                touched={touched.officeUnitProject}
+              />
+
+              <FormField
+                label="Responsibility Center"
+                name="responsibilityCenter"
+                type="text"
+                required
+                value={values.responsibilityCenter}
+                onChange={handleChange}
+                onBlur={handleBlur}
+                error={errors.responsibilityCenter}
+                touched={touched.responsibilityCenter}
+              />
+            </div>
+
+            <div className="mt-6">
+              <label className="block text-sm font-medium text-neutral-700 mb-2">
+                Items
+              </label>
+
+              <FieldArray name="items">
+                {({ remove, push }) => (
+                  <div className="space-y-3">
+                    {values.items.map((_, index) => (
+                      <div
+                        key={index}
+                        className="bg-neutral-50 p-3 rounded-lg border border-neutral-200 space-y-3"
+                      >
+                        <div className="flex justify-between items-center">
+                          <h4 className="text-sm font-medium text-neutral-700">
+                            Item #{index + 1}
+                          </h4>
+                          {values.items.length > 1 && (
+                            <button
+                              type="button"
+                              onClick={() => remove(index)}
+                              className="text-error-600 hover:text-error-800"
+                            >
+                              <TrashIcon className="h-4 w-4" />
+                            </button>
+                          )}
+                        </div>
+
+                        <FormField
+                          label="Description"
+                          name={`items.${index}.description`}
+                          type="text"
+                          required
+                          value={values.items[index].description}
+                          onChange={handleChange}
+                          onBlur={handleBlur}
+                          error={
+                            errors.items &&
+                            errors.items[index] &&
+                            errors.items[index].description
+                          }
+                          touched={
+                            touched.items &&
+                            touched.items[index] &&
+                            touched.items[index].description
+                          }
+                        />
+
+                        <div className="grid grid-cols-2 gap-4">
+                          <FormField
+                            label="Amount"
+                            name={`items.${index}.amount`}
+                            type="number"
+                            required
+                            placeholder="0.00"
+                            value={values.items[index].amount}
+                            onChange={(e) =>
+                              handleItemAmountChange(index, e.target.value)
+                            }
+                            onBlur={handleBlur}
+                            error={
+                              errors.items &&
+                              errors.items[index] &&
+                              errors.items[index].amount
+                            }
+                            touched={
+                              touched.items &&
+                              touched.items[index] &&
+                              touched.items[index].amount
+                            }
+                            min="0"
+                            step="0.01"
+                          />
+
+                          <FormField
+                            label="Account Code"
+                            name={`items.${index}.accountCode`}
+                            type="select"
+                            required
+                            value={values.items[index].accountCode}
+                            onChange={handleChange}
+                            onBlur={handleBlur}
+                            error={
+                              errors.items &&
+                              errors.items[index] &&
+                              errors.items[index].accountCode
+                            }
+                            touched={
+                              touched.items &&
+                              touched.items[index] &&
+                              touched.items[index].accountCode
+                            }
+                            options={accountCodes}
+                          />
+                        </div>
+                      </div>
+                    ))}
+
+                    <button
+                      type="button"
+                      onClick={() =>
+                        push({ description: '', amount: '', accountCode: '' })
+                      }
+                      className="flex items-center text-sm text-primary-600 hover:text-primary-800 mt-2"
+                    >
+                      <PlusIcon className="h-4 w-4 mr-1" />
+                      Add Item
+                    </button>
+                  </div>
+                )}
+              </FieldArray>
+
+              <div className="mt-4 flex justify-between items-center py-3 px-4 bg-neutral-100 rounded-lg">
+                <span className="text-sm font-medium text-neutral-700">
+                  Gross Amount:
+                </span>
+                <span className="text-lg font-bold text-primary-700">
+                  {new Intl.NumberFormat('en-PH', {
+                    style: 'currency',
+                    currency: 'PHP',
+                  }).format(grossAmount)}
+                </span>
+              </div>
+            </div>
+
+            <div className="mt-6">
+              <label className="block text-sm font-medium text-neutral-700 mb-2">
+                Taxes/Deductions
+              </label>
+
+              <FieldArray name="taxes">
+                {({ remove, push }) => (
+                  <div className="space-y-3">
+                    {values.taxes.map((_, index) => (
+                      <div
+                        key={index}
+                        className="bg-neutral-50 p-3 rounded-lg border border-neutral-200 space-y-3"
+                      >
+                        <div className="flex justify-between items-center">
+                          <h4 className="text-sm font-medium text-neutral-700">
+                            Tax #{index + 1}
+                          </h4>
                           <button
                             type="button"
                             onClick={() => remove(index)}
@@ -255,207 +513,129 @@ function DisbursementVoucherForm({ initialData, onClose }) {
                           >
                             <TrashIcon className="h-4 w-4" />
                           </button>
-                        )}
-                      </div>
-                      
-                      <FormField
-                        label="Account Code"
-                        name={`accountingEntries.${index}.accountCode`}
-                        type="select"
-                        required
-                        value={values.accountingEntries[index].accountCode}
-                        onChange={handleChange}
-                        onBlur={handleBlur}
-                        error={
-                          errors.accountingEntries && 
-                          errors.accountingEntries[index] && 
-                          errors.accountingEntries[index].accountCode
-                        }
-                        touched={
-                          touched.accountingEntries && 
-                          touched.accountingEntries[index] && 
-                          touched.accountingEntries[index].accountCode
-                        }
-                        options={accountCodes}
-                      />
-                      
-                      <div className="grid grid-cols-2 gap-4">
+                        </div>
+
                         <FormField
-                          label="Debit Amount"
-                          name={`accountingEntries.${index}.debitAmount`}
-                          type="number"
-                          placeholder="0.00"
-                          value={values.accountingEntries[index].debitAmount}
-                          onChange={handleChange}
+                          label="Tax Type"
+                          name={`taxes.${index}.taxType`}
+                          type="select"
+                          required
+                          value={values.taxes[index].taxType}
+                          onChange={(e) =>
+                            handleTaxTypeChange(index, e.target.value)
+                          }
                           onBlur={handleBlur}
                           error={
-                            errors.accountingEntries && 
-                            errors.accountingEntries[index] && 
-                            errors.accountingEntries[index].debitAmount
+                            errors.taxes &&
+                            errors.taxes[index] &&
+                            errors.taxes[index].taxType
                           }
                           touched={
-                            touched.accountingEntries && 
-                            touched.accountingEntries[index] && 
-                            touched.accountingEntries[index].debitAmount
+                            touched.taxes &&
+                            touched.taxes[index] &&
+                            touched.taxes[index].taxType
                           }
-                          min="0"
-                          step="0.01"
+                          options={taxTypes}
                         />
-                        
-                        <FormField
-                          label="Credit Amount"
-                          name={`accountingEntries.${index}.creditAmount`}
-                          type="number"
-                          placeholder="0.00"
-                          value={values.accountingEntries[index].creditAmount}
-                          onChange={handleChange}
-                          onBlur={handleBlur}
-                          error={
-                            errors.accountingEntries && 
-                            errors.accountingEntries[index] && 
-                            errors.accountingEntries[index].creditAmount
-                          }
-                          touched={
-                            touched.accountingEntries && 
-                            touched.accountingEntries[index] && 
-                            touched.accountingEntries[index].creditAmount
-                          }
-                          min="0"
-                          step="0.01"
-                        />
+
+                        <div className="grid grid-cols-2 gap-4">
+                          <FormField
+                            label="Rate"
+                            name={`taxes.${index}.rate`}
+                            type="text"
+                            required
+                            disabled
+                            value={
+                              values.taxes[index].rate
+                                ? `${values.taxes[index].rate * 100}%`
+                                : ''
+                            }
+                            onChange={handleChange}
+                            onBlur={handleBlur}
+                          />
+
+                          <FormField
+                            label="Amount"
+                            name={`taxes.${index}.amount`}
+                            type="number"
+                            required
+                            disabled
+                            value={values.taxes[index].amount}
+                            onChange={handleChange}
+                            onBlur={handleBlur}
+                            error={
+                              errors.taxes &&
+                              errors.taxes[index] &&
+                              errors.taxes[index].amount
+                            }
+                            touched={
+                              touched.taxes &&
+                              touched.taxes[index] &&
+                              touched.taxes[index].amount
+                            }
+                          />
+                        </div>
                       </div>
+                    ))}
+
+                    <button
+                      type="button"
+                      onClick={() =>
+                        push({ taxType: '', rate: '', amount: '' })
+                      }
+                      className="flex items-center text-sm text-primary-600 hover:text-primary-800 mt-2"
+                    >
+                      <PlusIcon className="h-4 w-4 mr-1" />
+                      Add Tax/Deduction
+                    </button>
+
+                    <div className="mt-4 flex justify-between items-center py-3 px-4 bg-neutral-100 rounded-lg">
+                      <span className="text-sm font-medium text-neutral-700">
+                        Total Taxes/Deductions:
+                      </span>
+                      <span className="text-lg font-bold text-primary-700">
+                        {new Intl.NumberFormat('en-PH', {
+                          style: 'currency',
+                          currency: 'PHP',
+                        }).format(totalTaxes)}
+                      </span>
                     </div>
-                  ))}
-                  
-                  <button
-                    type="button"
-                    onClick={() => push({ accountCode: '', debitAmount: '', creditAmount: '' })}
-                    className="flex items-center text-sm text-primary-600 hover:text-primary-800 mt-2"
-                  >
-                    <PlusIcon className="h-4 w-4 mr-1" />
-                    Add Accounting Entry
-                  </button>
-                </div>
-              )}
-            </FieldArray>
-          </div>
-          
-          <div className="mt-6">
-            <label className="block text-sm font-medium text-neutral-700 mb-2">Deductions</label>
-            
-            <FieldArray name="deductions">
-              {({ remove, push }) => (
-                <div className="space-y-3">
-                  {values.deductions.map((_, index) => (
-                    <div key={index} className="bg-neutral-50 p-3 rounded-lg border border-neutral-200 space-y-3">
-                      <div className="flex justify-between items-center">
-                        <h4 className="text-sm font-medium text-neutral-700">Deduction #{index + 1}</h4>
-                        <button
-                          type="button"
-                          onClick={() => remove(index)}
-                          className="text-error-600 hover:text-error-800"
-                        >
-                          <TrashIcon className="h-4 w-4" />
-                        </button>
-                      </div>
-                      
-                      <FormField
-                        label="Deduction Type"
-                        name={`deductions.${index}.deductionType`}
-                        type="select"
-                        required
-                        value={values.deductions[index].deductionType}
-                        onChange={handleChange}
-                        onBlur={handleBlur}
-                        error={
-                          errors.deductions && 
-                          errors.deductions[index] && 
-                          errors.deductions[index].deductionType
-                        }
-                        touched={
-                          touched.deductions && 
-                          touched.deductions[index] && 
-                          touched.deductions[index].deductionType
-                        }
-                        options={deductionTypes}
-                      />
-                      
-                      <FormField
-                        label="Amount"
-                        name={`deductions.${index}.amount`}
-                        type="number"
-                        required
-                        placeholder="0.00"
-                        value={values.deductions[index].amount}
-                        onChange={handleChange}
-                        onBlur={handleBlur}
-                        error={
-                          errors.deductions && 
-                          errors.deductions[index] && 
-                          errors.deductions[index].amount
-                        }
-                        touched={
-                          touched.deductions && 
-                          touched.deductions[index] && 
-                          touched.deductions[index].amount
-                        }
-                        min="0"
-                        step="0.01"
-                      />
+
+                    <div className="flex justify-between items-center py-3 px-4 bg-neutral-100 rounded-lg">
+                      <span className="text-sm font-medium text-neutral-700">
+                        Net Amount:
+                      </span>
+                      <span className="text-lg font-bold text-primary-700">
+                        {new Intl.NumberFormat('en-PH', {
+                          style: 'currency',
+                          currency: 'PHP',
+                        }).format(netAmount)}
+                      </span>
                     </div>
-                  ))}
-                  
-                  <button
-                    type="button"
-                    onClick={() => push({ deductionType: '', amount: '' })}
-                    className="flex items-center text-sm text-primary-600 hover:text-primary-800 mt-2"
-                  >
-                    <PlusIcon className="h-4 w-4 mr-1" />
-                    Add Deduction
-                  </button>
-                  
-                  <div className="mt-4 flex justify-between items-center py-3 px-4 bg-neutral-100 rounded-lg">
-                    <span className="text-sm font-medium text-neutral-700">Total Deductions:</span>
-                    <span className="text-lg font-bold text-primary-700">
-                      {new Intl.NumberFormat('en-PH', {
-                        style: 'currency',
-                        currency: 'PHP',
-                      }).format(calculateTotalDeductions(values.deductions))}
-                    </span>
                   </div>
-                  
-                  <div className="flex justify-between items-center py-3 px-4 bg-neutral-100 rounded-lg">
-                    <span className="text-sm font-medium text-neutral-700">Net Amount:</span>
-                    <span className="text-lg font-bold text-primary-700">
-                      {new Intl.NumberFormat('en-PH', {
-                        style: 'currency',
-                        currency: 'PHP',
-                      }).format(Number(values.grossAmount || 0) - calculateTotalDeductions(values.deductions))}
-                    </span>
-                  </div>
-                </div>
-              )}
-            </FieldArray>
-          </div>
-          
-          <div className="flex justify-end space-x-3 pt-4 mt-4 border-t border-neutral-200">
-            <button
-              type="button"
-              onClick={onClose}
-              className="btn btn-outline"
-            >
-              Cancel
-            </button>
-            <button
-              type="submit"
-              disabled={isSubmitting || !isValid}
-              className="btn btn-primary"
-            >
-              {isSubmitting ? 'Saving...' : initialData ? 'Update' : 'Create'}
-            </button>
-          </div>
-        </Form>
-      )}
+                )}
+              </FieldArray>
+            </div>
+
+            <div className="flex justify-end space-x-3 pt-4 mt-4 border-t border-neutral-200">
+              <button
+                type="button"
+                onClick={onClose}
+                className="btn btn-outline"
+              >
+                Cancel
+              </button>
+              <button
+                type="submit"
+                disabled={isSubmitting || !isValid}
+                className="btn btn-primary"
+              >
+                {isSubmitting ? 'Saving...' : initialData ? 'Update' : 'Create'}
+              </button>
+            </div>
+          </Form>
+        );
+      }}
     </Formik>
   );
 }
