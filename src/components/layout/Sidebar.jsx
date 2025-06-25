@@ -1,7 +1,7 @@
-import { useState } from "react";
-import { Link, useLocation } from "react-router-dom";
-import { useSelector } from "react-redux";
-import clsx from "clsx";
+import { useState } from 'react';
+import { Link, useLocation } from 'react-router-dom';
+import { useSelector } from 'react-redux';
+import clsx from 'clsx';
 import {
   HomeIcon,
   Cog6ToothIcon,
@@ -14,219 +14,231 @@ import {
   ChartBarIcon,
   ArchiveBoxIcon,
   ListBulletIcon,
-} from "@heroicons/react/24/outline";
-import { ChevronRightIcon } from "@heroicons/react/20/solid";
+} from '@heroicons/react/24/outline';
+import { ChevronRightIcon } from '@heroicons/react/20/solid';
 
 // Main navigation items organized by module
 const navigation = [
-  { name: "Dashboard", href: "/dashboard", icon: HomeIcon },
+  { name: 'Dashboard', href: '/dashboard', icon: HomeIcon },
   {
-    name: "Settings",
+    name: 'Settings',
     icon: Cog6ToothIcon,
     submenu: [
-      { name: "Departments", href: "/settings/departments" },
-      { name: "Subdepartments", href: "/settings/subdepartments" },
-      { name: "Modules", href: "/settings/modules" },
+      { name: 'Departments', href: '/settings/departments' },
+      { name: 'Subdepartments', href: '/settings/subdepartments' },
+      { name: 'Modules', href: '/settings/modules' },
       {
-        name: "Users",
+        name: 'Users',
         submenu: [
-          { name: "Approval Matrix", href: "/settings/approval-matrix" },
-          { name: "User Access", href: "/settings/user-access" },
-          { name: "User Roles", href: "/settings/user-roles" },
-          { name: "User", href: "/settings/users" },
+          { name: 'Approval Matrix', href: '/settings/approval-matrix' },
+          { name: 'User Access', href: '/settings/user-access' },
+          { name: 'User Roles', href: '/settings/user-roles' },
+          { name: 'User', href: '/settings/users' },
         ],
       },
       {
-        name: "Real Property",
+        name: 'Real Property',
         submenu: [
-          { name: "Tax Declaration", href: "/settings/tax-declaration" },
-          { name: "Base Unit Value", href: "/settings/base-unit-value" },
-          { name: "General Revision", href: "/settings/general-revision" },
+          { name: 'Tax Declaration', href: '/settings/tax-declaration' },
+          { name: 'Base Unit Value', href: '/settings/base-unit-value' },
+          { name: 'General Revision', href: '/settings/general-revision' },
         ],
       },
       {
-        name: "Accounting Settings",
+        name: 'Accounting Settings',
         submenu: [
           {
-            name: "Bank Details",
+            name: 'Bank Details',
             submenu: [
-              { name: "Bank", href: "/settings/bank" },
-              { name: "Currency", href: "/settings/currency" },
+              { name: 'Bank', href: '/settings/bank' },
+              { name: 'Currency', href: '/settings/currency' },
             ],
           },
           {
-            name: "Document Details",
+            name: 'Document Details',
             submenu: [
-              { name: "Document Type", href: "/settings/document-details" },
-              { name: "Document Type Category", href: "/settings/document-type-categories" },
-            ],
-          },
-          {
-            name: "Items Settings",
-            submenu: [
-              { name: "Item List", href: "/settings/items" },
-              { name: "Item Units", href: "/settings/items/units" },
+              { name: 'Document Type', href: '/settings/document-details' },
               {
-                name: "Invoice Charge Accounts",
-                href: "/settings/items/invoice-charge-accounts",
+                name: 'Document Type Category',
+                href: '/settings/document-type-categories',
               },
             ],
           },
           {
-            name: "Project Settings",
+            name: 'Items Settings',
             submenu: [
-              { name: "Project Details", href: "/settings/project-details" },
-              { name: "Project Type", href: "/settings/project-type" },
+              { name: 'Item List', href: '/settings/items' },
+              { name: 'Item Units', href: '/settings/items/units' },
+              {
+                name: 'Invoice Charge Accounts',
+                href: '/settings/items/invoice-charge-accounts',
+              },
             ],
           },
           {
-            name: "Financial Statement",
-            href: "/settings/financial-statement",
+            name: 'Project Settings',
+            submenu: [
+              { name: 'Project Details', href: '/settings/project-details' },
+              { name: 'Project Type', href: '/settings/project-type' },
+            ],
           },
-          { name: "Fiscal Year", href: "/settings/fiscal-year" },
-          { name: "Tax Code", href: "/settings/tax-code" },
-          { name: "Mode of Payment", href: "/settings/mode-of-payment" },
-          { name: "Payment Terms", href: "/settings/payment-terms" },
-          { name: "Industry", href: "/settings/industry" },
+          {
+            name: 'Financial Statement',
+            href: '/settings/financial-statement',
+          },
+          { name: 'Fiscal Year', href: '/settings/fiscal-year' },
+          { name: 'Tax Code', href: '/settings/tax-code' },
+          { name: 'Mode of Payment', href: '/settings/mode-of-payment' },
+          { name: 'Payment Terms', href: '/settings/payment-terms' },
+          { name: 'Industry', href: '/settings/industry' },
         ],
       },
-      { name: "Locations", href: "/settings/locations" },
-      { name: "Customer", href: "/settings/customer" },
+      { name: 'Locations', href: '/settings/locations' },
+      { name: 'Customer', href: '/settings/customer' },
       {
-        name: "Chart of Accounts Settings",
+        name: 'Chart of Accounts Settings',
         submenu: [
-          { name: "Chart of Accounts", href: "/settings/chart-of-accounts" },
-          { name: "Account Group", href: "/settings/account-group" },
-          { name: "Major Account Group", href: "/settings/major-account-group" },
-          { name: "Sub Major Account Group", href: "/settings/sub-major-account-group" },
-        ],
-      },
-      {
-        name: "Vendors",
-        submenu: [
-          { name: "Vendor Details", href: "/settings/vendors" },
-          { name: "Vendor Customer Type", href: "/settings/vendor-customer-type" },
-          { name: "Vendor Type", href: "/settings/vendor-type" },
-        ],
-      },
-      {
-        name: "Employees",
-        submenu: [
-          { name: "Employees", href: "/settings/employees" },
-          { name: "Employment Status", href: "/settings/employmentStatus" },
-          { name: "Positions", href: "/settings/positions" },
-          { name: "Nationalities", href: "/settings/nationalities" },
+          { name: 'Chart of Accounts', href: '/settings/chart-of-accounts' },
+          { name: 'Account Group', href: '/settings/account-group' },
+          {
+            name: 'Major Account Group',
+            href: '/settings/major-account-group',
+          },
+          {
+            name: 'Sub Major Account Group',
+            href: '/settings/sub-major-account-group',
+          },
         ],
       },
       {
-        name: "PPE Settings",
+        name: 'Vendors',
         submenu: [
-          { name: "PPE List", href: "/settings/ppe" },
-          { name: "PPE Categories", href: "/settings/ppe-categories" },
-          { name: "PPE Suppliers", href: "/settings/ppe-suppliers" },
+          { name: 'Vendor Details', href: '/settings/vendors' },
+          {
+            name: 'Vendor Customer Type',
+            href: '/settings/vendor-customer-type',
+          },
+          { name: 'Vendor Type', href: '/settings/vendor-type' },
         ],
       },
-      { name: "LGU Maintenance", href: "/settings/lgu-maintenance" },
+      {
+        name: 'Employees',
+        submenu: [
+          { name: 'Employees', href: '/settings/employees' },
+          { name: 'Employment Status', href: '/settings/employmentStatus' },
+          { name: 'Positions', href: '/settings/positions' },
+          { name: 'Nationalities', href: '/settings/nationalities' },
+        ],
+      },
+      {
+        name: 'PPE Settings',
+        submenu: [
+          { name: 'PPE List', href: '/settings/ppe' },
+          { name: 'PPE Categories', href: '/settings/ppe-categories' },
+          { name: 'PPE Suppliers', href: '/settings/ppe-suppliers' },
+        ],
+      },
+      { name: 'LGU Maintenance', href: '/settings/lgu-maintenance' },
     ],
   },
   {
-    name: "Disbursement",
+    name: 'Disbursement',
     icon: CurrencyDollarIcon,
     submenu: [
-      { name: "Obligation Request", href: "/disbursement/obligation-requests" },
-      { name: "Disbursement Voucher", href: "/disbursement/vouchers" },
-      { name: "Travel Order", href: "/disbursement/travel-orders" },
+      { name: 'Obligation Request', href: '/disbursement/obligation-requests' },
+      { name: 'Disbursement Voucher', href: '/disbursement/vouchers' },
+      { name: 'Travel Order', href: '/disbursement/travel-orders' },
       {
-        name: "Journal Entry Voucher",
-        href: "/disbursement/journal-entry-vouchers",
+        name: 'Journal Entry Voucher',
+        href: '/disbursement/journal-entry-vouchers',
       },
       {
-        name: "Disbursement Journals",
-        href: "/disbursement/disbursement-journals",
+        name: 'Disbursement Journals',
+        href: '/disbursement/disbursement-journals',
       },
-      { name: "General Journals", href: "/disbursement/general-journals" },
-      { name: "Beginning Balance", href: "/disbursement/beginning-balance" },
-      { name: "Purchase Request", href: "/disbursement/purchase-requests" },
+      { name: 'General Journals', href: '/disbursement/general-journals' },
+      { name: 'Beginning Balance', href: '/disbursement/beginning-balance' },
+      { name: 'Purchase Request', href: '/disbursement/purchase-requests' },
       {
-        name: "Fund Utilization Request",
-        href: "/disbursement/fund-utilization-requests",
+        name: 'Fund Utilization Request',
+        href: '/disbursement/fund-utilization-requests',
       },
     ],
   },
   {
-    name: "Collections",
+    name: 'Collections',
     icon: ReceiptRefundIcon,
     submenu: [
-      { name: "Community Tax", href: "/collections/community-tax" },
+      { name: 'Community Tax', href: '/collections/community-tax' },
       {
-        name: "Community Tax Corporation",
-        href: "/collections/community-tax-corporation",
+        name: 'Community Tax Corporation',
+        href: '/collections/community-tax-corporation',
       },
       {
-        name: "General Service Receipt",
-        href: "/collections/general-service-receipts",
+        name: 'General Service Receipt',
+        href: '/collections/general-service-receipts',
       },
       {
-        name: "Burial Service Receipt",
-        href: "/collections/burial-service-receipts",
+        name: 'Burial Service Receipt',
+        href: '/collections/burial-service-receipts',
       },
       {
-        name: "Marriage Service Receipt",
-        href: "/collections/marriage-service-receipts",
+        name: 'Marriage Service Receipt',
+        href: '/collections/marriage-service-receipts',
       },
-      { name: "Real Property Tax", href: "/collections/real-property-tax" },
-      { name: "CashBook", href: "/collections/cashbook" },
-      { name: "Collection Report", href: "/collections/reports" },
+      { name: 'Real Property Tax', href: '/collections/real-property-tax' },
+      { name: 'Cashbook', href: '/collections/cashbook' },
+      { name: 'Collection Report', href: '/collections/reports' },
       {
-        name: "Public Market Ticket",
-        href: "/collections/public-market-tickets",
+        name: 'Public Market Ticket',
+        href: '/collections/public-market-tickets',
       },
     ],
   },
 
   {
-    name: "Applications",
+    name: 'Applications',
     icon: DocumentTextIcon,
     submenu: [
-      { name: "Business Permits", href: "/applications/business-permits" },
-      { name: "Cheque Generator", href: "/applications/cheque-generator" },
+      { name: 'Business Permits', href: '/applications/business-permits' },
+      { name: 'Cheque Generator', href: '/applications/cheque-generator' },
     ],
   },
   {
-    name: "Budget",
+    name: 'Budget',
     icon: DocumentDuplicateIcon,
     submenu: [
       // { name: "Budget Management", href: "/budget" },
-      { name: "Budget Details", href: "/budget/details" },
-      { name: "Budget Allotment", href: "/budget/allotment" },
-      { name: "Budget Summary", href: "/budget/summary" },
-      { name: "Budget Supplemental", href: "/budget/supplemental" },
-      { name: "Budget Transfer", href: "/budget/transfer" },
-      { name: "Budget Report", href: "/budget/report" },
-      { name: "Funds", href: "/budget/funds" },
-      { name: "Sub-funds", href: "/budget/sub-funds" },
-      { name: "Fund Transfer", href: "/budget/fund-transfer" },
-      { name: "Statement of Comparison", href: "/budget/statement-comparison" },
+      { name: 'Budget Details', href: '/budget/details' },
+      { name: 'Budget Allotment', href: '/budget/allotment' },
+      { name: 'Budget Summary', href: '/budget/summary' },
+      { name: 'Budget Supplemental', href: '/budget/supplemental' },
+      { name: 'Budget Transfer', href: '/budget/transfer' },
+      { name: 'Budget Report', href: '/budget/report' },
+      { name: 'Funds', href: '/budget/funds' },
+      { name: 'Sub-funds', href: '/budget/sub-funds' },
+      { name: 'Fund Transfer', href: '/budget/fund-transfer' },
+      { name: 'Statement of Comparison', href: '/budget/statement-comparison' },
       {
-        name: "Statement of Appropriation, Allotment, Obligation, Balances",
-        href: "/budget/statement-appropriation",
+        name: 'Statement of Appropriation, Allotment, Obligation, Balances',
+        href: '/budget/statement-appropriation',
       },
     ],
   },
   {
-    name: "Reports",
+    name: 'Reports',
     icon: ChartBarIcon,
     submenu: [
-      { name: "General Ledger", href: "/reports/general-ledger" },
-      { name: "Financial Statements", href: "/reports/financial-statements" },
+      { name: 'General Ledger', href: '/reports/general-ledger' },
+      { name: 'Financial Statements', href: '/reports/financial-statements' },
       // { name: "Budget Reports", href: "/reports/budget" },
-      { name: "Subsidiary Ledger", href: "/reports/subsidiary-ledger" },
-      { name: "Trial Balance", href: "/reports/trial-balance" },
+      { name: 'Subsidiary Ledger', href: '/reports/subsidiary-ledger' },
+      { name: 'Trial Balance', href: '/reports/trial-balance' },
     ],
   },
   {
-    name: "BIR Reports",
-    href: "/reports/bir",
+    name: 'BIR Reports',
+    href: '/reports/bir',
     icon: ChartBarIcon,
   },
 ];
@@ -238,13 +250,13 @@ function SidebarMenu({
   isActive,
   isSubMenuActive,
   level = 0,
-  parentPath = "",
+  parentPath = '',
 }) {
   return (
     <div
       className={clsx(
-        "space-y-1",
-        level > 0 && "ml-4 border-l-2 border-neutral-200 pl-3" // Added left border for child items
+        'space-y-1',
+        level > 0 && 'ml-4 border-l-2 border-neutral-200 pl-3' // Added left border for child items
       )}
     >
       {items.map((item) => {
@@ -262,22 +274,22 @@ function SidebarMenu({
                     toggleMenu(itemPath);
                   }}
                   className={clsx(
-                    "group flex items-center justify-between w-full px-3 py-2 text-sm font-medium rounded-md transition-colors",
+                    'group flex items-center justify-between w-full px-3 py-2 text-sm font-medium rounded-md transition-colors',
                     hasActiveChild
-                      ? "bg-primary-50 text-primary-700"
-                      : "text-neutral-700 hover:bg-neutral-100",
-                    isExpanded && "border-l-4 border-primary-500",
-                    level > 0 && "pl-2" // Adjust padding for nested items
+                      ? 'bg-primary-50 text-primary-700'
+                      : 'text-neutral-700 hover:bg-neutral-100',
+                    isExpanded && 'border-l-4 border-primary-500',
+                    level > 0 && 'pl-2' // Adjust padding for nested items
                   )}
                 >
                   <div className="flex items-center">
                     {item.icon && (
                       <item.icon
                         className={clsx(
-                          "mr-3 h-5 w-5 flex-shrink-0",
+                          'mr-3 h-5 w-5 flex-shrink-0',
                           hasActiveChild
-                            ? "text-primary-500"
-                            : "text-neutral-400 group-hover:text-neutral-500"
+                            ? 'text-primary-500'
+                            : 'text-neutral-400 group-hover:text-neutral-500'
                         )}
                       />
                     )}
@@ -286,10 +298,10 @@ function SidebarMenu({
                   <div className="flex items-center">
                     <svg
                       className={clsx(
-                        "h-5 w-5 transform transition-transform flex-shrink-0",
+                        'h-5 w-5 transform transition-transform flex-shrink-0',
                         isExpanded
-                          ? "rotate-180 text-primary-500"
-                          : "text-neutral-400"
+                          ? 'rotate-180 text-primary-500'
+                          : 'text-neutral-400'
                       )}
                       xmlns="http://www.w3.org/2000/svg"
                       viewBox="0 0 20 20"
@@ -305,7 +317,7 @@ function SidebarMenu({
                 </button>
                 {isExpanded && (
                   <div className="mt-1">
-                    {" "}
+                    {' '}
                     {/* Added margin top for separation */}
                     <SidebarMenu
                       items={item.submenu}
@@ -323,20 +335,20 @@ function SidebarMenu({
               <Link
                 to={item.href}
                 className={clsx(
-                  "group flex items-center px-3 py-2 text-sm font-medium rounded-md transition-colors",
+                  'group flex items-center px-3 py-2 text-sm font-medium rounded-md transition-colors',
                   isActive(item.href)
-                    ? "bg-primary-50 text-primary-700 border-l-4 border-primary-500"
-                    : "text-neutral-700 hover:bg-neutral-100 hover:text-neutral-900",
-                  level > 0 && "pl-2" // Adjust padding for nested items
+                    ? 'bg-primary-50 text-primary-700 border-l-4 border-primary-500'
+                    : 'text-neutral-700 hover:bg-neutral-100 hover:text-neutral-900',
+                  level > 0 && 'pl-2' // Adjust padding for nested items
                 )}
               >
                 {item.icon && (
                   <item.icon
                     className={clsx(
-                      "mr-3 h-5 w-5 flex-shrink-0",
+                      'mr-3 h-5 w-5 flex-shrink-0',
                       isActive(item.href)
-                        ? "text-primary-500"
-                        : "text-neutral-400 group-hover:text-neutral-500"
+                        ? 'text-primary-500'
+                        : 'text-neutral-400 group-hover:text-neutral-500'
                     )}
                   />
                 )}
@@ -396,8 +408,8 @@ function Sidebar() {
         <div className="flex items-center px-4 py-3 border-t border-neutral-200 bg-white">
           <div className="flex-shrink-0">
             <div className="h-8 w-8 rounded-full bg-primary-700 flex items-center justify-center text-white font-medium text-sm">
-              {user.firstName?.charAt(0) || ""}
-              {user.lastName?.charAt(0) || ""}
+              {user.firstName?.charAt(0) || ''}
+              {user.lastName?.charAt(0) || ''}
             </div>
           </div>
           <div className="ml-3 min-w-0 flex-1">
