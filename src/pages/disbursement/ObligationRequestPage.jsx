@@ -179,7 +179,7 @@ function ObligationRequestPage() {
             ? 'Edit Obligation Request'
             : 'Create Obligation Request'
         }
-        size="lg"
+        size="xxxl"
       >
         <ObligationRequestForm
           initialData={currentObligationRequest}
