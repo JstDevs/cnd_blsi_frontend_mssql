@@ -158,7 +158,7 @@ function ObligationRequestForm({ initialData, onClose }) {
         onClose();
       })
       .catch((error) => {
-        console.error('Error submitting ORS:', error);
+        console.error('Error submitting OBR:', error);
       })
       .finally(() => {
         setIsSubmitting(false);
@@ -184,7 +184,7 @@ function ObligationRequestForm({ initialData, onClose }) {
         <Form className="space-y-4">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <FormField
-              label="ORS Date"
+              label="OBR Date"
               name="orsDate"
               type="date"
               required
