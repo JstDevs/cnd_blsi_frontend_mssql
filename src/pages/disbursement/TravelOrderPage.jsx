@@ -1,16 +1,22 @@
 import { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { PlusIcon, EyeIcon, PencilIcon } from '@heroicons/react/24/outline';
+import { PlusIcon, EyeIcon, PencilIcon, TrashIcon } from '@heroicons/react/24/outline';
 import DataTable from '../../components/common/DataTable';
 import Modal from '../../components/common/Modal';
-import { fetchTravelOrders } from '../../features/disbursement/travelOrderSlice';
 import TravelOrderForm from '../../components/forms/TravelOrderForm';
 import TravelOrderDetails from './TravelOrderDetails';
+import {
+  fetchTravelOrders,
+  addTravelOrder,
+  updateTravelOrder,
+  deleteTravelOrder
+} from '../../features/disbursement/travelOrderSlice';
 
 
 function TravelOrderPage() {
   const dispatch = useDispatch();
   const { travelOrders, isLoading } = useSelector(state => state.travelOrders);
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [isViewModalOpen, setIsViewModalOpen] = useState(false);
@@ -20,6 +26,30 @@ function TravelOrderPage() {
     dispatch(fetchTravelOrders());
   }, [dispatch]);
   
+  
+  // const handleSubmit = (values) => {
+  //   if (currentTravelOrder) {
+  //     dispatch(updateTravelOrder({ ...values, ID: currentTravelOrder.ID }));
+  //   } else {
+  //     dispatch(addTravelOrder(values));
+  //   }
+  //   setIsCreateModalOpen(false);
+  //   setCurrentTravelOrder(null);
+  // };
+
+  const handleSubmit = (formData) => {
+    if (currentTravelOrder) {
+      formData.append('ID', currentTravelOrder.ID); // add ID to FormData if editing
+      dispatch(updateTravelOrder(formData));
+    } else {
+      dispatch(addTravelOrder(formData));
+    }
+
+    setIsCreateModalOpen(false);
+    setCurrentTravelOrder(null);
+  };
+
+
   const handleCreateTO = () => {
     setCurrentTravelOrder(null);
     setIsCreateModalOpen(true);
@@ -33,6 +63,24 @@ function TravelOrderPage() {
   const handleEditTO = (to) => {
     setCurrentTravelOrder(to);
     setIsCreateModalOpen(true);
+  };
+  
+
+  const handleDelete = (travelOrder) => {
+    setCurrentTravelOrder(travelOrder);
+    setIsDeleteModalOpen(true);
+  };
+  
+  const confirmDelete = async () => {
+    if (currentTravelOrder) {
+      try {
+        await dispatch(deleteTravelOrder(currentTravelOrder.ID)).unwrap();
+        setIsDeleteModalOpen(false);
+        setCurrentTravelOrder(null);
+      } catch (error) {
+        console.error('Failed to delete travel order:', error);
+      }
+    }
   };
   
   const handleCloseCreateModal = () => {
@@ -61,93 +109,57 @@ function TravelOrderPage() {
   // Table columns definition
   const columns = [
     {
-      key: 'toNumber',
-      header: 'TO Number',
+      key: 'Status',
+      header: 'Status',
       sortable: true,
       className: 'font-medium text-neutral-900',
     },
     {
-      key: 'toDate',
-      header: 'Date',
-      sortable: true,
-      render: (value) => formatDate(value),
-    },
-    {
-      key: 'employeeName',
-      header: 'Employee',
+      key: 'OfficeID',
+      header: 'Office',
       sortable: true,
     },
     {
-      key: 'department',
-      header: 'Department',
+      key: 'DateCreated',
+      header: 'Date of Filing',
       sortable: true,
     },
     {
-      key: 'destination',
-      header: 'Destination',
+      key: 'TravelOrderNumber',
+      header: 'Travel Order No.',
       sortable: true,
     },
     {
-      key: 'departureDate',
-      header: 'Departure',
+      key: 'FullName',
+      header: 'Full Name',
       sortable: true,
-      render: (value) => formatDate(value),
     },
     {
-      key: 'estimatedExpenses',
-      header: 'Est. Expenses',
+      key: 'Position/Designation',
+      header: 'Position/Designation',
       sortable: true,
-      render: (value) => formatCurrency(value),
-      className: 'text-right',
     },
     {
-      key: 'status',
-      header: 'Status',
+      key: 'No_of_Days',
+      header: 'No. of Days',
       sortable: true,
-      render: (value) => {
-        let bgColor = 'bg-neutral-100 text-neutral-800';
-        
-        switch (value) {
-          case 'Pending Recommendation':
-            bgColor = 'bg-warning-100 text-warning-800';
-            break;
-          case 'Pending Approval':
-            bgColor = 'bg-primary-100 text-primary-800';
-            break;
-          case 'Approved':
-          case 'Liquidated':
-            bgColor = 'bg-success-100 text-success-800';
-            break;
-          case 'Cancelled':
-            bgColor = 'bg-error-100 text-error-800';
-            break;
-          default:
-            break;
-        }
-        
-        return (
-          <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${bgColor}`}>
-            {value}
-          </span>
-        );
-      },
     },
   ];
   
   // Actions for table rows
   const actions = [
     {
-      icon: EyeIcon,
-      title: 'View',
-      onClick: handleViewTO,
-      className: 'text-primary-600 hover:text-primary-900 p-1 rounded-full hover:bg-primary-50'
-    },
-    {
       icon: PencilIcon,
       title: 'Edit',
       onClick: handleEditTO,
       className: 'text-primary-600 hover:text-primary-900 p-1 rounded-full hover:bg-primary-50'
     },
+    {
+      icon: TrashIcon,
+      title: 'Delete',
+      onClick: handleDelete,
+      className: 'text-error-600 hover:text-error-900 p-1 rounded-full hover:bg-error-50'
+    }
   ];
 
   return (
@@ -175,7 +187,6 @@ function TravelOrderPage() {
           data={travelOrders}
           actions={actions}
           loading={isLoading}
-          onRowClick={handleViewTO}
         />
       </div>
       
@@ -188,6 +199,7 @@ function TravelOrderPage() {
       >
         <TravelOrderForm 
           initialData={currentTravelOrder} 
+          onSubmit={handleSubmit}
           onClose={handleCloseCreateModal} 
         />
       </Modal>
@@ -211,6 +223,39 @@ function TravelOrderPage() {
             employeeOptions={[]} // Replace with actual employee options if needed
           />
         )}
+      </Modal>
+
+      
+      {/* Delete Confirmation Modal */}
+      <Modal
+        isOpen={isDeleteModalOpen}
+        onClose={() => setIsDeleteModalOpen(false)}
+        title="Confirm Delete"
+      >
+        <div className="py-3">
+          <p className="text-neutral-700">
+            Are you sure you want to delete the travel order "{currentTravelOrder?.TravelOrderNumber}"?
+          </p>
+          <p className="text-sm text-neutral-500 mt-2">
+            This action cannot be undone.
+          </p>
+        </div>
+        <div className="flex justify-end space-x-3 pt-4 border-t border-neutral-200">
+          <button
+            type="button"
+            onClick={() => setIsDeleteModalOpen(false)}
+            className="btn btn-outline"
+          >
+            Cancel
+          </button>
+          <button
+            type="button"
+            onClick={confirmDelete}
+            className="btn btn-danger"
+          >
+            Delete
+          </button>
+        </div>
       </Modal>
     </div>
   );

@@ -14,7 +14,7 @@ const generateMockObligationRequests = () => {
 
   return Array.from({ length: 10 }, (_, i) => ({
     id: i + 1,
-    orsNumber: `ORS-2024-01-${String(i + 1).padStart(4, '0')}`,
+    orsNumber: `OBR-2024-01-${String(i + 1).padStart(4, '0')}`,
     orsDate: new Date(2024, 0, Math.floor(Math.random() * 28) + 1).toISOString().split('T')[0],
     payeeName: `Vendor ${i + 1}`,
     requestingOffice: departments[Math.floor(Math.random() * departments.length)],

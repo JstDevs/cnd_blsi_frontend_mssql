@@ -12,7 +12,7 @@ import vendorReducer from '../features/settings/vendorSlice';
 import employeeReducer from '../features/settings/employeeSlice';
 import obligationRequestReducer from '../features/disbursement/obligationRequestSlice';
 import disbursementVoucherReducer from '../features/disbursement/disbursementVoucherSlice';
-import travelOrderReducer from '../features/disbursement/travelOrderSlice';
+import {travelOrderReducer} from '../features/disbursement/travelOrderSlice';
 import generalReceiptReducer from '../features/collections/generalReceiptSlice';
 import ppeReducer from '../features/settings/ppeSlice';
 import approvalMatrixReducer from '../features/settings/approvalMatrixSlice';
