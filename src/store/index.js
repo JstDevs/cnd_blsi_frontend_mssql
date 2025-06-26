@@ -53,7 +53,6 @@ import { budgetDashboardReducer } from '../features/budget/budgetDashboardSlice'
 import { vendorDetailsReducer } from '../features/settings/vendorDetailsSlice';
 import { customersReducer } from '../features/settings/customersSlice';
 
-import communityTaxReducer from '../features/communityTax/communityTaxSlice';
 import generalServiceReceiptsReducer from '../features/collections/generalServiceReceiptsSlice';
 import disbursementJournalReducer from '../features/disbursement/disbursementJournalSlice';
 import generalJournalReducer from '../features/disbursement/generalJournalSlice';
@@ -62,6 +61,8 @@ import budgetReducer from '../features/budget/budgetSlice';
 import { burialRecordsReducer } from '@/features/collections/burialServiceSlice';
 import { marriageRecordsReducer } from '@/features/collections/MarriageSlice';
 import { publicMarketTicketingReducer } from '@/features/collections/PublicMarketTicketingSlice';
+import { communityTaxReducer } from '@/features/collections/CommunityTaxSlice';
+import { corporateCommunityTaxReducer } from '@/features/collections/CoorporateCommunityTax';
 // import { publicMarketTicketingReducer } from '@/features/collections/PublicMarketTicketingSlice';
 
 export const store = configureStore({
@@ -80,7 +81,7 @@ export const store = configureStore({
     obligationRequests: obligationRequestReducer,
     disbursementVouchers: disbursementVoucherReducer,
     travelOrders: travelOrderReducer,
-    generalReceipts: generalReceiptReducer,
+
     ppes: ppeReducer,
     ppeCategories: ppeCategoriesReducer,
     ppeSuppliers: ppeSuppliersReducer,
@@ -114,11 +115,9 @@ export const store = configureStore({
     barangays: barangaysReducer,
     generalRevisions: generalRevisionsReducer,
     modules: modulesReducer,
-    communityTax: communityTaxReducer,
     generalServiceReceipts: generalServiceReceiptsReducer,
     disbursementJournal: disbursementJournalReducer,
     generalJournal: generalJournalReducer,
-    realPropertyTax: realPropertyTaxReducer,
     budget: budgetReducer,
     subFunds: subFundsReducer,
     budgetDashboard: budgetDashboardReducer,
@@ -127,6 +126,10 @@ export const store = configureStore({
     burialRecords: burialRecordsReducer,
     marriageRecords: marriageRecordsReducer,
     publicMarketTicketing: publicMarketTicketingReducer,
+    communityTax: communityTaxReducer,
+    corporateCommunityTax: corporateCommunityTaxReducer,
+    generalReceipts: generalReceiptReducer,
+    realPropertyTax: realPropertyTaxReducer,
     customers: customersReducer,
   },
   middleware: (getDefaultMiddleware) =>
