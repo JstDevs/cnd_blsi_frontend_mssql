@@ -1,15 +1,15 @@
-import { ErrorMessage } from "formik";
-import clsx from "clsx";
+import { ErrorMessage } from 'formik';
+import clsx from 'clsx';
 
 function FormField({
   label,
   name,
-  type = "text",
-  placeholder = "",
+  type = 'text',
+  placeholder = '',
   required = false,
   disabled = false,
   readOnly = false,
-  className = "",
+  className = '',
   options = [],
   value,
   onChange,
@@ -23,7 +23,7 @@ function FormField({
 
   const renderInput = () => {
     switch (type) {
-      case "textarea":
+      case 'textarea':
         return (
           <textarea
             id={name}
@@ -36,16 +36,45 @@ function FormField({
             onBlur={onBlur}
             rows={props.rows || 3}
             className={clsx(
-              "form-textarea border border-gray-300 px-4 py-2",
+              'form-textarea border border-gray-300 px-4 py-2',
               isInvalid &&
-                "border-error-300 text-error-900 placeholder-error-300 focus:ring-error-500 focus:border-error-500",
+                'border-error-300 text-error-900 placeholder-error-300 focus:ring-error-500 focus:border-error-500',
               className
             )}
             {...props}
           />
         );
-
-      case "select":
+      case 'multiselect':
+        return (
+          <select
+            id={name}
+            name={name}
+            disabled={disabled}
+            multiple
+            value={value || []}
+            onChange={(e) => {
+              const selected = Array.from(e.target.selectedOptions).map(
+                (option) => option.value
+              );
+              onChange({ target: { name, value: selected } });
+            }}
+            onBlur={onBlur}
+            className={clsx(
+              'form-select border border-gray-300 px-4 py-2 h-auto',
+              isInvalid &&
+                'border-error-300 text-error-900 focus:ring-error-500 focus:border-error-500',
+              className
+            )}
+            {...props}
+          >
+            {options.map((option) => (
+              <option key={option.value} value={option.value}>
+                {option.label}
+              </option>
+            ))}
+          </select>
+        );
+      case 'select':
         return (
           <select
             id={name}
@@ -55,14 +84,14 @@ function FormField({
             onChange={onChange}
             onBlur={onBlur}
             className={clsx(
-              "form-select border border-gray-300 px-4 py-2",
+              'form-select border border-gray-300 px-4 py-2',
               isInvalid &&
-                "border-error-300 text-error-900 focus:ring-error-500 focus:border-error-500",
+                'border-error-300 text-error-900 focus:ring-error-500 focus:border-error-500',
               className
             )}
             {...props}
           >
-            <option value="">{props.defaultOption || "Select"}</option>
+            <option value="">{props.defaultOption || 'Select'}</option>
             {options.map((option) => (
               <option key={option.value} value={option.value}>
                 {option.label}
@@ -71,7 +100,7 @@ function FormField({
           </select>
         );
 
-      case "checkbox":
+      case 'checkbox':
         return (
           <div className="flex items-center h-full">
             <div className="flex items-center">
@@ -84,9 +113,9 @@ function FormField({
                 onChange={onChange}
                 onBlur={onBlur}
                 className={clsx(
-                  "form-checkbox",
+                  'form-checkbox',
                   isInvalid &&
-                    "border-error-300 text-error-900 focus:ring-error-500 focus:border-error-500",
+                    'border-error-300 text-error-900 focus:ring-error-500 focus:border-error-500',
                   className
                 )}
                 {...props}
@@ -101,7 +130,7 @@ function FormField({
           </div>
         );
 
-      case "radio":
+      case 'radio':
         return (
           <div className="space-y-2">
             {options.map((option) => (
@@ -116,9 +145,9 @@ function FormField({
                   onChange={onChange}
                   onBlur={onBlur}
                   className={clsx(
-                    "form-radio ",
+                    'form-radio ',
                     isInvalid &&
-                      "border-error-300 text-error-900 focus:ring-error-500 focus:border-error-500",
+                      'border-error-300 text-error-900 focus:ring-error-500 focus:border-error-500',
                     className
                   )}
                   {...props}
@@ -134,11 +163,11 @@ function FormField({
           </div>
         );
 
-      case "date":
-      case "number":
-      case "email":
-      case "password":
-      case "text":
+      case 'date':
+      case 'number':
+      case 'email':
+      case 'password':
+      case 'text':
       default:
         return (
           <input
@@ -152,9 +181,9 @@ function FormField({
             onChange={onChange}
             onBlur={onBlur}
             className={clsx(
-              "form-input border border-gray-300 px-4 py-2",
+              'form-input border border-gray-300 px-4 py-2',
               isInvalid &&
-                "border-error-300 text-error-900 placeholder-error-300 focus:ring-error-500 focus:border-error-500",
+                'border-error-300 text-error-900 placeholder-error-300 focus:ring-error-500 focus:border-error-500',
               className
             )}
             {...props}
@@ -165,8 +194,8 @@ function FormField({
 
   // Don't render the additional label for checkbox type since it's handled inline
   return (
-    <div className={`form-group ${type === "checkbox" ? "" : "space-y-1"}`}>
-      {type !== "checkbox" && (
+    <div className={`form-group ${type === 'checkbox' ? '' : 'space-y-1'}`}>
+      {type !== 'checkbox' && (
         <label htmlFor={name} className="form-label">
           {label} {required && <span className="text-error-500">*</span>}
         </label>

@@ -1,41 +1,69 @@
-import { useState } from "react";
-import { useDispatch, useSelector } from "react-redux";
-import { Formik, Form } from "formik";
-import * as Yup from "yup";
-import FormField from "../../components/common/FormField";
+import { useState } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import { Formik, Form } from 'formik';
+import * as Yup from 'yup';
+import FormField from '../../components/common/FormField';
 
 const PURCHASE_REQUEST_SCHEMA = Yup.object().shape({
-  department: Yup.string().required("Department is required"),
-  section: Yup.string().required("Section is required"),
-  chargeAccount: Yup.string().required("Charge Account is required"),
-  prNumber: Yup.string().required("PR Number is required"),
-  saiNumber: Yup.string().required("SAI Number is required"),
-  alobsNumber: Yup.string().required("ALOBS Number is required"),
-  date: Yup.date().required("Date is required"),
-  fromDate: Yup.date().required("From Date is required"),
+  department: Yup.string().required('Department is required'),
+  section: Yup.string().required('Section is required'),
+  chargeAccount: Yup.string().required('Charge Account is required'),
+  prNumber: Yup.string().required('PR Number is required'),
+  saiNumber: Yup.string().required('SAI Number is required'),
+  alobsNumber: Yup.string().required('ALOBS Number is required'),
+  date: Yup.date().required('Date is required'),
+  fromDate: Yup.date().required('From Date is required'),
   toDate: Yup.date()
-    .required("To Date is required")
-    .min(Yup.ref("fromDate"), "To Date must be after From Date"),
-  purpose: Yup.string().required("Purpose is required"),
+    .required('To Date is required')
+    .min(Yup.ref('fromDate'), 'To Date must be after From Date'),
+  purpose: Yup.string().required('Purpose is required'),
+  items: Yup.array().min(1, 'At least one item is required'),
 });
 
 // Mock data for initial development
 const departments = [
-  { value: "IT Department", label: "IT Department" },
-  { value: "Engineering Department", label: "Engineering Department" },
-  { value: "Accounting Department", label: "Accounting Department" },
+  { value: 'IT Department', label: 'IT Department' },
+  { value: 'Engineering Department', label: 'Engineering Department' },
+  { value: 'Accounting Department', label: 'Accounting Department' },
 ];
 
 const sections = [
-  { value: "Section A", label: "Section A" },
-  { value: "Section B", label: "Section B" },
-  { value: "Section C", label: "Section C" },
+  { value: 'Section A', label: 'Section A' },
+  { value: 'Section B', label: 'Section B' },
+  { value: 'Section C', label: 'Section C' },
 ];
 
 const chargeAccounts = [
-  { value: "Account 1", label: "Account 1" },
-  { value: "Account 2", label: "Account 2" },
-  { value: "Account 3", label: "Account 3" },
+  { value: 'Account 1', label: 'Account 1' },
+  { value: 'Account 2', label: 'Account 2' },
+  { value: 'Account 3', label: 'Account 3' },
+];
+
+// Items from the image
+const itemsList = [
+  {
+    value: 'Digitization without Tax test',
+    label: 'Digitization without Tax test',
+  },
+  { value: 'Digitization with Tax test', label: 'Digitization with Tax test' },
+  { value: 'Electricity Bill Maralco', label: 'Electricity Bill Maralco' },
+  { value: 'seed', label: 'seed' },
+  { value: 'Violations', label: 'Violations' },
+  { value: 'test drive1', label: 'test drive1' },
+  { value: 'LOANS', label: 'LOANS' },
+  { value: 'PAYPHONE', label: 'PAYPHONE' },
+  { value: 'SALARY', label: 'SALARY' },
+  { value: 'Scatter', label: 'Scatter' },
+  { value: 'Traffic Violations', label: 'Traffic Violations' },
+  { value: 'FOODS', label: 'FOODS' },
+  { value: 'Salaries and Wage', label: 'Salaries and Wage' },
+  { value: 'Equipments', label: 'Equipments' },
+  { value: 'est2', label: 'est2' },
+  { value: 'E-Registration', label: 'E-Registration' },
+  { value: 'Advance Payment', label: 'Advance Payment' },
+  { value: '13th Month Pay', label: '13th Month Pay' },
+  { value: 'Zoo Renovation', label: 'Zoo Renovation' },
+  { value: 'testing', label: 'testing' },
 ];
 
 function PurchaseRequestForm({ initialData, onClose }) {
@@ -45,22 +73,23 @@ function PurchaseRequestForm({ initialData, onClose }) {
   const initialValues = initialData
     ? { ...initialData }
     : {
-        department: "",
-        section: "",
-        chargeAccount: "",
-        prNumber: "",
-        saiNumber: "",
-        alobsNumber: "",
-        date: "",
-        fromDate: "",
-        toDate: "",
-        purpose: "",
+        department: '',
+        section: '',
+        chargeAccount: '',
+        prNumber: '',
+        saiNumber: '',
+        alobsNumber: '',
+        date: '',
+        fromDate: '',
+        toDate: '',
+        purpose: '',
+        items: [],
       };
 
   const handleSubmit = (values) => {
     setIsSubmitting(true);
     // TODO: Implement the actual submission logic
-    console.log("Submitting values:", values);
+    console.log('Submitting values:', values);
     setIsSubmitting(false);
     onClose();
   };
@@ -72,7 +101,14 @@ function PurchaseRequestForm({ initialData, onClose }) {
       onSubmit={handleSubmit}
       enableReinitialize
     >
-      {({ values, errors, touched, handleChange, handleBlur }) => (
+      {({
+        values,
+        errors,
+        touched,
+        handleChange,
+        handleBlur,
+        setFieldValue,
+      }) => (
         <Form className="space-y-4">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <FormField
@@ -214,6 +250,21 @@ function PurchaseRequestForm({ initialData, onClose }) {
             error={errors.purpose}
             touched={touched.purpose}
             rows={4}
+          />
+
+          {/* New Items field */}
+          <FormField
+            className="p-3 focus:outline-none"
+            label="Items"
+            name="items"
+            type="multiselect"
+            required
+            value={values.items}
+            onChange={handleChange}
+            onBlur={handleBlur}
+            error={errors.items}
+            touched={touched.items}
+            options={itemsList}
           />
 
           <div className="flex justify-end space-x-2 mt-6">
