@@ -3,23 +3,35 @@ import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 // Generate mock receipt data
 const generateMockGeneralReceipts = () => {
   const statuses = ['Valid', 'Cancelled'];
-  const departments = ['Office of the Mayor', 'Accounting Department', 'Treasury Department', 'IT Department'];
+  const departments = [
+    'Office of the Mayor',
+    'Accounting Department',
+    'Treasury Department',
+    'IT Department',
+  ];
   const paymentModes = ['Cash', 'Cheque', 'Bank Transfer'];
   const funds = ['General Fund', 'Special Education Fund', 'Trust Fund'];
 
-  return Array.from({ length: 10 }, (_, i) => ({
+  return Array.from({ length: 5 }, (_, i) => ({
     id: i + 1,
     receiptNumber: `OR-2024-01-${String(i + 1).padStart(4, '0')}`,
-    receiptDate: new Date(2024, 0, Math.floor(Math.random() * 28) + 1).toISOString().split('T')[0],
+    receiptDate: new Date(2024, 0, Math.floor(Math.random() * 28) + 1)
+      .toISOString()
+      .split('T')[0],
     payorName: `Payor ${i + 1}`,
     payorAddress: 'Sample Address, Municipality',
     fund: funds[Math.floor(Math.random() * funds.length)],
-    modeOfPayment: paymentModes[Math.floor(Math.random() * paymentModes.length)],
+    modeOfPayment:
+      paymentModes[Math.floor(Math.random() * paymentModes.length)],
     department: departments[Math.floor(Math.random() * departments.length)],
     totalAmount: Math.floor(Math.random() * 50000) + 1000,
     status: statuses[Math.floor(Math.random() * statuses.length)],
     collectedBy: 'Jane Doe',
-    dateCreated: new Date(2024, 0, Math.floor(Math.random() * 28) + 1).toISOString(),
+    dateCreated: new Date(
+      2024,
+      0,
+      Math.floor(Math.random() * 28) + 1
+    ).toISOString(),
     chequeNumber: null,
     chequeDate: null,
     draweeBank: null,
@@ -59,7 +71,9 @@ export const fetchGeneralReceiptById = createAsyncThunk(
       return new Promise((resolve, reject) => {
         setTimeout(() => {
           const state = thunkAPI.getState();
-          const receipt = state.generalReceipts.generalReceipts.find(r => r.id === id);
+          const receipt = state.generalReceipts.generalReceipts.find(
+            (r) => r.id === id
+          );
           if (receipt) {
             resolve(receipt);
           } else {
@@ -83,7 +97,9 @@ export const createGeneralReceipt = createAsyncThunk(
           const newReceipt = {
             ...generalReceipt,
             id: Date.now(),
-            receiptNumber: `OR-2024-01-${String(Math.floor(Math.random() * 9000) + 1000)}`,
+            receiptNumber: `OR-2024-01-${String(
+              Math.floor(Math.random() * 9000) + 1000
+            )}`,
             dateCreated: new Date().toISOString(),
             status: 'Valid',
           };

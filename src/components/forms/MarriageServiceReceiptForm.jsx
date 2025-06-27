@@ -4,64 +4,48 @@ import * as Yup from 'yup';
 import FormField from '../common/FormField';
 
 const MARRIAGE_SERVICE_RECEIPT_SCHEMA = Yup.object().shape({
-  status: Yup.string().required('Status is required'),
-  apAr: Yup.string().required('AP/AR is required'),
+  invoiceNumber: Yup.string().required('Invoice number is required'),
   customer: Yup.string().required('Customer is required'),
-  totalAmount: Yup.number()
-    .typeError('Must be a number')
-    .required('Total Amount is required')
-    .min(0, 'Amount must be positive'),
+  customerAge: Yup.number()
+    .required('Age is required')
+    .positive('Age must be positive')
+    .integer('Age must be a whole number'),
+  remarks: Yup.string().required('Remarks are required'),
+  invoiceDate: Yup.date().required('Invoice date is required'),
+  cenomar: Yup.string().required('CENOMAR is required'),
+  marryTo: Yup.string().required('"Marry to" is required'),
+  marryToAge: Yup.number()
+    .required('Age is required')
+    .positive('Age must be positive')
+    .integer('Age must be a whole number'),
+  registerNumber: Yup.string().required('Register number is required'),
+  price: Yup.number()
+    .required('Price is required')
+    .min(0, 'Price cannot be negative'),
+  remainingBalance: Yup.number()
+    .required('Balance is required')
+    .min(0, 'Balance cannot be negative'),
   amountReceived: Yup.number()
-    .typeError('Must be a number')
-    .required('Amount Received is required')
-    .min(0, 'Amount must be positive'),
-  credit: Yup.number()
-    .typeError('Must be a number')
-    .required('Credit is required')
-    .min(0, 'Amount must be positive'),
-  debit: Yup.number()
-    .typeError('Must be a number')
-    .required('Debit is required')
-    .min(0, 'Amount must be positive'),
-  ewt: Yup.number()
-    .typeError('Must be a number')
-    .required('EWT is required')
-    .min(0, 'Amount must be positive'),
-  withheldAmount: Yup.number()
-    .typeError('Must be a number')
-    .required('Withheld Amount is required')
-    .min(0, 'Amount must be positive'),
-  total: Yup.number()
-    .typeError('Must be a number')
-    .required('Total is required')
-    .min(0, 'Amount must be positive'),
-  discountPercent: Yup.number()
-    .typeError('Must be a number')
-    .required('Discount Percent is required')
-    .min(0, 'Discount must be between 0 and 100')
-    .max(100, 'Discount must be between 0 and 100'),
-  amountDue: Yup.number()
-    .typeError('Must be a number')
-    .required('Amount Due is required')
-    .min(0, 'Amount must be positive'),
+    .required('Amount received is required')
+    .min(0, 'Amount cannot be negative'),
 });
 
 function MarriageServiceReceiptForm({ initialData, onClose, onSubmit }) {
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const initialValues = initialData || {
-    status: '',
-    apAr: '',
+    invoiceNumber: 'MA-RE-30GE-CEIPT',
     customer: '',
-    totalAmount: '',
-    amountReceived: '',
-    credit: '',
-    debit: '',
-    ewt: '',
-    withheldAmount: '',
-    total: '',
-    discountPercent: '',
-    amountDue: '',
+    customerAge: '',
+    remarks: '',
+    invoiceDate: new Date().toISOString().split('T')[0],
+    cenomar: '',
+    marryTo: '',
+    marryToAge: '',
+    registerNumber: '',
+    price: 1002,
+    remainingBalance: 0,
+    amountReceived: 0,
   };
 
   const handleSubmit = async (values) => {
@@ -85,65 +69,165 @@ function MarriageServiceReceiptForm({ initialData, onClose, onSubmit }) {
     >
       {({ values, errors, touched, handleChange, handleBlur }) => (
         <Form className="space-y-4">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <FormField
-              label="Status"
-              name="status"
-              type="select"
-              required
-              value={values.status}
-              onChange={handleChange}
-              onBlur={handleBlur}
-              error={errors.status}
-              touched={touched.status}
-              options={[
-                { value: 'pending', label: 'Pending' },
-                { value: 'completed', label: 'Completed' },
-                { value: 'cancelled', label: 'Cancelled' },
-              ]}
-            />
-
-            <FormField
-              label="AP/AR"
-              name="apAr"
-              type="text"
-              required
-              value={values.apAr}
-              onChange={handleChange}
-              onBlur={handleBlur}
-              error={errors.apAr}
-              touched={touched.apAr}
-              placeholder="Enter AP/AR"
+          {/* Attachments Section */}
+          <div>
+            <label className="block font-medium mb-2">Attachments</label>
+            <input
+              type="file"
+              className="block w-full text-sm text-gray-500
+                file:mr-4 file:py-2 file:px-4
+                file:rounded-md file:border-0
+                file:text-sm file:font-medium
+                file:bg-blue-50 file:text-blue-700
+                hover:file:bg-blue-100"
             />
           </div>
 
+          {/* Invoice Number */}
           <FormField
-            label="Customer"
-            name="customer"
+            label="Invoice Number"
+            name="invoiceNumber"
             type="text"
             required
-            value={values.customer}
+            value={values.invoiceNumber}
             onChange={handleChange}
             onBlur={handleBlur}
-            error={errors.customer}
-            touched={touched.customer}
-            placeholder="Enter customer name"
+            error={errors.invoiceNumber}
+            touched={touched.invoiceNumber}
           />
+
+          {/* Customer Info */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <FormField
+              label="Customer"
+              name="customer"
+              type="text"
+              required
+              value={values.customer}
+              onChange={handleChange}
+              onBlur={handleBlur}
+              error={errors.customer}
+              touched={touched.customer}
+            />
+            <FormField
+              label="Age"
+              name="customerAge"
+              type="number"
+              required
+              value={values.customerAge}
+              onChange={handleChange}
+              onBlur={handleBlur}
+              error={errors.customerAge}
+              touched={touched.customerAge}
+              min="1"
+            />
+          </div>
+
+          {/* Remarks */}
+          <FormField
+            label="Remarks"
+            name="remarks"
+            type="textarea"
+            rows={3}
+            required
+            value={values.remarks}
+            onChange={handleChange}
+            onBlur={handleBlur}
+            error={errors.remarks}
+            touched={touched.remarks}
+          />
+
+          {/* Invoice Date */}
+          <FormField
+            label="Invoice Date"
+            name="invoiceDate"
+            type="date"
+            required
+            value={values.invoiceDate}
+            onChange={handleChange}
+            onBlur={handleBlur}
+            error={errors.invoiceDate}
+            touched={touched.invoiceDate}
+          />
+
+          {/* Marriage Info */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <FormField
+              label="CENOMAR"
+              name="cenomar"
+              type="text"
+              required
+              value={values.cenomar}
+              onChange={handleChange}
+              onBlur={handleBlur}
+              error={errors.cenomar}
+              touched={touched.cenomar}
+            />
+            <FormField
+              label="Marry to"
+              name="marryTo"
+              type="text"
+              required
+              value={values.marryTo}
+              onChange={handleChange}
+              onBlur={handleBlur}
+              error={errors.marryTo}
+              touched={touched.marryTo}
+            />
+          </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <FormField
-              label="Total Amount"
-              name="totalAmount"
+              label="Age"
+              name="marryToAge"
               type="number"
               required
-              value={values.totalAmount}
+              value={values.marryToAge}
               onChange={handleChange}
               onBlur={handleBlur}
-              error={errors.totalAmount}
-              touched={touched.totalAmount}
-              placeholder="Enter total amount"
+              error={errors.marryToAge}
+              touched={touched.marryToAge}
+              min="1"
             />
+            <FormField
+              label="Register Number"
+              name="registerNumber"
+              type="text"
+              required
+              value={values.registerNumber}
+              onChange={handleChange}
+              onBlur={handleBlur}
+              error={errors.registerNumber}
+              touched={touched.registerNumber}
+            />
+          </div>
 
+          {/* Payment Info */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <FormField
+              label="Price"
+              name="price"
+              type="number"
+              required
+              value={values.price}
+              onChange={handleChange}
+              onBlur={handleBlur}
+              error={errors.price}
+              touched={touched.price}
+              min="0"
+            />
+            <FormField
+              label="Remaining Balance"
+              name="remainingBalance"
+              type="number"
+              required
+              value={values.remainingBalance}
+              onChange={handleChange}
+              onBlur={handleBlur}
+              error={errors.remainingBalance}
+              touched={touched.remainingBalance}
+              min="0"
+            />
             <FormField
               label="Amount Received"
               name="amountReceived"
@@ -154,135 +238,22 @@ function MarriageServiceReceiptForm({ initialData, onClose, onSubmit }) {
               onBlur={handleBlur}
               error={errors.amountReceived}
               touched={touched.amountReceived}
-              placeholder="Enter amount received"
+              min="0"
             />
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <FormField
-              label="Credit"
-              name="credit"
-              type="number"
-              required
-              value={values.credit}
-              onChange={handleChange}
-              onBlur={handleBlur}
-              error={errors.credit}
-              touched={touched.credit}
-              placeholder="Enter credit amount"
-            />
-
-            <FormField
-              label="Debit"
-              name="debit"
-              type="number"
-              required
-              value={values.debit}
-              onChange={handleChange}
-              onBlur={handleBlur}
-              error={errors.debit}
-              touched={touched.debit}
-              placeholder="Enter debit amount"
-            />
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <FormField
-              label="EWT"
-              name="ewt"
-              type="number"
-              required
-              value={values.ewt}
-              onChange={handleChange}
-              onBlur={handleBlur}
-              error={errors.ewt}
-              touched={touched.ewt}
-              placeholder="Enter EWT amount"
-            />
-
-            <FormField
-              label="Withheld Amount"
-              name="withheldAmount"
-              type="number"
-              required
-              value={values.withheldAmount}
-              onChange={handleChange}
-              onBlur={handleBlur}
-              error={errors.withheldAmount}
-              touched={touched.withheldAmount}
-              placeholder="Enter withheld amount"
-            />
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <FormField
-              label="Total"
-              name="total"
-              type="number"
-              required
-              value={values.total}
-              onChange={handleChange}
-              onBlur={handleBlur}
-              error={errors.total}
-              touched={touched.total}
-              placeholder="Enter total"
-            />
-
-            <FormField
-              label="Discount (%)"
-              name="discountPercent"
-              type="number"
-              required
-              value={values.discountPercent}
-              onChange={handleChange}
-              onBlur={handleBlur}
-              error={errors.discountPercent}
-              touched={touched.discountPercent}
-              placeholder="Enter discount percentage"
-            />
-          </div>
-
-          <FormField
-            label="Amount Due"
-            name="amountDue"
-            type="number"
-            required
-            value={values.amountDue}
-            onChange={handleChange}
-            onBlur={handleBlur}
-            error={errors.amountDue}
-            touched={touched.amountDue}
-            placeholder="Enter amount due"
-          />
-          <div className="space-y-2">
-            <label className="block text-sm font-medium text-gray-700">
-              Attachments
-            </label>
-            <input
-              type="file"
-              onChange={(event) => {
-                setFieldValue('attachments', event.currentTarget.files[0]);
-              }}
-              className="block w-full text-sm text-gray-500
-                file:mr-4 file:py-2 file:px-4
-                file:rounded-full file:border-0
-                file:text-sm file:font-semibold
-                file:bg-blue-50 file:text-blue-700
-                hover:file:bg-blue-100"
-            />
-            {errors.attachments && touched.attachments && (
-              <div className="text-red-500 text-sm mt-1">
-                {errors.attachments}
-              </div>
-            )}
-          </div>
+          {/* Action Buttons */}
           <div className="flex justify-end space-x-3 pt-4 border-t border-neutral-200">
-            <button type="button" onClick={onClose} className="btn btn-outline">
+            <button
+              type="button"
+              onClick={onClose}
+              className="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50"
+            >
               Cancel
             </button>
             <button
               type="submit"
-              className="btn btn-primary"
+              className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
               disabled={isSubmitting}
             >
               {initialData ? 'Update' : 'Create'}

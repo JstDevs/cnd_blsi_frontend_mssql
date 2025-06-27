@@ -67,53 +67,99 @@ const PublicMarketTicketForm = ({ ticket, onClose }) => {
       enableReinitialize
     >
       {({ isValid, dirty }) => (
-        <Form className="space-y-4">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <Form className="space-y-6">
+          {/* Items Field */}
+          <div>
             <FormField
-              label="Items Type"
+              label="Items:"
               name="items"
               type="text"
-              placeholder="Enter items type"
+              placeholder="Enter items"
+              className="text-lg font-medium"
             />
-            <FormField label="Start Time" name="startTime" type="time" />
-            <FormField label="End Time" name="endTime" type="time" />
-            <FormField
-              label="Issued By"
-              name="issuedBy"
-              type="text"
-              placeholder="Enter issuer name"
-            />
-            <FormField label="Date Issued" name="dateIssued" type="date" />
-            <FormField
-              label="Posting Period"
-              name="postingPeriod"
-              type="date"
-            />
-            <FormField
-              label="Amount Issued"
-              name="amountIssued"
-              type="number"
-              placeholder="Enter amount"
-              min="0"
-              step="0.01"
-            />
-            <div className="md:col-span-2">
+          </div>
+
+          {/* Time Fields - Side by Side */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="space-y-1">
+              <label className="block text-sm font-medium text-gray-700">
+                Start Time
+              </label>
               <FormField
-                label="Remarks"
-                name="remarks"
-                type="textarea"
-                placeholder="Enter remarks"
-                rows={4}
+                name="startTime"
+                type="time"
+                className="w-full"
+                hideLabel
+              />
+            </div>
+            <div className="space-y-1">
+              <label className="block text-sm font-medium text-gray-700">
+                End Time
+              </label>
+              <FormField
+                name="endTime"
+                type="time"
+                className="w-full"
+                hideLabel
               />
             </div>
           </div>
 
-          <div className="flex justify-end space-x-3 pt-4">
+          {/* Issued By Field */}
+          <div>
+            <FormField
+              label="Issued By:"
+              name="issuedBy"
+              type="text"
+              placeholder="Enter issuer name"
+            />
+          </div>
+
+          {/* Date Fields - Side by Side */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div>
+              <FormField label="Date Issued:" name="dateIssued" type="date" />
+            </div>
+            <div>
+              <FormField
+                label="Posting Period:"
+                name="postingPeriod"
+                type="date"
+              />
+            </div>
+          </div>
+
+          {/* Amount Issued */}
+          <div>
+            <FormField
+              label="Amount Issued:"
+              name="amountIssued"
+              type="number"
+              placeholder="0.00"
+              min="0"
+              step="0.01"
+            />
+          </div>
+
+          {/* Remarks */}
+          <div>
+            <FormField
+              label="Remarks:"
+              name="remarks"
+              type="textarea"
+              placeholder="Enter remarks"
+              rows={4}
+            />
+          </div>
+
+          {/* Action Buttons */}
+          <div className="flex justify-end space-x-4 pt-6">
             <Button
               type="button"
               variant="secondary"
               onClick={onClose}
               disabled={isSubmitting}
+              className="px-6 py-2"
             >
               Cancel
             </Button>
@@ -121,6 +167,7 @@ const PublicMarketTicketForm = ({ ticket, onClose }) => {
               type="submit"
               disabled={isSubmitting || !isValid || !dirty}
               loading={isSubmitting}
+              className="px-6 py-2"
             >
               {ticket ? 'Update Ticket' : 'Add Ticket'}
             </Button>

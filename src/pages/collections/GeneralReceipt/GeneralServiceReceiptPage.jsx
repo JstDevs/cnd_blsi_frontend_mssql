@@ -1,20 +1,27 @@
 import React, { useState, useEffect } from 'react';
 import { Formik, Form, Field } from 'formik';
-import { generalServiceReceiptSchema } from '../../utils/validationSchemas';
-import Modal from '../../components/common/Modal';
-import FormField from '../../components/common/FormField';
-import DataTable from '../../components/common/DataTable';
+import { generalServiceReceiptSchema } from '../../../utils/validationSchemas';
+import Modal from '../../../components/common/Modal';
+import FormField from '../../../components/common/FormField';
+import DataTable from '../../../components/common/DataTable';
 import { useDispatch, useSelector } from 'react-redux';
 import toast from 'react-hot-toast';
 import { FiSearch, FiFilter, FiEdit, FiTrash } from 'react-icons/fi';
-import { fetchGeneralServiceReceipts, createGeneralServiceReceipt, updateGeneralServiceReceipt, deleteGeneralServiceReceipt } from '../../features/collections/generalServiceReceiptsSlice';
+import {
+  fetchGeneralServiceReceipts,
+  createGeneralServiceReceipt,
+  updateGeneralServiceReceipt,
+  deleteGeneralServiceReceipt,
+} from '../../../features/collections/generalServiceReceiptsSlice';
 
 const GeneralServiceReceiptPage = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedReceipt, setSelectedReceipt] = useState(null);
   const dispatch = useDispatch();
-  const { receipts, loading, error } = useSelector((state) => state.generalServiceReceipts);
+  const { receipts, loading, error } = useSelector(
+    (state) => state.generalServiceReceipts
+  );
 
   useEffect(() => {
     dispatch(fetchGeneralServiceReceipts());
@@ -24,7 +31,9 @@ const GeneralServiceReceiptPage = () => {
     try {
       await generalServiceReceiptSchema.validate(values, { abortEarly: false });
       if (selectedReceipt) {
-        await dispatch(updateGeneralServiceReceipt({ id: selectedReceipt.id, ...values })).unwrap();
+        await dispatch(
+          updateGeneralServiceReceipt({ id: selectedReceipt.id, ...values })
+        ).unwrap();
         toast.success('Receipt updated successfully');
       } else {
         await dispatch(createGeneralServiceReceipt(values)).unwrap();
@@ -60,11 +69,14 @@ const GeneralServiceReceiptPage = () => {
     }
   };
 
-  const filteredReceipts = Array.isArray(receipts) ? receipts.filter(receipt => 
-    receipt.payorName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    receipt.id.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    receipt.agency.toLowerCase().includes(searchTerm.toLowerCase())
-  ) : [];
+  const filteredReceipts = Array.isArray(receipts)
+    ? receipts.filter(
+        (receipt) =>
+          receipt.payorName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          receipt.id.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          receipt.agency.toLowerCase().includes(searchTerm.toLowerCase())
+      )
+    : [];
 
   const columns = [
     { header: 'ID', accessor: 'id' },
@@ -100,7 +112,9 @@ const GeneralServiceReceiptPage = () => {
   return (
     <div className="container mx-auto px-4 py-8">
       <div className="flex justify-between items-center mb-6">
-        <h1 className="text-2xl font-bold text-gray-800">General Service Receipts</h1>
+        <h1 className="text-2xl font-bold text-gray-800">
+          General Service Receipts
+        </h1>
         <button
           onClick={() => {
             setSelectedReceipt(null);
@@ -143,19 +157,25 @@ const GeneralServiceReceiptPage = () => {
           setIsModalOpen(false);
           setSelectedReceipt(null);
         }}
-        title={selectedReceipt ? 'Edit General Service Receipt' : 'New General Service Receipt'}
+        title={
+          selectedReceipt
+            ? 'Edit General Service Receipt'
+            : 'New General Service Receipt'
+        }
       >
         <Formik
-          initialValues={selectedReceipt || {
-            id: '',
-            status: '',
-            invoiceDate: '',
-            payorName: '',
-            date: new Date().toISOString().split('T')[0],
-            agency: '',
-            fund: '',
-            taxpayerType: '',
-          }}
+          initialValues={
+            selectedReceipt || {
+              id: '',
+              status: '',
+              invoiceDate: '',
+              payorName: '',
+              date: new Date().toISOString().split('T')[0],
+              agency: '',
+              fund: '',
+              taxpayerType: '',
+            }
+          }
           validationSchema={generalServiceReceiptSchema}
           onSubmit={handleSubmit}
           enableReinitialize={true}
@@ -192,32 +212,30 @@ const GeneralServiceReceiptPage = () => {
                 type="text"
                 required
               />
-              <FormField
-                label="Date"
-                name="date"
-                type="date"
-                required
-              />
-              <FormField
-                label="Agency"
-                name="agency"
-                type="text"
-                required
-              />
+              <FormField label="Date" name="date" type="date" required />
+              <FormField label="Agency" name="agency" type="text" required />
               <FormField
                 label="Fund"
                 name="fund"
                 type="select"
                 options={[
-                   { value: 'General funds', label: 'General funds' },
-                   { value: 'Other fund option 1', label: 'Other fund option 1' },
-                   { value: 'Other fund option 2', label: 'Other fund option 2' },
+                  { value: 'General funds', label: 'General funds' },
+                  {
+                    value: 'Other fund option 1',
+                    label: 'Other fund option 1',
+                  },
+                  {
+                    value: 'Other fund option 2',
+                    label: 'Other fund option 2',
+                  },
                 ]} // Mock options
                 required
               />
 
               <div>
-                <label className="block text-sm font-medium text-gray-700">Taxpayer Type</label>
+                <label className="block text-sm font-medium text-gray-700">
+                  Taxpayer Type
+                </label>
                 <div className="mt-1 flex gap-4">
                   <div className="flex items-center">
                     <Field
@@ -227,7 +245,10 @@ const GeneralServiceReceiptPage = () => {
                       value="Individual"
                       className="focus:ring-primary h-4 w-4 text-primary border-gray-300"
                     />
-                    <label htmlFor="taxpayerTypeIndividual" className="ml-2 block text-sm text-gray-900">
+                    <label
+                      htmlFor="taxpayerTypeIndividual"
+                      className="ml-2 block text-sm text-gray-900"
+                    >
                       Individual
                     </label>
                   </div>
@@ -239,7 +260,10 @@ const GeneralServiceReceiptPage = () => {
                       value="Corporation"
                       className="focus:ring-primary h-4 w-4 text-primary border-gray-300"
                     />
-                    <label htmlFor="taxpayerTypeCorporation" className="ml-2 block text-sm text-gray-900">
+                    <label
+                      htmlFor="taxpayerTypeCorporation"
+                      className="ml-2 block text-sm text-gray-900"
+                    >
                       Corporation
                     </label>
                   </div>
@@ -274,4 +298,4 @@ const GeneralServiceReceiptPage = () => {
   );
 };
 
-export default GeneralServiceReceiptPage; 
+export default GeneralServiceReceiptPage;

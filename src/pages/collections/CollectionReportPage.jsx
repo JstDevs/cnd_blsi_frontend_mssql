@@ -1,54 +1,23 @@
 import { useState } from 'react';
 import CollectionReportForm from '../../components/forms/CollectionReportForm';
 import DataTable from '../../components/common/DataTable';
+import { EyeIcon, PencilIcon } from 'lucide-react';
 
 // Mock data for collection report
+// Sample data remains the same
 const mockCollectionData = [
   {
     id: 1,
-    date: '2024-03-01',
-    receiptNo: 'OR-2024-001',
-    type: 'Community Tax',
-    payor: 'John Doe',
-    amount: 5000.00,
-    status: 'Paid'
+    chargeAccountId: 'CA-2023-001',
+    fundsId: 'FUND-001',
+    name: 'Office Supplies',
+    account: 'General Expenses',
+    subTotal: 12500.75,
+    date: '2023-05-15',
+    fullName: 'Juan Dela Cruz',
+    position: 'Administrative Officer',
   },
-  {
-    id: 2,
-    date: '2024-03-01',
-    receiptNo: 'OR-2024-002',
-    type: 'Burial Service',
-    payor: 'Jane Smith',
-    amount: 3000.00,
-    status: 'Paid'
-  },
-  {
-    id: 3,
-    date: '2024-03-01',
-    receiptNo: 'OR-2024-003',
-    type: 'Marriage Service',
-    payor: 'Robert Johnson',
-    amount: 2000.00,
-    status: 'Paid'
-  },
-  {
-    id: 4,
-    date: '2024-03-01',
-    receiptNo: 'OR-2024-004',
-    type: 'Real Property Tax',
-    payor: 'Maria Garcia',
-    amount: 7500.00,
-    status: 'Paid'
-  },
-  {
-    id: 5,
-    date: '2024-03-01',
-    receiptNo: 'OR-2024-005',
-    type: 'Market Fee',
-    payor: 'Market Vendor A',
-    amount: 1000.00,
-    status: 'Paid'
-  }
+  // ... other data items
 ];
 
 function CollectionReportPage() {
@@ -80,43 +49,84 @@ function CollectionReportPage() {
       setIsLoading(false);
     }
   };
-
+  // Actions for table rows
+  const actions = [
+    {
+      icon: EyeIcon,
+      title: 'View',
+      onClick: () => {},
+      className:
+        'text-primary-600 hover:text-primary-900 p-1 rounded-full hover:bg-primary-50',
+    },
+    {
+      icon: PencilIcon,
+      title: 'Edit',
+      onClick: () => {},
+      className:
+        'text-primary-600 hover:text-primary-900 p-1 rounded-full hover:bg-primary-50',
+    },
+  ];
   const columns = [
-    { 
-      header: 'Date', 
+    {
+      key: 'chargeAccountId', // Added key
+      header: 'Charge Account ID',
+      accessor: 'chargeAccountId',
+      cell: ({ value }) => value || '-',
+    },
+    {
+      key: 'fundsId', // Added key
+      header: 'Funds ID',
+      accessor: 'fundsId',
+      cell: ({ value }) => value || '-',
+    },
+    {
+      key: 'name', // Added key
+      header: 'Name',
+      accessor: 'name',
+      cell: ({ value }) => value || '-',
+    },
+    {
+      key: 'account', // Added key
+      header: 'Account',
+      accessor: 'account',
+      cell: ({ value }) => value || '-',
+    },
+    {
+      key: 'subTotal', // Added key
+      header: 'Sub-Total',
+      accessor: 'subTotal',
+      cell: ({ value }) =>
+        value.toLocaleString('en-US', {
+          style: 'currency',
+          currency: 'PHP',
+        }),
+    },
+    {
+      key: 'date', // Added key
+      header: 'Date',
       accessor: 'date',
-      cell: ({ value }) => new Date(value).toLocaleDateString()
+      cell: ({ value }) => new Date(value).toLocaleDateString(),
     },
-    { header: 'Receipt No.', accessor: 'receiptNo' },
-    { header: 'Type', accessor: 'type' },
-    { header: 'Payor', accessor: 'payor' },
-    { 
-      header: 'Amount', 
-      accessor: 'amount',
-      cell: ({ value }) => value.toLocaleString('en-US', {
-        style: 'currency',
-        currency: 'PHP'
-      })
+    {
+      key: 'fullName', // Added key
+      header: 'Full Name',
+      accessor: 'fullName',
+      cell: ({ value }) => value || '-',
     },
-    { 
-      header: 'Status', 
-      accessor: 'status',
-      cell: ({ value }) => (
-        <span className={`px-2 py-1 text-xs font-medium rounded-full ${
-          value === 'Paid' 
-            ? 'bg-success-100 text-success-800'
-            : 'bg-warning-100 text-warning-800'
-        }`}>
-          {value}
-        </span>
-      )
-    }
+    {
+      key: 'position', // Added key
+      header: 'Position',
+      accessor: 'position',
+      cell: ({ value }) => value || '-',
+    },
   ];
 
   return (
     <div className="container mx-auto px-4 py-8">
       <div className="flex justify-between items-center mb-6">
-        <h1 className="text-2xl font-semibold text-gray-900">Collection Report</h1>
+        <h1 className="text-2xl font-semibold text-gray-900">
+          Collection Report
+        </h1>
       </div>
 
       <div className="bg-white rounded-lg shadow p-6 mb-6">
@@ -128,6 +138,7 @@ function CollectionReportPage() {
           columns={columns}
           data={collectionData}
           loading={isLoading}
+          actions={actions}
           emptyMessage="No collection entries found for the selected date."
         />
       </div>
@@ -135,4 +146,4 @@ function CollectionReportPage() {
   );
 }
 
-export default CollectionReportPage; 
+export default CollectionReportPage;

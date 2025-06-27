@@ -1,252 +1,154 @@
 import { Formik, Form } from 'formik';
 import * as Yup from 'yup';
 import FormField from '../common/FormField';
+import { useState } from 'react';
 
-const burialServiceReceiptSchema = Yup.object().shape({
-  receiptNo: Yup.string().required('Receipt number is required'),
+const BURIAL_RECEIPT_SCHEMA = Yup.object().shape({
+  title: Yup.string().required('Title is required'),
   name: Yup.string().required('Name is required'),
-  cityMunicipality: Yup.string().required('City/Municipality is required'),
-  province: Yup.string().required('Province is required'),
   deceasedName: Yup.string().required('Deceased name is required'),
   nationality: Yup.string().required('Nationality is required'),
-  age: Yup.number()
-    .required('Age is required')
-    .min(0, 'Age must be positive')
-    .max(150, 'Age must be realistic'),
-  sex: Yup.string().required('Sex is required'),
+  age: Yup.number().required('Age is required').min(0, 'Age must be positive'),
   dateOfDeath: Yup.date().required('Date of death is required'),
   causeOfDeath: Yup.string().required('Cause of death is required'),
   cemeteryName: Yup.string().required('Cemetery name is required'),
   serviceType: Yup.string().required('Service type is required'),
+  isInfectious: Yup.boolean(),
+  isEmbalmed: Yup.boolean(),
+  dispositionRemarks: Yup.string().when('serviceType', {
+    is: (val) => ['disinter', 'remove'].includes(val),
+    then: Yup.string().required('Disposition remarks are required'),
+  }),
+  invoiceDate: Yup.date().required('Invoice date is required'),
+  paymentMethod: Yup.string().required('Payment method is required'),
+  amountReceived: Yup.number()
+    .required('Amount received is required')
+    .min(0, 'Amount must be positive'),
+  referenceNumber: Yup.string(),
+  remarks: Yup.string(),
 });
 
-function BurialServiceReceiptForm({
-  initialData,
-  onClose,
-  onSubmit,
-  nationalities = [],
-  municipalities = [],
-  provinces = [],
-  users = [],
-}) {
+function BurialServiceReceiptForm({ initialData, onClose, onSubmit }) {
+  const [showAdditionalFields, setShowAdditionalFields] = useState(false);
+
   const initialValues = initialData || {
-    receiptNo: '',
+    title: 'mr',
     name: '',
-    cityMunicipality: '',
-    province: '',
     deceasedName: '',
     nationality: '',
     age: '',
-    sex: '',
     dateOfDeath: '',
     causeOfDeath: '',
     cemeteryName: '',
-    serviceType: '',
-    attachments: null,
+    serviceType: 'inter',
+    isInfectious: false,
+    isEmbalmed: false,
+    dispositionRemarks: '',
+    invoiceDate: new Date().toISOString().split('T')[0],
+    paymentMethod: '',
+    amountReceived: '',
+    referenceNumber: '',
+    remarks: '',
   };
 
-  const handleSubmit = (values) => {
-    onSubmit(values);
+  const handleServiceTypeChange = (e, setFieldValue) => {
+    const value = e.target.value;
+    setFieldValue('serviceType', value);
+    setShowAdditionalFields(value !== 'inter');
   };
-
-  // Prepare select options
-  const userOptions = users.items.map((user) => ({
-    value: user.ID,
-    label: `${user.UserName} `,
-  }));
-
-  const nationalityOptions = nationalities.map((nat) => ({
-    value: nat.ID,
-    label: nat.Name,
-  }));
-
-  const municipalityOptions = municipalities.map((muni) => ({
-    value: muni.ID,
-    label: muni.Name,
-  }));
-
-  const provinceOptions = provinces.map((prov) => ({
-    value: prov.ID,
-    label: prov.Name,
-  }));
-
+  // Sample names data - replace with your actual data source
+  const NAME_OPTIONS = [
+    { value: 'shewin_pua_ola', label: 'Shewin, Pua, Ola' },
+    { value: 'john_doe', label: 'Doe, John' },
+    { value: 'jane_smith', label: 'Smith, Jane' },
+    // Add more names as needed
+  ];
   return (
     <Formik
       initialValues={initialValues}
-      validationSchema={burialServiceReceiptSchema}
-      onSubmit={handleSubmit}
+      validationSchema={BURIAL_RECEIPT_SCHEMA}
+      onSubmit={onSubmit}
+      enableReinitialize
     >
-      {({
-        values,
-        errors,
-        touched,
-        handleChange,
-        handleBlur,
-        setFieldValue,
-        isSubmitting,
-      }) => (
-        <Form className="space-y-4">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <FormField
-              label="Receipt No"
-              name="receiptNo"
-              type="text"
-              required
-              value={values.receiptNo}
-              onChange={handleChange}
-              onBlur={handleBlur}
-              error={errors.receiptNo}
-              touched={touched.receiptNo}
-              placeholder="Enter receipt number"
+      {({ values, errors, touched, handleChange, setFieldValue }) => (
+        <Form className="space-y-4 p-4 bg-white rounded-lg">
+          {/* Attachments Section */}
+          <div>
+            <h2 className="font-bold mb-2">Attachments</h2>
+            <input
+              type="file"
+              className="block w-full text-sm text-gray-500
+                file:mr-4 file:py-2 file:px-4
+                file:rounded-md file:border-0
+                file:text-sm file:font-medium
+                file:bg-blue-50 file:text-blue-700
+                hover:file:bg-blue-100"
             />
+          </div>
 
+          {/* Receipt Header */}
+          <div className="text-center">
+            {/* <h2 className="font-bold">
+              CITY/MUNICIPAL BURIAL PERMIT AND FREE RECEIPT
+            </h2> */}
             <FormField
-              label="Name"
+              // label="No."
+              name="receiptNumber"
+              type="text"
+              // required
+              value="BU-RE-36AL-CEIPT"
+              readOnly
+              className="font-bold text-center"
+            />
+          </div>
+
+          {/* Title and Name */}
+          {/* Name Section */}
+          <div>
+            {/* <label className="block font-medium">MR. / MRS.</label> */}
+            <FormField
+              label="MR. / MRS."
               name="name"
               type="select"
+              options={NAME_OPTIONS}
+              placeholder="Select name"
               required
-              value={values.name}
-              onChange={handleChange}
-              onBlur={handleBlur}
-              error={errors.name}
-              touched={touched.name}
-              options={userOptions}
-              placeholder="Select user"
             />
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <FormField
-              label="To the City Municipality of"
-              name="cityMunicipality"
-              type="select"
-              required
-              value={values.cityMunicipality}
-              onChange={handleChange}
-              onBlur={handleBlur}
-              error={errors.cityMunicipality}
-              touched={touched.cityMunicipality}
-              options={municipalityOptions}
-              placeholder="Select municipality"
-            />
-
-            <FormField
-              label="Province of"
-              name="province"
-              type="select"
-              required
-              value={values.province}
-              onChange={handleChange}
-              onBlur={handleBlur}
-              error={errors.province}
-              touched={touched.province}
-              options={provinceOptions}
-              placeholder="Select province"
-            />
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <FormField
-              label="Deceased Name"
-              name="deceasedName"
-              type="text"
-              required
-              value={values.deceasedName}
-              onChange={handleChange}
-              onBlur={handleBlur}
-              error={errors.deceasedName}
-              touched={touched.deceasedName}
-              placeholder="Enter deceased name"
-            />
-
+          {/* Deceased Information */}
+          <div className="space-y-4">
+            <FormField label="Name" name="deceasedName" type="text" required />
             <FormField
               label="Nationality"
               name="nationality"
-              type="select"
+              type="text"
               required
-              value={values.nationality}
-              onChange={handleChange}
-              onBlur={handleBlur}
-              error={errors.nationality}
-              touched={touched.nationality}
-              options={nationalityOptions}
-              placeholder="Select nationality"
             />
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <FormField
-              label="Age"
-              name="age"
-              type="number"
-              required
-              value={values.age}
-              onChange={handleChange}
-              onBlur={handleBlur}
-              error={errors.age}
-              touched={touched.age}
-              placeholder="Enter age"
-            />
-
-            <FormField
-              label="Sex"
-              name="sex"
-              type="select"
-              required
-              value={values.sex}
-              onChange={handleChange}
-              onBlur={handleBlur}
-              error={errors.sex}
-              touched={touched.sex}
-              options={[
-                { value: 'male', label: 'Male' },
-                { value: 'female', label: 'Female' },
-              ]}
-            />
-
+            <FormField label="Age" name="age" type="number" required />
             <FormField
               label="Date of Death"
               name="dateOfDeath"
               type="date"
               required
-              value={values.dateOfDeath}
-              onChange={handleChange}
-              onBlur={handleBlur}
-              error={errors.dateOfDeath}
-              touched={touched.dateOfDeath}
+            />
+            <FormField
+              label="Cause of Death"
+              name="causeOfDeath"
+              type="text"
+              required
+            />
+            <FormField
+              label="Name of Cemetery"
+              name="cemeteryName"
+              type="text"
+              required
             />
           </div>
 
-          <FormField
-            label="Cause of Death"
-            name="causeOfDeath"
-            type="text"
-            required
-            value={values.causeOfDeath}
-            onChange={handleChange}
-            onBlur={handleBlur}
-            error={errors.causeOfDeath}
-            touched={touched.causeOfDeath}
-            placeholder="Enter cause of death"
-          />
-
-          <FormField
-            label="Name of Cemetery"
-            name="cemeteryName"
-            type="text"
-            required
-            value={values.cemeteryName}
-            onChange={handleChange}
-            onBlur={handleBlur}
-            error={errors.cemeteryName}
-            touched={touched.cemeteryName}
-            placeholder="Enter cemetery name"
-          />
-
+          {/* Service Type Radio Buttons */}
           <div className="space-y-2">
-            <label className="block text-sm font-medium text-gray-700">
-              Service Type
-            </label>
+            <label className="block font-medium">Service Type</label>
             <div className="flex space-x-4">
               <label className="inline-flex items-center">
                 <input
@@ -254,10 +156,10 @@ function BurialServiceReceiptForm({
                   name="serviceType"
                   value="inter"
                   checked={values.serviceType === 'inter'}
-                  onChange={handleChange}
+                  onChange={(e) => handleServiceTypeChange(e, setFieldValue)}
                   className="form-radio"
                 />
-                <span className="ml-2">Inter</span>
+                <span className="ml-2">INTER</span>
               </label>
               <label className="inline-flex items-center">
                 <input
@@ -265,10 +167,10 @@ function BurialServiceReceiptForm({
                   name="serviceType"
                   value="disinter"
                   checked={values.serviceType === 'disinter'}
-                  onChange={handleChange}
+                  onChange={(e) => handleServiceTypeChange(e, setFieldValue)}
                   className="form-radio"
                 />
-                <span className="ml-2">Disinter</span>
+                <span className="ml-2">DISINTER</span>
               </label>
               <label className="inline-flex items-center">
                 <input
@@ -276,52 +178,94 @@ function BurialServiceReceiptForm({
                   name="serviceType"
                   value="remove"
                   checked={values.serviceType === 'remove'}
-                  onChange={handleChange}
+                  onChange={(e) => handleServiceTypeChange(e, setFieldValue)}
                   className="form-radio"
                 />
-                <span className="ml-2">Remove</span>
+                <span className="ml-2">REMOVE</span>
               </label>
             </div>
-            {errors.serviceType && touched.serviceType && (
-              <div className="text-red-500 text-sm mt-1">
-                {errors.serviceType}
-              </div>
-            )}
           </div>
 
-          <div className="space-y-2">
-            <label className="block text-sm font-medium text-gray-700">
-              Attachments
-            </label>
-            <input
-              type="file"
-              onChange={(event) => {
-                setFieldValue('attachments', event.currentTarget.files[0]);
-              }}
-              className="block w-full text-sm text-gray-500
-                file:mr-4 file:py-2 file:px-4
-                file:rounded-full file:border-0
-                file:text-sm file:font-semibold
-                file:bg-blue-50 file:text-blue-700
-                hover:file:bg-blue-100"
+          {/* Additional Fields (shown when not INTER) */}
+          {showAdditionalFields && (
+            <div className="space-y-4 pl-6 border-l-2 border-gray-200">
+              <div className="flex items-center space-x-4">
+                <label className="inline-flex items-center">
+                  <input
+                    type="checkbox"
+                    name="isInfectious"
+                    checked={values.isInfectious}
+                    onChange={handleChange}
+                    className="form-checkbox"
+                  />
+                  <span className="ml-2">Infectious</span>
+                </label>
+                <label className="inline-flex items-center">
+                  <input
+                    type="checkbox"
+                    name="isEmbalmed"
+                    checked={values.isEmbalmed}
+                    onChange={handleChange}
+                    className="form-checkbox"
+                  />
+                  <span className="ml-2">Embalmed</span>
+                </label>
+              </div>
+              <FormField
+                label="Disposition of Remains"
+                name="dispositionRemarks"
+                type="textarea"
+                rows={2}
+                required={values.serviceType !== 'inter'}
+              />
+            </div>
+          )}
+
+          {/* Payment Information */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <FormField
+              label="Invoice Date"
+              name="invoiceDate"
+              type="date"
+              required
             />
-            {errors.attachments && touched.attachments && (
-              <div className="text-red-500 text-sm mt-1">
-                {errors.attachments}
-              </div>
-            )}
+            <FormField
+              label="Payment Method"
+              name="paymentMethod"
+              type="text"
+              required
+            />
+            <FormField
+              label="Amount Received"
+              name="amountReceived"
+              type="number"
+              required
+              min="0"
+            />
+            <FormField
+              label="Reference Number"
+              name="referenceNumber"
+              type="text"
+            />
           </div>
 
+          {/* Remarks */}
+          <FormField label="Remarks" name="remarks" type="textarea" rows={2} />
+
+          {/* Action Buttons */}
           <div className="flex justify-end space-x-3 pt-4 border-t border-neutral-200">
-            <button type="button" onClick={onClose} className="btn btn-outline">
+            <button
+              type="button"
+              onClick={onClose}
+              className="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50"
+            >
               Cancel
             </button>
             <button
               type="submit"
-              className="btn btn-primary"
-              disabled={isSubmitting}
+              className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
             >
-              {initialData ? 'Update' : 'Create'}
+              Submit
             </button>
           </div>
         </Form>
