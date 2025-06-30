@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { PrinterIcon, ArrowDownTrayIcon } from '@heroicons/react/24/outline';
 import FormField from '../../components/common/FormField';
+import DataTable from '@/components/common/DataTable';
 
 function FinancialStatementsPage() {
   const [filters, setFilters] = useState({
@@ -9,21 +10,24 @@ function FinancialStatementsPage() {
     statementType: 'sfp',
     fund: '',
   });
-  
+
   const funds = [
     { value: 'General Fund', label: 'General Fund' },
     { value: 'Special Education Fund', label: 'Special Education Fund' },
     { value: 'Trust Fund', label: 'Trust Fund' },
   ];
-  
+
   const statementTypes = [
     { value: 'sfp', label: 'Statement of Financial Position' },
     { value: 'sfe', label: 'Statement of Financial Performance' },
     { value: 'scf', label: 'Statement of Cash Flows' },
     { value: 'sce', label: 'Statement of Changes in Equity' },
-    { value: 'scna', label: 'Statement of Comparison of Budget and Actual Amounts' },
+    {
+      value: 'scna',
+      label: 'Statement of Comparison of Budget and Actual Amounts',
+    },
   ];
-  
+
   // Mock data for financial statement
   const mockData = {
     sfp: {
@@ -42,15 +46,111 @@ function FinancialStatementsPage() {
       ],
     },
   };
-  
-  // Format amount as Philippine Peso
-  const formatCurrency = (amount) => {
-    return new Intl.NumberFormat('en-PH', {
-      style: 'currency',
-      currency: 'PHP',
-    }).format(amount);
-  };
+  const financialData = [
+    {
+      type: 'Asset',
+      term: 'Current',
+      value: 'Cash',
+      comparison: '2023 vs 2022',
+      currentAmount: 2063778.72,
+      previousAmount: 2020101.75,
+      difference: 43676.97,
+    },
+    {
+      type: 'Asset',
+      term: 'Current',
+      value: 'Accounts Receivable',
+      comparison: '2023 vs 2022',
+      currentAmount: 1532450.5,
+      previousAmount: 1423678.25,
+      difference: 108772.25,
+    },
+    {
+      type: 'Liability',
+      term: 'Current',
+      value: 'Accounts Payable',
+      comparison: '2023 vs 2022',
+      currentAmount: 987650.25,
+      previousAmount: 876543.5,
+      difference: -111106.75,
+    },
+    {
+      type: 'Liability',
+      term: 'Long-term',
+      value: 'Loans Payable',
+      comparison: '2023 vs 2022',
+      currentAmount: 2500000.0,
+      previousAmount: 2750000.0,
+      difference: 250000.0,
+    },
+    {
+      type: 'Equity',
+      term: 'N/A',
+      value: 'Retained Earnings',
+      comparison: '2023 vs 2022',
+      currentAmount: 3876543.21,
+      previousAmount: 3654321.0,
+      difference: 222222.21,
+    },
+  ];
 
+  const columns = [
+    {
+      key: 'type',
+      header: 'Type',
+      sortable: true,
+      className: 'font-medium',
+    },
+    {
+      key: 'term',
+      header: 'Term',
+      sortable: true,
+    },
+    {
+      key: 'value',
+      header: 'Value',
+      sortable: true,
+    },
+    {
+      key: 'comparison',
+      header: 'Comparison',
+      sortable: false,
+    },
+    {
+      key: 'currentAmount',
+      header: 'Current Amount',
+      sortable: true,
+      render: (value) => formatCurrency(value),
+      className: 'text-right',
+    },
+    {
+      key: 'previousAmount',
+      header: 'Previous Amount',
+      sortable: true,
+      render: (value) => formatCurrency(value),
+      className: 'text-right',
+    },
+    {
+      key: 'difference',
+      header: 'Difference',
+      sortable: true,
+      render: (value) => {
+        const formatted = formatCurrency(Math.abs(value));
+        return value >= 0 ? `+${formatted}` : `-${formatted}`;
+      },
+      className: (value) =>
+        `text-right ${value >= 0 ? 'text-green-600' : 'text-red-600'}`,
+    },
+  ];
+
+  // Example currency formatting function
+  function formatCurrency(value) {
+    return new Intl.NumberFormat('en-US', {
+      style: 'decimal',
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2,
+    }).format(value);
+  }
   return (
     <div>
       <div className="page-header">
@@ -60,24 +160,18 @@ function FinancialStatementsPage() {
             <p>View and generate financial statement reports</p>
           </div>
           <div className="flex space-x-2">
-            <button
-              type="button"
-              className="btn btn-outline flex items-center"
-            >
+            <button type="button" className="btn btn-outline flex items-center">
               <ArrowDownTrayIcon className="h-5 w-5 mr-2" />
               Export
             </button>
-            <button
-              type="button"
-              className="btn btn-outline flex items-center"
-            >
+            <button type="button" className="btn btn-outline flex items-center">
               <PrinterIcon className="h-5 w-5 mr-2" />
               Print
             </button>
           </div>
         </div>
       </div>
-      
+
       <div className="mt-4 card p-4">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
           <FormField
@@ -89,8 +183,8 @@ function FinancialStatementsPage() {
             min="2000"
             max="2100"
           />
-          
-          <FormField
+
+          {/* <FormField
             label="Month"
             name="month"
             type="select"
@@ -110,27 +204,27 @@ function FinancialStatementsPage() {
               { value: '11', label: 'November' },
               { value: '12', label: 'December' },
             ]}
-          />
-          
-          <FormField
+          /> */}
+
+          {/* <FormField
             label="Statement Type"
             name="statementType"
             type="select"
             value={filters.statementType}
             onChange={(e) => setFilters({ ...filters, statementType: e.target.value })}
             options={statementTypes}
-          />
-          
-          <FormField
+          /> */}
+
+          {/* <FormField
             label="Fund"
             name="fund"
             type="select"
             value={filters.fund}
             onChange={(e) => setFilters({ ...filters, fund: e.target.value })}
             options={funds}
-          />
+          /> */}
         </div>
-        
+
         <div className="flex justify-end mt-4">
           <button
             type="button"
@@ -143,70 +237,114 @@ function FinancialStatementsPage() {
           </button>
         </div>
       </div>
-      
-      {/* Statement of Financial Position */}
-      {filters.statementType === 'sfp' && (
-        <div className="mt-8 space-y-8">
-          <div className="text-center space-y-2">
-            <h2 className="text-xl font-bold">Local Government Unit</h2>
-            <h3 className="text-lg font-semibold">Statement of Financial Position</h3>
-            <p className="text-sm text-neutral-600">As of {new Date(filters.year, filters.month - 1).toLocaleDateString('en-PH', { month: 'long', year: 'numeric' })}</p>
-          </div>
-          
-          {/* Assets */}
-          <div>
-            <h4 className="text-lg font-semibold mb-4">Assets</h4>
-            <div className="space-y-2">
-              {mockData.sfp.assets.map((item, index) => (
-                <div key={index} className="flex justify-between py-2 border-b">
-                  <span>{item.account}</span>
-                  <span className="font-medium">{formatCurrency(item.amount)}</span>
-                </div>
-              ))}
-              <div className="flex justify-between py-2 font-bold">
-                <span>Total Assets</span>
-                <span>{formatCurrency(mockData.sfp.assets.reduce((sum, item) => sum + item.amount, 0))}</span>
-              </div>
-            </div>
-          </div>
-          
-          {/* Liabilities */}
-          <div>
-            <h4 className="text-lg font-semibold mb-4">Liabilities</h4>
-            <div className="space-y-2">
-              {mockData.sfp.liabilities.map((item, index) => (
-                <div key={index} className="flex justify-between py-2 border-b">
-                  <span>{item.account}</span>
-                  <span className="font-medium">{formatCurrency(item.amount)}</span>
-                </div>
-              ))}
-              <div className="flex justify-between py-2 font-bold">
-                <span>Total Liabilities</span>
-                <span>{formatCurrency(mockData.sfp.liabilities.reduce((sum, item) => sum + item.amount, 0))}</span>
-              </div>
-            </div>
-          </div>
-          
-          {/* Equity */}
-          <div>
-            <h4 className="text-lg font-semibold mb-4">Equity</h4>
-            <div className="space-y-2">
-              {mockData.sfp.equity.map((item, index) => (
-                <div key={index} className="flex justify-between py-2 border-b">
-                  <span>{item.account}</span>
-                  <span className="font-medium">{formatCurrency(item.amount)}</span>
-                </div>
-              ))}
-              <div className="flex justify-between py-2 font-bold">
-                <span>Total Equity</span>
-                <span>{formatCurrency(mockData.sfp.equity.reduce((sum, item) => sum + item.amount, 0))}</span>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
+
+      <div className="mt-6 overflow-x-auto">
+        <DataTable
+          columns={columns}
+          data={financialData}
+          pagination={true}
+          responsive={true}
+          className="min-w-full"
+        />
+      </div>
     </div>
   );
 }
 
 export default FinancialStatementsPage;
+//  {/* Statement of Financial Position */}
+//       {filters.statementType === 'sfp' && (
+//         <div className="mt-8 space-y-8">
+//           <div className="text-center space-y-2">
+//             <h2 className="text-xl font-bold">Local Government Unit</h2>
+//             <h3 className="text-lg font-semibold">
+//               Statement of Financial Position
+//             </h3>
+//             <p className="text-sm text-neutral-600">
+//               As of{' '}
+//               {new Date(filters.year, filters.month - 1).toLocaleDateString(
+//                 'en-PH',
+//                 { month: 'long', year: 'numeric' }
+//               )}
+//             </p>
+//           </div>
+
+//           {/* Assets */}
+//           <div>
+//             <h4 className="text-lg font-semibold mb-4">Assets</h4>
+//             <div className="space-y-2">
+//               {mockData.sfp.assets.map((item, index) => (
+//                 <div key={index} className="flex justify-between py-2 border-b">
+//                   <span>{item.account}</span>
+//                   <span className="font-medium">
+//                     {formatCurrency(item.amount)}
+//                   </span>
+//                 </div>
+//               ))}
+//               <div className="flex justify-between py-2 font-bold">
+//                 <span>Total Assets</span>
+//                 <span>
+//                   {formatCurrency(
+//                     mockData.sfp.assets.reduce(
+//                       (sum, item) => sum + item.amount,
+//                       0
+//                     )
+//                   )}
+//                 </span>
+//               </div>
+//             </div>
+//           </div>
+
+//           {/* Liabilities */}
+//           <div>
+//             <h4 className="text-lg font-semibold mb-4">Liabilities</h4>
+//             <div className="space-y-2">
+//               {mockData.sfp.liabilities.map((item, index) => (
+//                 <div key={index} className="flex justify-between py-2 border-b">
+//                   <span>{item.account}</span>
+//                   <span className="font-medium">
+//                     {formatCurrency(item.amount)}
+//                   </span>
+//                 </div>
+//               ))}
+//               <div className="flex justify-between py-2 font-bold">
+//                 <span>Total Liabilities</span>
+//                 <span>
+//                   {formatCurrency(
+//                     mockData.sfp.liabilities.reduce(
+//                       (sum, item) => sum + item.amount,
+//                       0
+//                     )
+//                   )}
+//                 </span>
+//               </div>
+//             </div>
+//           </div>
+
+//           {/* Equity */}
+//           <div>
+//             <h4 className="text-lg font-semibold mb-4">Equity</h4>
+//             <div className="space-y-2">
+//               {mockData.sfp.equity.map((item, index) => (
+//                 <div key={index} className="flex justify-between py-2 border-b">
+//                   <span>{item.account}</span>
+//                   <span className="font-medium">
+//                     {formatCurrency(item.amount)}
+//                   </span>
+//                 </div>
+//               ))}
+//               <div className="flex justify-between py-2 font-bold">
+//                 <span>Total Equity</span>
+//                 <span>
+//                   {formatCurrency(
+//                     mockData.sfp.equity.reduce(
+//                       (sum, item) => sum + item.amount,
+//                       0
+//                     )
+//                   )}
+//                 </span>
+//               </div>
+//             </div>
+//           </div>
+//         </div>
+//       )}

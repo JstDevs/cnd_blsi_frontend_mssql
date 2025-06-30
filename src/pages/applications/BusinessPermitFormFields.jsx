@@ -8,9 +8,11 @@ const BusinessPermitFormFields = ({
   handleSave,
   onCancel,
   isEdit,
+  handleFileUpload,
+  handleRemoveAttachment,
 }) => {
   return (
-    <div className="p-4 space-y-6">
+    <div className=" sm:p-4 space-y-6">
       {/* Section I - Applicant Session */}
       <div className="border-b border-gray-200 pb-6">
         <h3 className="text-lg font-medium text-gray-900 mb-4">
@@ -146,11 +148,10 @@ const BusinessPermitFormFields = ({
         />
       </div>
 
-      {/* You can include additional sections (e.g. Name of Taxpayer/ Other Info) in the same format here */}
       {/* Name of Taxpayer/Registrant */}
       <div className="border-b border-gray-200 pb-6">
         <h3 className="text-lg font-medium text-gray-900 mb-4">
-          II. Name of Taxpayer/Registrant
+          Name of Taxpayer/Registrant
         </h3>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
@@ -204,9 +205,9 @@ const BusinessPermitFormFields = ({
       </div>
 
       {/* Section II - Other Information */}
-      <div className="pb-6">
+      <div className="border-b border-gray-200 pb-6">
         <h3 className="text-lg font-medium text-gray-900 mb-4">
-          III. Other Information
+          II. Other Information
         </h3>
 
         <div className="mb-6">
@@ -339,7 +340,7 @@ const BusinessPermitFormFields = ({
           />
         </div>
 
-        <div>
+        <div className="mb-6">
           <h4 className="text-sm font-medium text-gray-700 mb-2">
             Owner's Address
           </h4>
@@ -385,8 +386,274 @@ const BusinessPermitFormFields = ({
               placeholder="Region"
             />
           </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+            <FormField
+              label="Postal Code"
+              name="ownerPostalCode"
+              type="text"
+              value={formData.ownerPostalCode}
+              onChange={(value) => handleInputChange('ownerPostalCode', value)}
+              placeholder="Enter postal code"
+            />
+
+            <FormField
+              label="Email Address"
+              name="ownerEmailAddress"
+              type="email"
+              value={formData.ownerEmailAddress}
+              onChange={(value) =>
+                handleInputChange('ownerEmailAddress', value)
+              }
+              placeholder="Enter email address"
+            />
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+            <FormField
+              label="Telephone No."
+              name="ownerTelephoneNo"
+              type="text"
+              value={formData.ownerTelephoneNo}
+              onChange={(value) => handleInputChange('ownerTelephoneNo', value)}
+              placeholder="Enter telephone number"
+            />
+
+            <FormField
+              label="Mobile No."
+              name="ownerMobileNo"
+              type="text"
+              value={formData.ownerMobileNo}
+              onChange={(value) => handleInputChange('ownerMobileNo', value)}
+              placeholder="Enter mobile number"
+            />
+          </div>
+        </div>
+
+        <div className="mb-6">
+          <h4 className="text-sm font-medium text-gray-700 mb-2">
+            In Case of emergency, provide name of contact person
+          </h4>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+            <FormField
+              label="Contact Person"
+              name="emergencyContactPerson"
+              type="text"
+              value={formData.emergencyContactPerson}
+              onChange={(value) =>
+                handleInputChange('emergencyContactPerson', value)
+              }
+              placeholder="Enter contact person name"
+            />
+
+            <FormField
+              label="Telephone/Mobile No."
+              name="emergencyContactNumber"
+              type="text"
+              value={formData.emergencyContactNumber}
+              onChange={(value) =>
+                handleInputChange('emergencyContactNumber', value)
+              }
+              placeholder="Enter contact number"
+            />
+
+            <FormField
+              label="Email Address"
+              name="emergencyContactEmail"
+              type="email"
+              value={formData.emergencyContactEmail}
+              onChange={(value) =>
+                handleInputChange('emergencyContactEmail', value)
+              }
+              placeholder="Enter email address"
+            />
+          </div>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+          <FormField
+            label="Business Area (in sqm)"
+            name="businessArea"
+            type="number"
+            value={formData.businessArea}
+            onChange={(value) => handleInputChange('businessArea', value)}
+            placeholder="Enter business area"
+          />
+
+          <FormField
+            label="Total Employees in Establishment"
+            name="totalEmployees"
+            type="number"
+            value={formData.totalEmployees}
+            onChange={(value) => handleInputChange('totalEmployees', value)}
+            placeholder="Enter total employees"
+          />
+
+          <FormField
+            label="No. of Employees Residing with LGLI"
+            name="employeesResidingWithLgli"
+            type="number"
+            value={formData.employeesResidingWithLgli}
+            onChange={(value) =>
+              handleInputChange('employeesResidingWithLgli', value)
+            }
+            placeholder="Enter number"
+          />
+        </div>
+
+        <div className="mb-6">
+          <h4 className="text-sm font-medium text-gray-700 mb-2">
+            Note: Fill up Only if Business Place is Rented
+          </h4>
+
+          <FormField
+            label="Lessor's Full Name"
+            name="lessorFullName"
+            type="text"
+            value={formData.lessorFullName}
+            onChange={(value) => handleInputChange('lessorFullName', value)}
+            placeholder="Enter lessor's full name"
+          />
+
+          <FormField
+            label="Lessor's Full Address"
+            name="lessorAddress"
+            type="text"
+            value={formData.lessorAddress}
+            onChange={(value) => handleInputChange('lessorAddress', value)}
+            placeholder="Enter lessor's address"
+            className="mt-4"
+          />
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+            <FormField
+              label="Lessor's Telephone/Mobile No."
+              name="lessorContactNumber"
+              type="text"
+              value={formData.lessorContactNumber}
+              onChange={(value) =>
+                handleInputChange('lessorContactNumber', value)
+              }
+              placeholder="Enter contact number"
+            />
+
+            <FormField
+              label="Lessor's Email Address"
+              name="lessorEmail"
+              type="email"
+              value={formData.lessorEmail}
+              onChange={(value) => handleInputChange('lessorEmail', value)}
+              placeholder="Enter email address"
+            />
+          </div>
+
+          <FormField
+            label="Monthly Rental"
+            name="monthlyRental"
+            type="number"
+            value={formData.monthlyRental}
+            onChange={(value) => handleInputChange('monthlyRental', value)}
+            placeholder="Enter monthly rental amount"
+            className="mt-4"
+          />
         </div>
       </div>
+
+      {/* Section III - Business Activity */}
+      <div className="border-b border-gray-200 pb-6">
+        <h3 className="text-lg font-medium text-gray-900 mb-4">
+          III. Business Activity
+        </h3>
+
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+          <FormField
+            label="Line of Business"
+            name="lineOfBusiness"
+            type="text"
+            value={formData.lineOfBusiness}
+            onChange={(value) => handleInputChange('lineOfBusiness', value)}
+            placeholder="Enter line of business"
+          />
+
+          <FormField
+            label="No. Units"
+            name="numberOfUnits"
+            type="number"
+            value={formData.numberOfUnits}
+            onChange={(value) => handleInputChange('numberOfUnits', value)}
+            placeholder="Enter number of units"
+          />
+
+          <FormField
+            label="Capitalization"
+            name="capitalization"
+            type="number"
+            value={formData.capitalization}
+            onChange={(value) => handleInputChange('capitalization', value)}
+            placeholder="Enter capitalization"
+          />
+
+          <FormField
+            label="Gross Sales"
+            name="grossSales"
+            type="number"
+            value={formData.grossSales}
+            onChange={(value) => handleInputChange('grossSales', value)}
+            placeholder="Enter gross sales"
+          />
+        </div>
+      </div>
+
+      {/* Section IV - Attachments */}
+      <div className="pb-6">
+        <h3 className="text-lg font-medium text-gray-900 mb-4">
+          IV. Attachments
+        </h3>
+
+        <div className="flex items-center mb-4 gap-4 justify-between">
+          <label className="block text-sm font-medium text-gray-700 mr-2">
+            Add Attachment
+          </label>
+          <input
+            type="file"
+            onChange={handleFileUpload}
+            className="hidden"
+            id="fileUpload"
+            multiple
+          />
+          <button
+            type="button"
+            onClick={() => document.getElementById('fileUpload').click()}
+            className="btn btn-outline"
+          >
+            Add
+          </button>
+        </div>
+
+        <div className="space-y-2">
+          {formData.attachments && formData.attachments.length > 0 ? (
+            formData.attachments.map((file, index) => (
+              <div
+                key={index}
+                className="flex items-center justify-between p-2 border rounded"
+              >
+                <span className="text-sm truncate">{file.name}</span>
+                <button
+                  type="button"
+                  onClick={() => handleRemoveAttachment(index)}
+                  className="text-red-500 hover:text-red-700"
+                >
+                  Delete
+                </button>
+              </div>
+            ))
+          ) : (
+            <p className="text-sm text-gray-500">No attachments added</p>
+          )}
+        </div>
+      </div>
+
       {/* Form Actions */}
       <div className="flex justify-end space-x-3 pt-4 border-t border-neutral-200">
         <button type="button" onClick={onCancel} className="btn btn-outline">

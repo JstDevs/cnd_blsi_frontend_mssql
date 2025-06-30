@@ -72,7 +72,7 @@ import FundUtilizationRequestPage from './pages/fund-utilization/FundUtilization
 // import GeneralReceiptPage from './pages/collections/GeneralReceiptPage';
 import CommunityTaxPage from './pages/collections/CommunityTax/CommunityTaxPage';
 import CommunityTaxCorporationPage from './pages/collections/CommunityTaxCorporation/CommunityTaxCorporationPage';
-import RealPropertyTaxPage from './pages/collections/RealPropertyTaxPage';
+// import RealPropertyTaxPage from './pages/collections/RealPropertyTaxPage';
 import MarketCollectionsPage from './pages/collections/MarketCollectionsPage';
 import GeneralServiceReceiptPage from './pages/collections/GeneralReceipt/GeneralServiceReceiptPage';
 import BurialServiceReceiptPage from './pages/collections/BurialServiceReceiptPage';
@@ -92,7 +92,7 @@ import BudgetSupplemental from './pages/budget/form-budget/BudgetSupplemental';
 import FundsManagement from './pages/budget/form-budget/FundsManagement';
 import SubFundsPage from './pages/budget/SubFundsPage';
 import FundTransfer from './pages/budget/form-budget/FundTransfer';
-import TrialBalance from './pages/budget/form-budget/TrialBalance';
+// import TrialBalance from './pages/reports/TrialBalance';
 import BudgetPage from './pages/budget/BudgetPage';
 import StatementComparison from './pages/budget/form-budget/StatementComparison';
 import StatementAppropriation from './pages/budget/form-budget/StatementAppropriation';
@@ -116,6 +116,8 @@ import BudgetDashboardPage from './pages/budget/BudgetDashboardPage';
 import DisbursementDashboardPage from './pages/disbursement/DisbursementDashboardPage';
 import CollectionDashboardPage from './pages/collections/CollectionDashboardPage';
 import GeneralReceiptPage from './pages/collections/GeneralReceipt/GeneralReceiptPage';
+import RealPropertyTaxPage from './pages/collections/RealProprtyTax/RealPropertyTaxPage';
+import TrialBalance from './pages/reports/TrialBalance';
 
 function App() {
   const { isAuthenticated, isLoading } = useSelector((state) => state.auth);

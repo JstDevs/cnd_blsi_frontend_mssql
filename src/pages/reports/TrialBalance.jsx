@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState } from 'react';
 import {
   Calendar,
   Download,
@@ -13,242 +13,244 @@ import {
   DollarSign,
   Building2,
   Calculator,
-} from "lucide-react";
+  PrinterIcon,
+} from 'lucide-react';
+import { ArrowDownTrayIcon } from '@heroicons/react/24/outline';
 
 const TrialBalance = () => {
-  const [dateEnd, setDateEnd] = useState("2025-05-30");
-  const [dateFrom, setDateFrom] = useState("2025-05-30");
-  const [selectedFund, setSelectedFund] = useState("General Fund");
-  const [selectedLedger, setSelectedLedger] = useState("Subsidiary Ledger");
+  const [dateEnd, setDateEnd] = useState('2025-05-30');
+  const [dateFrom, setDateFrom] = useState('2025-05-30');
+  const [selectedFund, setSelectedFund] = useState('General Fund');
+  const [selectedLedger, setSelectedLedger] = useState('Subsidiary Ledger');
   const [selectedApprover, setSelectedApprover] = useState(
-    "Cedric Azupardo Entac - Treasury"
+    'Cedric Azupardo Entac - Treasury'
   );
-  const [searchTerm, setSearchTerm] = useState("");
-  const [filterCategory, setFilterCategory] = useState("all");
-  const [viewMode, setViewMode] = useState("summary");
+  const [searchTerm, setSearchTerm] = useState('');
+  const [filterCategory, setFilterCategory] = useState('all');
+  const [viewMode, setViewMode] = useState('summary');
 
   const trialBalanceData = [
     {
-      id: "1",
-      accountCode: "101010010",
-      accountName: "Cash - Local Treasury",
+      id: '1',
+      accountCode: '101010010',
+      accountName: 'Cash - Local Treasury',
       debit: 2336672.73,
       credit: 9018.0,
-      endDate: "2025-05-30",
-      funds: "General Fund",
-      approverName: "Cedric A. Entac",
-      approverPosition: "Treasury Head",
-      category: "assets",
+      endDate: '2025-05-30',
+      funds: 'General Fund',
+      approverName: 'Cedric A. Entac',
+      approverPosition: 'Treasury Head',
+      category: 'assets',
     },
     {
-      id: "2",
-      accountCode: "101010020",
-      accountName: "Due from Local Government Units",
+      id: '2',
+      accountCode: '101010020',
+      accountName: 'Due from Local Government Units',
       debit: 0.0,
       credit: 51228.78,
-      endDate: "2025-05-30",
-      funds: "General Fund",
-      approverName: "Cedric A. Entac",
-      approverPosition: "Treasury Head",
-      category: "assets",
+      endDate: '2025-05-30',
+      funds: 'General Fund',
+      approverName: 'Cedric A. Entac',
+      approverPosition: 'Treasury Head',
+      category: 'assets',
     },
     {
-      id: "3",
-      accountCode: "101010020",
-      accountName: "Due to LGUs",
+      id: '3',
+      accountCode: '101010020',
+      accountName: 'Due to LGUs',
       debit: 0.0,
       credit: 34152.54,
-      endDate: "2025-05-30",
-      funds: "General Fund",
-      approverName: "Cedric A. Entac",
-      approverPosition: "Treasury Head",
-      category: "liabilities",
+      endDate: '2025-05-30',
+      funds: 'General Fund',
+      approverName: 'Cedric A. Entac',
+      approverPosition: 'Treasury Head',
+      category: 'liabilities',
     },
     {
-      id: "4",
-      accountCode: "101010020",
-      accountName: "Petty Cash",
+      id: '4',
+      accountCode: '101010020',
+      accountName: 'Petty Cash',
       debit: 66660.0,
       credit: 362172.0,
-      endDate: "2025-05-30",
-      funds: "General Fund",
-      approverName: "Cedric A. Entac",
-      approverPosition: "Treasury Head",
-      category: "assets",
+      endDate: '2025-05-30',
+      funds: 'General Fund',
+      approverName: 'Cedric A. Entac',
+      approverPosition: 'Treasury Head',
+      category: 'assets',
     },
     {
-      id: "5",
-      accountCode: "101020010",
-      accountName: "Cash in Bank - Local Currency, Current Account",
+      id: '5',
+      accountCode: '101020010',
+      accountName: 'Cash in Bank - Local Currency, Current Account',
       debit: 2200.0,
       credit: 18480.0,
-      endDate: "2025-05-30",
-      funds: "General Fund",
-      approverName: "Cedric A. Entac",
-      approverPosition: "Treasury Head",
-      category: "assets",
+      endDate: '2025-05-30',
+      funds: 'General Fund',
+      approverName: 'Cedric A. Entac',
+      approverPosition: 'Treasury Head',
+      category: 'assets',
     },
     {
-      id: "6",
-      accountCode: "102059990",
-      accountName: "Other Investments",
+      id: '6',
+      accountCode: '102059990',
+      accountName: 'Other Investments',
       debit: 3040000.0,
       credit: 2678571.42,
-      endDate: "2025-05-30",
-      funds: "General Fund",
-      approverName: "Cedric A. Entac",
-      approverPosition: "Treasury Head",
-      category: "assets",
+      endDate: '2025-05-30',
+      funds: 'General Fund',
+      approverName: 'Cedric A. Entac',
+      approverPosition: 'Treasury Head',
+      category: 'assets',
     },
     {
-      id: "7",
-      accountCode: "102059991",
-      accountName: "Allowance for Impairment - Other Investments",
+      id: '7',
+      accountCode: '102059991',
+      accountName: 'Allowance for Impairment - Other Investments',
       debit: 13844738.8,
       credit: 3797867860.0,
-      endDate: "2025-05-30",
-      funds: "General Fund",
-      approverName: "Cedric A. Entac",
-      approverPosition: "Treasury Head",
-      category: "assets",
+      endDate: '2025-05-30',
+      funds: 'General Fund',
+      approverName: 'Cedric A. Entac',
+      approverPosition: 'Treasury Head',
+      category: 'assets',
     },
     {
-      id: "8",
-      accountCode: "102070010",
-      accountName: "Sinking Fund",
+      id: '8',
+      accountCode: '102070010',
+      accountName: 'Sinking Fund',
       debit: 1002149.8,
       credit: 0.0,
-      endDate: "2025-05-30",
-      funds: "General Fund",
-      approverName: "Cedric A. Entac",
-      approverPosition: "Treasury Head",
-      category: "assets",
+      endDate: '2025-05-30',
+      funds: 'General Fund',
+      approverName: 'Cedric A. Entac',
+      approverPosition: 'Treasury Head',
+      category: 'assets',
     },
     {
-      id: "9",
-      accountCode: "105010030",
-      accountName: "Prepaid Registration",
+      id: '9',
+      accountCode: '105010030',
+      accountName: 'Prepaid Registration',
       debit: 500010.0,
       credit: 0.0,
-      endDate: "2025-05-30",
-      funds: "General Fund",
-      approverName: "Cedric A. Entac",
-      approverPosition: "Treasury Head",
-      category: "assets",
+      endDate: '2025-05-30',
+      funds: 'General Fund',
+      approverName: 'Cedric A. Entac',
+      approverPosition: 'Treasury Head',
+      category: 'assets',
     },
     {
-      id: "10",
-      accountCode: "107050020",
-      accountName: "Office Equipment",
+      id: '10',
+      accountCode: '107050020',
+      accountName: 'Office Equipment',
       debit: 4143396.0,
       credit: 3719996.28,
-      endDate: "2025-05-30",
-      funds: "General Fund",
-      approverName: "Cedric A. Entac",
-      approverPosition: "Treasury Head",
-      category: "assets",
+      endDate: '2025-05-30',
+      funds: 'General Fund',
+      approverName: 'Cedric A. Entac',
+      approverPosition: 'Treasury Head',
+      category: 'assets',
     },
     {
-      id: "11",
-      accountCode: "107990010",
-      accountName: "Work/Zoo Animals",
+      id: '11',
+      accountCode: '107990010',
+      accountName: 'Work/Zoo Animals',
       debit: 10.0,
       credit: 0.0,
-      endDate: "2025-05-30",
-      funds: "General Fund",
-      approverName: "Cedric A. Entac",
-      approverPosition: "Treasury Head",
-      category: "assets",
+      endDate: '2025-05-30',
+      funds: 'General Fund',
+      approverName: 'Cedric A. Entac',
+      approverPosition: 'Treasury Head',
+      category: 'assets',
     },
     {
-      id: "12",
-      accountCode: "202010070",
-      accountName: "Due to LGUs",
+      id: '12',
+      accountCode: '202010070',
+      accountName: 'Due to LGUs',
       debit: 0.0,
       credit: 416.51,
-      endDate: "2025-05-30",
-      funds: "General Fund",
-      approverName: "Cedric A. Entac",
-      approverPosition: "Treasury Head",
-      category: "liabilities",
+      endDate: '2025-05-30',
+      funds: 'General Fund',
+      approverName: 'Cedric A. Entac',
+      approverPosition: 'Treasury Head',
+      category: 'liabilities',
     },
     {
-      id: "13",
-      accountCode: "402020020",
-      accountName: "Affiliation Fees",
+      id: '13',
+      accountCode: '402020020',
+      accountName: 'Affiliation Fees',
       debit: 0.0,
       credit: 60001496700.0,
-      endDate: "2025-05-30",
-      funds: "General Fund",
-      approverName: "Cedric A. Entac",
-      approverPosition: "Treasury Head",
-      category: "revenue",
+      endDate: '2025-05-30',
+      funds: 'General Fund',
+      approverName: 'Cedric A. Entac',
+      approverPosition: 'Treasury Head',
+      category: 'revenue',
     },
     {
-      id: "14",
-      accountCode: "501010010",
-      accountName: "Salaries and Wages - Regular",
+      id: '14',
+      accountCode: '501010010',
+      accountName: 'Salaries and Wages - Regular',
       debit: 160000.0,
       credit: 118110.0,
-      endDate: "2025-05-30",
-      funds: "General Fund",
-      approverName: "Cedric A. Entac",
-      approverPosition: "Treasury Head",
-      category: "expenses",
+      endDate: '2025-05-30',
+      funds: 'General Fund',
+      approverName: 'Cedric A. Entac',
+      approverPosition: 'Treasury Head',
+      category: 'expenses',
     },
     {
-      id: "15",
-      accountCode: "501020140",
-      accountName: "Year End Bonus",
+      id: '15',
+      accountCode: '501020140',
+      accountName: 'Year End Bonus',
       debit: 120.0,
       credit: 0.0,
-      endDate: "2025-05-30",
-      funds: "General Fund",
-      approverName: "Cedric A. Entac",
-      approverPosition: "Treasury Head",
-      category: "expenses",
+      endDate: '2025-05-30',
+      funds: 'General Fund',
+      approverName: 'Cedric A. Entac',
+      approverPosition: 'Treasury Head',
+      category: 'expenses',
     },
     {
-      id: "16",
-      accountCode: "502030020",
-      accountName: "Accountable Forms Expenses",
+      id: '16',
+      accountCode: '502030020',
+      accountName: 'Accountable Forms Expenses',
       debit: 2269.2,
       credit: 0.0,
-      endDate: "2025-05-30",
-      funds: "General Fund",
-      approverName: "Cedric A. Entac",
-      approverPosition: "Treasury Head",
-      category: "expenses",
+      endDate: '2025-05-30',
+      funds: 'General Fund',
+      approverName: 'Cedric A. Entac',
+      approverPosition: 'Treasury Head',
+      category: 'expenses',
     },
     {
-      id: "17",
-      accountCode: "502040020",
-      accountName: "Electricity Expenses",
+      id: '17',
+      accountCode: '502040020',
+      accountName: 'Electricity Expenses',
       debit: 138060.0,
       credit: 0.0,
-      endDate: "2025-05-30",
-      funds: "General Fund",
-      approverName: "Cedric A. Entac",
-      approverPosition: "Treasury Head",
-      category: "expenses",
+      endDate: '2025-05-30',
+      funds: 'General Fund',
+      approverName: 'Cedric A. Entac',
+      approverPosition: 'Treasury Head',
+      category: 'expenses',
     },
   ];
 
-  const funds = ["General Fund", "Special Fund", "Trust Fund", "Capital Fund"];
-  const ledgers = ["Subsidiary Ledger", "General Ledger", "Cash Book"];
+  const funds = ['General Fund', 'Special Fund', 'Trust Fund', 'Capital Fund'];
+  const ledgers = ['Subsidiary Ledger', 'General Ledger', 'Cash Book'];
   const approvers = [
-    "Cedric Azupardo Entac - Treasury",
-    "Maria Santos - Finance",
-    "John Doe - Accounting",
-    "Jane Smith - Budget",
+    'Cedric Azupardo Entac - Treasury',
+    'Maria Santos - Finance',
+    'John Doe - Accounting',
+    'Jane Smith - Budget',
   ];
   const categories = [
-    "all",
-    "assets",
-    "liabilities",
-    "equity",
-    "revenue",
-    "expenses",
+    'all',
+    'assets',
+    'liabilities',
+    'equity',
+    'revenue',
+    'expenses',
   ];
 
   const filteredData = trialBalanceData.filter((item) => {
@@ -256,7 +258,7 @@ const TrialBalance = () => {
       item.accountName.toLowerCase().includes(searchTerm.toLowerCase()) ||
       item.accountCode.includes(searchTerm);
     const matchesCategory =
-      filterCategory === "all" || item.category === filterCategory;
+      filterCategory === 'all' || item.category === filterCategory;
 
     return matchesSearch && matchesCategory;
   });
@@ -273,7 +275,7 @@ const TrialBalance = () => {
   );
 
   const categoryTotals = categories
-    .filter((c) => c !== "all")
+    .filter((c) => c !== 'all')
     .map((category) => {
       const categoryItems = filteredData.filter(
         (item) => item.category === category
@@ -298,31 +300,31 @@ const TrialBalance = () => {
 
   const getCategoryColor = (category) => {
     switch (category) {
-      case "assets":
-        return "bg-blue-100 text-blue-800";
-      case "liabilities":
-        return "bg-red-100 text-red-800";
-      case "equity":
-        return "bg-green-100 text-green-800";
-      case "revenue":
-        return "bg-purple-100 text-purple-800";
-      case "expenses":
-        return "bg-orange-100 text-orange-800";
+      case 'assets':
+        return 'bg-blue-100 text-blue-800';
+      case 'liabilities':
+        return 'bg-red-100 text-red-800';
+      case 'equity':
+        return 'bg-green-100 text-green-800';
+      case 'revenue':
+        return 'bg-purple-100 text-purple-800';
+      case 'expenses':
+        return 'bg-orange-100 text-orange-800';
       default:
-        return "bg-gray-100 text-gray-800";
+        return 'bg-gray-100 text-gray-800';
     }
   };
 
   const handleView = () => {
-    console.log("Viewing trial balance...");
+    console.log('Viewing trial balance...');
   };
 
   const handleGenerateCashbook = () => {
-    console.log("Generating cashbook...");
+    console.log('Generating cashbook...');
   };
 
   const handleExport = () => {
-    console.log("Exporting trial balance...");
+    console.log('Exporting trial balance...');
   };
 
   const handlePrint = () => {
@@ -345,41 +347,49 @@ const TrialBalance = () => {
         <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 sm:gap-3 w-full sm:w-auto">
           <div className="flex items-center bg-gray-100 rounded-lg p-1 w-full sm:w-auto justify-center sm:justify-start">
             <button
-              onClick={() => setViewMode("summary")}
+              onClick={() => setViewMode('summary')}
               className={`px-3 py-1 rounded-md text-sm font-medium transition-colors flex-1 ${
-                viewMode === "summary"
-                  ? "bg-white text-gray-900 shadow-sm"
-                  : "text-gray-600"
+                viewMode === 'summary'
+                  ? 'bg-white text-gray-900 shadow-sm'
+                  : 'text-gray-600'
               }`}
             >
               Summary
             </button>
             <button
-              onClick={() => setViewMode("detailed")}
+              onClick={() => setViewMode('detailed')}
               className={`px-3 py-1 rounded-md text-sm font-medium transition-colors flex-1 ${
-                viewMode === "detailed"
-                  ? "bg-white text-gray-900 shadow-sm"
-                  : "text-gray-600"
+                viewMode === 'detailed'
+                  ? 'bg-white text-gray-900 shadow-sm'
+                  : 'text-gray-600'
               }`}
             >
               Detailed
             </button>
           </div>
 
-          <button
+          {/* <button
             onClick={handlePrint}
             className="flex items-center mt-2 sm:mt-0 justify-center px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors w-full sm:w-auto"
           >
             <Printer className="w-4 h-4 mr-2" />
             Print
-          </button>
+          </button> */}
 
-          <button
+          {/* <button
             onClick={handleExport}
             className="flex items-center mt-2 sm:mt-0 justify-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors w-full sm:w-auto"
           >
             <Download className="w-4 h-4 mr-2" />
             Export
+          </button> */}
+          <button type="button" className="btn btn-outline flex items-center">
+            <ArrowDownTrayIcon className="h-5 w-5 mr-2" />
+            Export
+          </button>
+          <button type="button" className="btn btn-outline flex items-center">
+            <PrinterIcon className="h-5 w-5 mr-2" />
+            Print
           </button>
         </div>
       </div>
@@ -397,7 +407,7 @@ const TrialBalance = () => {
               </p>
               <p className="text-sm text-green-600 mt-1">
                 <TrendingUp className="w-3 h-3 inline mr-1" />
-                Across {categories.filter((c) => c !== "all").length} categories
+                Across {categories.filter((c) => c !== 'all').length} categories
               </p>
             </div>
             <Calculator className="w-8 h-8 text-blue-600" />
@@ -441,18 +451,18 @@ const TrialBalance = () => {
               <p
                 className={`text-2xl font-bold ${
                   totals.debit - totals.credit >= 0
-                    ? "text-green-600"
-                    : "text-red-600"
+                    ? 'text-green-600'
+                    : 'text-red-600'
                 }`}
               >
                 ${Math.abs(totals.debit - totals.credit).toLocaleString()}
               </p>
               <p className="text-sm text-gray-500 mt-1">
                 {totals.debit === totals.credit
-                  ? "Balanced"
+                  ? 'Balanced'
                   : totals.debit > totals.credit
-                  ? "Debit balance"
-                  : "Credit balance"}
+                  ? 'Debit balance'
+                  : 'Credit balance'}
               </p>
             </div>
             <BarChart3 className="w-8 h-8 text-purple-600" />
@@ -462,7 +472,7 @@ const TrialBalance = () => {
 
       {/* Filter Controls */}
       <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-        <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-6 gap-4 mb-4">
+        <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-5 gap-4 mb-4">
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
               Date End
@@ -477,7 +487,6 @@ const TrialBalance = () => {
               <Calendar className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4 pointer-events-none" />
             </div>
           </div>
-
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
               Fund
@@ -494,8 +503,8 @@ const TrialBalance = () => {
               ))}
             </select>
           </div>
-
-          <div>
+          {/* // TODO : DO NOT NEED THIS */}
+          {/* <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
               From
             </label>
@@ -508,8 +517,7 @@ const TrialBalance = () => {
               />
               <Calendar className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4 pointer-events-none" />
             </div>
-          </div>
-
+          </div> */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
               Approver
@@ -526,7 +534,6 @@ const TrialBalance = () => {
               ))}
             </select>
           </div>
-
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
               Ledger
@@ -543,14 +550,13 @@ const TrialBalance = () => {
               ))}
             </select>
           </div>
-
           <div className="flex items-end">
             <button
               onClick={handleView}
-              className="w-full flex items-center mt-2 sm:mt-0 justify-center px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
+              className="btn btn-primary flex items-center w-full justify-center py-3 mb-1"
             >
               <Eye className="w-4 h-4 mr-2" />
-              Generate
+              View
             </button>
           </div>
         </div>
@@ -576,8 +582,8 @@ const TrialBalance = () => {
             >
               {categories.map((category) => (
                 <option key={category} value={category}>
-                  {category === "all"
-                    ? "All Categories"
+                  {category === 'all'
+                    ? 'All Categories'
                     : category.charAt(0).toUpperCase() + category.slice(1)}
                 </option>
               ))}
@@ -596,7 +602,7 @@ const TrialBalance = () => {
       </div>
 
       {/* Trial Balance Content */}
-      {viewMode === "summary" ? (
+      {viewMode === 'summary' ? (
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           {/* Category Summary */}
           <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
@@ -623,8 +629,8 @@ const TrialBalance = () => {
                     <span
                       className={`text-sm font-medium ${
                         category.balance >= 0
-                          ? "text-green-600"
-                          : "text-red-600"
+                          ? 'text-green-600'
+                          : 'text-red-600'
                       }`}
                     >
                       ${Math.abs(category.balance).toLocaleString()}
@@ -682,13 +688,13 @@ const TrialBalance = () => {
                       <div className="text-right">
                         <p
                           className={`text-sm font-semibold ${
-                            balance >= 0 ? "text-green-600" : "text-red-600"
+                            balance >= 0 ? 'text-green-600' : 'text-red-600'
                           }`}
                         >
                           ${Math.abs(balance).toLocaleString()}
                         </p>
                         <p className="text-xs text-gray-500">
-                          {balance >= 0 ? "Debit" : "Credit"} balance
+                          {balance >= 0 ? 'Debit' : 'Credit'} balance
                         </p>
                       </div>
                     </div>
@@ -736,7 +742,7 @@ const TrialBalance = () => {
                     <tr
                       key={item.id}
                       className={`hover:bg-gray-50 transition-colors ${
-                        index % 2 === 0 ? "bg-white" : "bg-gray-50"
+                        index % 2 === 0 ? 'bg-white' : 'bg-gray-50'
                       }`}
                     >
                       <td className="px-4 py-3 text-sm font-medium text-gray-900">
@@ -755,22 +761,22 @@ const TrialBalance = () => {
                         </span>
                       </td>
                       <td className="px-4 py-3 text-sm text-gray-900 text-right font-medium">
-                        {item.debit.toLocaleString("en-US", {
+                        {item.debit.toLocaleString('en-US', {
                           minimumFractionDigits: 2,
                         })}
                       </td>
                       <td className="px-4 py-3 text-sm text-gray-900 text-right font-medium">
-                        {item.credit.toLocaleString("en-US", {
+                        {item.credit.toLocaleString('en-US', {
                           minimumFractionDigits: 2,
                         })}
                       </td>
                       <td
                         className={`px-4 py-3 text-sm text-right font-medium ${
-                          balance >= 0 ? "text-green-600" : "text-red-600"
+                          balance >= 0 ? 'text-green-600' : 'text-red-600'
                         }`}
                       >
-                        {balance >= 0 ? "" : "-"}$
-                        {Math.abs(balance).toLocaleString("en-US", {
+                        {balance >= 0 ? '' : '-'}$
+                        {Math.abs(balance).toLocaleString('en-US', {
                           minimumFractionDigits: 2,
                         })}
                       </td>
@@ -798,25 +804,25 @@ const TrialBalance = () => {
                     TOTAL ({filteredData.length} accounts)
                   </td>
                   <td className="px-4 py-3 text-sm text-gray-900 text-right font-bold">
-                    {totals.debit.toLocaleString("en-US", {
+                    {totals.debit.toLocaleString('en-US', {
                       minimumFractionDigits: 2,
                     })}
                   </td>
                   <td className="px-4 py-3 text-sm text-gray-900 text-right font-bold">
-                    {totals.credit.toLocaleString("en-US", {
+                    {totals.credit.toLocaleString('en-US', {
                       minimumFractionDigits: 2,
                     })}
                   </td>
                   <td
                     className={`px-4 py-3 text-sm text-right font-bold ${
                       totals.debit - totals.credit >= 0
-                        ? "text-green-600"
-                        : "text-red-600"
+                        ? 'text-green-600'
+                        : 'text-red-600'
                     }`}
                   >
-                    {totals.debit - totals.credit >= 0 ? "" : "-"}$
+                    {totals.debit - totals.credit >= 0 ? '' : '-'}$
                     {Math.abs(totals.debit - totals.credit).toLocaleString(
-                      "en-US",
+                      'en-US',
                       { minimumFractionDigits: 2 }
                     )}
                   </td>
@@ -825,10 +831,10 @@ const TrialBalance = () => {
                     colSpan={2}
                   >
                     {totals.debit === totals.credit
-                      ? "BALANCED"
+                      ? 'BALANCED'
                       : totals.debit > totals.credit
-                      ? "DEBIT BALANCE"
-                      : "CREDIT BALANCE"}
+                      ? 'DEBIT BALANCE'
+                      : 'CREDIT BALANCE'}
                   </td>
                 </tr>
               </tbody>
@@ -843,11 +849,11 @@ const TrialBalance = () => {
           {/* Left Section */}
           <div className="flex flex-col gap-1">
             <span>
-              <span className="font-medium">Trial Balance:</span> {selectedFund}{" "}
+              <span className="font-medium">Trial Balance:</span> {selectedFund}{' '}
               — {selectedLedger}
             </span>
             <span>
-              <span className="font-medium">Period:</span> {dateFrom} to{" "}
+              <span className="font-medium">Period:</span> {dateFrom} to{' '}
               {dateEnd}
             </span>
             <span>
@@ -858,11 +864,11 @@ const TrialBalance = () => {
           {/* Right Section */}
           <div className="flex flex-col gap-1 sm:items-end text-gray-600">
             <span>
-              <span className="font-medium">Accounts:</span>{" "}
+              <span className="font-medium">Accounts:</span>{' '}
               {filteredData.length}
             </span>
             <span>
-              <span className="font-medium">Generated on:</span>{" "}
+              <span className="font-medium">Generated on:</span>{' '}
               {new Date().toLocaleDateString()}
             </span>
           </div>

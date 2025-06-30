@@ -1,22 +1,22 @@
-import { Fragment } from "react";
-import { Dialog, Transition } from "@headlessui/react";
-import { XMarkIcon } from "@heroicons/react/24/outline";
+import { Fragment } from 'react';
+import { Dialog, Transition } from '@headlessui/react';
+import { XMarkIcon } from '@heroicons/react/24/outline';
 
 function Modal({
   isOpen,
   onClose,
   title,
-  size = "md",
+  size = 'md',
   children,
   footer = null,
 }) {
   const sizeClasses = {
-    sm: "sm:max-w-lg",
-    md: "sm:max-w-xl",
-    lg: "sm:max-w-2xl",
-    xl: "sm:max-w-4xl",
-    xxxl: "sm:max-w-7xl",
-    full: "sm:max-w-full sm:h-screen",
+    sm: 'sm:max-w-lg',
+    md: 'sm:max-w-xl',
+    lg: 'sm:max-w-2xl',
+    xl: 'sm:max-w-4xl',
+    xxxl: 'sm:max-w-7xl',
+    full: 'sm:max-w-full sm:h-screen',
   };
 
   return (
@@ -78,7 +78,7 @@ function Modal({
               </div>
 
               {/* Modal content */}
-              <div className="px-6 py-4">{children}</div>
+              <div className="p-3 sm:px-6 sm:py-4">{children}</div>
 
               {/* Optional modal footer */}
               {footer && (
