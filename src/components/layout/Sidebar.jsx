@@ -93,8 +93,8 @@ const navigation = [
           { name: 'Industry', href: '/settings/industry' },
         ],
       },
-      { name: "Locations", href: "/settings/locations" },
-      { name: "Individual/Citizen", href: "/settings/customer" },
+      { name: 'Locations', href: '/settings/locations' },
+      { name: 'Individual/Citizen', href: '/settings/customer' },
       {
         name: 'Chart of Accounts Settings',
         submenu: [
@@ -160,8 +160,8 @@ const navigation = [
       { name: 'Beginning Balance', href: '/disbursement/beginning-balance' },
       { name: 'Purchase Request', href: '/disbursement/purchase-requests' },
       {
-        name: "Fund Utilization Requests and Status",
-        href: "/disbursement/fund-utilization-requests",
+        name: 'Fund Utilization Requests and Status',
+        href: '/disbursement/fund-utilization-requests',
       },
     ],
   },
@@ -230,10 +230,10 @@ const navigation = [
     icon: ChartBarIcon,
     submenu: [
       { name: 'General Ledger', href: '/reports/general-ledger' },
-      { name: 'Financial Statements', href: '/reports/financial-statements' },
-      // { name: "Budget Reports", href: "/reports/budget" },
       { name: 'Subsidiary Ledger', href: '/reports/subsidiary-ledger' },
       { name: 'Trial Balance', href: '/reports/trial-balance' },
+      { name: 'Financial Statements', href: '/reports/financial-statements' },
+      // { name: "Budget Reports", href: "/reports/budget" },
     ],
   },
   {
