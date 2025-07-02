@@ -1,21 +1,8 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
+const API_URL = import.meta.env.VITE_API_URL;
 
 // Mock data for initial development
-const mockGeneralJournals = [
-  {
-    id: 1,
-    date: '2024-03-20',
-    reference: 'GJ-001',
-    particulars: 'Monthly Rent Payment',
-    accountCode: '1-01-01-010',
-    debit: 50000.00,
-    credit: 0.00,
-    status: 'Posted',
-    postedBy: 'John Smith',
-    postedDate: '2024-03-20T10:30:00',
-  },
-  // Add more mock data as needed
-];
+const mockGeneralJournals = [];
 
 const initialState = {
   generalJournals: [],
@@ -26,35 +13,30 @@ const initialState = {
 // Async thunks
 export const fetchGeneralJournals = createAsyncThunk(
   'generalJournal/fetchGeneralJournals',
-  async (filters) => {
-    // TODO: Replace with actual API call
-    // For now, return mock data
-    return [
-      {
-        id: 1,
-        date: '2024-03-20',
-        reference: 'GJ-2024-001',
-        particulars: 'Monthly Rent',
-        accountCode: '5010',
-        debit: 50000.00,
-        credit: 0.00,
-        status: 'Posted',
-        postedBy: 'John Doe',
-        postedDate: '2024-03-20T10:00:00'
-      },
-      {
-        id: 2,
-        date: '2024-03-19',
-        reference: 'GJ-2024-002',
-        particulars: 'Utility Bills',
-        accountCode: '5020',
-        debit: 15000.00,
-        credit: 0.00,
-        status: 'Draft',
-        postedBy: null,
-        postedDate: null
+  async (filters, thunkAPI) => {
+    try {
+      const token = localStorage.getItem('token');
+
+      const response = await fetch(`${API_URL}/generalJournal/view`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify(filters),
+      });
+
+      const res = await response.json();
+
+      if (!response.ok) {
+        throw new Error(res.message || 'Failed to fetch');
       }
-    ];
+
+      return res;
+    } catch (error) {
+      console.error('Error fetching general journals:', error);
+      return thunkAPI.rejectWithValue(error.message);
+    }
   }
 );
 

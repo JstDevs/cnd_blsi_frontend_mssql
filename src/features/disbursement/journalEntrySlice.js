@@ -9,7 +9,7 @@ export const fetchJournalEntries = createAsyncThunk(
     try {
       const token = localStorage.getItem('token');
 
-      const response = await fetch(`${API_URL}/journalEntries`, {
+      const response = await fetch(`${API_URL}/journalEntryVoucher`, {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',
@@ -35,13 +35,12 @@ export const addJournalEntry = createAsyncThunk(
   'journalEntries/addJournalEntry',
   async (journalEntry, thunkAPI) => {
     try {
-      const response = await fetch(`${API_URL}/journalEntries`, {
+      const response = await fetch(`${API_URL}/journalEntryVoucher`, {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/json',
           Authorization: `Bearer ${localStorage.getItem('token')}`,
         },
-        body: JSON.stringify(journalEntry),
+        body: journalEntry,
       });
 
       const res = await response.json();
@@ -61,7 +60,7 @@ export const updateJournalEntry = createAsyncThunk(
   'journalEntries/updateJournalEntry',
   async (journalEntry, thunkAPI) => {
     try {
-      const response = await fetch(`${API_URL}/journalEntries/${journalEntry.ID}`, {
+      const response = await fetch(`${API_URL}/journalEntryVoucher/${journalEntry.ID}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -87,7 +86,7 @@ export const deleteJournalEntry = createAsyncThunk(
   'journalEntries/deleteJournalEntry',
   async (ID, thunkAPI) => {
     try {
-      const response = await fetch(`${API_URL}/journalEntries/${ID}`, {
+      const response = await fetch(`${API_URL}/journalEntryVoucher/${ID}`, {
         method: 'DELETE',
         headers: {
           'Content-Type': 'application/json',

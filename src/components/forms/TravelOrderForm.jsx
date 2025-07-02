@@ -71,20 +71,10 @@ function TravelOrderForm({ initialData, onSubmit, onClose, officeOptions, employ
       Attachments: [],
     },
     validationSchema,
-    // onSubmit: (values) => {
-    //   onSubmit(values);
-    // },
     onSubmit: (values) => {
       const formData = new FormData();
 
       for (const key in values) {
-        // if (key === 'Attachments') {
-        //   values.Attachments.forEach((att, idx) => {
-        //     if (att.File) formData.append(`Attachments[${idx}]`, att.File);
-        //   });
-        // } else {
-        //   formData.append(key, JSON.stringify(values[key]));
-        // }
         if (key === 'Attachments') {
           values.Attachments.forEach((att, idx) => {
             if (att.File) {
@@ -99,7 +89,7 @@ function TravelOrderForm({ initialData, onSubmit, onClose, officeOptions, employ
         }
       }
 
-      onSubmit(formData); // or pass to API call
+      onSubmit(formData);
     }
   });
 
@@ -569,7 +559,7 @@ function TravelOrderForm({ initialData, onSubmit, onClose, officeOptions, employ
           <Button
             type="submit"
             className="btn btn-primary"
-            // disabled={isSubmitting}
+            disabled={isSubmitting}
           >
             {isSubmitting ? 'Saving...' : 'Save'}
           </Button>

@@ -37,6 +37,7 @@ import { nationalityReducer } from '../features/settings/nationalitiesSlice';
 import { vendorCustomerTypesReducer } from '../features/settings/vendorCustomerTypeSlice';
 import { vendorTypesReducer } from '../features/settings/vendorTypeSlice';
 import { journalEntriesReducer } from '../features/disbursement/journalEntrySlice';
+import { purchaseRequestReducer } from '../features/disbursement/purchaseRequestSlice';
 import { taxDeclarationsReducer } from '../features/settings/taxDeclarationSlice';
 import { baseUnitsReducer } from '../features/settings/baseUnitSlice';
 import { regionsReducer } from '../features/settings/regionsSlice';
@@ -49,12 +50,14 @@ import { ppeCategoriesReducer } from '../features/settings/ppeCategoriesSlice';
 import { ppeSuppliersReducer } from '../features/settings/ppeSuppliersSlice';
 
 import { subFundsReducer } from '../features/budget/subFundsSlice';
+import { fundsReducer } from '../features/budget/fundsSlice';
 import { budgetDashboardReducer } from '../features/budget/budgetDashboardSlice';
 import { vendorDetailsReducer } from '../features/settings/vendorDetailsSlice';
 import { customersReducer } from '../features/settings/customersSlice';
 
 import generalServiceReceiptsReducer from '../features/collections/generalServiceReceiptsSlice';
 import disbursementJournalReducer from '../features/disbursement/disbursementJournalSlice';
+import beginningBalanceSlice from '../features/disbursement/beginningBalanceSlice';
 import generalJournalReducer from '../features/disbursement/generalJournalSlice';
 import realPropertyTaxReducer from '../features/collections/realPropertyTaxSlice';
 import budgetReducer from '../features/budget/budgetSlice';
@@ -107,6 +110,7 @@ export const store = configureStore({
     vendorCustomerTypes: vendorCustomerTypesReducer,
     vendorTypes: vendorTypesReducer,
     journalEntries: journalEntriesReducer,
+    purchaseRequests: purchaseRequestReducer,
     taxDeclarations: taxDeclarationsReducer,
     baseUnits: baseUnitsReducer,
     regions: regionsReducer,
@@ -117,9 +121,11 @@ export const store = configureStore({
     modules: modulesReducer,
     generalServiceReceipts: generalServiceReceiptsReducer,
     disbursementJournal: disbursementJournalReducer,
+    beginningBalance: beginningBalanceSlice,
     generalJournal: generalJournalReducer,
     budget: budgetReducer,
     subFunds: subFundsReducer,
+    funds: fundsReducer,
     budgetDashboard: budgetDashboardReducer,
     vendorDetails: vendorDetailsReducer,
     // ----------------COLLECTION SLICE-------------

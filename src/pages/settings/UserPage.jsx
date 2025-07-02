@@ -156,6 +156,7 @@ function UserPage() {
         }
       }
     } catch (error) {
+      console.log(error);
       setErrors({ general: "Unexpected error occurred." });
     } finally {
       setSubmitting(false);
