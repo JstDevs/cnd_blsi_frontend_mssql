@@ -224,7 +224,7 @@ function DataTable({
                       : row[column.key]}
                   </td>
                 ))}
-                {actions.length > 0 && (
+                {/* {actions.length > 0 && (
                   <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium space-x-2">
                     {actions.map((action, i) => (
                       <button
@@ -247,7 +247,62 @@ function DataTable({
                       </button>
                     ))}
                   </td>
-                )}
+                )} */}
+
+                {typeof actions === 'function'
+                  ? (() => {
+                      const rowActions = actions(row);
+                      return (
+                        rowActions?.length > 0 && (
+                          <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium space-x-2">
+                            {rowActions.map((action, i) => (
+                              <button
+                                key={i}
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  action.onClick(row);
+                                }}
+                                className={
+                                  action.className || 'text-primary-600 hover:text-primary-900'
+                                }
+                                title={action.title}
+                              >
+                                {action.icon ? (
+                                  <action.icon className="h-5 w-5" aria-hidden="true" />
+                                ) : (
+                                  action.label
+                                )}
+                              </button>
+                            ))}
+                          </td>
+                        )
+                      );
+                    })()
+                  : actions.length > 0 && (
+                      <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium space-x-2">
+                        {actions.map((action, i) => (
+                          <button
+                            key={i}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              action.onClick(row);
+                            }}
+                            className={
+                              action.className || 'text-primary-600 hover:text-primary-900'
+                            }
+                            title={action.title}
+                          >
+                            {action.icon ? (
+                              <action.icon className="h-5 w-5" aria-hidden="true" />
+                            ) : (
+                              action.label
+                            )}
+                          </button>
+                        ))}
+                      </td>
+                    )}
+
+
               </tr>
             ))}
           </tbody>

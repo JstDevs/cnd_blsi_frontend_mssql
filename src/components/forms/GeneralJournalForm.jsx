@@ -1,82 +1,116 @@
-import React from 'react';
+import React, { useRef } from 'react';
 import { Formik, Form } from 'formik';
 import * as Yup from 'yup';
 import FormField from '../common/FormField';
-import DatePickerField from '../common/DatePickerField';
 
-// Mock options for fund select
-const fundOptions = [
-  { value: 'all', label: 'All Funds' },
-  { value: 'general', label: 'General Fund' },
-  { value: 'special', label: 'Special Education Fund' },
-  { value: 'trust', label: 'Trust Fund' },
-  { value: 'development', label: 'Development Fund' },
-];
+function GeneralJournalForm({
+  funds = [],
+  onView,
+  onGenerateJournal,
+  onExportExcel
+}) {
+  const submitAction = useRef(null); // ✅ to track which button was clicked
 
-// Validation schema using Yup
-const validationSchema = Yup.object({
-  fromDate: Yup.date().required('From Date is required'),
-  toDate: Yup.date().required('To Date is required').min(
-    Yup.ref('fromDate'),
-    'To Date cannot be before From Date'
-  ),
-  fund: Yup.string().required('Fund is required'),
-});
+  const validationSchema = Yup.object({
+    DateStart: Yup.string().required('Start Date is required'),
+    DateEnd: Yup.string().required('End Date is required'),
+    FundID: Yup.string().required('Fund is required'),
+  });
 
-function GeneralJournalForm({ initialData, onSubmit, onExport, onClose }) {
-  const handleSubmit = (values) => {
-    onSubmit(values);
+  const initialValues = {
+    DateStart: '',
+    DateEnd: '',
+    FundID: '',
   };
 
-  const handleExport = (values) => {
-    onExport(values);
+  const handleSubmit = (values, { setSubmitting }) => {
+    const action = submitAction.current;
+
+    if (action === 'view') {
+      onView(values);
+    } else if (action === 'generate') {
+      onGenerateJournal(values);
+    } else if (action === 'export') {
+      onExportExcel(values);
+    }
+
+    setSubmitting(false);
+    submitAction.current = null; // clear after use
   };
 
   return (
     <Formik
-      initialValues={initialData || { 
-        fromDate: '', 
-        toDate: '', 
-        fund: '', 
-      }}
+      initialValues={initialValues}
       validationSchema={validationSchema}
       onSubmit={handleSubmit}
+      validateOnMount={true}
     >
-      {({ values, isSubmitting }) => (
+      {({ values, errors, touched, handleChange, handleBlur, isSubmitting }) => (
         <Form className="space-y-4">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <DatePickerField name="fromDate" label="From Date" required />
-            <DatePickerField name="toDate" label="To Date" required />
+          {/* Row 1 */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-1">
+            <FormField
+              label="Start Date"
+              name="DateStart"
+              type="date"
+              value={values.DateStart}
+              onChange={handleChange}
+              onBlur={handleBlur}
+              error={errors.DateStart}
+              touched={touched.DateStart}
+              required
+            />
+            <FormField
+              label="End Date"
+              name="DateEnd"
+              type="date"
+              value={values.DateEnd}
+              onChange={handleChange}
+              onBlur={handleBlur}
+              error={errors.DateEnd}
+              touched={touched.DateEnd}
+              required
+            />
+            <FormField
+              type="select"
+              label="Fund"
+              name="FundID"
+              options={funds.map(item => ({
+                value: item.ID,
+                label: item.Name,
+              }))}
+              value={values.FundID}
+              onChange={handleChange}
+              onBlur={handleBlur}
+              error={errors.FundID}
+              touched={touched.FundID}
+              required
+            />
           </div>
-          
-          <FormField
-            name="fund"
-            label="Fund"
-            as="select"
-            options={fundOptions}
-            required
-          />
 
-          <div className="flex justify-end space-x-4 pt-4 border-t border-neutral-200">
+          {/* Row 3: Buttons */}
+          <div className="flex justify-end space-x-3 pt-4 border-t border-neutral-200">
             <button
               type="submit"
               className="btn btn-primary"
               disabled={isSubmitting}
+              onClick={() => (submitAction.current = 'view')}
             >
-              {isSubmitting ? 'Loading...' : 'View'}
+              View
             </button>
             <button
-              type="button"
+              type="submit"
               className="btn btn-secondary"
               disabled={isSubmitting}
+              onClick={() => (submitAction.current = 'generate')}
             >
-              Generate
+              Generate Journal
             </button>
             <button
-              type="button"
-              onClick={() => handleExport(values)}
+              type="submit"
               className="btn btn-outline"
               disabled={isSubmitting}
+              onClick={() => (submitAction.current = 'export')}
             >
               Export to Excel
             </button>
@@ -87,4 +121,4 @@ function GeneralJournalForm({ initialData, onSubmit, onExport, onClose }) {
   );
 }
 
-export default GeneralJournalForm; 
+export default GeneralJournalForm;

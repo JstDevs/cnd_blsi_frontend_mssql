@@ -10,8 +10,14 @@ import {
   updateJournalEntry,
   deleteJournalEntry
 } from '../../features/disbursement/journalEntrySlice';
+import { fetchDepartments } from '../../features/settings/departmentSlice';
+import { fetchAccounts } from '../../features/settings/chartOfAccountsSlice';
 
 function JournalEntryPage() {
+  const { departments } = useSelector(state => state.departments);
+  const { accounts } = useSelector(state => state.chartOfAccounts);
+
+  // hardcoded in old software
   const typeOptions = [
     { label: 'Cash Disbursement', value: 'Cash Disbursement' },
     { label: 'Check Disbursement', value: 'Check Disbursement' },
@@ -19,22 +25,10 @@ function JournalEntryPage() {
     { label: 'Others', value: 'Others' }
   ];
   const fundOptions = [
-    { label: 'General Fund', value: 'General Fund' },
-    { label: 'Trust Fund', value: 'Trust Fund' },
-    { label: 'Special Education Fund', value: 'Special Education Fund' }
-  ];
-  const centerOptions = [
-    { label: 'Finance Department', value: 'finance' },
-    { label: 'Human Resources', value: 'hr' },
-    { label: 'IT Services', value: 'it' },
-    { label: 'Procurement Division', value: 'procurement' },
-  ];
-
-  const accountOptions = [
-    { label: '101 - Cash in Bank', value: '101' },
-    { label: '201 - Accounts Payable', value: '201' },
-    { label: '301 - Office Supplies', value: '301' },
-    { label: '401 - Travel Expenses', value: '401' },
+    // get funds active
+    { label: 'General Fund', value: '1' },
+    { label: 'Trust Fund', value: '2' },
+    { label: 'Special Education Fund', value: '3' }
   ];
 
   const dispatch = useDispatch();
@@ -47,6 +41,8 @@ function JournalEntryPage() {
 
   useEffect(() => {
     dispatch(fetchJournalEntries());
+    dispatch(fetchDepartments());
+    dispatch(fetchAccounts());
   }, [dispatch]);
 
   const handleAdd = () => {
@@ -75,38 +71,116 @@ function JournalEntryPage() {
       }
     }
   };
-
-  const handleSubmit = (values) => {
+  
+  const handleSubmit = (formData) => {
     if (currentJournalEntry) {
-      dispatch(updateJournalEntry({ ...values, ID: currentJournalEntry.ID }));
+      formData.append('ID', currentJournalEntry.ID); // add ID to FormData if editing
+      dispatch(updateJournalEntry(formData));
     } else {
-      dispatch(addJournalEntry(values));
+      dispatch(addJournalEntry(formData));
     }
+
     setIsModalOpen(false);
+    setCurrentJournalEntry(null);
   };
 
   const columns = [
     {
-      key: 'Name',
-      header: 'Name',
+      key: 'Status',
+      header: 'Status',
+      sortable: true,
+      render: (value) => {
+        let bgColor = 'bg-neutral-100 text-neutral-800';
+
+        switch (value) {
+          case 'Requested':
+            bgColor = 'bg-warning-100 text-warning-800';
+            break;
+          case 'Posted':
+            bgColor = 'bg-primary-100 text-primary-800';
+            break;
+          case 'Rejected':
+            bgColor = 'bg-error-100 text-error-800';
+            break;
+          default:
+            break;
+        }
+
+        return (
+          <span
+            className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${bgColor}`}
+          >
+            {value}
+          </span>
+        );
+      },
+    },
+    {
+      key: 'RequestedByName',
+      header: 'Requested By',
+      sortable: true
+    },
+    {
+      key: 'InvoiceDate',
+      header: 'Invoice Date',
+      sortable: true
+    },
+    {
+      key: 'InvoiceNumber',
+      header: 'Invoice No.',
+      sortable: true
+    },
+    {
+      key: 'JEVType',
+      header: 'Jev Type',
+      sortable: true
+    },
+    {
+      key: 'FundsName',
+      header: 'Fund',
+      sortable: true
+    },
+    {
+      key: 'ObligationRequestNumber',
+      header: 'OBR No.',
+      sortable: true
+    },
+    {
+      key: 'SAI_No',
+      header: 'DV No.',
+      sortable: true
+    },
+    {
+      key: 'CheckNumber',
+      header: 'Check Number',
+      sortable: true
+    },
+    {
+      key: 'CheckDate',
+      header: 'Check Date',
+      sortable: true
+    },
+    {
+      key: 'Total',
+      header: 'Total',
       sortable: true
     }
   ];
 
-  const actions = [
-    {
-      icon: PencilIcon,
-      title: 'Edit',
-      onClick: handleEdit,
-      className: 'text-primary-600 hover:text-primary-900 p-1 rounded-full hover:bg-primary-50'
-    },
-    {
-      icon: TrashIcon,
-      title: 'Delete',
-      onClick: handleDelete,
-      className: 'text-error-600 hover:text-error-900 p-1 rounded-full hover:bg-error-50'
-    }
-  ];
+  // const actions = [
+    // {
+    //   icon: PencilIcon,
+    //   title: 'Edit',
+    //   onClick: handleEdit,
+    //   className: 'text-primary-600 hover:text-primary-900 p-1 rounded-full hover:bg-primary-50'
+    // },
+    // {
+    //   icon: TrashIcon,
+    //   title: 'Delete',
+    //   onClick: handleDelete,
+    //   className: 'text-error-600 hover:text-error-900 p-1 rounded-full hover:bg-error-50'
+    // }
+  // ];
 
   return (
     <div>
@@ -130,8 +204,27 @@ function JournalEntryPage() {
       <div className="mt-4">
         <DataTable
           columns={columns}
-          data={journalEntries}
-          actions={actions}
+          data={journalEntries}          
+          actions={(row) => {
+            const actionList = [];
+            if (row.Status === 'Rejected') {
+              actionList.push({
+                icon: PencilIcon,
+                title: 'Edit',
+                onClick: () => handleEdit(row),
+                className: 'text-primary-600 hover:text-primary-900 p-1 rounded-full hover:bg-primary-50',
+              });
+
+              actionList.push({
+                icon: TrashIcon,
+                title: 'Delete',
+                onClick: () => handleDelete(row),
+                className: 'text-error-600 hover:text-error-900 p-1 rounded-full hover:bg-error-50',
+              });
+            }
+
+            return actionList;
+          }}
           loading={isLoading}
           emptyMessage="No journal entries found. Click 'Add Journal Entry' to create one."
         />
@@ -147,9 +240,30 @@ function JournalEntryPage() {
         <JournalEntryForm
           typeOptions={typeOptions}
           fundOptions={fundOptions}
-          centerOptions={centerOptions}
-          accountOptions={accountOptions}
-          initialData={currentJournalEntry}
+          centerOptions={departments.filter(dept => dept.Active).map(dept => ({ label: dept.Name, value: dept.ID }))}
+          accountOptions={accounts.filter(acc => acc.Active).map(acc => ({ label: acc.AccountCode + ' ' + acc.Name, value: acc.ID }))}
+          initialData={
+            currentJournalEntry
+              ? {
+                  ...currentJournalEntry,
+                  AccountingEntries: currentJournalEntry.JournalEntries?.map(entry => {
+                    const matchedAccount = accounts.find(
+                      acc => 
+                        acc.AccountCode === entry.AccountCode &&
+                        acc.Name === entry.AccountName
+                    );
+
+                    return {
+                      ResponsibilityCenter: entry.ResponsibilityCenter || '',
+                      AccountExplanation: matchedAccount?.ID || '', // ✅ set to actual account ID
+                      PR: entry.PR || '',
+                      Debit: entry.Debit || 0,
+                      Credit: entry.Credit || 0,
+                    };
+                  }) || [],
+                }
+              : null
+          }
           onClose={() => setIsModalOpen(false)}
           onSubmit={handleSubmit}
         />

@@ -1,34 +1,8 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
+const API_URL = import.meta.env.VITE_API_URL;
 
 // Mock initial data
-const initialPurchaseRequests = [
-  {
-    id: 1,
-    department: 'IT Department',
-    section: 'Section A',
-    chargeAccount: 'Account 1',
-    prNumber: 'PR-2024-001',
-    saiNumber: 'SAI-2024-001',
-    alobsNumber: 'ALOBS-2024-001',
-    date: '2024-03-15',
-    fromDate: '2024-03-15',
-    toDate: '2024-03-20',
-    purpose: 'Purchase of office supplies',
-  },
-  {
-    id: 2,
-    department: 'Engineering Department',
-    section: 'Section B',
-    chargeAccount: 'Account 2',
-    prNumber: 'PR-2024-002',
-    saiNumber: 'SAI-2024-002',
-    alobsNumber: 'ALOBS-2024-002',
-    date: '2024-03-16',
-    fromDate: '2024-03-16',
-    toDate: '2024-03-21',
-    purpose: 'Purchase of construction materials',
-  },
-];
+const initialPurchaseRequests = [];
 
 const initialState = {
   purchaseRequests: initialPurchaseRequests,
@@ -36,34 +10,55 @@ const initialState = {
   error: null,
 };
 
+
 export const fetchPurchaseRequests = createAsyncThunk(
   'purchaseRequests/fetchPurchaseRequests',
   async (_, thunkAPI) => {
     try {
-      return new Promise((resolve) => {
-        setTimeout(() => {
-          resolve(initialPurchaseRequests);
-        }, 500);
+      const token = localStorage.getItem('token');
+
+      const response = await fetch(`${API_URL}/purchaseRequest`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
       });
+
+      const res = await response.json();
+
+      if (!response.ok) {
+        throw new Error(res.error || res.message || 'Failed to fetch');
+      }
+
+      return res;
     } catch (error) {
       return thunkAPI.rejectWithValue(error.message);
     }
   }
 );
 
+
 export const addPurchaseRequest = createAsyncThunk(
   'purchaseRequests/addPurchaseRequest',
   async (purchaseRequest, thunkAPI) => {
     try {
-      return new Promise((resolve) => {
-        setTimeout(() => {
-          const newPurchaseRequest = {
-            ...purchaseRequest,
-            id: Date.now(),
-          };
-          resolve(newPurchaseRequest);
-        }, 500);
+      const response = await fetch(`${API_URL}/purchaseRequest`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${localStorage.getItem('token')}`,
+        },
+        body: JSON.stringify(purchaseRequest),
       });
+
+      const res = await response.json();
+
+      if (!response.ok) {
+        throw new Error(res.error || res.message || 'Failed to add');
+      }
+
+      return res;
     } catch (error) {
       return thunkAPI.rejectWithValue(error.message);
     }
@@ -74,11 +69,22 @@ export const updatePurchaseRequest = createAsyncThunk(
   'purchaseRequests/updatePurchaseRequest',
   async (purchaseRequest, thunkAPI) => {
     try {
-      return new Promise((resolve) => {
-        setTimeout(() => {
-          resolve(purchaseRequest);
-        }, 500);
+      const response = await fetch(`${API_URL}/purchaseRequest/${purchaseRequest.ID}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${localStorage.getItem('token')}`,
+        },
+        body: JSON.stringify(purchaseRequest),
       });
+
+      const res = await response.json();
+
+      if (!response.ok) {
+        throw new Error(res.error || res.message || 'Failed to update');
+      }
+
+      return res;
     } catch (error) {
       return thunkAPI.rejectWithValue(error.message);
     }
@@ -87,13 +93,22 @@ export const updatePurchaseRequest = createAsyncThunk(
 
 export const deletePurchaseRequest = createAsyncThunk(
   'purchaseRequests/deletePurchaseRequest',
-  async (id, thunkAPI) => {
+  async (ID, thunkAPI) => {
     try {
-      return new Promise((resolve) => {
-        setTimeout(() => {
-          resolve(id);
-        }, 500);
+      const response = await fetch(`${API_URL}/purchaseRequest/${ID}`, {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${localStorage.getItem('token')}`,
+        },
       });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || errorData.message || 'Failed to delete');
+      }
+
+      return ID;
     } catch (error) {
       return thunkAPI.rejectWithValue(error.message);
     }
@@ -135,7 +150,7 @@ const purchaseRequestSlice = createSlice({
       })
       .addCase(updatePurchaseRequest.fulfilled, (state, action) => {
         state.isLoading = false;
-        const index = state.purchaseRequests.findIndex((pr) => pr.id === action.payload.id);
+        const index = state.purchaseRequests.findIndex((pr) => pr.ID === action.payload.ID);
         if (index !== -1) {
           state.purchaseRequests[index] = action.payload;
         }
@@ -150,7 +165,7 @@ const purchaseRequestSlice = createSlice({
       })
       .addCase(deletePurchaseRequest.fulfilled, (state, action) => {
         state.isLoading = false;
-        state.purchaseRequests = state.purchaseRequests.filter((pr) => pr.id !== action.payload);
+        state.purchaseRequests = state.purchaseRequests.filter((pr) => pr.ID !== action.payload);
         state.error = null;
       })
       .addCase(deletePurchaseRequest.rejected, (state, action) => {
@@ -160,4 +175,4 @@ const purchaseRequestSlice = createSlice({
   },
 });
 
-export default purchaseRequestSlice.reducer; 
+export const purchaseRequestReducer = purchaseRequestSlice.reducer;

@@ -177,7 +177,7 @@ export const updateUser = createAsyncThunk(
       if (!response.ok) {
         throw new Error(res.message || res.error || 'Failed to update user');
       }
-
+      
       return res;
     } catch (error) {
       return thunkAPI.rejectWithValue(error.message);

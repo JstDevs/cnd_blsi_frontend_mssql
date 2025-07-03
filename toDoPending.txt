@@ -1,0 +1,5 @@
+JournalentryPage.js
+    - get fundsfundOptions from fundsSlice, currently fundsSlice doesn't exist, implement this later
+
+BeginningBalance.js
+    - transfer action in slice to be updated

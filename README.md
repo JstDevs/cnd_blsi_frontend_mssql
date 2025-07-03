@@ -28,7 +28,7 @@ This README would normally document whatever steps are necessary to get your app
 - Repo owner or admin
 - Other community or team contact
 
-### WHERE TO PUSH
+### WHERE TO PUSH (THIS IS THE FEATURE/LOGIN BRANCH)
 
 - KEEP THE VIT.CONFIG.JS to have DYNAMIC PREVIEW PORT NUMBER
 - THIS BRANCH WILL BE PUSHED TO staging-portal.testthelink.online URL ONLY

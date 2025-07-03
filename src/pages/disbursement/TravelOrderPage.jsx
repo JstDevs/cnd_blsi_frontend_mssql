@@ -109,13 +109,37 @@ function TravelOrderPage() {
   // Table columns definition
   const columns = [
     {
-      key: 'Status',
+      key: 'TransactionStatus',
       header: 'Status',
       sortable: true,
-      className: 'font-medium text-neutral-900',
+      render: (value) => {
+        let bgColor = 'bg-neutral-100 text-neutral-800';
+
+        switch (value) {
+          case 'Requested':
+            bgColor = 'bg-warning-100 text-warning-800';
+            break;
+          case 'Approval Progress':
+            bgColor = 'bg-primary-100 text-primary-800';
+            break;
+          case 'Rejected':
+            bgColor = 'bg-error-100 text-error-800';
+            break;
+          default:
+            break;
+        }
+
+        return (
+          <span
+            className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${bgColor}`}
+          >
+            {value}
+          </span>
+        );
+      },
     },
     {
-      key: 'OfficeID',
+      key: 'BudgetDepartmentName',
       header: 'Office',
       sortable: true,
     },
@@ -125,7 +149,7 @@ function TravelOrderPage() {
       sortable: true,
     },
     {
-      key: 'TravelOrderNumber',
+      key: 'InvoiceNumber',
       header: 'Travel Order No.',
       sortable: true,
     },
@@ -147,20 +171,20 @@ function TravelOrderPage() {
   ];
   
   // Actions for table rows
-  const actions = [
-    {
-      icon: PencilIcon,
-      title: 'Edit',
-      onClick: handleEditTO,
-      className: 'text-primary-600 hover:text-primary-900 p-1 rounded-full hover:bg-primary-50'
-    },
-    {
-      icon: TrashIcon,
-      title: 'Delete',
-      onClick: handleDelete,
-      className: 'text-error-600 hover:text-error-900 p-1 rounded-full hover:bg-error-50'
-    }
-  ];
+  // const actions = [
+  //   {
+  //     icon: PencilIcon,
+  //     title: 'Edit',
+  //     onClick: handleEditTO,
+  //     className: 'text-primary-600 hover:text-primary-900 p-1 rounded-full hover:bg-primary-50'
+  //   },
+  //   {
+  //     icon: TrashIcon,
+  //     title: 'Delete',
+  //     onClick: handleDelete,
+  //     className: 'text-error-600 hover:text-error-900 p-1 rounded-full hover:bg-error-50'
+  //   }
+  // ];
 
   return (
     <div>
@@ -185,7 +209,27 @@ function TravelOrderPage() {
         <DataTable
           columns={columns}
           data={travelOrders}
-          actions={actions}
+          actions={(row) => {
+            const actionList = [];
+
+            if (row.Transaction?.Status === 'Rejected') {
+              actionList.push({
+                icon: PencilIcon,
+                title: 'Edit',
+                onClick: () => handleEditTO(row),
+                className: 'text-primary-600 hover:text-primary-900 p-1 rounded-full hover:bg-primary-50',
+              });
+
+              actionList.push({
+                icon: TrashIcon,
+                title: 'Delete',
+                onClick: () => handleDelete(row),
+                className: 'text-error-600 hover:text-error-900 p-1 rounded-full hover:bg-error-50',
+              });
+            }
+
+            return actionList;
+          }}
           loading={isLoading}
         />
       </div>

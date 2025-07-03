@@ -4,48 +4,82 @@ import FormField from '../common/FormField';
 import Button from '../common/Button';
 import { Trash2 } from 'lucide-react';
 import Select from 'react-select';
+import { useState } from 'react'; // already imported
+
 
 function JournalEntryForm({ initialData, onSubmit, onClose, typeOptions, fundOptions, centerOptions, accountOptions }) {
+  const API_URL = import.meta.env.VITE_API_URL;
   const validationSchema = Yup.object({
-    Type: Yup.string().required('Type is required'),
-    Fund: Yup.string().required('Fund is required'),
-    Date: Yup.date().required('Date is required'),
-    DVNo: Yup.string().required('DV No is required'),
-    Particulars: Yup.string().required('Particulars are required'),
-    Payee: Yup.string().required('Payee is required'),
-    OBRNo: Yup.string(),
-    CheckNo: Yup.string(),
-    CheckDate: Yup.date(),
+    JEVType: Yup.string().required('Type is required'),
+    FundsID: Yup.string().required('Fund is required'),
+    InvoiceDate: Yup.date().required('Date is required'),
+    SAI_No: Yup.string().required('DV No is required'),
+    Remarks: Yup.string().required('Particulars are required'),
+    // Payee: Yup.string().required('Payee is required'),
+    ObligationRequestNumber: Yup.string().required('OBR No is required'),
+    CheckNumber: Yup.string().required('Check No is required'),
+    CheckDate: Yup.date().required('Check Date is required'),
     AccountingEntries: Yup.array().of(
       Yup.object({
         ResponsibilityCenter: Yup.string().required('Required'),
-        Account: Yup.string().required('Required'),
-        PR: Yup.string(),
-        Debit: Yup.number().nullable().typeError('Must be a number'),
-        Credit: Yup.number().nullable().typeError('Must be a number'),
+        AccountExplanation: Yup.string().required('Required'),
+        PR: Yup.string().required('Required'),
+        Debit: Yup.number().nullable().typeError('Must be a number').required('Debit is required'),
+        Credit: Yup.number().nullable().typeError('Must be a number').required('Credit is required'),
       })
     ).min(1, 'At least one entry is required'),
   });
 
+  const [balanceError, setBalanceError] = useState('');
+
   const formik = useFormik({
     initialValues: initialData || {
-      Type: '',
-      Fund: '',
-      Date: '',
-      DVNo: '',
-      Particulars: '',
+      JEVType: '',
+      FundsID: '',
+      InvoiceDate: '',
+      SAI_No: '',
+      Remarks: '',
       Payee: '',
-      OBRNo: '',
-      CheckNo: '',
+      ObligationRequestNumber: '',
+      CheckNumber: '',
       CheckDate: '',
-      AccountingEntries: [{ ResponsibilityCenter: '', Account: '', PR: '', Debit: '', Credit: '' }],
+      AccountingEntries: [{ ResponsibilityCenter: '', AccountExplanation: '', PR: '', Debit: 0, Credit: 0 }],
+      Attachments: [],
     },
     validationSchema,
-    onSubmit,
+    onSubmit: (values) => {
+      const totalDebit = values.AccountingEntries.reduce((sum, entry) => sum + (parseFloat(entry.Debit) || 0), 0);
+      const totalCredit = values.AccountingEntries.reduce((sum, entry) => sum + (parseFloat(entry.Credit) || 0), 0);
+
+      if (totalDebit !== totalCredit) {
+        setBalanceError('Total Debit must be equal to Total Credit.');
+        return;
+      } else {
+        setBalanceError('');
+      }
+
+      const formData = new FormData();
+
+      for (const key in values) {
+        if (key === 'Attachments') {
+          values.Attachments.forEach((att, idx) => {
+            if (att.File) {
+              formData.append(`Attachments[${idx}].File`, att.File);
+            } else if (att.ID) {
+              formData.append(`Attachments[${idx}].ID`, att.ID);
+            }
+          });
+        }
+        else {
+          formData.append(key, JSON.stringify(values[key]));
+        }
+      }
+
+      onSubmit(formData);
+    }
   });
 
   const { values, handleChange, handleBlur, errors, touched } = formik;
-
   return (
     <FormikProvider value={formik}>
       <form onSubmit={formik.handleSubmit} className="space-y-4">
@@ -55,36 +89,36 @@ function JournalEntryForm({ initialData, onSubmit, onClose, typeOptions, fundOpt
           <FormField
             type="select"
             label="Type"
-            name="Type"
+            name="JEVType"
             options={typeOptions}
-            value={values.Type}
+            value={values.JEVType}
             onChange={handleChange}
             onBlur={handleBlur}
-            error={errors.Type}
-            touched={touched.Type}
+            error={errors.JEVType}
+            touched={touched.JEVType}
             required
           />
           <FormField
             type="select"
             label="Fund"
-            name="Fund"
+            name="FundsID"
             options={fundOptions}
-            value={values.Fund}
+            value={values.FundsID}
             onChange={handleChange}
             onBlur={handleBlur}
-            error={errors.Fund}
-            touched={touched.Fund}
+            error={errors.FundsID}
+            touched={touched.FundsID}
             required
           />
           <FormField
             type="date"
-            label="Date"
-            name="Date"
-            value={values.Date}
+            label="Invoice Date"
+            name="InvoiceDate"
+            value={values.InvoiceDate}
             onChange={handleChange}
             onBlur={handleBlur}
-            error={errors.Date}
-            touched={touched.Date}
+            error={errors.InvoiceDate}
+            touched={touched.InvoiceDate}
             required
           />
         </div>
@@ -92,23 +126,23 @@ function JournalEntryForm({ initialData, onSubmit, onClose, typeOptions, fundOpt
           <FormField
             type="text"
             label="DV No"
-            name="DVNo"
-            value={values.DVNo}
+            name="SAI_No"
+            value={values.SAI_No}
             onChange={handleChange}
             onBlur={handleBlur}
-            error={errors.DVNo}
-            touched={touched.DVNo}
+            error={errors.SAI_No}
+            touched={touched.SAI_No}
             required
           />
           <FormField
             type="text"
-            label="Particulars"
-            name="Particulars"
-            value={values.Particulars}
+            label="Remarks"
+            name="Remarks"
+            value={values.Remarks}
             onChange={handleChange}
             onBlur={handleBlur}
-            error={errors.Particulars}
-            touched={touched.Particulars}
+            error={errors.Remarks}
+            touched={touched.Remarks}
             required
           />
           <FormField
@@ -120,7 +154,6 @@ function JournalEntryForm({ initialData, onSubmit, onClose, typeOptions, fundOpt
             onBlur={handleBlur}
             error={errors.Payee}
             touched={touched.Payee}
-            required
           />
         </div>
 
@@ -129,22 +162,24 @@ function JournalEntryForm({ initialData, onSubmit, onClose, typeOptions, fundOpt
           <FormField
             type="text"
             label="OBR No"
-            name="OBRNo"
-            value={values.OBRNo}
+            name="ObligationRequestNumber"
+            value={values.ObligationRequestNumber}
             onChange={handleChange}
             onBlur={handleBlur}
-            error={errors.OBRNo}
-            touched={touched.OBRNo}
+            error={errors.ObligationRequestNumber}
+            touched={touched.ObligationRequestNumber}
+            required
           />
           <FormField
             type="text"
             label="Check No"
-            name="CheckNo"
-            value={values.CheckNo}
+            name="CheckNumber"
+            value={values.CheckNumber}
             onChange={handleChange}
             onBlur={handleBlur}
-            error={errors.CheckNo}
-            touched={touched.CheckNo}
+            error={errors.CheckNumber}
+            touched={touched.CheckNumber}
+            required
           />
           <FormField
             type="date"
@@ -155,6 +190,7 @@ function JournalEntryForm({ initialData, onSubmit, onClose, typeOptions, fundOpt
             onBlur={handleBlur}
             error={errors.CheckDate}
             touched={touched.CheckDate}
+            required
           />
         </div>
 
@@ -169,7 +205,7 @@ function JournalEntryForm({ initialData, onSubmit, onClose, typeOptions, fundOpt
                 <label className="font-medium">Accounting Entries</label>
                 <Button
                   type="button"
-                  onClick={() => push({ ResponsibilityCenter: '', Account: '', PR: '', Debit: '', Credit: '' })}
+                  onClick={() => push({ ResponsibilityCenter: '', AccountExplanation: '', PR: '', Debit: 0, Credit: 0 })}
                   className="btn btn-sm btn-primary"
                 >
                   + Add
@@ -180,7 +216,7 @@ function JournalEntryForm({ initialData, onSubmit, onClose, typeOptions, fundOpt
                 <div key={index} className="space-y-2 border p-4 rounded-md bg-neutral-50">
                   <div className="flex flex-wrap gap-2 w-full">
                     <FormField
-                    className='flex-1 min-w-[200px]'
+                      className='flex-1 min-w-[200px]'
                       type="select"
                       label="Responsibility Center"
                       name={`AccountingEntries[${index}].ResponsibilityCenter`}
@@ -193,18 +229,25 @@ function JournalEntryForm({ initialData, onSubmit, onClose, typeOptions, fundOpt
                       required
                     />
                     <div className='flex-1 min-w-[200px]'>
-                      <div><label className='form-label'>Accounts and Explanation</label></div>
+                      <div><label className='form-label'>Accounts and Explanation <span className="text-error-500">*</span></label></div>
                       <Select
                         label="Accounts and Explanation"
                         options={accountOptions}
                         placeholder="Select an account..."
                         isSearchable={true}
-                        onChange={(selected) => console.log(selected)}
-                        required
+                        onChange={(selected) =>
+                          formik.setFieldValue(`AccountingEntries[${index}].AccountExplanation`, selected?.value || '')
+                        }
                         name={`AccountingEntries[${index}].AccountExplanation`}
-                        value={entry.AccountExplanation}
+                        value={accountOptions.find(opt => opt.value === entry.AccountExplanation) || null}
                         onBlur={handleBlur}
+                        required
                       />
+                      {errors.AccountingEntries?.[index]?.AccountExplanation && (
+                        <div className="text-sm text-red-600 mt-1">
+                          {errors.AccountingEntries[index].AccountExplanation}
+                        </div>
+                      )}
                     </div>
                     <FormField
                     className='flex-1 max-w-[150px]'
@@ -289,6 +332,73 @@ function JournalEntryForm({ initialData, onSubmit, onClose, typeOptions, fundOpt
             </div>
           )}
         />
+
+        <hr />
+
+        
+        <FieldArray
+          name="Attachments"
+          render={({ remove, push }) => (
+            <div className="space-y-4">
+              <div className="mb-2 mt-10">
+                <label className="font-medium">Attachments</label>
+                <Button
+                  type="button"
+                  onClick={() => push({ File: null })}
+                  className="btn btn-sm btn-primary ml-5"
+                >
+                  + Add
+                </Button>
+              </div>
+
+              {values.Attachments?.map((att, index) => (
+                <div key={index} className="flex items-center gap-4 mb-2">
+                  {att.ID ? (
+                    <div className="flex-1">
+                      <a
+                        href={`${API_URL}/uploads/${att.DataImage}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-blue-600 underline"
+                      >
+                        {att.DataName}
+                      </a>
+                      <input type="hidden" name={`Attachments[${index}].ID`} value={att.ID} />
+                    </div>
+                  ) : (
+                    <div className="flex-1 min-w-[300px]">
+                      <label className="block text-sm font-medium mb-1">{`File ${index + 1}`}</label>
+                      <input
+                        type="file"
+                        name={`Attachments[${index}].File`}
+                        accept=".pdf,.doc,.docx,.xls,.xlsx,image/*"
+                        onChange={(e) =>
+                          formik.setFieldValue(`Attachments[${index}].File`, e.currentTarget.files[0])
+                        }
+                        onBlur={handleBlur}
+                        className="w-full border border-gray-300 rounded px-3 py-2 text-sm"
+                      />
+                    </div>
+                  )}
+
+                  <Button
+                    type="button"
+                    onClick={() => remove(index)}
+                    className="bg-red-600 hover:bg-red-700 text-white p-1"
+                  >
+                    <Trash2 className="w-4 h-4" />
+                  </Button>
+                </div>
+              ))}
+            </div>
+          )}
+        />
+
+        {balanceError && (
+          <div className="text-red-600 text-sm font-medium text-right">
+            {balanceError}
+          </div>
+        )}
 
         <div className="flex justify-end space-x-3 pt-4 border-t border-neutral-200">
           <Button type="button" onClick={onClose} className="btn btn-outline">
