@@ -40,13 +40,13 @@ function PurchaseRequestPage() {
   };
 
   const handleEditRequest = (request) => {
-    setCurrentRequest(request);
-    setIsModalOpen(true);
+    // setCurrentRequest(request);
+    // setIsModalOpen(true);
   };
 
   const handleDelete = (request) => {
-    setRequestToDelete(request);
-    setIsDeleteModalOpen(true);
+    // setRequestToDelete(request);
+    // setIsDeleteModalOpen(true);
   };
 
   const handleCloseModal = () => {
@@ -180,18 +180,18 @@ function PurchaseRequestPage() {
 
   // Actions for table rows
   const actions = [
-    {
-      icon: PencilIcon,
-      title: 'Edit',
-      onClick: handleEditRequest,
-      className: 'text-primary-600 hover:text-primary-900 p-1 rounded-full hover:bg-primary-50'
-    },
-    {
-      icon: TrashIcon,
-      title: 'Delete',
-      onClick: handleDelete,
-      className: 'text-danger-600 hover:text-danger-900 p-1 rounded-full hover:bg-danger-50'
-    },
+    // {
+    //   icon: PencilIcon,
+    //   title: 'Edit',
+    //   onClick: handleEditRequest,
+    //   className: 'text-primary-600 hover:text-primary-900 p-1 rounded-full hover:bg-primary-50'
+    // },
+    // {
+    //   icon: TrashIcon,
+    //   title: 'Delete',
+    //   onClick: handleDelete,
+    //   className: 'text-danger-600 hover:text-danger-900 p-1 rounded-full hover:bg-danger-50'
+    // },
   ];
 
   return (

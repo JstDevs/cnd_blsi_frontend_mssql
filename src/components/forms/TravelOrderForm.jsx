@@ -71,7 +71,7 @@ function TravelOrderForm({ initialData, onSubmit, onClose, officeOptions, employ
       Attachments: [],
     },
     validationSchema,
-    onSubmit: (values) => {
+    onSubmit: async(values, setSubmitting) => {
       const formData = new FormData();
 
       for (const key in values) {
@@ -89,7 +89,13 @@ function TravelOrderForm({ initialData, onSubmit, onClose, officeOptions, employ
         }
       }
 
-      onSubmit(formData);
+      try {
+        await onSubmit(formData);
+      } catch (err) {
+        console.error(err);
+      } finally {
+        setSubmitting(false);
+      }
     }
   });
 

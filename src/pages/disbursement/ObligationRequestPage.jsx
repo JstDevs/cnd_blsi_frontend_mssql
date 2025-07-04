@@ -1,11 +1,22 @@
 import { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { PlusIcon, EyeIcon, PencilIcon } from '@heroicons/react/24/outline';
+import {
+  PlusIcon,
+  EyeIcon,
+  PencilIcon,
+  ArrowLeftIcon,
+} from '@heroicons/react/24/outline';
 import DataTable from '../../components/common/DataTable';
-import Modal from '../../components/common/Modal';
-import { fetchObligationRequests } from '../../features/disbursement/obligationRequestSlice';
 import ObligationRequestForm from './ObligationRequestForm';
 import ObligationRequestDetails from './ObligationRequestDetails';
+import { fetchObligationRequests } from '@/features/disbursement/obligationRequestSlice';
+import { fetchEmployees } from '../../features/settings/employeeSlice';
+import { fetchCustomers } from '@/features/settings/customersSlice';
+import { fetchVendorDetails } from '@/features/settings/vendorDetailsSlice';
+import { fetchDepartments } from '@/features/settings/departmentSlice';
+import { fetchProjectDetails } from '@/features/settings/projectDetailsSlice';
+import { fetchFunds } from '@/features/budget/fundsSlice';
+import { fetchFiscalYears } from '@/features/settings/fiscalYearSlice';
 
 function ObligationRequestPage() {
   const dispatch = useDispatch();
@@ -13,37 +24,47 @@ function ObligationRequestPage() {
     (state) => state.obligationRequests
   );
 
-  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
-  const [isViewModalOpen, setIsViewModalOpen] = useState(false);
+  const { employees } = useSelector(state => state.employees);
+  const { customers } = useSelector(state => state.customers);
+  const { vendorDetails } = useSelector(state => state.vendorDetails);
+  const { departments } = useSelector(state => state.departments);
+  const { projectDetails } = useSelector(state => state.projectDetails);
+  const { funds } = useSelector(state => state.funds);
+  const { fiscalYears } = useSelector(state => state.fiscalYears);
+
+
+  const [currentView, setCurrentView] = useState('list'); // 'list', 'form', 'details'
   const [currentObligationRequest, setCurrentObligationRequest] =
     useState(null);
 
   useEffect(() => {
     dispatch(fetchObligationRequests());
+    dispatch(fetchEmployees());
+    dispatch(fetchCustomers());
+    dispatch(fetchVendorDetails());
+    dispatch(fetchDepartments());
+    dispatch(fetchProjectDetails());
+    dispatch(fetchFunds());
+    dispatch(fetchFiscalYears());
   }, [dispatch]);
 
-  const handleCreateORS = () => {
+  const handleCreateOR = () => {
     setCurrentObligationRequest(null);
-    setIsCreateModalOpen(true);
+    setCurrentView('form');
   };
 
-  const handleViewORS = (ors) => {
-    setCurrentObligationRequest(ors);
-    setIsViewModalOpen(true);
+  const handleViewOR = (or) => {
+    setCurrentObligationRequest(or);
+    setCurrentView('details');
   };
 
-  const handleEditORS = (ors) => {
-    setCurrentObligationRequest(ors);
-    setIsCreateModalOpen(true);
+  const handleEditOR = (or) => {
+    setCurrentObligationRequest(or);
+    setCurrentView('form');
   };
 
-  const handleCloseCreateModal = () => {
-    setIsCreateModalOpen(false);
-    setCurrentObligationRequest(null);
-  };
-
-  const handleCloseViewModal = () => {
-    setIsViewModalOpen(false);
+  const handleBackToList = () => {
+    setCurrentView('list');
     setCurrentObligationRequest(null);
   };
 
@@ -58,13 +79,13 @@ function ObligationRequestPage() {
   // Table columns definition
   const columns = [
     {
-      key: 'orsNumber',
-      header: 'ORS Number',
+      key: 'orNumber',
+      header: 'OR Number',
       sortable: true,
       className: 'font-medium text-neutral-900',
     },
     {
-      key: 'orsDate',
+      key: 'orDate',
       header: 'Date',
       sortable: true,
       render: (value) => new Date(value).toLocaleDateString(),
@@ -75,13 +96,25 @@ function ObligationRequestPage() {
       sortable: true,
     },
     {
-      key: 'requestingOffice',
-      header: 'Requesting Office',
+      key: 'orsNumber',
+      header: 'ORS Number',
       sortable: true,
     },
     {
-      key: 'totalAmount',
-      header: 'Amount',
+      key: 'modeOfPayment',
+      header: 'Mode of Payment',
+      sortable: true,
+    },
+    {
+      key: 'grossAmount',
+      header: 'Gross Amount',
+      sortable: true,
+      render: (value) => formatCurrency(value),
+      className: 'text-right',
+    },
+    {
+      key: 'netAmount',
+      header: 'Net Amount',
       sortable: true,
       render: (value) => formatCurrency(value),
       className: 'text-right',
@@ -94,14 +127,14 @@ function ObligationRequestPage() {
         let bgColor = 'bg-neutral-100 text-neutral-800';
 
         switch (value) {
-          case 'Pending':
+          case 'Pending Certification':
             bgColor = 'bg-warning-100 text-warning-800';
             break;
-          case 'Certified Budget Available':
+          case 'Pending Approval':
             bgColor = 'bg-primary-100 text-primary-800';
             break;
-          case 'Approved':
-          case 'Obligated':
+          case 'Approved for Payment':
+          case 'Paid':
             bgColor = 'bg-success-100 text-success-800';
             break;
           case 'Cancelled':
@@ -128,14 +161,14 @@ function ObligationRequestPage() {
     {
       icon: EyeIcon,
       title: 'View',
-      onClick: handleViewORS,
+      onClick: handleViewOR,
       className:
         'text-primary-600 hover:text-primary-900 p-1 rounded-full hover:bg-primary-50',
     },
     {
       icon: PencilIcon,
       title: 'Edit',
-      onClick: handleEditORS,
+      onClick: handleEditOR,
       className:
         'text-primary-600 hover:text-primary-900 p-1 rounded-full hover:bg-primary-50',
     },
@@ -143,68 +176,140 @@ function ObligationRequestPage() {
 
   return (
     <div>
-      <div className="page-header">
-        <div className="flex justify-between items-center">
-          <div>
-            <h1>Obligation Requests</h1>
-            <p>Manage obligation request and status OBR</p>
+      {currentView === 'list' && (
+        <div>
+          <div className="page-header">
+            <div className="flex justify-between items-center">
+              <div>
+                <h1>Obligation Requests</h1>
+                <p>Manage obligation requests and payments</p>
+              </div>
+              <button
+                type="button"
+                onClick={handleCreateOR}
+                className="btn btn-primary flex items-center"
+              >
+                <PlusIcon className="h-5 w-5 mr-2" aria-hidden="true" />
+                Create OR
+              </button>
+            </div>
           </div>
-          <button
-            type="button"
-            onClick={handleCreateORS}
-            className="btn btn-primary flex items-center"
-          >
-            <PlusIcon className="h-5 w-5 mr-2" aria-hidden="true" />
-            Create OBR
-          </button>
+
+          <div className="mt-4">
+            <DataTable
+              columns={columns}
+              data={obligationRequests}
+              actions={actions}
+              loading={isLoading}
+              onRowClick={handleViewOR}
+            />
+          </div>
         </div>
-      </div>
+      )}
 
-      <div className="mt-4">
-        <DataTable
-          columns={columns}
-          data={obligationRequests}
-          actions={actions}
-          loading={isLoading}
-          onRowClick={handleViewORS}
-        />
-      </div>
+      {currentView === 'form' && (
+        <div>
+          <div className="page-header">
+            <div className="flex justify-between items-center">
+              <div className="flex items-center">
+                <button
+                  onClick={handleBackToList}
+                  className="mr-4 p-1 rounded-full hover:bg-neutral-100"
+                >
+                  <ArrowLeftIcon className="h-5 w-5 text-neutral-600" />
+                </button>
+                <div>
+                  <h1>
+                    {currentObligationRequest
+                      ? 'Edit Obligation Request'
+                      : 'Create Obligation Request'}
+                  </h1>
+                  <p>
+                    Fill out the form to{' '}
+                    {currentObligationRequest ? 'update' : 'create'} an
+                    obligation request
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
 
-      {/* ORS Creation/Edit Modal */}
-      <Modal
-        isOpen={isCreateModalOpen}
-        onClose={handleCloseCreateModal}
-        title={
-          currentObligationRequest
-            ? 'Edit Obligation Request'
-            : 'Create Obligation Request'
-        }
-        size="xxxl"
-      >
-        <ObligationRequestForm
-          initialData={currentObligationRequest}
-          onClose={handleCloseCreateModal}
-        />
-      </Modal>
+          <div className="mt-4">
+            <ObligationRequestForm
+              initialData={currentObligationRequest}
+              employeeOptions={employees.map(emp => ({
+                value: emp.ID,
+                label: emp.FirstName + ' ' + emp.MiddleName + ' ' + emp.LastName,
+              }))}
+              vendorOptions={vendorDetails.map(vendor => ({
+                value: vendor.ID,
+                label: vendor.Name,
+              }))}
+              individualOptions={customers.map(customer => ({
+                value: customer.ID,
+                label: customer.Name,
+              }))}
+              employeeData={employees}
+              vendorData={vendorDetails}
+              individualData={customers}
+              departmentOptions={departments.map(dept => ({
+                value: dept.ID,
+                label: dept.Name,
+              }))}
+              fundOptions={funds.map(fund => ({
+                value: fund.ID,
+                label: fund.Name,
+              }))}
+              projectOptions={projectDetails.map(project => ({
+                value: project.ID,
+                label: project.Title,
+              }))}
+              fiscalYearOptions={fiscalYears.map(fiscalYear => ({
+                value: fiscalYear.ID,
+                label: fiscalYear.Name,
+              }))}
+              onCancel={handleBackToList}
+              onSubmitSuccess={handleBackToList}
+            />
+          </div>
+        </div>
+      )}
 
-      {/* ORS View Modal */}
-      <Modal
-        isOpen={isViewModalOpen}
-        onClose={handleCloseViewModal}
-        title="Obligation Request Details"
-        size="lg"
-      >
-        {currentObligationRequest && (
-          <ObligationRequestDetails
-            ors={currentObligationRequest}
-            onClose={handleCloseViewModal}
-            onEdit={() => {
-              setIsViewModalOpen(false);
-              setIsCreateModalOpen(true);
-            }}
-          />
-        )}
-      </Modal>
+      {currentView === 'details' && currentObligationRequest && (
+        <div>
+          <div className="page-header">
+            <div className="flex justify-between items-center">
+              <div className="flex items-center">
+                <button
+                  onClick={handleBackToList}
+                  className="mr-4 p-1 rounded-full hover:bg-neutral-100"
+                >
+                  <ArrowLeftIcon className="h-5 w-5 text-neutral-600" />
+                </button>
+                <div>
+                  <h1>Obligation Request Details</h1>
+                  <p>View and manage obligation request details</p>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => handleEditOR(currentObligationRequest)}
+                className="btn btn-primary flex items-center"
+              >
+                <PencilIcon className="h-5 w-5 mr-2" aria-hidden="true" />
+                Edit OR
+              </button>
+            </div>
+          </div>
+
+          <div className="mt-4">
+            <ObligationRequestDetails
+              or={currentObligationRequest}
+              onBack={handleBackToList}
+            />
+          </div>
+        </div>
+      )}
     </div>
   );
 }

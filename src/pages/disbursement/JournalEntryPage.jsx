@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { PlusIcon, PencilIcon, TrashIcon } from '@heroicons/react/24/outline';
+import { toast } from 'react-hot-toast';
 import DataTable from '../../components/common/DataTable';
 import Modal from '../../components/common/Modal';
 import JournalEntryForm from '../../components/forms/JournalEntryForm';
@@ -72,17 +73,33 @@ function JournalEntryPage() {
     }
   };
   
-  const handleSubmit = (formData) => {
-    if (currentJournalEntry) {
-      formData.append('ID', currentJournalEntry.ID); // add ID to FormData if editing
-      dispatch(updateJournalEntry(formData));
-    } else {
-      dispatch(addJournalEntry(formData));
-    }
+  const handleSubmit = async (values) => {
+    try {
+      if (currentJournalEntry) {
+        await dispatch(updateJournalEntry({ ...values, ID: currentJournalEntry.ID })).unwrap();
+      } else {
+        await dispatch(addJournalEntry(values)).unwrap();
+      }
 
-    setIsModalOpen(false);
-    setCurrentJournalEntry(null);
+      setIsModalOpen(false);
+      setCurrentJournalEntry(null);
+      toast.success('Success');
+    } catch (error) {
+      toast.error(error || 'Failed');
+      throw error;
+    }
   };
+  // const handleSubmit = (formData) => {
+  //   if (currentJournalEntry) {
+  //     formData.append('ID', currentJournalEntry.ID); // add ID to FormData if editing
+  //     dispatch(updateJournalEntry(formData));
+  //   } else {
+  //     dispatch(addJournalEntry(formData));
+  //   }
+
+  //   setIsModalOpen(false);
+  //   setCurrentJournalEntry(null);
+  // };
 
   const columns = [
     {
@@ -207,21 +224,21 @@ function JournalEntryPage() {
           data={journalEntries}          
           actions={(row) => {
             const actionList = [];
-            if (row.Status === 'Rejected') {
-              actionList.push({
-                icon: PencilIcon,
-                title: 'Edit',
-                onClick: () => handleEdit(row),
-                className: 'text-primary-600 hover:text-primary-900 p-1 rounded-full hover:bg-primary-50',
-              });
+            // if (row.Status === 'Rejected') {
+            //   actionList.push({
+            //     icon: PencilIcon,
+            //     title: 'Edit',
+            //     onClick: () => handleEdit(row),
+            //     className: 'text-primary-600 hover:text-primary-900 p-1 rounded-full hover:bg-primary-50',
+            //   });
 
-              actionList.push({
-                icon: TrashIcon,
-                title: 'Delete',
-                onClick: () => handleDelete(row),
-                className: 'text-error-600 hover:text-error-900 p-1 rounded-full hover:bg-error-50',
-              });
-            }
+            //   actionList.push({
+            //     icon: TrashIcon,
+            //     title: 'Delete',
+            //     onClick: () => handleDelete(row),
+            //     className: 'text-error-600 hover:text-error-900 p-1 rounded-full hover:bg-error-50',
+            //   });
+            // }
 
             return actionList;
           }}

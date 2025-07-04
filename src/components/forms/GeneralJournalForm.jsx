@@ -99,10 +99,10 @@ function GeneralJournalForm({
               View
             </button>
             <button
-              type="submit"
+              type="button"
               className="btn btn-secondary"
               disabled={isSubmitting}
-              onClick={() => (submitAction.current = 'generate')}
+              // onClick={() => (submitAction.current = 'generate')}
             >
               Generate Journal
             </button>

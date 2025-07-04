@@ -47,7 +47,7 @@ function JournalEntryForm({ initialData, onSubmit, onClose, typeOptions, fundOpt
       Attachments: [],
     },
     validationSchema,
-    onSubmit: (values) => {
+    onSubmit: async(values, setSubmitting) => {
       const totalDebit = values.AccountingEntries.reduce((sum, entry) => sum + (parseFloat(entry.Debit) || 0), 0);
       const totalCredit = values.AccountingEntries.reduce((sum, entry) => sum + (parseFloat(entry.Credit) || 0), 0);
 
@@ -75,7 +75,13 @@ function JournalEntryForm({ initialData, onSubmit, onClose, typeOptions, fundOpt
         }
       }
 
-      onSubmit(formData);
+      try {
+        await onSubmit(formData);
+      } catch (err) {
+        console.error(err);
+      } finally {
+        setSubmitting(false);
+      }
     }
   });
 

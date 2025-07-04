@@ -1,156 +1,185 @@
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { useDispatch } from 'react-redux';
-import { Formik, Form, FieldArray } from 'formik';
+import { Formik, Form, FieldArray, Field, ErrorMessage } from 'formik';
 import * as Yup from 'yup';
+import Select from 'react-select';
 import FormField from '../../components/common/FormField';
-import { PlusIcon, TrashIcon } from '@heroicons/react/24/outline';
+import ObligationRequestAddItemForm from './ObligationRequestAddItemForm';
+import Modal from '../../components/common/Modal';
 import {
-  createObligationRequest,
-  updateObligationRequest,
-} from '../../features/disbursement/obligationRequestSlice';
-
-// Validation schema for obligation request
-const obligationRequestSchema = Yup.object().shape({
-  orsDate: Yup.date().required('Date is required'),
-  payeeType: Yup.string().required('Payee type is required'),
-  payeeName: Yup.string().required('Payee name is required'),
-  payeeAddress: Yup.string(),
-  requestingOffice: Yup.string().required('Requesting office is required'),
-  fund: Yup.string().required('Fund is required'),
-  lineItems: Yup.array()
-    .of(
-      Yup.object().shape({
-        accountCode: Yup.string().required('Account code is required'),
-        responsibilityCenter: Yup.string().required(
-          'Responsibility Center is required'
-        ),
-        particulars: Yup.string().required('Particulars are required'),
-        remarks: Yup.string(),
-        changeAccount: Yup.string(),
-        quantity: Yup.number().min(0, 'Quantity cannot be negative'),
-        itemPrice: Yup.number().min(0, 'Price cannot be negative'),
-        vatable: Yup.boolean(),
-        fpp: Yup.string(),
-        taxCode: Yup.string(),
-        taxRate: Yup.number()
-          .min(0, 'Tax rate cannot be negative')
-          .max(100, 'Tax rate cannot exceed 100%'),
-        withheldAndEWT: Yup.number().min(0, 'Value cannot be negative'),
-        discounts: Yup.number()
-          .min(0, 'Discount cannot be negative')
-          .max(100, 'Discount cannot exceed 100%'),
-        unit: Yup.string(),
-        description: Yup.string(),
-        amount: Yup.number()
-          .required('Amount is required')
-          .moreThan(0, 'Amount must be greater than 0'),
-      })
-    )
-    .min(1, 'At least one line item is required'),
-});
-
-// Mock data for dropdowns
-const departments = [
-  { value: 'Office of the Mayor', label: 'Office of the Mayor' },
-  { value: 'Accounting Department', label: 'Accounting Department' },
-  { value: 'Treasury Department', label: 'Treasury Department' },
-  { value: 'IT Department', label: 'IT Department' },
-];
+  BuildingOfficeIcon,
+  DocumentCheckIcon,
+  PlusIcon,
+  TrashIcon,
+} from '@heroicons/react/24/outline';
+import {
+  createDisbursementVoucher,
+  updateDisbursementVoucher,
+} from '../../features/disbursement/disbursementVoucherSlice';
+import { ChevronDownIcon, UserIcon, UsersIcon } from 'lucide-react';
 
 const payeeTypes = [
-  { value: 'Vendor', label: 'Vendor' },
   { value: 'Employee', label: 'Employee' },
-  { value: 'Other', label: 'Other' },
+  { value: 'Vendor', label: 'Vendor' },
+  { value: 'Individual', label: 'Individual' },
 ];
 
-const funds = [
-  { value: 'General Fund', label: 'General Fund' },
-  { value: 'Special Education Fund', label: 'Special Education Fund' },
-  { value: 'Trust Fund', label: 'Trust Fund' },
-];
+// Validation schema
+const disbursementVoucherSchema = Yup.object().shape({
+  dvDate: Yup.date().required('Date is required'),
+  paymentDate: Yup.date().required('Payment date is required'),
+  payeeType: Yup.string().required('Payee type is required'),
+  payeeName: Yup.string().required('Payee name is required'),
+  payeeId: Yup.string().required('Payee ID is required'),
+  payeeAddress: Yup.string().required('Address is required'),
+  officeUnitProject: Yup.string().required('Office/Unit/Project is required'),
+  orsNumber: Yup.string().required('ORS Number is required'),
+  responsibilityCenter: Yup.string().required(
+    'Responsibility Center is required'
+  ),
+  requestForPayment: Yup.string().required('Request for Payment is required'),
+  modeOfPayment: Yup.string().required('Mode of payment is required'),
+  items: Yup.array()
+    .of(
+      Yup.object().shape({
+        description: Yup.string().required('Item description is required'),
+        amount: Yup.number()
+          .required('Amount is required')
+          .min(0, 'Amount must be greater than 0'),
+        accountCode: Yup.string().required('Account code is required'),
+      })
+    )
+    .min(1, 'At least one item is required'),
+  taxes: Yup.array().of(
+    Yup.object().shape({
+      taxType: Yup.string().required('Tax type is required'),
+      rate: Yup.number().required('Rate is required'),
+      amount: Yup.number()
+        .required('Amount is required')
+        .min(0, 'Amount must be greater than 0'),
+    })
+  ),
+  contraAccounts: Yup.array()
+    .of(
+      Yup.object().shape({
+        code: Yup.string().required('Account code is required'),
+        account: Yup.string().required('Account name is required'),
+        amount: Yup.number()
+          .required('Amount is required')
+          .min(0, 'Amount must be greater than 0'),
+        normalBalance: Yup.string().required('Normal balance is required'),
+      })
+    )
+    .min(1, 'At least one contra account is required'),
+});
 
-const responsibilityCenters = [
-  { value: 'Accounting', label: 'Accounting' },
-  { value: 'Budget', label: 'Budget' },
-  { value: 'Treasury', label: 'Treasury' },
-  { value: 'HR', label: 'Human Resources' },
-];
-
-const taxCodes = [
-  { value: 'W1010', label: 'W1010 - Withholding Tax' },
-  { value: 'VAT', label: 'VAT - Value Added Tax' },
-  { value: 'NONVAT', label: 'NONVAT - Non-Vatable' },
-];
-
-const accountCodes = [
-  { value: '5-01-01-010', label: '5-01-01-010 - Salaries and Wages - Regular' },
-  { value: '5-01-01-020', label: '5-01-01-020 - Salaries and Wages - Casual' },
-  { value: '5-01-02-010', label: '5-01-02-010 - Office Supplies' },
-  { value: '5-02-03-010', label: '5-02-03-010 - Traveling Expenses - Local' },
-  { value: '5-02-03-020', label: '5-02-03-020 - Traveling Expenses - Foreign' },
-  {
-    value: '5-02-12-990',
-    label: '5-02-12-990 - Other Maintenance and Operating Expenses',
-  },
-];
-
-function ObligationRequestForm({ initialData, onClose }) {
+function ObligationRequestForm({ initialData, onClose, employeeOptions = [], vendorOptions = [], individualOptions = [], employeeData = [], vendorData = [], individualData = [], departmentOptions = [], fundOptions = [], projectOptions = [], fiscalYearOptions = [] }) {
   const dispatch = useDispatch();
+  const formikRef = useRef(null); 
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [selectedPayee, setSelectedPayee] = useState(null);
+  const [selectedRequest, setSelectedRequest] = useState(null);
 
-  const calculateTotal = (lineItems) => {
-    return lineItems.reduce((sum, item) => sum + Number(item.amount || 0), 0);
+  const [showEntryModal, setShowEntryModal] = useState(false);
+  const [accountingEntries, setAccountingEntries] = useState([]);
+  const handleAddEntry = (entry) => {
+    setAccountingEntries([...accountingEntries, entry]);
   };
 
-  const initialValues = initialData
-    ? { ...initialData }
-    : {
-        orsDate: new Date().toISOString().split('T')[0],
-        payeeType: '',
-        payeeName: '',
-        payeeAddress: '',
-        requestingOffice: '',
-        fund: '',
-        lineItems: [
-          {
-            accountCode: '',
-            responsibilityCenter: '',
-            particulars: '',
-            remarks: '',
-            changeAccount: '',
-            quantity: 0,
-            itemPrice: 0,
-            vatable: false,
-            fpp: '',
-            taxCode: '',
-            taxRate: 0,
-            withheldAndEWT: 0,
-            discounts: 0,
-            unit: '',
-            description: '',
-            amount: 0,
-          },
-        ],
-      };
+  const calculateTotals = (items, taxes) => {
+    const grossAmount = items.reduce(
+      (sum, item) => sum + Number(item.amount || 0),
+      0
+    );
+    const totalTaxes = taxes.reduce(
+      (sum, tax) => sum + Number(tax.amount || 0),
+      0
+    );
+    const netAmount = grossAmount - totalTaxes;
+
+    return { grossAmount, totalTaxes, netAmount };
+  };
+
+  const defaultItem = {
+    description: '',
+    amount: '',
+    accountCode: '',
+  };
+
+  const defaultTax = {
+    taxType: '',
+    rate: '',
+    amount: '',
+  };
+
+  const initialValues = {
+    dvDate: initialData?.dvDate || new Date().toISOString().split('T')[0],
+    paymentDate:
+      initialData?.paymentDate || new Date().toISOString().split('T')[0],
+    payeeType: initialData?.payeeType || '',
+    payeeName: initialData?.payeeName || '',
+    payeeId: initialData?.payeeId || '',
+    payeeAddress: initialData?.payeeAddress || '',
+    officeUnitProject: initialData?.officeUnitProject || '',
+    orsNumber: initialData?.orsNumber || '',
+    responsibilityCenter:
+      initialData?.responsibilityCenter || 'Treasury Office',
+    requestForPayment: initialData?.requestForPayment || '',
+    modeOfPayment: initialData?.modeOfPayment || '',
+    items:
+      Array.isArray(initialData?.items) && initialData.items.length > 0
+        ? initialData.items
+        : [defaultItem],
+    taxes: Array.isArray(initialData?.taxes) ? initialData.taxes : [],
+    contraAccounts:
+      Array.isArray(initialData?.contraAccounts) &&
+      initialData.contraAccounts.length > 0
+        ? initialData.contraAccounts
+        : [
+            {
+              code: '',
+              account: '',
+              amount: '',
+              normalBalance: '',
+            },
+          ],
+    accountingEntries: Array.isArray(initialData?.accountingEntries)
+      ? initialData.accountingEntries
+      : [],
+  };
+
+  const handleAddSubmit = (entry) => {
+    console.log('Adding entry:', entry);
+    if (!formikRef.current) return;
+
+    const { values, setFieldValue } = formikRef.current;
+    const updated = [...values.accountingEntries, entry];
+
+    setFieldValue('accountingEntries', updated);
+    setShowEntryModal(false);
+  };
 
   const handleSubmit = (values) => {
     setIsSubmitting(true);
 
-    // Calculate the total amount
-    const totalAmount = calculateTotal(values.lineItems);
+    const { grossAmount, totalTaxes, netAmount } = calculateTotals(
+      values.items,
+      values.taxes
+    );
     const dataToSubmit = {
       ...values,
-      totalAmount,
+      grossAmount,
+      totalTaxes,
+      netAmount,
     };
 
-    // Dispatch action based on whether we're creating or updating
     const action = initialData
-      ? updateObligationRequest({
+      ? updateDisbursementVoucher({
           ...dataToSubmit,
           id: initialData.id,
-          orsNumber: initialData.orsNumber,
+          dvNumber: initialData.dvNumber,
         })
-      : createObligationRequest(dataToSubmit);
+      : createDisbursementVoucher(dataToSubmit);
 
     dispatch(action)
       .unwrap()
@@ -158,435 +187,466 @@ function ObligationRequestForm({ initialData, onClose }) {
         onClose();
       })
       .catch((error) => {
-        console.error('Error submitting OBR:', error);
+        console.error('Error submitting DV:', error);
       })
       .finally(() => {
         setIsSubmitting(false);
       });
   };
 
+  const PayeeTypeIcon = ({ type }) => {
+    switch (type) {
+      case 'Employee':
+        return <UsersIcon className="w-5 h-5" />;
+      case 'Vendor':
+        return <BuildingOfficeIcon className="w-5 h-5" />;
+      case 'Individual':
+        return <UserIcon className="w-5 h-5" />;
+      default:
+        return null;
+    }
+  };
+
   return (
-    <Formik
-      initialValues={initialValues}
-      validationSchema={obligationRequestSchema}
-      onSubmit={handleSubmit}
-      enableReinitialize
-    >
-      {({
-        values,
-        errors,
-        touched,
-        handleChange,
-        handleBlur,
-        setFieldValue,
-        isValid,
-      }) => (
-        <Form className="space-y-4 ">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <FormField
-              label="OBR Date"
-              name="orsDate"
-              type="date"
-              required
-              value={values.orsDate}
-              onChange={handleChange}
-              onBlur={handleBlur}
-              error={errors.orsDate}
-              touched={touched.orsDate}
-            />
+    <div>
+      <div className="max-w-7xl mx-auto p-2 sm:p-6 bg-white">
+        <Formik
+          innerRef={formikRef}
+          initialValues={initialValues}
+          validationSchema={disbursementVoucherSchema}
+          onSubmit={handleSubmit}
+          enableReinitialize
+        >
+          {({
+            values,
+            errors,
+            touched,
+            handleChange,
+            handleBlur,
+            setFieldValue,
+            isValid,
+          }) => {
+            const { grossAmount, totalTaxes, netAmount } = calculateTotals(
+              values.items,
+              values.taxes
+            );
 
-            <FormField
-              label="Fund"
-              name="fund"
-              type="select"
-              required
-              value={values.fund}
-              onChange={handleChange}
-              onBlur={handleBlur}
-              error={errors.fund}
-              touched={touched.fund}
-              options={funds}
-            />
-          </div>
+            
+            const payeeTypeOptions = payeeTypes.map((type) => ({
+              value: type.value,
+              label: type.label,
+            }));
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <FormField
-              label="Payee Type"
-              name="payeeType"
-              type="select"
-              required
-              value={values.payeeType}
-              onChange={handleChange}
-              onBlur={handleBlur}
-              error={errors.payeeType}
-              touched={touched.payeeType}
-              options={payeeTypes}
-            />
+            // Get the selected value object
+            const selectedPayeeType = payeeTypeOptions.find(
+              (opt) => opt.value === values.payeeType
+            );
 
-            <FormField
-              label="Payee Name"
-              name="payeeName"
-              type="text"
-              required
-              placeholder="Enter payee name"
-              value={values.payeeName}
-              onChange={handleChange}
-              onBlur={handleBlur}
-              error={errors.payeeName}
-              touched={touched.payeeName}
-            />
-          </div>
+            const handlePayeeTypeChange = (type) => {
+              setSelectedPayee(null);
+              setFieldValue('payeeType', type);
+              setFieldValue('payeeName', '');
+              setFieldValue('payeeId', '');
+              setFieldValue('payeeAddress', '');
+              setFieldValue('officeUnitProject', '');
+              setFieldValue('orsNumber', '');
+            };
 
-          <FormField
-            label="Payee Address"
-            name="payeeAddress"
-            type="textarea"
-            placeholder="Enter payee address"
-            value={values.payeeAddress}
-            onChange={handleChange}
-            onBlur={handleBlur}
-            error={errors.payeeAddress}
-            touched={touched.payeeAddress}
-            rows={2}
-          />
+            const handlePayeeSelect = (payee) => {
+              let selectedItem = null;
+              switch (values.payeeType) {
+                case 'Employee':
+                  selectedItem = employeeData.find((item) => item.ID === payee);
+                  break;
+                case 'Vendor':
+                  selectedItem = vendorData.find((item) => item.ID === payee);
+                  break;
+                case 'Individual':
+                  selectedItem = individualData.find((item) => item.ID === payee);
+                  break;
+                default:
+                  break;
+              }
+              setSelectedPayee(selectedItem);
 
-          <FormField
-            label="Requesting Office"
-            name="requestingOffice"
-            type="select"
-            required
-            value={values.requestingOffice}
-            onChange={handleChange}
-            onBlur={handleBlur}
-            error={errors.requestingOffice}
-            touched={touched.requestingOffice}
-            options={departments}
-          />
+              // setSelectedPayee(payee);
+              setFieldValue('payeeName', payee.name);
+              setFieldValue('payeeId', payee.tin);
+              setFieldValue('payeeAddress', payee.address);
+              setFieldValue('officeUnitProject', payee.officeUnitProject);
+              setFieldValue('orsNumber', payee.obligationRequestNo);
+              setFieldValue('responsibilityCenter', payee.responsibilityCenter);
+            };
 
-          <div className="mt-6">
-            <label className="block text-sm font-medium text-neutral-700 mb-2">
-              Line Items
-            </label>
+            const handleRequestTypeChange = (type) => {
+              setSelectedRequest(null);
+              setFieldValue('requestForPayment', type);
+              setFieldValue('items', [defaultItem]);
+            };
 
-            <FieldArray name="lineItems">
-              {({ remove, push }) => (
-                <div className="space-y-3">
-                  {values.lineItems.map((item, index) => (
-                    <div
-                      key={index}
-                      className="bg-neutral-50 p-3 rounded-lg border border-neutral-200 space-y-3"
-                    >
-                      <div className="flex justify-between items-center">
-                        <h4 className="text-sm font-medium text-neutral-700">
-                          Item #{index + 1}
-                        </h4>
-                        {values.lineItems.length > 1 && (
+            const handleRequestSelect = (request) => {
+              setSelectedRequest(request);
+              const requestItems = request.items.map((item) => ({
+                description: item.item,
+                amount: item.amount,
+                accountCode: item.accountCode,
+                remarks: item.remarks,
+                fpp: item.fpp,
+                amountDue: item.amountDue,
+                account: item.account,
+                fundCode: item.fundCode,
+              }));
+              setFieldValue('items', requestItems);
+            };
+
+            const handleTaxTypeChange = (index, value) => {
+              const selectedTax = taxTypes.find((tax) => tax.value === value);
+              if (selectedTax) {
+                setFieldValue(`taxes.${index}.taxType`, selectedTax.value);
+                setFieldValue(`taxes.${index}.rate`, selectedTax.rate);
+                setFieldValue(
+                  `taxes.${index}.amount`,
+                  (grossAmount * selectedTax.rate).toFixed(2)
+                );
+              }
+            };
+
+            const getPayeeOptions = (type) => {
+              switch (type) {
+                case 'Employee':
+                  return employeeOptions; // must be an array of { label, value }
+                case 'Vendor':
+                  return vendorOptions;
+                case 'Individual':
+                  return individualOptions;
+                // Add more as needed
+                default:
+                  return [];
+              }
+            };
+
+            const handleItemAmountChange = (index, value) => {
+              setFieldValue(`items.${index}.amount`, value);
+              // Recalculate tax amounts when item amounts change
+              values.taxes.forEach((tax, taxIndex) => {
+                if (tax.taxType) {
+                  const selectedTax = taxTypes.find(
+                    (t) => t.value === tax.taxType
+                  );
+                  if (selectedTax) {
+                    const newGrossAmount = values.items.reduce((sum, item, i) => {
+                      const amount =
+                        i === index
+                          ? Number(value || 0)
+                          : Number(item.amount || 0);
+                      return sum + amount;
+                    }, 0);
+                    setFieldValue(
+                      `taxes.${taxIndex}.amount`,
+                      (newGrossAmount * selectedTax.rate).toFixed(2)
+                    );
+                  }
+                }
+              });
+            };
+            const handleContraAccountAmountChange = (index, value) => {
+              setFieldValue(`contraAccounts.${index}.amount`, value);
+              // Recalculate tax amounts when contra account amounts change
+              values.taxes.forEach((tax, taxIndex) => {
+                if (tax.taxType) {
+                  const selectedTax = taxTypes.find(
+                    (t) => t.value === tax.taxType
+                  );
+                  if (selectedTax) {
+                    const newGrossAmount = values.contraAccounts.reduce(
+                      (sum, account, i) => {
+                        const amount =
+                          i === index
+                            ? Number(value || 0)
+                            : Number(account.amount || 0);
+                        return sum + amount;
+                      },
+                      0
+                    );
+                    setFieldValue(
+                      `taxes.${taxIndex}.amount`,
+                      (newGrossAmount * selectedTax.rate).toFixed(2)
+                    );
+                  }
+                }
+              });
+            };
+            return (
+              <Form className="space-y-8">
+                {/* Payee Type Selection */}
+                <div>
+                  <h2 className="text-xl font-semibold text-gray-900 mb-4">
+                    Payee Information
+                  </h2>
+                  <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                    {/* Payee Type Buttons */}
+                    <div className="lg:col-span-1">
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        Payee Type <span className="text-red-500">*</span>
+                      </label>
+                      <div className="space-y-2">
+                        {payeeTypes.map((type) => (
                           <button
+                            key={type.value}
                             type="button"
-                            onClick={() => remove(index)}
-                            className="text-error-600 hover:text-error-800"
+                            onClick={() => handlePayeeTypeChange(type.value)}
+                            className={`w-full flex items-center px-4 py-3 text-left border rounded-lg transition-all duration-200 ${
+                              values.payeeType === type.value
+                                ? 'border-blue-500 bg-blue-50 text-blue-700'
+                                : 'border-gray-300 hover:border-gray-400 text-gray-700'
+                            }`}
                           >
-                            <TrashIcon className="h-4 w-4" />
+                            <PayeeTypeIcon type={type.value} />
+                            <span className="ml-3 font-medium">{type.label}</span>
                           </button>
+                        ))}
+                      </div>
+                      {errors.payeeType && touched.payeeType && (
+                        <p className="mt-1 text-sm text-red-600">
+                          {errors.payeeType}
+                        </p>
+                      )}
+                    </div>
+
+                    {/* Payee List */}
+                    {values.payeeType && (
+                      <div className="lg:col-span-1">
+                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                          Select {selectedPayeeType?.label} <span className="text-red-500">*</span>
+                        </label>
+
+                        <Select
+                          options={getPayeeOptions(values.payeeType)}
+                          value={selectedPayeeType}
+                          onChange={(option) => handlePayeeSelect(option.value)}
+                          className="react-select-container"
+                          classNamePrefix="react-select"
+                        />
+
+                        {errors.payeeType && touched.payeeType && (
+                          <p className="mt-1 text-sm text-red-600">{errors.payeeType}</p>
                         )}
                       </div>
+                    )}
 
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <FormField
-                          label="Account Code"
-                          name={`lineItems.${index}.accountCode`}
-                          type="select"
-                          required
-                          value={item.accountCode}
-                          onChange={handleChange}
-                          onBlur={handleBlur}
-                          error={errors.lineItems?.[index]?.accountCode}
-                          touched={touched.lineItems?.[index]?.accountCode}
-                          options={accountCodes}
-                        />
+                    {/* Payee Details */}
+                    {selectedPayee && (
+                      <div className="lg:col-span-1">
+                        <div className="bg-gray-50 border border-gray-200 rounded-lg p-6">
+                          <div className="grid grid-cols-1 gap-4">
+                            <div className="space-y-3">
+                              <div>
+                                <div className="text-sm font-medium text-gray-600">
+                                  Payee:
+                                </div>
+                                <div className="text-sm text-gray-900">
+                                  {selectedPayeeType?.label === 'Employee'
+                                    ? `${selectedPayee.FirstName || ''} ${selectedPayee.MiddleName || ''} ${selectedPayee.LastName || ''}`.trim()
+                                    : selectedPayeeType?.label === 'Vendor'
+                                    ? selectedPayee.Name
+                                    : selectedPayeeType?.label === 'Individual'
+                                    ? selectedPayee.Name
+                                    : selectedPayee.Name}
+                                </div>
+                              </div>
+                              <div>
+                                <div className="text-sm font-medium text-gray-600">
+                                  Address:
+                                </div>
+                                <div className="text-sm text-gray-900">
+                                  {selectedPayeeType?.label === 'Employee'
+                                    ? selectedPayee.StreetAddress
+                                    : selectedPayeeType?.label === 'Vendor'
+                                    ? selectedPayee.StreetAddress
+                                    : selectedPayeeType?.label === 'Individual'
+                                    ? selectedPayee.StreetAddress
+                                    : selectedPayee.StreetAddress}
+                                </div>
+                              </div>
+                            </div>
 
-                        <FormField
-                          label="Responsibility Center"
-                          name={`lineItems.${index}.responsibilityCenter`}
-                          type="select"
-                          required
-                          value={item.responsibilityCenter}
-                          onChange={handleChange}
-                          onBlur={handleBlur}
-                          error={
-                            errors.lineItems?.[index]?.responsibilityCenter
-                          }
-                          touched={
-                            touched.lineItems?.[index]?.responsibilityCenter
-                          }
-                          options={responsibilityCenters}
-                        />
-                      </div>
-
-                      <FormField
-                        label="Particulars"
-                        name={`lineItems.${index}.particulars`}
-                        type="textarea"
-                        required
-                        placeholder="Enter purpose for this line item"
-                        value={item.particulars}
-                        onChange={handleChange}
-                        onBlur={handleBlur}
-                        error={errors.lineItems?.[index]?.particulars}
-                        touched={touched.lineItems?.[index]?.particulars}
-                        rows={2}
-                      />
-
-                      <FormField
-                        label="Remarks"
-                        name={`lineItems.${index}.remarks`}
-                        type="textarea"
-                        placeholder="Enter remarks"
-                        value={item.remarks}
-                        onChange={handleChange}
-                        onBlur={handleBlur}
-                        error={errors.lineItems?.[index]?.remarks}
-                        touched={touched.lineItems?.[index]?.remarks}
-                        rows={2}
-                      />
-
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <FormField
-                          label="Change Account"
-                          name={`lineItems.${index}.changeAccount`}
-                          type="text"
-                          placeholder="Enter change account"
-                          value={item.changeAccount}
-                          onChange={handleChange}
-                          onBlur={handleBlur}
-                          error={errors.lineItems?.[index]?.changeAccount}
-                          touched={touched.lineItems?.[index]?.changeAccount}
-                        />
-
-                        <FormField
-                          label="FPP"
-                          name={`lineItems.${index}.fpp`}
-                          type="text"
-                          placeholder="Enter FPP"
-                          value={item.fpp}
-                          onChange={handleChange}
-                          onBlur={handleBlur}
-                          error={errors.lineItems?.[index]?.fpp}
-                          touched={touched.lineItems?.[index]?.fpp}
-                        />
-                      </div>
-
-                      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                        <FormField
-                          label="Quantity"
-                          name={`lineItems.${index}.quantity`}
-                          type="number"
-                          placeholder="0"
-                          value={item.quantity}
-                          onChange={handleChange}
-                          onBlur={handleBlur}
-                          error={errors.lineItems?.[index]?.quantity}
-                          touched={touched.lineItems?.[index]?.quantity}
-                          min="0"
-                        />
-
-                        <FormField
-                          label="Item Price"
-                          name={`lineItems.${index}.itemPrice`}
-                          type="number"
-                          placeholder="0.00"
-                          value={item.itemPrice}
-                          onChange={handleChange}
-                          onBlur={handleBlur}
-                          error={errors.lineItems?.[index]?.itemPrice}
-                          touched={touched.lineItems?.[index]?.itemPrice}
-                          min="0"
-                          step="0.01"
-                        />
-
-                        <FormField
-                          label="Unit"
-                          name={`lineItems.${index}.unit`}
-                          type="text"
-                          placeholder="Enter unit"
-                          value={item.unit}
-                          onChange={handleChange}
-                          onBlur={handleBlur}
-                          error={errors.lineItems?.[index]?.unit}
-                          touched={touched.lineItems?.[index]?.unit}
-                        />
-                      </div>
-
-                      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                        <div className="flex items-center">
-                          <input
-                            type="checkbox"
-                            id={`lineItems.${index}.vatable`}
-                            name={`lineItems.${index}.vatable`}
-                            checked={item.vatable}
-                            onChange={() =>
-                              setFieldValue(
-                                `lineItems.${index}.vatable`,
-                                !item.vatable
-                              )
-                            }
-                            className="h-4 w-4 text-primary-600 focus:ring-primary-500 border-neutral-300 rounded"
-                          />
-                          <label
-                            htmlFor={`lineItems.${index}.vatable`}
-                            className="ml-2 block text-sm text-neutral-700"
-                          >
-                            Vatable
-                          </label>
+                          </div>
                         </div>
-
-                        <FormField
-                          label="Tax Code"
-                          name={`lineItems.${index}.taxCode`}
-                          type="select"
-                          value={item.taxCode}
-                          onChange={handleChange}
-                          onBlur={handleBlur}
-                          error={errors.lineItems?.[index]?.taxCode}
-                          touched={touched.lineItems?.[index]?.taxCode}
-                          options={taxCodes}
-                        />
-
-                        <FormField
-                          label="Tax Rate (%)"
-                          name={`lineItems.${index}.taxRate`}
-                          type="number"
-                          placeholder="0.00"
-                          value={item.taxRate}
-                          onChange={handleChange}
-                          onBlur={handleBlur}
-                          error={errors.lineItems?.[index]?.taxRate}
-                          touched={touched.lineItems?.[index]?.taxRate}
-                          min="0"
-                          max="100"
-                          step="0.01"
-                        />
                       </div>
-
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <FormField
-                          label="Withheld and EWT"
-                          name={`lineItems.${index}.withheldAndEWT`}
-                          type="number"
-                          placeholder="0.00"
-                          value={item.withheldAndEWT}
-                          onChange={handleChange}
-                          onBlur={handleBlur}
-                          error={errors.lineItems?.[index]?.withheldAndEWT}
-                          touched={touched.lineItems?.[index]?.withheldAndEWT}
-                          min="0"
-                          step="0.01"
-                        />
-
-                        <FormField
-                          label="Discounts (%)"
-                          name={`lineItems.${index}.discounts`}
-                          type="number"
-                          placeholder="0"
-                          value={item.discounts}
-                          onChange={handleChange}
-                          onBlur={handleBlur}
-                          error={errors.lineItems?.[index]?.discounts}
-                          touched={touched.lineItems?.[index]?.discounts}
-                          min="0"
-                          max="100"
-                        />
-                      </div>
-
-                      <FormField
-                        label="Description"
-                        name={`lineItems.${index}.description`}
-                        type="textarea"
-                        placeholder="Enter additional description"
-                        value={item.description}
-                        onChange={handleChange}
-                        onBlur={handleBlur}
-                        error={errors.lineItems?.[index]?.description}
-                        touched={touched.lineItems?.[index]?.description}
-                        rows={2}
-                      />
-
-                      <FormField
-                        label="Amount"
-                        name={`lineItems.${index}.amount`}
-                        type="number"
-                        required
-                        placeholder="0.00"
-                        value={item.amount}
-                        onChange={handleChange}
-                        onBlur={handleBlur}
-                        error={errors.lineItems?.[index]?.amount}
-                        touched={touched.lineItems?.[index]?.amount}
-                        min="0"
-                        step="0.01"
-                      />
-                    </div>
-                  ))}
-
-                  <button
-                    type="button"
-                    onClick={() =>
-                      push({
-                        accountCode: '',
-                        responsibilityCenter: '',
-                        particulars: '',
-                        remarks: '',
-                        changeAccount: '',
-                        quantity: 0,
-                        itemPrice: 0,
-                        vatable: false,
-                        fpp: '',
-                        taxCode: '',
-                        taxRate: 0,
-                        withheldAndEWT: 0,
-                        discounts: 0,
-                        unit: '',
-                        description: '',
-                        amount: 0,
-                      })
-                    }
-                    className="flex items-center text-sm text-primary-600 hover:text-primary-800 mt-2"
-                  >
-                    <PlusIcon className="h-4 w-4 mr-1" />
-                    Add Line Item
-                  </button>
-
-                  <div className="mt-4 flex justify-between items-center py-3 px-4 bg-neutral-100 rounded-lg">
-                    <span className="text-sm font-medium text-neutral-700">
-                      Total Amount:
-                    </span>
-                    <span className="text-lg font-bold text-primary-700">
-                      {new Intl.NumberFormat('en-PH', {
-                        style: 'currency',
-                        currency: 'PHP',
-                      }).format(calculateTotal(values.lineItems))}
-                    </span>
+                    )}
                   </div>
                 </div>
-              )}
-            </FieldArray>
-          </div>
 
-          <div className="flex justify-end space-x-3 pt-4 mt-4 border-t border-neutral-200">
-            <button type="button" onClick={onClose} className="btn btn-outline">
-              Cancel
-            </button>
-            <button
-              type="submit"
-              disabled={isSubmitting || !isValid}
-              className="btn btn-primary"
-            >
-              {isSubmitting ? 'Saving...' : initialData ? 'Update' : 'Create'}
-            </button>
-          </div>
-        </Form>
-      )}
-    </Formik>
+                <hr />
+
+                {/* ── Row 1: Responsibility / Fund / Fiscal Year / Project ───────────────── */}
+                <div className="grid grid-cols-1 lg:grid-cols-4 gap-6 mt-6">
+                  {/* Responsibility Center */}
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Responsibility Center <span className="text-red-500">*</span>
+                    </label>
+                    <Select
+                      options={departmentOptions}
+                      value={
+                        departmentOptions.find(opt => opt.value === values.responsibilityCenter) || null
+                      }
+                      onChange={opt => setFieldValue('responsibilityCenter', opt.value)}
+                      className="react-select-container"
+                      classNamePrefix="react-select"
+                    />
+                    {errors.responsibilityCenter && touched.responsibilityCenter && (
+                      <p className="mt-1 text-sm text-red-600">{errors.responsibilityCenter}</p>
+                    )}
+                  </div>
+
+                  {/* Fund */}
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Fund <span className="text-red-500">*</span>
+                    </label>
+                    <Select
+                      options={fundOptions}
+                      value={fundOptions.find(opt => opt.value === values.fund) || null}
+                      onChange={opt => setFieldValue('fund', opt.value)}
+                      className="react-select-container"
+                      classNamePrefix="react-select"
+                    />
+                    {errors.fund && touched.fund && (
+                      <p className="mt-1 text-sm text-red-600">{errors.fund}</p>
+                    )}
+                  </div>
+
+                  {/* Fiscal Year */}
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Fiscal Year <span className="text-red-500">*</span>
+                    </label>
+                    <Select
+                      options={fiscalYearOptions}
+                      value={
+                        fiscalYearOptions.find(opt => opt.value === values.fiscalYear) || null
+                      }
+                      onChange={opt => setFieldValue('fiscalYear', opt.value)}
+                      className="react-select-container"
+                      classNamePrefix="react-select"
+                    />
+                    {errors.fiscalYear && touched.fiscalYear && (
+                      <p className="mt-1 text-sm text-red-600">{errors.fiscalYear}</p>
+                    )}
+                  </div>
+
+                  {/* Project */}
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Project <span className="text-red-500">*</span>
+                    </label>
+                    <Select
+                      options={projectOptions}
+                      value={projectOptions.find(opt => opt.value === values.project) || null}
+                      onChange={opt => setFieldValue('project', opt.value)}
+                      className="react-select-container"
+                      classNamePrefix="react-select"
+                    />
+                    {errors.project && touched.project && (
+                      <p className="mt-1 text-sm text-red-600">{errors.project}</p>
+                    )}
+                  </div>
+                </div>
+
+
+                
+                <FieldArray name="accountingEntries">
+                  {({ push, remove }) => (
+                    <>
+                      <div className="flex justify-between items-center">
+                        <h3 className="text-lg font-medium">Accounting Entries</h3>
+                        <button
+                          type="button"
+                          className="btn btn-outline"
+                          onClick={() => setShowEntryModal(true)}
+                        >
+                          + Add
+                        </button>
+                      </div>
+
+                      {values.accountingEntries.length > 0 && (
+                        <div className="space-y-2">
+                          <div className="grid grid-cols-6 gap-2 font-semibold text-sm">
+                            <span>RC</span>
+                            <span>REMARKS</span>
+                            <span>PARTICULARS</span>
+                            <span>FPP</span>
+                            <span>ACCOUNT CODE</span>
+                            <span className="text-right">SUB-TOTAL</span>
+                          </div>
+                          {values.accountingEntries.map((entry, idx) => (
+                            <div
+                              key={idx}
+                              className="grid grid-cols-6 gap-2 text-sm items-center border p-2 rounded"
+                            >
+                              <span>{entry.responsibilityCenter}</span>
+                              <span>{entry.remarks}</span>
+                              <span>{entry.particulars}</span>
+                              <span>{entry.fpp}</span>
+                              <span>{entry.accountCode}</span>
+                              <span className="text-right">
+                                {parseFloat(entry.subTotal).toFixed(2)}
+                              </span>
+                              <div className="col-span-6 text-right">
+                                <button
+                                  type="button"
+                                  onClick={() => remove(idx)}
+                                  className="text-red-600 text-xs"
+                                >
+                                  ✕
+                                </button>
+                              </div>
+                            </div>
+                          ))}
+                          <div className="grid grid-cols-6 gap-2 font-semibold pt-2 border-t">
+                            <div className="col-span-5 text-right">Total:</div>
+                            <div className="text-right">
+                              {values.accountingEntries
+                                .reduce((sum, e) => sum + Number(e.subTotal), 0)
+                                .toFixed(2)}
+                            </div>
+                          </div>
+                        </div>
+                      )}
+                    </>
+                  )}
+                </FieldArray>
+
+                <div className="flex justify-end space-x-3 pt-4 border-t border-neutral-200">
+                  <button type="button" className="btn btn-outline">
+                    Cancel
+                  </button>
+                  <button type="submit" className="btn btn-primary">
+                    Save
+                  </button>
+                </div>
+              </Form>
+            );
+          }}
+        </Formik>
+      </div>
+
+      {/* Form Modal */}
+      <Modal
+        isOpen={showEntryModal}
+        onClose={() => setShowEntryModal(false)}
+        title={"Add Accounting Entry"}
+        size='xl'
+      >
+        <ObligationRequestAddItemForm
+          initialData={null}
+          onClose={() => setShowEntryModal(false)}
+          onSubmit={handleAddSubmit}
+        />
+      </Modal>
+
+    </div>
   );
 }
 

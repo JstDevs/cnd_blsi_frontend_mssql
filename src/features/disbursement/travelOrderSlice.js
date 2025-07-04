@@ -46,7 +46,7 @@ export const addTravelOrder = createAsyncThunk(
       const res = await response.json();
 
       if (!response.ok) {
-        throw new Error(res.message || 'Failed to add');
+        throw new Error(res.error || res.message || 'Failed to add');
       }
 
       return res;
@@ -112,7 +112,7 @@ export const updateTravelOrder = createAsyncThunk(
       const res = await response.json();
 
       if (!response.ok) {
-        throw new Error(res.message || 'Failed to update');
+        throw new Error(res.error || res.message || 'Failed to update');
       }
 
       return res;
@@ -138,7 +138,7 @@ export const deleteTravelOrder = createAsyncThunk(
 
       if (!response.ok) {
         const errorData = await response.json();
-        throw new Error(errorData.message || 'Failed to delete');
+        throw new Error(errorData.error || errorData.message || 'Failed to delete');
       }
 
       return ID;
