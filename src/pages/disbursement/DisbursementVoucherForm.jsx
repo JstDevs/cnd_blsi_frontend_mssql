@@ -1,6 +1,7 @@
 import { useState } from 'react';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { Formik, Form, FieldArray, Field, ErrorMessage } from 'formik';
+import Select from 'react-select';
 import * as Yup from 'yup';
 import FormField from '../../components/common/FormField';
 import {
@@ -14,81 +15,6 @@ import {
   updateDisbursementVoucher,
 } from '../../features/disbursement/disbursementVoucherSlice';
 import { ChevronDownIcon, UserIcon, UsersIcon } from 'lucide-react';
-
-// Mock data for different payee types
-const payeeData = {
-  Employee: [
-    {
-      id: 'EMP001',
-      name: 'Ana Marie Gonzales',
-      address: '654 Taft Avenue, Manila City, Metro Manila 1004',
-      tin: '321-654-987-000',
-      obligationRequestNo: 'ORS-2025-007',
-      officeUnitProject: 'Administrative Office',
-      responsibilityCenter: 'Treasury Office',
-    },
-    {
-      id: 'EMP002',
-      name: 'Carlos Antonio Reyes',
-      address: '987 Roxas Boulevard, Pasay City, Metro Manila 1300',
-      tin: '654-321-789-000',
-      obligationRequestNo: 'ORS-2025-008',
-      officeUnitProject: 'Finance Department',
-      responsibilityCenter: 'Treasury Office',
-    },
-    {
-      id: 'EMP003',
-      name: 'Elena Victoria Santos',
-      address: '159 Shaw Boulevard, Mandaluyong City, Metro Manila 1552',
-      tin: '789-456-123-000',
-      obligationRequestNo: 'ORS-2025-009',
-      officeUnitProject: 'Legal Department',
-      responsibilityCenter: 'Treasury Office',
-    },
-  ],
-  Supplier: [
-    {
-      id: 'SUP001',
-      name: 'ABC Office Supplies Corporation',
-      address: '789 EDSA, Mandaluyong City, Metro Manila 1550',
-      tin: '123-987-456-000',
-      obligationRequestNo: 'ORS-2025-004',
-      officeUnitProject: 'Procurement Office',
-      responsibilityCenter: 'Treasury Office',
-    },
-    {
-      id: 'SUP002',
-      name: 'Tech Solutions Philippines Corp.',
-      address: '321 Ortigas Center, Pasig City, Metro Manila 1605',
-      tin: '456-789-123-000',
-      obligationRequestNo: 'ORS-2025-006',
-      officeUnitProject: 'IT Services',
-      responsibilityCenter: 'Treasury Office',
-    },
-  ],
-  Contractor: [
-    {
-      id: 'CON001',
-      name: 'XYZ Construction Services Inc.',
-      address: '456 Commonwealth Avenue, Quezon City, Metro Manila 1121',
-      tin: '789-123-654-000',
-      obligationRequestNo: 'ORS-2025-005',
-      officeUnitProject: 'Engineering Department',
-      responsibilityCenter: 'Treasury Office',
-    },
-  ],
-  Government: [
-    {
-      id: 'GOV001',
-      name: 'Bureau of Internal Revenue',
-      address: 'BIR National Office Building, Diliman, Quezon City',
-      tin: '000-999-999-000',
-      obligationRequestNo: 'ORS-2025-010',
-      officeUnitProject: 'Tax Compliance',
-      responsibilityCenter: 'Treasury Office',
-    },
-  ],
-};
 
 // Mock data for request for payment
 const requestForPaymentData = {
@@ -208,8 +134,8 @@ const requestForPaymentData = {
 
 const payeeTypes = [
   { value: 'Employee', label: 'Employee' },
-  { value: 'Supplier', label: 'Vendor' },
-  { value: 'Contractor', label: 'Individual' },
+  { value: 'Vendor', label: 'Vendor' },
+  { value: 'Individual', label: 'Individual' },
 ];
 
 const paymentRequests = [
@@ -350,6 +276,10 @@ const disbursementVoucherSchema = Yup.object().shape({
 
 function DisbursementVoucherForm({ initialData, onClose }) {
   const dispatch = useDispatch();
+  const { employees } = useSelector((state) => state.employees);
+  const { customers } = useSelector((state) => state.customers);
+  const { vendorDetails } = useSelector((state) => state.vendorDetails);
+
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [selectedPayee, setSelectedPayee] = useState(null);
   const [selectedRequest, setSelectedRequest] = useState(null);
@@ -462,7 +392,7 @@ function DisbursementVoucherForm({ initialData, onClose }) {
         return null;
     }
   };
-
+  // console.log({ selectedPayee });
   return (
     <div className="max-w-7xl mx-auto p-2 sm:p-6 bg-white">
       <Formik
@@ -496,13 +426,31 @@ function DisbursementVoucherForm({ initialData, onClose }) {
           };
 
           const handlePayeeSelect = (payee) => {
-            setSelectedPayee(payee);
-            setFieldValue('payeeName', payee.name);
-            setFieldValue('payeeId', payee.tin);
-            setFieldValue('payeeAddress', payee.address);
-            setFieldValue('officeUnitProject', payee.officeUnitProject);
-            setFieldValue('orsNumber', payee.obligationRequestNo);
-            setFieldValue('responsibilityCenter', payee.responsibilityCenter);
+            // setSelectedPayee(payee);
+            // setFieldValue('payeeName', payee.name);
+            // setFieldValue('payeeId', payee.tin);
+            // setFieldValue('payeeAddress', payee.address);
+            // setFieldValue('officeUnitProject', payee.officeUnitProject);
+            // setFieldValue('orsNumber', payee.obligationRequestNo);
+            // setFieldValue('responsibilityCenter', payee.responsibilityCenter);
+
+            let selectedItem = null;
+            switch (values.payeeType) {
+              case 'Employee':
+                selectedItem = employees.find((item) => item.ID === payee);
+                break;
+              case 'Vendor':
+                selectedItem = vendorDetails.find((item) => item.ID === payee);
+                break;
+              case 'Individual':
+                selectedItem = customers.find((item) => item.ID === payee);
+                break;
+              default:
+                break;
+            }
+            setSelectedPayee(selectedItem);
+            setFieldValue('payeeName', selectedItem?.Name);
+            setFieldValue('payeeId', selectedItem?.ID);
           };
 
           const handleRequestTypeChange = (type) => {
@@ -589,6 +537,36 @@ function DisbursementVoucherForm({ initialData, onClose }) {
               }
             });
           };
+          const getPayeeOptions = (type) => {
+            // console.log({ type, vendorDetails, customers });
+            switch (type) {
+              case 'Employee':
+                return employees?.map((emp) => ({
+                  label:
+                    emp.FirstName + ' ' + emp.MiddleName + ' ' + emp.LastName,
+                  value: emp.ID,
+                })); // must be an array of { label, value }
+              case 'Vendor':
+                return vendorDetails?.map((vendor) => ({
+                  label: vendor.Name,
+                  value: vendor.ID,
+                }));
+              case 'Individual':
+                return customers?.map((customer) => ({
+                  label:
+                    customer.FirstName +
+                    ' ' +
+                    customer.MiddleName +
+                    ' ' +
+                    customer.LastName,
+                  value: customer.ID,
+                }));
+              // Add more as needed
+              default:
+                return [];
+            }
+          };
+          // console.log(payeeTypes[values.payeeType]);
           return (
             <Form className="space-y-8">
               {/* Payee Type Selection */}
@@ -626,31 +604,30 @@ function DisbursementVoucherForm({ initialData, onClose }) {
                     )}
                   </div>
 
-                  {/* Payee List */}
-                  {values.payeeType && payeeData[values.payeeType] && (
+                  {/* Payee Select */}
+                  {values.payeeType && (
                     <div className="lg:col-span-1">
                       <label className="block text-sm font-medium text-gray-700 mb-2">
-                        Select {values.payeeType}
+                        Select {values.payeeType}{' '}
+                        <span className="text-red-500">*</span>
                       </label>
-                      <div className="max-h-80 overflow-y-auto border border-gray-300 rounded-lg">
-                        {payeeData[values.payeeType].map((payee) => (
-                          <button
-                            key={payee.id}
-                            type="button"
-                            onClick={() => handlePayeeSelect(payee)}
-                            className={`w-full text-left px-4 py-3 border-b border-gray-200 last:border-b-0 transition-colors duration-200 ${
-                              selectedPayee?.id === payee.id
-                                ? 'bg-blue-50 text-blue-700'
-                                : 'hover:bg-gray-50'
-                            }`}
-                          >
-                            <div className="font-medium">{payee.name}</div>
-                            <div className="text-sm text-gray-500">
-                              {payee.tin}
-                            </div>
-                          </button>
-                        ))}
-                      </div>
+                      <Select
+                        options={getPayeeOptions(values.payeeType)}
+                        value={getPayeeOptions(values.payeeType).find(
+                          (option) => option.value === values.payeeType
+                        )}
+                        onChange={(option) => handlePayeeSelect(option.value)}
+                        className="react-select-container"
+                        classNamePrefix="react-select"
+                        placeholder={`Select ${values.payeeType}`}
+                        // isLoading={!payeeTypes[values.payeeType]}
+                        // isDisabled={!payeeTypes[values.payeeType]}
+                      />
+                      {errors.payeeId && touched.payeeId && (
+                        <p className="mt-1 text-sm text-red-600">
+                          {errors.payeeId}
+                        </p>
+                      )}
                     </div>
                   )}
 
@@ -674,7 +651,10 @@ function DisbursementVoucherForm({ initialData, onClose }) {
                                 Payee:
                               </span>
                               <span className="text-sm text-gray-900 text-right">
-                                {selectedPayee.name}
+                                {selectedPayee.Name ||
+                                  `${selectedPayee.FirstName || ''} ${
+                                    selectedPayee.LastName || ''
+                                  }`.trim()}
                               </span>
                             </div>
                             <div className="flex justify-between">
@@ -682,7 +662,8 @@ function DisbursementVoucherForm({ initialData, onClose }) {
                                 Address:
                               </span>
                               <span className="text-sm text-gray-900 text-right max-w-xs">
-                                {selectedPayee.address}
+                                {selectedPayee.Address ||
+                                  selectedPayee.StreetAddress}
                               </span>
                             </div>
                             <div className="flex justify-between">
@@ -690,51 +671,42 @@ function DisbursementVoucherForm({ initialData, onClose }) {
                                 TIN/EMPLOYEE No.:
                               </span>
                               <span className="text-sm text-gray-900">
-                                {selectedPayee.tin}
+                                {selectedPayee.TIN ||
+                                  selectedPayee.EmployeeNumber}
                               </span>
                             </div>
-                            <div className="flex justify-between">
-                              <span className="text-sm font-medium text-gray-600">
-                                Obligation Request No.:
-                              </span>
-                              <span className="text-sm text-gray-900">
-                                {selectedPayee.obligationRequestNo}
-                              </span>
-                            </div>
-                            <div className="flex justify-between">
-                              <span className="text-sm font-medium text-gray-600">
-                                Office/Unit/Project:
-                              </span>
-                              <span className="text-sm text-gray-900 text-right">
-                                {selectedPayee.officeUnitProject}
-                              </span>
-                            </div>
-                            <div className="flex justify-between">
-                              <span className="text-sm font-medium text-gray-600">
-                                Responsibility Center:
-                              </span>
-                              <span className="text-sm text-gray-900">
-                                {selectedPayee.responsibilityCenter}
-                              </span>
-                            </div>
+                            {selectedPayee.Office && (
+                              <div className="flex justify-between">
+                                <span className="text-sm font-medium text-gray-600">
+                                  Office/Unit/Project:
+                                </span>
+                                <span className="text-sm text-gray-900 text-right">
+                                  {selectedPayee.Office}
+                                </span>
+                              </div>
+                            )}
                           </div>
 
                           <div className="border-t border-gray-300 pt-3 mt-3">
                             <div className="space-y-2">
                               <div className="flex justify-between">
                                 <span className="text-sm font-medium text-gray-600">
-                                  NO:
+                                  DV NO:
                                 </span>
-                                <span className="text-sm text-gray-900">-</span>
+                                <span className="text-sm text-gray-900">
+                                  {values.dvNumber || '-'}
+                                </span>
                               </div>
                               <div className="flex justify-between">
                                 <span className="text-sm font-medium text-gray-600">
                                   DATE:
                                 </span>
                                 <span className="text-sm text-gray-900">
-                                  {new Date(values.dvDate).toLocaleDateString(
-                                    'en-GB'
-                                  )}
+                                  {values.dvDate
+                                    ? new Date(
+                                        values.dvDate
+                                      ).toLocaleDateString('en-GB')
+                                    : '-'}
                                 </span>
                               </div>
                               <div className="flex justify-between">
@@ -742,9 +714,11 @@ function DisbursementVoucherForm({ initialData, onClose }) {
                                   PAYMENT:
                                 </span>
                                 <span className="text-sm text-gray-900">
-                                  {new Date(
-                                    values.paymentDate
-                                  ).toLocaleDateString('en-GB')}
+                                  {values.paymentDate
+                                    ? new Date(
+                                        values.paymentDate
+                                      ).toLocaleDateString('en-GB')
+                                    : '-'}
                                 </span>
                               </div>
                             </div>
@@ -1396,418 +1370,6 @@ function DisbursementVoucherForm({ initialData, onClose }) {
       </Formik>
     </div>
   );
-  // return (
-  //   <Formik
-  //     initialValues={initialValues}
-  //     validationSchema={disbursementVoucherSchema}
-  //     onSubmit={handleSubmit}
-  //     enableReinitialize
-  //   >
-  //     {({
-  //       values,
-  //       errors,
-  //       touched,
-  //       handleChange,
-  //       handleBlur,
-  //       setFieldValue,
-  //       isValid,
-  //     }) => {
-  //       const { grossAmount, totalTaxes, netAmount } = calculateTotals(
-  //         values.items,
-  //         values.taxes
-  //       );
-
-  //       const handlePayeeTypeChange = (type) => {
-  //         setSelectedPayee(null);
-  //         setFieldValue('payeeType', type);
-  //         setFieldValue('payeeName', '');
-  //         setFieldValue('payeeId', '');
-  //         setFieldValue('payeeAddress', '');
-  //         setFieldValue('officeUnitProject', '');
-  //         setFieldValue('orsNumber', '');
-  //       };
-
-  //       const handlePayeeSelect = (payee) => {
-  //         setSelectedPayee(payee);
-  //         setFieldValue('payeeName', payee.name);
-  //         setFieldValue('payeeId', payee.tin);
-  //         setFieldValue('payeeAddress', payee.address);
-  //         setFieldValue('officeUnitProject', payee.officeUnitProject);
-  //         setFieldValue('orsNumber', payee.obligationRequestNo);
-  //         setFieldValue('responsibilityCenter', payee.responsibilityCenter);
-  //       };
-
-  //       const handleRequestTypeChange = (type) => {
-  //         setSelectedRequest(null);
-  //         setFieldValue('requestForPayment', type);
-  //         setFieldValue('items', [defaultItem]);
-  //       };
-
-  //       const handleRequestSelect = (request) => {
-  //         setSelectedRequest(request);
-  //         const requestItems = request.items.map((item) => ({
-  //           description: item.item,
-  //           amount: item.amount,
-  //           accountCode: item.accountCode,
-  //           remarks: item.remarks,
-  //           fpp: item.fpp,
-  //           amountDue: item.amountDue,
-  //           account: item.account,
-  //           fundCode: item.fundCode,
-  //         }));
-  //         setFieldValue('items', requestItems);
-  //       };
-
-  //       const handleTaxTypeChange = (index, value) => {
-  //         const selectedTax = taxTypes.find((tax) => tax.value === value);
-  //         if (selectedTax) {
-  //           setFieldValue(`taxes.${index}.taxType`, selectedTax.value);
-  //           setFieldValue(`taxes.${index}.rate`, selectedTax.rate);
-  //           setFieldValue(
-  //             `taxes.${index}.amount`,
-  //             (grossAmount * selectedTax.rate).toFixed(2)
-  //           );
-  //         }
-  //       };
-
-  //       const handleItemAmountChange = (index, value) => {
-  //         setFieldValue(`items.${index}.amount`, value);
-  //         // Recalculate tax amounts when item amounts change
-  //         values.taxes.forEach((tax, taxIndex) => {
-  //           if (tax.taxType) {
-  //             const selectedTax = taxTypes.find((t) => t.value === tax.taxType);
-  //             if (selectedTax) {
-  //               const newGrossAmount = values.items.reduce((sum, item, i) => {
-  //                 const amount =
-  //                   i === index ? Number(value || 0) : Number(item.amount || 0);
-  //                 return sum + amount;
-  //               }, 0);
-  //               setFieldValue(
-  //                 `taxes.${taxIndex}.amount`,
-  //                 (newGrossAmount * selectedTax.rate).toFixed(2)
-  //               );
-  //             }
-  //           }
-  //         });
-  //       };
-
-  //       return (
-  //         <Formik className="space-y-8">
-  //           {/* Payee Type Selection */}
-  //           <div>
-  //             <h2 className="text-xl font-semibold text-gray-900 mb-4">
-  //               Payee Information
-  //             </h2>
-  //             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-  //               {/* Payee Type Buttons */}
-  //               <div className="lg:col-span-1">
-  //                 <label className="block text-sm font-medium text-gray-700 mb-2">
-  //                   Payee Type <span className="text-red-500">*</span>
-  //                 </label>
-  //                 <div className="space-y-2">
-  //                   {payeeTypes.map((type) => (
-  //                     <button
-  //                       key={type.value}
-  //                       type="button"
-  //                       onClick={() => handlePayeeTypeChange(type.value)}
-  //                       className={`w-full flex items-center px-4 py-3 text-left border rounded-lg transition-all duration-200 ${
-  //                         values.payeeType === type.value
-  //                           ? 'border-blue-500 bg-blue-50 text-blue-700'
-  //                           : 'border-gray-300 hover:border-gray-400 text-gray-700'
-  //                       }`}
-  //                     >
-  //                       <PayeeTypeIcon type={type.value} />
-  //                       <span className="ml-3 font-medium">{type.label}</span>
-  //                     </button>
-  //                   ))}
-  //                 </div>
-  //                 {errors.payeeType && touched.payeeType && (
-  //                   <p className="mt-1 text-sm text-red-600">
-  //                     {errors.payeeType}
-  //                   </p>
-  //                 )}
-  //               </div>
-
-  //               {/* Payee List */}
-  //               {values.payeeType && payeeData[values.payeeType] && (
-  //                 <div className="lg:col-span-1">
-  //                   <label className="block text-sm font-medium text-gray-700 mb-2">
-  //                     Select {values.payeeType}
-  //                   </label>
-  //                   <div className="max-h-80 overflow-y-auto border border-gray-300 rounded-lg">
-  //                     {payeeData[values.payeeType].map((payee) => (
-  //                       <button
-  //                         key={payee.id}
-  //                         type="button"
-  //                         onClick={() => handlePayeeSelect(payee)}
-  //                         className={`w-full text-left px-4 py-3 border-b border-gray-200 last:border-b-0 transition-colors duration-200 ${
-  //                           selectedPayee?.id === payee.id
-  //                             ? 'bg-blue-50 text-blue-700'
-  //                             : 'hover:bg-gray-50'
-  //                         }`}
-  //                       >
-  //                         <div className="font-medium">{payee.name}</div>
-  //                         <div className="text-sm text-gray-500">
-  //                           {payee.tin}
-  //                         </div>
-  //                       </button>
-  //                     ))}
-  //                   </div>
-  //                 </div>
-  //               )}
-
-  //               {/* Payee Details */}
-  //               {selectedPayee && (
-  //                 <div className="lg:col-span-1">
-  //                   <div className="bg-gray-50 border border-gray-200 rounded-lg p-6">
-  //                     <div className="mb-4">
-  //                       <h3 className="text-lg font-semibold text-gray-900 mb-2">
-  //                         Request for Payment
-  //                       </h3>
-  //                       <h4 className="text-md font-medium text-gray-700">
-  //                         Disbursement Voucher
-  //                       </h4>
-  //                     </div>
-
-  //                     <div className="grid grid-cols-1 gap-4">
-  //                       <div className="space-y-3">
-  //                         <div className="flex justify-between">
-  //                           <span className="text-sm font-medium text-gray-600">
-  //                             Payee:
-  //                           </span>
-  //                           <span className="text-sm text-gray-900 text-right">
-  //                             {selectedPayee.name}
-  //                           </span>
-  //                         </div>
-  //                         <div className="flex justify-between">
-  //                           <span className="text-sm font-medium text-gray-600">
-  //                             Address:
-  //                           </span>
-  //                           <span className="text-sm text-gray-900 text-right max-w-xs">
-  //                             {selectedPayee.address}
-  //                           </span>
-  //                         </div>
-  //                         <div className="flex justify-between">
-  //                           <span className="text-sm font-medium text-gray-600">
-  //                             TIN/EMPLOYEE No.:
-  //                           </span>
-  //                           <span className="text-sm text-gray-900">
-  //                             {selectedPayee.tin}
-  //                           </span>
-  //                         </div>
-  //                         <div className="flex justify-between">
-  //                           <span className="text-sm font-medium text-gray-600">
-  //                             Obligation Request No.:
-  //                           </span>
-  //                           <span className="text-sm text-gray-900">
-  //                             {selectedPayee.obligationRequestNo}
-  //                           </span>
-  //                         </div>
-  //                         <div className="flex justify-between">
-  //                           <span className="text-sm font-medium text-gray-600">
-  //                             Office/Unit/Project:
-  //                           </span>
-  //                           <span className="text-sm text-gray-900 text-right">
-  //                             {selectedPayee.officeUnitProject}
-  //                           </span>
-  //                         </div>
-  //                         <div className="flex justify-between">
-  //                           <span className="text-sm font-medium text-gray-600">
-  //                             Responsibility Center:
-  //                           </span>
-  //                           <span className="text-sm text-gray-900">
-  //                             {selectedPayee.responsibilityCenter}
-  //                           </span>
-  //                         </div>
-  //                       </div>
-
-  //                       <div className="border-t border-gray-300 pt-3 mt-3">
-  //                         <div className="space-y-2">
-  //                           <div className="flex justify-between">
-  //                             <span className="text-sm font-medium text-gray-600">
-  //                               NO:
-  //                             </span>
-  //                             <span className="text-sm text-gray-900">-</span>
-  //                           </div>
-  //                           <div className="flex justify-between">
-  //                             <span className="text-sm font-medium text-gray-600">
-  //                               DATE:
-  //                             </span>
-  //                             <span className="text-sm text-gray-900">
-  //                               {new Date(values.dvDate).toLocaleDateString(
-  //                                 'en-GB'
-  //                               )}
-  //                             </span>
-  //                           </div>
-  //                           <div className="flex justify-between">
-  //                             <span className="text-sm font-medium text-gray-600">
-  //                               PAYMENT:
-  //                             </span>
-  //                             <span className="text-sm text-gray-900">
-  //                               {new Date(
-  //                                 values.paymentDate
-  //                               ).toLocaleDateString('en-GB')}
-  //                             </span>
-  //                           </div>
-  //                         </div>
-  //                       </div>
-  //                     </div>
-  //                   </div>
-  //                 </div>
-  //               )}
-  //             </div>
-  //           </div>
-
-  //           {/* Request for Payment Section */}
-  //           <div>
-  //             <h2 className="text-xl font-semibold text-gray-900 mb-4">
-  //               Request for Payment
-  //             </h2>
-  //             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-  //               {/* Request Type Selection */}
-  //               <div>
-  //                 <label className="block text-sm font-medium text-gray-700 mb-2">
-  //                   Request Type <span className="text-red-500">*</span>
-  //                 </label>
-  //                 <div className="space-y-2">
-  //                   {paymentRequests.map((request) => (
-  //                     <button
-  //                       key={request.value}
-  //                       type="button"
-  //                       onClick={() => handleRequestTypeChange(request.value)}
-  //                       className={`w-full flex items-center justify-between px-4 py-3 text-left border rounded-lg transition-all duration-200 ${
-  //                         values.requestForPayment === request.value
-  //                           ? 'border-blue-500 bg-blue-50 text-blue-700'
-  //                           : 'border-gray-300 hover:border-gray-400 text-gray-700'
-  //                       }`}
-  //                     >
-  //                       <span className="font-medium">{request.label}</span>
-  //                       <ChevronDownIcon className="w-5 h-5" />
-  //                     </button>
-  //                   ))}
-  //                 </div>
-  //                 {errors.requestForPayment && touched.requestForPayment && (
-  //                   <p className="mt-1 text-sm text-red-600">
-  //                     {errors.requestForPayment}
-  //                   </p>
-  //                 )}
-  //               </div>
-
-  //               {/* Request List */}
-  //               {values.requestForPayment &&
-  //                 requestForPaymentData[values.requestForPayment] && (
-  //                   <div>
-  //                     <label className="block text-sm font-medium text-gray-700 mb-2">
-  //                       Select {values.requestForPayment}
-  //                     </label>
-  //                     <div className="max-h-40 overflow-y-auto border border-gray-300 rounded-lg">
-  //                       {requestForPaymentData[values.requestForPayment].map(
-  //                         (request) => (
-  //                           <button
-  //                             key={request.id}
-  //                             type="button"
-  //                             onClick={() => handleRequestSelect(request)}
-  //                             className={`w-full text-left px-4 py-3 border-b border-gray-200 last:border-b-0 transition-colors duration-200 ${
-  //                               selectedRequest?.id === request.id
-  //                                 ? 'bg-blue-50 text-blue-700'
-  //                                 : 'hover:bg-gray-50'
-  //                             }`}
-  //                           >
-  //                             <div className="font-medium">{request.name}</div>
-  //                             <div className="text-sm text-gray-500">
-  //                               {request.id}
-  //                             </div>
-  //                           </button>
-  //                         )
-  //                       )}
-  //                     </div>
-  //                   </div>
-  //                 )}
-  //             </div>
-  //             {/* Request Details Table */}
-  //             {selectedRequest && (
-  //               <div className="mt-6">
-  //                 <h3 className="text-lg font-semibold text-gray-900 mb-4">
-  //                   Request Details
-  //                 </h3>
-  //                 <div className="overflow-x-auto border border-gray-300 rounded-lg">
-  //                   <table className="min-w-full divide-y divide-gray-200">
-  //                     <thead className="bg-gray-50">
-  //                       <tr>
-  //                         <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-  //                           Item
-  //                         </th>
-  //                         <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-  //                           Remarks
-  //                         </th>
-  //                         <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-  //                           FPP
-  //                         </th>
-  //                         <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-  //                           Amount
-  //                         </th>
-  //                         <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-  //                           Amount Due
-  //                         </th>
-  //                         <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-  //                           Account
-  //                         </th>
-  //                         <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-  //                           Account Code
-  //                         </th>
-  //                         <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-  //                           Fund Code
-  //                         </th>
-  //                       </tr>
-  //                     </thead>
-  //                     <tbody className="bg-white divide-y divide-gray-200">
-  //                       {selectedRequest.items.map((item, index) => (
-  //                         <tr key={index} className="hover:bg-gray-50">
-  //                           <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-  //                             {item.item}
-  //                           </td>
-  //                           <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-  //                             {item.remarks}
-  //                           </td>
-  //                           <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-  //                             {item.fpp}
-  //                           </td>
-  //                           <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-  //                             ₱{item.amount.toLocaleString()}
-  //                           </td>
-  //                         </tr>
-  //                       ))}
-  //                     </tbody>
-  //                   </table>
-  //                 </div>
-  //               </div>
-  //             )}
-  //             <div className="flex justify-end space-x-3 pt-4 mt-4 border-t border-neutral-200">
-  //               <button
-  //                 type="button"
-  //                 onClick={onClose}
-  //                 className="btn btn-outline"
-  //               >
-  //                 Cancel
-  //               </button>
-  //               <button
-  //                 type="submit"
-  //                 disabled={isSubmitting || !isValid}
-  //                 className="btn btn-primary"
-  //               >
-  //                 {isSubmitting
-  //                   ? 'Saving...'
-  //                   : initialData
-  //                   ? 'Update'
-  //                   : 'Create'}
-  //               </button>
-  //             </div>
-  //           </div>
-  //         </Formik>
-  //       );
-  //     }}
-  //   </Formik>
-  // );
 }
 
 export default DisbursementVoucherForm;
