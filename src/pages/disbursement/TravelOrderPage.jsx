@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { PlusIcon, EyeIcon, PencilIcon, TrashIcon } from '@heroicons/react/24/outline';
 import DataTable from '../../components/common/DataTable';
+import { toast } from 'react-hot-toast';
 import Modal from '../../components/common/Modal';
 import TravelOrderForm from '../../components/forms/TravelOrderForm';
 import TravelOrderDetails from './TravelOrderDetails';
@@ -25,29 +26,35 @@ function TravelOrderPage() {
   useEffect(() => {
     dispatch(fetchTravelOrders());
   }, [dispatch]);
-  
-  
-  // const handleSubmit = (values) => {
+
+
+  const handleSubmit = async (values) => {
+    try {
+      if (currentTravelOrder) {
+        await dispatch(updateTravelOrder({ ...values, ID: currentTravelOrder.ID })).unwrap();
+      } else {
+        await dispatch(addTravelOrder(values)).unwrap();
+      }
+
+      setIsCreateModalOpen(false);
+      setCurrentTravelOrder(null);
+      toast.success('Success');
+    } catch (error) {
+      toast.error(error || 'Failed');
+      throw error;
+    }
+  };
+  // const handleSubmit = (formData) => {
   //   if (currentTravelOrder) {
-  //     dispatch(updateTravelOrder({ ...values, ID: currentTravelOrder.ID }));
+  //     formData.append('ID', currentTravelOrder.ID); // add ID to FormData if editing
+  //     dispatch(updateTravelOrder(formData));
   //   } else {
-  //     dispatch(addTravelOrder(values));
+  //     dispatch(addTravelOrder(formData));
   //   }
+
   //   setIsCreateModalOpen(false);
   //   setCurrentTravelOrder(null);
   // };
-
-  const handleSubmit = (formData) => {
-    if (currentTravelOrder) {
-      formData.append('ID', currentTravelOrder.ID); // add ID to FormData if editing
-      dispatch(updateTravelOrder(formData));
-    } else {
-      dispatch(addTravelOrder(formData));
-    }
-
-    setIsCreateModalOpen(false);
-    setCurrentTravelOrder(null);
-  };
 
 
   const handleCreateTO = () => {
@@ -212,21 +219,21 @@ function TravelOrderPage() {
           actions={(row) => {
             const actionList = [];
 
-            if (row.Transaction?.Status === 'Rejected') {
-              actionList.push({
-                icon: PencilIcon,
-                title: 'Edit',
-                onClick: () => handleEditTO(row),
-                className: 'text-primary-600 hover:text-primary-900 p-1 rounded-full hover:bg-primary-50',
-              });
+            // if (row.Transaction?.Status === 'Rejected') {
+            //   actionList.push({
+            //     icon: PencilIcon,
+            //     title: 'Edit',
+            //     onClick: () => handleEditTO(row),
+            //     className: 'text-primary-600 hover:text-primary-900 p-1 rounded-full hover:bg-primary-50',
+            //   });
 
-              actionList.push({
-                icon: TrashIcon,
-                title: 'Delete',
-                onClick: () => handleDelete(row),
-                className: 'text-error-600 hover:text-error-900 p-1 rounded-full hover:bg-error-50',
-              });
-            }
+            //   actionList.push({
+            //     icon: TrashIcon,
+            //     title: 'Delete',
+            //     onClick: () => handleDelete(row),
+            //     className: 'text-error-600 hover:text-error-900 p-1 rounded-full hover:bg-error-50',
+            //   });
+            // }
 
             return actionList;
           }}

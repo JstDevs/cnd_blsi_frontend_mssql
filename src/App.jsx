@@ -67,6 +67,7 @@ import GeneralJournalPage from './pages/disbursement/GeneralJournalPage';
 import BeginningBalancePage from './pages/disbursement/BeginningBalancePage';
 import PurchaseRequestPage from './pages/disbursement/PurchaseRequestPage';
 import FundUtilizationRequestPage from './pages/fund-utilization/FundUtilizationRequestPage';
+import FundUtilizationPage from './pages/disbursement/FundUtilizationPage';
 
 // Collections pages
 // import GeneralReceiptPage from './pages/collections/GeneralReceiptPage';
@@ -364,7 +365,7 @@ function App() {
           />
           <Route
             path="/disbursement/fund-utilization-requests"
-            element={<FundUtilizationRequestPage />}
+            element={<FundUtilizationPage />}
           />
 
           {/* Collections module */}

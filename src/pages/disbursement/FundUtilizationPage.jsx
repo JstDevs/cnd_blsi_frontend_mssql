@@ -7,9 +7,8 @@ import {
   ArrowLeftIcon,
 } from '@heroicons/react/24/outline';
 import DataTable from '../../components/common/DataTable';
-import ObligationRequestForm from './ObligationRequestForm';
-import ObligationRequestDetails from './ObligationRequestDetails';
-import { fetchObligationRequests } from '@/features/disbursement/obligationRequestSlice';
+import FundUtilizationForm from './FundUtilizationForm';
+import { fetchFundUtilizations } from '@/features/disbursement/fundUtilizationSlice';
 import { fetchEmployees } from '../../features/settings/employeeSlice';
 import { fetchCustomers } from '@/features/settings/customersSlice';
 import { fetchVendorDetails } from '@/features/settings/vendorDetailsSlice';
@@ -22,10 +21,10 @@ import { fetchItemUnits } from '@/features/settings/itemUnitsSlice';
 import { fetchTaxCodes } from '@/features/settings/taxCodeSlice';
 import { fetchAccounts } from '@/features/settings/chartOfAccountsSlice';
 
-function ObligationRequestPage() {
+function FundUtilizationPage() {
   const dispatch = useDispatch();
-  const { obligationRequests, isLoading } = useSelector(
-    (state) => state.obligationRequests
+  const { fundUtilizations, isLoading } = useSelector(
+    (state) => state.fundUtilizations
   );
 
   const { employees } = useSelector(state => state.employees);
@@ -46,7 +45,7 @@ function ObligationRequestPage() {
     useState(null);
 
   useEffect(() => {
-    dispatch(fetchObligationRequests());
+    dispatch(fetchFundUtilizations());
     dispatch(fetchEmployees());
     dispatch(fetchCustomers());
     dispatch(fetchVendorDetails());
@@ -138,11 +137,6 @@ function ObligationRequestPage() {
       sortable: true,
     },
     {
-      key: 'ResponsibilityCenterName',
-      header: 'Responsibility Center',
-      sortable: true,
-    },
-    {
       key: 'Total',
       header: 'Total',
       sortable: true,
@@ -189,8 +183,7 @@ function ObligationRequestPage() {
           <div className="page-header">
             <div className="flex justify-between items-center">
               <div>
-                <h1>Obligation Requests</h1>
-                <p>Manage obligation requests</p>
+                <h1>Fund Utilization Request & Status</h1>
               </div>
               <button
                 type="button"
@@ -206,7 +199,7 @@ function ObligationRequestPage() {
           <div className="mt-4">
             <DataTable
               columns={columns}
-              data={obligationRequests}
+              data={fundUtilizations}
               actions={(row) => {
                 const actionList = [];
 
@@ -242,13 +235,12 @@ function ObligationRequestPage() {
                 <div>
                   <h1>
                     {currentObligationRequest
-                      ? 'Edit Obligation Request'
-                      : 'Create Obligation Request'}
+                      ? 'Edit Fund Utilization Request'
+                      : 'Create Fund Utilization Request'}
                   </h1>
                   <p>
                     Fill out the form to{' '}
-                    {currentObligationRequest ? 'update' : 'create'} an
-                    obligation request
+                    {currentObligationRequest ? 'update' : 'create'} a fund utilization request.
                   </p>
                 </div>
               </div>
@@ -256,7 +248,7 @@ function ObligationRequestPage() {
           </div>
 
           <div className="mt-4">
-            <ObligationRequestForm
+            <FundUtilizationForm
               initialData={currentObligationRequest}
               employeeOptions={employees.map(emp => ({
                 value: emp.ID,
@@ -313,44 +305,8 @@ function ObligationRequestPage() {
           </div>
         </div>
       )}
-
-      {currentView === 'details' && currentObligationRequest && (
-        <div>
-          <div className="page-header">
-            <div className="flex justify-between items-center">
-              <div className="flex items-center">
-                <button
-                  onClick={handleBackToList}
-                  className="mr-4 p-1 rounded-full hover:bg-neutral-100"
-                >
-                  <ArrowLeftIcon className="h-5 w-5 text-neutral-600" />
-                </button>
-                <div>
-                  <h1>Obligation Request Details</h1>
-                  <p>View and manage obligation request details</p>
-                </div>
-              </div>
-              <button
-                type="button"
-                onClick={() => handleEditOR(currentObligationRequest)}
-                className="btn btn-primary flex items-center"
-              >
-                <PencilIcon className="h-5 w-5 mr-2" aria-hidden="true" />
-                Edit OR
-              </button>
-            </div>
-          </div>
-
-          <div className="mt-4">
-            <ObligationRequestDetails
-              or={currentObligationRequest}
-              onBack={handleBackToList}
-            />
-          </div>
-        </div>
-      )}
     </div>
   );
 }
 
-export default ObligationRequestPage;
+export default FundUtilizationPage;

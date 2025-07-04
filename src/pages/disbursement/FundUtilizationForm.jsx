@@ -4,7 +4,7 @@ import { Formik, Form, FieldArray, Field, ErrorMessage } from 'formik';
 import * as Yup from 'yup';
 import Select from 'react-select';
 import FormField from '../../components/common/FormField';
-import ObligationRequestAddItemForm from './ObligationRequestAddItemForm';
+import FundUtilizationAddItemForm from './FundUtilizationAddItemForm';
 import Modal from '../../components/common/Modal';
 import Button from '../../components/common/Button';
 import { Trash2 } from 'lucide-react';
@@ -16,12 +16,11 @@ import {
   TrashIcon,
 } from '@heroicons/react/24/outline';
 import {
-  createObligationRequest,
-  updateObligationRequest,
-} from '../../features/disbursement/obligationRequestSlice';
+  createFundUtilization,
+  updateFundUtilization,
+} from '../../features/disbursement/fundUtilizationSlice';
 import { ChevronDownIcon, UserIcon, UsersIcon } from 'lucide-react';
 import { current } from '@reduxjs/toolkit';
-// import { updateObligationRequest } from '@/features/disbursement/obligationRequestSlice';
 
 const payeeTypes = [
   { value: 'Employee', label: 'Employee' },
@@ -35,14 +34,13 @@ const disbursementVoucherSchema = Yup.object().shape({
   obrDate: Yup.date().required('Date is required'),
   payeeType: Yup.string().required('Payee type is required'),
   payeeId: Yup.string().required('Payee selection is required'),
-  responsibilityCenter: Yup.string().required('Responsibility Center is required'),
   fund: Yup.string().required('Fund is required'),
   fiscalYear: Yup.string().required('Fiscal Year is required'),
   project: Yup.string().required('Project is required'),
   accountingEntries: Yup.array().min(1, 'At least one item is required'),
 });
 
-function ObligationRequestForm({ initialData, onClose, employeeOptions = [], vendorOptions = [], individualOptions = [], employeeData = [], vendorData = [], individualData = [], departmentOptions = [], fundOptions = [], projectOptions = [], fiscalYearOptions = [], particularsOptions = [],
+function FundUtilizationForm({ initialData, onClose, employeeOptions = [], vendorOptions = [], individualOptions = [], employeeData = [], vendorData = [], individualData = [], departmentOptions = [], fundOptions = [], projectOptions = [], fiscalYearOptions = [], particularsOptions = [],
   unitOptions = [],
   taxCodeOptions = [],
   chartOfAccountsOptions = [],
@@ -97,8 +95,6 @@ taxCodeFull = [] }) {
     payeeAddress: initialData?.payeeAddress || '',
     officeUnitProject: initialData?.officeUnitProject || '',
     orsNumber: initialData?.orsNumber || '',
-    responsibilityCenter:
-      initialData?.responsibilityCenter || '',
     requestForPayment: initialData?.requestForPayment || '',
     modeOfPayment: initialData?.modeOfPayment || '',
     items:
@@ -169,7 +165,6 @@ taxCodeFull = [] }) {
     fd.append('Address',      selectedPayee?.StreetAddress || '');
     fd.append('InvoiceNumber',         values.obrNo);
     fd.append('InvoiceDate',         values.obrDate);
-    fd.append('ResponsibilityCenter', values.responsibilityCenter);
 
     const total = values.accountingEntries.reduce((sum, e) => sum + Number(e.subtotal || 0), 0);
     const ewt = values.accountingEntries.reduce((sum, e) => sum + Number(e.ewt || 0), 0);
@@ -210,8 +205,8 @@ taxCodeFull = [] }) {
     });
 
     const action = initialData
-      ? updateObligationRequest({ formData: fd, id: initialData.ID })
-      : createObligationRequest(fd);
+      ? updateFundUtilization({ formData: fd, id: initialData.ID })
+      : createFundUtilization(fd);
 
     dispatch(action)
       .unwrap()
@@ -258,12 +253,8 @@ taxCodeFull = [] }) {
             handleChange,
             handleBlur,
             setFieldValue,
-            setFieldTouched,
             isValid,
           }) => {
-            
-    console.log("ERRORS:", errors);
-    console.log("Toucher:", touched);
             const { grossAmount, totalTaxes, netAmount } = calculateTotals(
               values.items,
               values.taxes
@@ -314,7 +305,6 @@ taxCodeFull = [] }) {
               // setFieldValue('payeeAddress', payee.address);
               // setFieldValue('officeUnitProject', payee.officeUnitProject);
               // setFieldValue('orsNumber', payee.obligationRequestNo);
-              // setFieldValue('responsibilityCenter', payee.responsibilityCenter);
             };
 
             const handleRequestTypeChange = (type) => {
@@ -466,6 +456,7 @@ taxCodeFull = [] }) {
                           className="react-select-container"
                           classNamePrefix="react-select"
                         />
+
                         {errors.payeeType && touched.payeeType && (
                           <p className="mt-1 text-sm text-red-600">{errors.payeeType}</p>
                         )}
@@ -525,7 +516,7 @@ taxCodeFull = [] }) {
   name="obrNo"
   value={values.obrNo}
   onChange={handleChange}
-  onBlur={handleBlur}  
+  onBlur={handleBlur}
   error={errors.obrNo}
   touched={touched.obrNo}
   required
@@ -551,25 +542,6 @@ taxCodeFull = [] }) {
 
                 {/* ── Row 1: Responsibility / Fund / Fiscal Year / Project ───────────────── */}
                 <div className="grid grid-cols-1 lg:grid-cols-4 gap-6 mt-6">
-                  {/* Responsibility Center */}
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Responsibility Center <span className="text-red-500">*</span>
-                    </label>
-                    <Select
-                      options={departmentOptions}
-                      value={
-                        departmentOptions.find(opt => opt.value === values.responsibilityCenter) || null
-                      }
-                      onChange={opt => setFieldValue('responsibilityCenter', opt.value)}
-                      onBlur={() => setFieldTouched('responsibilityCenter', true)}
-                      className="react-select-container"
-                      classNamePrefix="react-select"
-                    />
-                    {errors.responsibilityCenter && touched.responsibilityCenter && (
-                      <p className="mt-1 text-sm text-red-600">{errors.responsibilityCenter}</p>
-                    )}
-                  </div>
 
                   {/* Fund */}
                   <div>
@@ -646,7 +618,7 @@ taxCodeFull = [] }) {
                           <div className="grid grid-cols-6 gap-2 font-semibold text-sm">
                             <span>RC</span>
                             <span>REMARKS</span>
-                            <span>PARTICULARS</span>
+                            <span>ITEM</span>
                             <span>FPP</span>
                             <span>ACCOUNT CODE</span>
                             <span className="text-right">SUB-TOTAL</span>
@@ -686,6 +658,8 @@ taxCodeFull = [] }) {
                         </div>
                       )}
 
+
+
                       
 
                       {/* Modal inside FieldArray so `push` is available */}
@@ -695,7 +669,7 @@ taxCodeFull = [] }) {
                         title={"Add Accounting Entry"}
                         size='xl'
                       >
-                        <ObligationRequestAddItemForm
+                        <FundUtilizationAddItemForm
                           initialData={null}
                           responsibilityOptions={departmentOptions}
                           particularsOptions={particularsOptions}
@@ -714,6 +688,7 @@ taxCodeFull = [] }) {
                     </>
                   )}
                 </FieldArray>
+
 {errors.accountingEntries && (
   <p className="mt-1 text-sm text-red-600">{errors.accountingEntries}</p>
 )}
@@ -799,4 +774,4 @@ taxCodeFull = [] }) {
   );
 }
 
-export default ObligationRequestForm;
+export default FundUtilizationForm;

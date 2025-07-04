@@ -28,21 +28,21 @@ const generateMockObligationRequests = () => {
 };
 
 const initialState = {
-  obligationRequests: generateMockObligationRequests(),
-  obligationRequest: null,
+  fundUtilizations: [],
+  fundUtilization: null,
   isLoading: false,
   error: null,
 };
 
 // Thunks for API calls
 
-export const fetchObligationRequests = createAsyncThunk(
-  'obligationRequests/fetchObligationRequests',
+export const fetchFundUtilizations = createAsyncThunk(
+  'fundUtilizations/fetchFundUtilizations',
   async (_, thunkAPI) => {
     try {
       const token = localStorage.getItem('token');
 
-      const response = await fetch(`${API_URL}/obligationRequest`, {
+      const response = await fetch(`${API_URL}/fundUtilizationRequest`, {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',
@@ -63,8 +63,8 @@ export const fetchObligationRequests = createAsyncThunk(
   }
 );
 
-export const fetchObligationRequestById = createAsyncThunk(
-  'obligationRequests/fetchById',
+export const fetchFundUtilizationById = createAsyncThunk(
+  'fundUtilizations/fetchById',
   async (id, thunkAPI) => {
     try {
       // Simulate API call
@@ -86,16 +86,16 @@ export const fetchObligationRequestById = createAsyncThunk(
 );
 
 
-export const createObligationRequest = createAsyncThunk(
-  'obligationRequests/create',
-  async (obligationRequest, thunkAPI) => {
+export const createFundUtilization = createAsyncThunk(
+  'fundUtilizations/create',
+  async (fundUtilization, thunkAPI) => {
     try {
-      const response = await fetch(`${API_URL}/obligationRequest`, {
+      const response = await fetch(`${API_URL}/fundUtilizationRequest`, {
         method: 'POST',
         headers: {
           Authorization: `Bearer ${localStorage.getItem('token')}`,
         },
-        body: obligationRequest,
+        body: fundUtilization,
       });
 
       const res = await response.json();
@@ -110,37 +110,15 @@ export const createObligationRequest = createAsyncThunk(
     }
   }
 );
-// export const createObligationRequest = createAsyncThunk(
-//   'obligationRequests/create',
-//   async (obligationRequest, thunkAPI) => {
-//     try {
-//       // Simulate API call
-//       return new Promise((resolve) => {
-//         setTimeout(() => {
-//           const newRequest = {
-//             ...obligationRequest,
-//             id: Date.now(),
-//             orsNumber: `ORS-2024-01-${String(Math.floor(Math.random() * 9000) + 1000)}`,
-//             dateCreated: new Date().toISOString(),
-//             status: 'Pending',
-//           };
-//           resolve(newRequest);
-//         }, 500);
-//       });
-//     } catch (error) {
-//       return thunkAPI.rejectWithValue(error.message);
-//     }
-//   }
-// );
 
-export const updateObligationRequest = createAsyncThunk(
-  'obligationRequests/update',
-  async (obligationRequest, thunkAPI) => {
+export const updateFundUtilization = createAsyncThunk(
+  'fundUtilizations/update',
+  async (fundUtilization, thunkAPI) => {
     try {
       // Simulate API call
       return new Promise((resolve) => {
         setTimeout(() => {
-          resolve(obligationRequest);
+          resolve(fundUtilization);
         }, 500);
       });
     } catch (error) {
@@ -149,72 +127,72 @@ export const updateObligationRequest = createAsyncThunk(
   }
 );
 
-const obligationRequestSlice = createSlice({
-  name: 'obligationRequests',
+const fundUtilizationSlice = createSlice({
+  name: 'fundUtilizations',
   initialState,
   reducers: {
-    resetObligationRequestState: (state) => {
-      state.obligationRequest = null;
+    resetFundUtilizationState: (state) => {
+      state.fundUtilization = null;
       state.error = null;
     },
   },
   extraReducers: (builder) => {
     builder
-      // Fetch all obligation requests
-      .addCase(fetchObligationRequests.pending, (state) => {
+      // Fetch all fund utilizations
+      .addCase(fetchFundUtilizations.pending, (state) => {
         state.isLoading = true;
       })
-      .addCase(fetchObligationRequests.fulfilled, (state, action) => {
+      .addCase(fetchFundUtilizations.fulfilled, (state, action) => {
         state.isLoading = false;
-        state.obligationRequests = action.payload;
+        state.fundUtilizations = action.payload;
       })
-      .addCase(fetchObligationRequests.rejected, (state, action) => {
+      .addCase(fetchFundUtilizations.rejected, (state, action) => {
         state.isLoading = false;
         state.error = action.payload;
       })
-      // Fetch single obligation request
-      .addCase(fetchObligationRequestById.pending, (state) => {
+      // Fetch single fund utilization
+      .addCase(fetchFundUtilizationById.pending, (state) => {
         state.isLoading = true;
       })
-      .addCase(fetchObligationRequestById.fulfilled, (state, action) => {
+      .addCase(fetchFundUtilizationById.fulfilled, (state, action) => {
         state.isLoading = false;
-        state.obligationRequest = action.payload;
+        state.fundUtilization = action.payload;
       })
-      .addCase(fetchObligationRequestById.rejected, (state, action) => {
+      .addCase(fetchFundUtilizationById.rejected, (state, action) => {
         state.isLoading = false;
         state.error = action.payload;
       })
-      // Create obligation request
-      .addCase(createObligationRequest.pending, (state) => {
+      // Create fund utilization
+      .addCase(createFundUtilization.pending, (state) => {
         state.isLoading = true;
       })
-      .addCase(createObligationRequest.fulfilled, (state, action) => {
+      .addCase(createFundUtilization.fulfilled, (state, action) => {
         state.isLoading = false;
-        state.obligationRequests.push(action.payload);
+        state.fundUtilizations.push(action.payload);
       })
-      .addCase(createObligationRequest.rejected, (state, action) => {
+      .addCase(createFundUtilization.rejected, (state, action) => {
         state.isLoading = false;
         state.error = action.payload;
       })
-      // Update obligation request
-      .addCase(updateObligationRequest.pending, (state) => {
+      // Update fund utilization
+      .addCase(updateFundUtilization.pending, (state) => {
         state.isLoading = true;
       })
-      .addCase(updateObligationRequest.fulfilled, (state, action) => {
+      .addCase(updateFundUtilization.fulfilled, (state, action) => {
         state.isLoading = false;
-        const index = state.obligationRequests.findIndex(
+        const index = state.fundUtilizations.findIndex(
           (ors) => ors.id === action.payload.id
         );
         if (index !== -1) {
-          state.obligationRequests[index] = action.payload;
+          state.fundUtilizations[index] = action.payload;
         }
       })
-      .addCase(updateObligationRequest.rejected, (state, action) => {
+      .addCase(updateFundUtilization.rejected, (state, action) => {
         state.isLoading = false;
         state.error = action.payload;
       });
   },
 });
 
-export const { resetObligationRequestState } = obligationRequestSlice.actions;
-export default obligationRequestSlice.reducer;
+export const { resetFundUtilizationState } = fundUtilizationSlice.actions;
+export default fundUtilizationSlice.reducer;

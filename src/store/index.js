@@ -11,6 +11,7 @@ import subMajorAccountGroupReducer from '../features/settings/subMajorAccountGro
 import vendorReducer from '../features/settings/vendorSlice';
 import employeeReducer from '../features/settings/employeeSlice';
 import obligationRequestReducer from '../features/disbursement/obligationRequestSlice';
+import fundUtilizationReducer from '../features/disbursement/fundUtilizationSlice';
 import disbursementVoucherReducer from '../features/disbursement/disbursementVoucherSlice';
 import {travelOrderReducer} from '../features/disbursement/travelOrderSlice';
 import generalReceiptReducer from '../features/collections/generalReceiptSlice';
@@ -82,6 +83,7 @@ export const store = configureStore({
     vendors: vendorReducer,
     employees: employeeReducer,
     obligationRequests: obligationRequestReducer,
+    fundUtilizations: fundUtilizationReducer,
     disbursementVouchers: disbursementVoucherReducer,
     travelOrders: travelOrderReducer,
 

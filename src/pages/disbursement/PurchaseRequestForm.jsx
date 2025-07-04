@@ -8,24 +8,24 @@ import { Trash2 } from 'lucide-react';
 import Select from 'react-select';
 
 const PURCHASE_REQUEST_SCHEMA = Yup.object().shape({
-  // ResponsibilityCenter: Yup.string().required('Department is required'),
-  // OfficeUnitProject: Yup.string().required('Section is required'),
-  // ContraAccountID: Yup.string().required('Charge Account is required'),
-  // InvoiceNumber: Yup.string().required('PR Number is required'),
-  // SAI_No: Yup.string().required('SAI No. is required'),
-  // ObligationRequestNumber: Yup.string().required('ALOBS No. is required'),
-  // InvoiceDate: Yup.date().required('PR Date is required'),
-  // SAIDate: Yup.date().required('SAI Date is required'),
-  // ALOBSDate: Yup.date().required('ALOBS Date is required'),
-  // Remarks: Yup.string().required('Purpose is required'),
-  // Items: Yup.array().of(
-  //   Yup.object({
-  //     ItemID: Yup.string().required('Required'),
-  //     Quantity: Yup.string().required('Required'),
-  //     Unit: Yup.string().required('Required'),
-  //     Cost: Yup.number().nullable().typeError('Must be a number').required('Cost is required'),
-  //   })
-  // ).min(1, 'At least one entry is required'),
+  ResponsibilityCenter: Yup.string().required('Department is required'),
+  OfficeUnitProject: Yup.string().required('Section is required'),
+  ContraAccountID: Yup.string().required('Charge Account is required'),
+  InvoiceNumber: Yup.string().required('PR Number is required'),
+  SAI_No: Yup.string().required('SAI No. is required'),
+  ObligationRequestNumber: Yup.string().required('ALOBS No. is required'),
+  InvoiceDate: Yup.date().required('PR Date is required'),
+  SAIDate: Yup.date().required('SAI Date is required'),
+  ALOBSDate: Yup.date().required('ALOBS Date is required'),
+  Remarks: Yup.string().required('Purpose is required'),
+  Items: Yup.array().of(
+    Yup.object({
+      ItemID: Yup.string().required('Required'),
+      Quantity: Yup.string().required('Required'),
+      Unit: Yup.string().required('Required'),
+      Cost: Yup.number().nullable().typeError('Must be a number').required('Cost is required'),
+    })
+  ).min(1, 'At least one entry is required'),
 });
 
 function PurchaseRequestForm({ initialData, onSubmit, onClose, departmentsOptions=[], chartOfAccountsOptions=[], itemsOptions=[], itemsUnitsOptions=[] }) {
