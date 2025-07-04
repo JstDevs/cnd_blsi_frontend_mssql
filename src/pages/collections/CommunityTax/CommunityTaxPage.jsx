@@ -11,64 +11,66 @@ import DataTable from '@/components/common/DataTable';
 import CommunityTaxForm from './CommunityTaxForm';
 import SearchableDropdown from '@/components/common/SearchableDropdown';
 import Modal from '@/components/common/Modal';
+import {
+  fetchCommunityTaxes,
+  deleteCommunityTax,
+  addCommunityTax,
+} from '@/features/collections/CommunityTaxSlice';
+import { Delete, Trash } from 'lucide-react';
 // import CommunityTaxDetails from './CommunityTaxDetails';
-// import { fetchCommunityTaxCertificates } from '@/features/tax/communityTaxSlice';
+// import { fetchCommunityTaxes } from '@/features/tax/communityTaxSlice';
 // Add sample data (will be used if Redux state is empty)
-const sampleCertificates = [
-  {
-    id: 1,
-    certificateNo: 'CTC-2024-001',
-    date: '2024-01-15',
-    name: 'Leivan Jake Baguio',
-    address: '123 Main St, Baguio City',
-    amount: 96.0,
-    totalAmount: 96.0,
-    receivedAmount: 100.0,
-    change: 4.0,
-    status: 'Active',
-    purpose: 'Business Permit',
-    issuedBy: 'Treasury S Head',
-    employee: 'Juan Dela Cruz',
-    employeeId: 'EMP-001',
-    postedDate: '2024-01-16',
-  },
-  {
-    id: 2,
-    certificateNo: 'CTC-2024-002',
-    date: '2024-02-20',
-    name: 'Maria Santos',
-    address: '456 Pine St, Baguio City',
-    amount: 120.5,
-    totalAmount: 120.5,
-    receivedAmount: 150.0,
-    change: 29.5,
-    status: 'Active',
-    purpose: 'Employment Requirement',
-    issuedBy: 'Treasury S Head',
-    employee: 'Ana Reyes',
-    employeeId: 'EMP-002',
-    postedDate: '2024-02-21',
-  },
-  // ... other sample certificates
-];
+// const sampleCertificates = [
+//   {
+//     id: 1,
+//     certificateNo: 'CTC-2024-001',
+//     date: '2024-01-15',
+//     name: 'Leivan Jake Baguio',
+//     address: '123 Main St, Baguio City',
+//     amount: 96.0,
+//     totalAmount: 96.0,
+//     receivedAmount: 100.0,
+//     change: 4.0,
+//     status: 'Active',
+//     purpose: 'Business Permit',
+//     issuedBy: 'Treasury S Head',
+//     employee: 'Juan Dela Cruz',
+//     employeeId: 'EMP-001',
+//     postedDate: '2024-01-16',
+//   },
+//   {
+//     id: 2,
+//     certificateNo: 'CTC-2024-002',
+//     date: '2024-02-20',
+//     name: 'Maria Santos',
+//     address: '456 Pine St, Baguio City',
+//     amount: 120.5,
+//     totalAmount: 120.5,
+//     receivedAmount: 150.0,
+//     change: 29.5,
+//     status: 'Active',
+//     purpose: 'Employment Requirement',
+//     issuedBy: 'Treasury S Head',
+//     employee: 'Ana Reyes',
+//     employeeId: 'EMP-002',
+//     postedDate: '2024-02-21',
+//   },
+//   // ... other sample certificates
+// ];
 function CommunityTaxPage() {
   const dispatch = useDispatch();
-  const { certificates: reduxCertificates, isLoading } = useSelector(
+  const { records: certificates, isLoading } = useSelector(
     (state) => state.communityTax
   );
-
+  console.log({ certificates });
   const [currentView, setCurrentView] = useState('list'); // 'list', 'form', 'details'
   const [currentCertificate, setCurrentCertificate] = useState(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [showListModal, setShowListModal] = useState(false);
-  // Use sample data if Redux state is empty
-  const certificates =
-    reduxCertificates && reduxCertificates.length > 0
-      ? reduxCertificates
-      : sampleCertificates;
-  // useEffect(() => {
-  //   dispatch(fetchCommunityTaxCertificates());
-  // }, [dispatch]);
+
+  useEffect(() => {
+    dispatch(fetchCommunityTaxes());
+  }, [dispatch]);
 
   const handleCreateCertificate = () => {
     setCurrentCertificate(null);
@@ -94,64 +96,76 @@ function CommunityTaxPage() {
     setCurrentView('list');
     setCurrentCertificate(null);
   };
+  // ----------DELETE CERTIFICATE FUNCTION------------
+  const handleDeleteCertificate = async (certificate) => {
+    try {
+      await dispatch(deleteCommunityTax(certificate.ID)).unwrap();
+      // If deletion was successful, refetch the data
+      dispatch(fetchCommunityTaxes());
+      console.log('Certificate deleted and data reFetched');
+    } catch (error) {
+      console.error('Error deleting certificate:', error);
+    }
+  };
 
   // Filter certificates based on search term
   const filteredCertificates = certificates?.filter((cert) => {
     const searchLower = searchTerm.toLowerCase();
     return (
-      cert.certificateNo.toLowerCase().includes(searchLower) ||
-      cert.name.toLowerCase().includes(searchLower) ||
-      cert.address.toLowerCase().includes(searchLower)
+      cert?.LinkID?.toLowerCase().includes(searchLower) ||
+      cert?.CustomerName?.toLowerCase().includes(searchLower) ||
+      cert?.Customer?.StreetAddress?.toLowerCase().includes(searchLower)
     );
   });
 
   // Table columns definition
   const columns = [
     {
-      key: 'certificateNo',
+      key: 'LinkID',
       header: 'Certificate No.',
       sortable: true,
       className: 'font-medium text-neutral-900',
     },
     {
-      key: 'name',
+      key: 'CustomerName',
       header: 'Taxpayer Name',
       sortable: true,
+      className: 'text-right',
     },
     {
-      key: 'totalAmount',
+      key: 'Total',
       header: 'Total Amount',
       sortable: true,
       render: (value) => formatCurrency(value),
       className: 'text-right',
     },
     {
-      key: 'receivedAmount',
+      key: 'AmountReceived',
       header: 'Received Amount',
       sortable: true,
       render: (value) => formatCurrency(value),
       className: 'text-right',
     },
     {
-      key: 'date',
+      key: 'InvoiceDate',
       header: 'Date',
       sortable: true,
       render: (value) => new Date(value).toLocaleDateString(),
     },
     {
-      key: 'employee',
+      key: 'Employee',
       header: 'Employee',
       sortable: true,
     },
+    // {
+    //   key: 'change',
+    //   header: 'Change',
+    //   sortable: true,
+    //   render: (value) => formatCurrency(value),
+    //   className: 'text-right',
+    // },
     {
-      key: 'change',
-      header: 'Change',
-      sortable: true,
-      render: (value) => formatCurrency(value),
-      className: 'text-right',
-    },
-    {
-      key: 'status',
+      key: 'Status',
       header: 'Status',
       sortable: true,
       render: (value) => renderStatusBadge(value),
@@ -169,10 +183,10 @@ function CommunityTaxPage() {
     let bgColor = 'bg-neutral-100 text-neutral-800';
 
     switch (value) {
-      case 'Active':
+      case 'Requested':
         bgColor = 'bg-success-100 text-success-800';
         break;
-      case 'Expired':
+      case 'Posted':
         bgColor = 'bg-warning-100 text-warning-800';
         break;
       case 'Cancelled':
@@ -186,11 +200,7 @@ function CommunityTaxPage() {
       <span
         className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${bgColor}`}
       >
-        {value === 'Active'
-          ? 'Posted'
-          : value === 'Expired'
-          ? 'Requested'
-          : 'Cancelled'}
+        {value}
       </span>
     );
   };
@@ -210,13 +220,13 @@ function CommunityTaxPage() {
       className:
         'text-primary-600 hover:text-primary-900 p-1 rounded-full hover:bg-primary-50',
     },
-    // {
-    //   icon: PrinterIcon,
-    //   title: 'Print',
-    //   onClick: handlePrintCertificate,
-    //   className:
-    //     'text-gray-600 hover:text-gray-900 p-1 rounded-full hover:bg-gray-50',
-    // },
+    {
+      icon: Trash,
+      title: 'Delete',
+      onClick: handleDeleteCertificate,
+      className:
+        'text-red-600 hover:text-red-900 p-1 rounded-full hover:bg-red-50',
+    },
   ];
   const fruits = [
     'Apple',
@@ -237,8 +247,23 @@ function CommunityTaxPage() {
   const handleCloseListModal = () => {
     setShowListModal(false);
   };
+
+  const handleFormSubmit = async (formData) => {
+    try {
+      console.log('Form data to save:', formData);
+      await dispatch(addCommunityTax(formData)).unwrap();
+      dispatch(fetchCommunityTaxes());
+      // For now, we'll just show a success message and go back to list
+
+      handleBackToList();
+    } catch (error) {
+      console.error('Error saving certificate:', error);
+      alert('Failed to save certificate. Please try again.');
+    }
+  };
   return (
     <div className="container mx-auto p-2 sm:px-4 sm:py-8">
+      {/* // TABLE VIEW  */}
       {currentView === 'list' && (
         <div>
           <div className="flex justify-between items-center mb-6">
@@ -299,9 +324,9 @@ function CommunityTaxPage() {
           </div>
         </div>
       )}
-
+      {/* // NORMAL CREATE/EDIT FORM VIEW  */}
       {currentView === 'form' && (
-        <div>
+        <>
           <div className="flex justify-between items-start mb-6 flex-col  gap-8">
             <div className="flex items-center">
               <button
@@ -347,14 +372,14 @@ function CommunityTaxPage() {
             <CommunityTaxForm
               initialData={currentCertificate}
               onCancel={handleBackToList}
-              onSubmitSuccess={handleBackToList}
+              onSubmitForm={handleFormSubmit}
             />
           </div>
-        </div>
+        </>
       )}
-
+      {/* // READ ONLY VIEW  */}
       {currentView === 'details' && currentCertificate && (
-        <div>
+        <>
           <div className="flex justify-between items-center mb-6  gap-4 flex-wrap">
             <div className="flex items-center">
               <button
@@ -394,11 +419,12 @@ function CommunityTaxPage() {
 
           <div className="bg-white rounded-lg shadow-md p-2 sm:p-6">
             <CommunityTaxForm
-              certificate={currentCertificate}
-              onBack={handleBackToList}
+              initialData={currentCertificate}
+              onCancel={handleBackToList}
+              isReadOnly={true} // Add this prop to make the form read-only
             />
           </div>
-        </div>
+        </>
       )}
       {/* Modal for General Ledger View */}
       <Modal
@@ -490,399 +516,3 @@ function CommunityTaxPage() {
 }
 
 export default CommunityTaxPage;
-//  {selectedRecord && (
-//           <div className="p-6">
-//             <div className="text-center mb-8">
-//               <h2 className="text-xl font-bold">COMMUNITY TAX CERTIFICATE</h2>
-//               <p className="text-sm text-gray-600">
-//                 Republic of the Philippines
-//               </p>
-//               <p className="text-sm text-gray-600">
-//                 City/Municipality of{' '}
-//                 {selectedRecord.placeOfIssue || '[Your City]'}
-//               </p>
-//             </div>
-
-//             <div className="space-y-4 text-sm">
-//               <div className="grid grid-cols-2 gap-4">
-//                 <div>
-//                   <p className="font-semibold">Certificate No:</p>
-//                   <p>{selectedRecord.certificateNo}</p>
-//                 </div>
-//                 <div>
-//                   <p className="font-semibold">Date Issued:</p>
-//                   <p>{selectedRecord.date}</p>
-//                 </div>
-//               </div>
-
-//               <div>
-//                 <p className="font-semibold">Name:</p>
-//                 <p>{selectedRecord.name}</p>
-//               </div>
-
-//               <div>
-//                 <p className="font-semibold">Address:</p>
-//                 <p>{selectedRecord.address}</p>
-//               </div>
-
-//               {selectedRecord.tin && (
-//                 <div>
-//                   <p className="font-semibold">TIN:</p>
-//                   <p>{selectedRecord.tin}</p>
-//                 </div>
-//               )}
-
-//               <div className="grid grid-cols-2 gap-4">
-//                 <div>
-//                   <p className="font-semibold">Civil Status:</p>
-//                   <p>{selectedRecord.civilStatus}</p>
-//                 </div>
-//                 <div>
-//                   <p className="font-semibold">Gender:</p>
-//                   <p>{selectedRecord.gender}</p>
-//                 </div>
-//               </div>
-
-//               <div className="grid grid-cols-2 gap-4">
-//                 <div>
-//                   <p className="font-semibold">Height:</p>
-//                   <p>{selectedRecord.height} cm</p>
-//                 </div>
-//                 <div>
-//                   <p className="font-semibold">Weight:</p>
-//                   <p>{selectedRecord.weight} kg</p>
-//                 </div>
-//               </div>
-
-//               <div className="grid grid-cols-2 gap-4">
-//                 <div>
-//                   <p className="font-semibold">Date of Birth:</p>
-//                   <p>{selectedRecord.dateOfBirth}</p>
-//                 </div>
-//                 <div>
-//                   <p className="font-semibold">Place of Birth:</p>
-//                   <p>{selectedRecord.placeOfBirth}</p>
-//                 </div>
-//               </div>
-
-//               <div className="grid grid-cols-2 gap-4">
-//                 <div>
-//                   <p className="font-semibold">Nationality:</p>
-//                   <p>{selectedRecord.nationality}</p>
-//                 </div>
-//                 <div>
-//                   <p className="font-semibold">Occupation/Business:</p>
-//                   <p>{selectedRecord.occupation}</p>
-//                 </div>
-//               </div>
-
-//               {selectedRecord.contactNumber && (
-//                 <div>
-//                   <p className="font-semibold">Contact Number:</p>
-//                   <p>{selectedRecord.contactNumber}</p>
-//                 </div>
-//               )}
-
-//               <div>
-//                 <p className="font-semibold">Basic Community Tax:</p>
-//                 <p>₱{selectedRecord.basicTax || '5.00'}</p>{' '}
-//                 {/* Assuming a default basic tax */}
-//               </div>
-
-//               {(selectedRecord.businessGrossReceipts ||
-//                 selectedRecord.occupationGrossReceipts ||
-//                 selectedRecord.realPropertyIncome) && (
-//                 <div>
-//                   <p className="font-semibold">
-//                     Additional Community Tax Basis:
-//                   </p>
-//                   {selectedRecord.businessGrossReceipts && (
-//                     <p>
-//                       Business Gross Receipts: ₱
-//                       {selectedRecord.businessGrossReceipts.toFixed(2)}
-//                     </p>
-//                   )}
-//                   {selectedRecord.occupationGrossReceipts && (
-//                     <p>
-//                       Occupation Gross Receipts: ₱
-//                       {selectedRecord.occupationGrossReceipts.toFixed(2)}
-//                     </p>
-//                   )}
-//                   {selectedRecord.realPropertyIncome && (
-//                     <p>
-//                       Real Property Income: ₱
-//                       {selectedRecord.realPropertyIncome.toFixed(2)}
-//                     </p>
-//                   )}
-//                 </div>
-//               )}
-
-//               <div>
-//                 <p className="font-semibold">Taxable Amount:</p>
-//                 <p>₱{selectedRecord.taxableAmount || '0.00'}</p>{' '}
-//                 {/* Placeholder */}
-//               </div>
-
-//               <div>
-//                 <p className="font-semibold">Community Tax Due:</p>
-//                 <p>₱{selectedRecord.communityTaxDue || '0.00'}</p>{' '}
-//                 {/* Placeholder */}
-//               </div>
-
-//               <div>
-//                 <p className="font-semibold">Interest:</p>
-//                 <p>{selectedRecord.interest || '0.00'}%</p>
-//               </div>
-
-//               <div>
-//                 <p className="font-semibold">Purpose:</p>
-//                 <p>{selectedRecord.purpose}</p>
-//               </div>
-
-//               <div>
-//                 <p className="font-semibold">Total Amount Paid:</p>
-//                 <p className="text-lg font-bold">
-//                   ₱
-//                   {selectedRecord.amount
-//                     ? selectedRecord.amount.toFixed(2)
-//                     : '0.00'}
-//                 </p>
-//               </div>
-
-//               {/* Placeholder for Amount in Words */}
-//               {/*
-//                <div>
-//                  <p className="font-semibold">Amount in Words:</p>
-//                  <p>{selectedRecord.totalAmountPaidWords || '[Amount in Words]'}</p>
-//                </div>
-//                */}
-//             </div>
-
-//             <div className="mt-8 text-center">
-//               <p className="font-semibold">Authorized Signature</p>
-//               <div className="mt-4">
-//                 <p className="font-semibold">[Your Name]</p>
-//                 <p className="text-sm">City/Municipal Treasurer</p>
-//               </div>
-//             </div>
-
-//             <div className="flex justify-end gap-2 mt-8">
-//               <button
-//                 onClick={() => setIsPrintModalOpen(false)}
-//                 className="px-4 py-2 border rounded-lg text-gray-600 hover:bg-gray-50"
-//               >
-//                 Close
-//               </button>
-//               <button
-//                 onClick={() => window.print()}
-//                 className="px-4 py-2 bg-primary text-black rounded-lg hover:bg-primary-dark"
-//               >
-//                 Print Certificate
-//               </button>
-//             </div>
-//           </div>
-//         )}
-//  <Formik
-//           initialValues={
-//             selectedRecord || {
-//               certificateNo: '',
-//               date: new Date().toISOString().split('T')[0],
-//               placeOfIssue: '',
-//               name: '',
-//               address: '',
-//               tin: '',
-//               civilStatus: '',
-//               nationality: '',
-//               occupation: '',
-//               placeOfBirth: '',
-//               dateOfBirth: '',
-//               gender: '',
-//               height: '',
-//               weight: '',
-//               contactNumber: '',
-//               businessGrossReceipts: '',
-//               occupationGrossReceipts: '',
-//               realPropertyIncome: '',
-//               purpose: '',
-//               amount: '',
-//               interest: '',
-//             }
-//           }
-//           validationSchema={communityTaxSchema}
-//           onSubmit={handleSubmit}
-//           enableReinitialize
-//         >
-//           {({ isSubmitting }) => (
-//             <Form className="space-y-4">
-//               <div className="grid grid-cols-2 gap-4">
-//                 <FormField
-//                   label="Certificate No."
-//                   name="certificateNo"
-//                   type="text"
-//                   required
-//                 />
-//                 <FormField label="Date" name="date" type="date" required />
-//               </div>
-
-//               <FormField
-//                 label="Place of Issue"
-//                 name="placeOfIssue"
-//                 type="text"
-//                 required
-//               />
-
-//               <FormField label="Full Name" name="name" type="text" required />
-
-//               <FormField label="Address" name="address" type="text" required />
-
-//               <FormField label="TIN (If Any)" name="tin" type="text" />
-
-//               <div className="grid grid-cols-2 gap-4">
-//                 <FormField
-//                   label="Civil Status"
-//                   name="civilStatus"
-//                   type="select"
-//                   options={[
-//                     { value: 'single', label: 'Single' },
-//                     { value: 'married', label: 'Married' },
-//                     { value: 'widowed', label: 'Widowed' },
-//                     { value: 'separated', label: 'Separated' },
-//                     { value: 'divorced', label: 'Divorced' },
-//                   ]}
-//                   required
-//                 />
-//                 <FormField
-//                   label="Gender"
-//                   name="gender"
-//                   type="select"
-//                   options={[
-//                     { value: 'male', label: 'Male' },
-//                     { value: 'female', label: 'Female' },
-//                   ]}
-//                   required
-//                 />
-//               </div>
-
-//               <div className="grid grid-cols-2 gap-4">
-//                 <FormField
-//                   label="Date of Birth"
-//                   name="dateOfBirth"
-//                   type="date"
-//                   required
-//                 />
-//                 <FormField
-//                   label="Place of Birth"
-//                   name="placeOfBirth"
-//                   type="text"
-//                   required
-//                 />
-//               </div>
-
-//               <div className="grid grid-cols-2 gap-4">
-//                 <FormField label="Height" name="height" type="number" />
-//                 <FormField label="Weight" name="weight" type="number" />
-//               </div>
-
-//               <FormField
-//                 label="Nationality"
-//                 name="nationality"
-//                 type="text"
-//                 required
-//               />
-
-//               <FormField
-//                 label="Occupation/Business"
-//                 name="occupation"
-//                 type="text"
-//                 required
-//               />
-
-//               <FormField
-//                 label="Contact Number"
-//                 name="contactNumber"
-//                 type="tel"
-//               />
-
-//               <h3 className="text-lg font-semibold">
-//                 Additional Community Tax Basis
-//               </h3>
-
-//               <FormField
-//                 label="Gross Receipts/Earnings from Business (Preceding Year)"
-//                 name="businessGrossReceipts"
-//                 type="number"
-//               />
-
-//               <FormField
-//                 label="Salaries/Gross Receipt from Profession/Occupation"
-//                 name="occupationGrossReceipts"
-//                 type="number"
-//               />
-
-//               <FormField
-//                 label="Income from Real Property"
-//                 name="realPropertyIncome"
-//                 type="number"
-//               />
-
-//               <FormField
-//                 label="Purpose"
-//                 name="purpose"
-//                 type="textarea"
-//                 required
-//               />
-
-//               <FormField label="Amount" name="amount" type="number" required />
-
-//               <FormField label="Interest (%)" name="interest" type="number" />
-
-//               {/* Placeholder fields for calculated values */}
-//               {/*
-//               <FormField
-//                 label="Taxable Amount"
-//                 name="taxableAmount"
-//                 type="text"
-//                 disabled
-//               />
-//                <FormField
-//                 label="Community Tax Due"
-//                 name="communityTaxDue"
-//                 type="text"
-//                 disabled
-//               />
-//                <FormField
-//                 label="Total Amount Paid"
-//                 name="totalAmountPaid"
-//                 type="text"
-//                 disabled
-//               />
-//               <FormField
-//                 label="Total Amount Paid (in words)"
-//                 name="totalAmountPaidWords"
-//                 type="text"
-//                 disabled
-//               />
-//               */}
-
-//               <div className="flex justify-end gap-2 pt-4">
-//                 <button
-//                   type="button"
-//                   onClick={() => {
-//                     setIsModalOpen(false);
-//                     setSelectedRecord(null);
-//                   }}
-//                   className="px-4 py-2 border rounded-lg text-gray-600 hover:bg-gray-50"
-//                 >
-//                   Cancel
-//                 </button>
-//                 <button
-//                   type="submit"
-//                   disabled={isSubmitting}
-//                   className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-primary-dark disabled:opacity-50"
-//                 >
-//                   {isSubmitting ? 'Saving...' : 'Save'}
-//                 </button>
-//               </div>
-//             </Form>
-//           )}
-//         </Formik>

@@ -1,44 +1,141 @@
-import { useState } from 'react';
+import { useFormik } from 'formik';
+import * as Yup from 'yup';
 import { FileText, Calendar, MapPin, User, CreditCard } from 'lucide-react';
 import FormField from '@/components/common/FormField';
 import Button from '@/components/common/Button';
+import numToWords from '@/components/helper/numToWords';
+import { useEffect } from 'react';
+import { ExclamationCircleIcon } from '@heroicons/react/24/outline';
+// Validation schema
+const validationSchema = Yup.object({
+  // Certificate Information
+  Year: Yup.number()
+    .required('Year is required')
+    .min(1900, 'Year must be after 1900')
+    .max(new Date().getFullYear(), 'Year cannot be in the future'),
+  PlaceIssued: Yup.string()
+    .required('Place of issue is required')
+    .min(2, 'Place of issue must be at least 2 characters'),
+  DateIssued: Yup.date()
+    .required('Date issued is required')
+    .max(new Date(), 'Date issued cannot be in the future'),
+  CCNumber: Yup.string()
+    .required('Certificate number is required')
+    .min(3, 'Certificate number must be at least 3 characters'),
+  TIN: Yup.string()
+    .matches(/^[0-9-]*$/, 'TIN must contain only numbers and dashes')
+    .nullable(),
 
-const CommunityTaxForm = ({ onSubmit, onCancel }) => {
-  const [formData, setFormData] = useState({
-    year: '2024',
-    placeOfIssue: 'Angadanan',
-    dateIssued: '21-02-2024',
-    certificateNumber: '102',
-    surname: 'Baguio',
-    firstName: 'Leivan',
-    middleName: 'Jake',
-    address: 'Washington street, San Antonio, , REGION II (CAGAYAN VALLEY)',
-    citizenship: 'Afghan',
-    icrNumber: '24132654',
-    placeOfBirth: 'Sultan Kudarat',
-    civilStatus: 'divorced',
-    profession: 'Garbage Collector',
-    sex: 'male',
-    height: '200.00',
-    weight: '50.00',
-    dateOfBirth: '31-07-2000',
-    basicTax: '5.00',
-    grossReceipts: '1,000.00',
-    grossReceiptsTax: '1.00',
-    salaries: '45,000.00',
-    salariesTax: '45.00',
-    realProperty: '45,000.00',
-    realPropertyTax: '45.00',
-    totalTax: '96.00',
-    interest: '0.00',
-    totalAmountPaid: '96.00',
-    remarks: '',
-  });
+  // Personal Information
+  LastName: Yup.string()
+    .required('LastName is required')
+    .min(2, 'LastName must be at least 2 characters')
+    .matches(
+      /^[a-zA-Z\s-']+$/,
+      'LastName can only contain letters, spaces, hyphens, and apostrophes'
+    ),
+  FirstName: Yup.string()
+    .required('First name is required')
+    .min(2, 'First name must be at least 2 characters')
+    .matches(
+      /^[a-zA-Z\s-']+$/,
+      'First name can only contain letters, spaces, hyphens, and apostrophes'
+    ),
+  MiddleName: Yup.string()
+    .matches(
+      /^[a-zA-Z\s-']*$/,
+      'Middle name can only contain letters, spaces, hyphens, and apostrophes'
+    )
+    .nullable(),
+  Address: Yup.string()
+    .required('Address is required')
+    .min(10, 'Address must be at least 10 characters'),
+  Citizenship: Yup.string().required('Citizenship is required'),
+  ICRNo: Yup.string()
+    .matches(/^[0-9-]*$/, 'ICR number must contain only numbers and dashes')
+    .nullable(),
+  PlaceOfBirth: Yup.string()
+    .required('Place of birth is required')
+    .min(2, 'Place of birth must be at least 2 characters'),
+  BirthDate: Yup.date()
+    .required('Date of birth is required')
+    .max(new Date(), 'Date of birth cannot be in the future')
+    .test('age', 'Must be at least 18 years old', function (value) {
+      if (!value) return false;
+      const today = new Date();
+      const birthDate = new Date(value);
+      const age = today.getFullYear() - birthDate.getFullYear();
+      const monthDiff = today.getMonth() - birthDate.getMonth();
+      if (
+        monthDiff < 0 ||
+        (monthDiff === 0 && today.getDate() < birthDate.getDate())
+      ) {
+        return age - 1 >= 18;
+      }
+      return age >= 18;
+    }),
+  CivilStatus: Yup.string().required('Civil status is required'),
+  Occupation: Yup.string()
+    .required('Profession/Occupation is required')
+    .min(2, 'Profession must be at least 2 characters'),
+  Gender: Yup.string().required('Sex is required'),
+  Height: Yup.number()
+    .required('Height is required')
+    .min(100, 'Height must be at least 100 cm')
+    .max(250, 'Height must not exceed 250 cm'),
+  Weight: Yup.number()
+    .required('Weight is required')
+    .min(30, 'Weight must be at least 30 kg')
+    .max(300, 'Weight must not exceed 300 kg'),
 
-  const handleInputChange = (field, value) => {
-    setFormData((prev) => ({ ...prev, [field]: value }));
-  };
-
+  // Tax Information
+  BasicTax: Yup.number()
+    .required('Basic tax is required')
+    .min(0, 'Basic tax cannot be negative')
+    .max(10000, 'Basic tax cannot exceed ₱10,000'),
+  BusinessEarnings: Yup.number()
+    .min(0, 'Gross receipts cannot be negative')
+    .nullable(),
+  BusinessTaxDue: Yup.number()
+    .min(0, 'Gross receipts tax cannot be negative')
+    .nullable(),
+  OccupationEarnings: Yup.number()
+    .min(0, 'Salaries cannot be negative')
+    .nullable(),
+  OccupationTaxDue: Yup.number()
+    .min(0, 'Salaries tax cannot be negative')
+    .nullable(),
+  IncomeProperty: Yup.number()
+    .min(0, 'Real property income cannot be negative')
+    .nullable(),
+  PropertyTaxDue: Yup.number()
+    .min(0, 'Real property tax cannot be negative')
+    .nullable(),
+  Total: Yup.number()
+    .required('Total tax is required')
+    .min(0, 'Total tax cannot be negative')
+    .max(10000, 'Total tax cannot exceed ₱10,000'),
+  Interest: Yup.number()
+    .min(0, 'Interest cannot be negative')
+    .max(100, 'Interest cannot exceed 100%')
+    .nullable(),
+  AmountReceived: Yup.number()
+    .required('Total amount paid is required')
+    .min(0, 'Total amount paid cannot be negative'),
+  Remarks: Yup.string()
+    .max(500, 'Remarks cannot exceed 500 characters')
+    .nullable(),
+  AmountinWords: Yup.string().max(
+    500,
+    'Amount in words cannot exceed 500 characters'
+  ),
+});
+const CommunityTaxForm = ({
+  initialData = null,
+  onCancel,
+  onSubmitForm,
+  isReadOnly = false,
+}) => {
   const citizenshipOptions = [
     { value: 'Afghan', label: 'Afghan' },
     { value: 'Filipino', label: 'Filipino' },
@@ -47,76 +144,223 @@ const CommunityTaxForm = ({ onSubmit, onCancel }) => {
   ];
 
   const civilStatusOptions = [
-    { value: 'single', label: 'Single' },
-    { value: 'married', label: 'Married' },
-    { value: 'divorced', label: 'Divorced' },
-    { value: 'widowed', label: 'Widowed' },
+    { value: 'Single', label: 'Single' },
+    { value: 'Married', label: 'Married' },
+    { value: 'Divorced', label: 'Divorced' },
+    { value: 'Widowed', label: 'Widowed' },
   ];
 
   const sexOptions = [
-    { value: 'male', label: 'Male' },
-    { value: 'female', label: 'Female' },
+    { value: 'Male', label: 'Male' },
+    { value: 'Female', label: 'Female' },
   ];
 
+  // console.log('Initial data:', initialData);
+  const getInitialValues = () => {
+    const initialValues = {
+      // BASIC INFO
+      Year: initialData?.Year || '',
+      PlaceIssued: initialData?.PlaceIssued || '',
+      DateIssued: initialData?.InvoiceDate || '',
+      CCNumber: initialData?.InvoiceNumber || '',
+      TIN: initialData?.TIN || '',
+      // PERSONAL INFO
+      LastName: initialData?.Customer?.LastName || '',
+      FirstName: initialData?.Customer?.FirstName || '',
+      MiddleName: initialData?.Customer?.MiddleName || '',
+      Address: initialData?.Customer?.StreetAddress || '',
+      Citizenship: initialData?.Customer?.Citizenship || '',
+      ICRNo: initialData?.Customer?.ICRNumber || '',
+      PlaceOfBirth: initialData?.Customer?.PlaceofBirth || '',
+      CivilStatus: initialData?.Customer?.CivilStatus || '',
+      Occupation: initialData?.Customer?.Occupation || '',
+      Gender: initialData?.Customer?.Gender || '',
+      Height: initialData?.Customer?.Height || '',
+      Weight: initialData?.Customer?.Weight || '',
+      BirthDate: initialData?.Customer?.Birthdates || '',
+      // TAX INFORMATION
+      BasicTax: initialData?.BasicTax || '',
+      BusinessEarnings: initialData?.BusinessEarnings || '',
+      BusinessTaxDue: initialData?.BusinessTaxDue || '',
+      OccupationEarnings: initialData?.OccupationEarnings || '',
+      OccupationTaxDue: initialData?.OccupationTaxDue || '',
+      IncomeProperty: initialData?.IncomeProperty || '',
+      PropertyTaxDue: initialData?.PropertyTaxDue || '',
+      // OVERALL TAX INFORMATION
+      Total: initialData?.Total || '',
+      Interest: initialData?.Interest || '',
+      AmountReceived: initialData?.AmountReceived || '',
+      Remarks: initialData?.Remarks || '',
+      // AMOUNTS IN WORD
+      AmountinWords: initialData?.AmountinWords || '',
+    };
+
+    return initialValues;
+  };
+
+  const formik = useFormik({
+    initialValues: getInitialValues(),
+    validationSchema,
+    onSubmit: (values) => {
+      const isEdit = Boolean(initialData);
+
+      // Transform the values based on the mode
+      const payload = isEdit
+        ? {
+            // Edit mode payload (include LinkID)
+            LinkID: initialData.LinkID,
+            // IsNew: false,
+            User: 'admin',
+            IsNew: 'false',
+            IsSelectedFromIndividual: 'False',
+            EmployeeID: 1,
+            ...transformValues(values),
+          }
+        : {
+            IsNew: 'true',
+            User: 'admin',
+            IsSelectedFromIndividual: 'False',
+            EmployeeID: 1,
+            ...transformValues(values),
+          }; // Create mode payload
+
+      console.log('Form submitted:', payload);
+
+      // Call the submission handler with the transformed payload
+      onSubmitForm(payload);
+    },
+  });
+  // Helper function to transform field names in the payload
+  const transformValues = (values) => {
+    const transformedValues = {
+      ...values,
+
+      InputOne: Number(values.BusinessEarnings), // Previously Business Earnings
+      InputTwo: Number(values.OccupationEarnings), // Previously Occupation Earnings
+      InputThree: Number(values.IncomeProperty), // Previously Real Property
+      OutputOne: Number(values.BusinessTaxDue),
+      OutputTwo: Number(values.OccupationTaxDue),
+      OutputThree: Number(values.PropertyTaxDue),
+      Municipality: values.PlaceIssued,
+      AmountPaid: Number(values.AmountReceived),
+      Words: values.AmountinWords,
+      Profession: values.Occupation,
+    };
+    // Remove the original frontend field names
+    delete transformedValues.BusinessEarnings;
+    delete transformedValues.OccupationEarnings;
+    delete transformedValues.IncomeProperty;
+    delete transformedValues.BusinessTaxDue;
+    delete transformedValues.OccupationTaxDue;
+    delete transformedValues.PropertyTaxDue;
+    delete transformedValues.PlaceIssued;
+    delete transformedValues.AmountReceived;
+    delete transformedValues.AmountinWords;
+    delete transformedValues.Occupation;
+
+    return transformedValues;
+  };
+  // Helper function to get field error props
+  const getFieldProps = (fieldName) => ({
+    name: fieldName,
+    value: formik.values[fieldName] || '',
+    onChange: formik.handleChange,
+    onBlur: formik.handleBlur,
+    error: formik.touched[fieldName] && formik.errors[fieldName],
+    disabled: isReadOnly,
+  });
+  // Calculate amount in words whenever AmountReceived changes
+  useEffect(() => {
+    calculateAmountsInWords();
+  }, [formik.values.AmountReceived]);
+  const calculateAmountsInWords = () => {
+    const totalAmountValue = formik.values.Total;
+    const totalAmountInWords = numToWords(totalAmountValue);
+    formik.setFieldValue('AmountinWords', totalAmountInWords);
+  };
+  // console.log('Form errors:', formik.errors);
   return (
     <div className="min-h-screen">
-      <div className="max-w-6xl mx-auto space-y-6">
+      <form
+        onSubmit={formik.handleSubmit}
+        className="max-w-6xl mx-auto space-y-6"
+      >
         {/* Certificate Header Info */}
-        <div className="rounded-lg border bg-white text-card-foreground   bg-white/80 backdrop-blur-sm">
+        <div className="rounded-lg border bg-white text-card-foreground bg-white/80 backdrop-blur-sm">
           <div className="flex flex-col space-y-1.5 p-6 bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-t-lg">
             <h3 className="text-2xl font-semibold leading-none tracking-tight flex items-center gap-2">
               <Calendar className="h-5 w-5" />
               Certificate Information
             </h3>
           </div>
-          <div className="p-6 pt-2 ">
+          <div className="p-6 pt-2">
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-              <FormField
-                label="Year"
-                name="year"
-                value={formData.year}
-                onChange={(e) => handleInputChange('year', e.target.value)}
-                className="border-blue-200 focus:border-blue-500 focus:ring-blue-500"
-              />
-              <FormField
-                label="Place of Issue"
-                name="placeOfIssue"
-                value={formData.placeOfIssue}
-                onChange={(e) =>
-                  handleInputChange('placeOfIssue', e.target.value)
-                }
-                className="border-blue-200 focus:border-blue-500 focus:ring-blue-500"
-              />
-              <FormField
-                label="Date Issued"
-                name="dateIssued"
-                type="date"
-                value={formData.dateIssued}
-                onChange={(e) =>
-                  handleInputChange('dateIssued', e.target.value)
-                }
-                className="border-blue-200 focus:border-blue-500 focus:ring-blue-500"
-              />
-              <FormField
-                label="Certificate No."
-                name="certificateNumber"
-                value={formData.certificateNumber}
-                onChange={(e) =>
-                  handleInputChange('certificateNumber', e.target.value)
-                }
-                className="border-blue-200 focus:border-blue-500 focus:ring-blue-500 font-bold text-blue-600"
-              />
+              <div>
+                <FormField
+                  label="Year"
+                  {...getFieldProps('Year')}
+                  type="number"
+                  disabled={isReadOnly}
+                  className="border-blue-200 focus:border-blue-500 focus:ring-blue-500"
+                />
+                {formik.touched.Year && formik.errors.Year && (
+                  <p className="text-red-500 text-sm mt-1">
+                    {formik.errors.Year}
+                  </p>
+                )}
+              </div>
+              <div>
+                <FormField
+                  label="Place of Issue"
+                  {...getFieldProps('PlaceIssued')}
+                  className="border-blue-200 focus:border-blue-500 focus:ring-blue-500"
+                />
+                {formik.touched.PlaceIssued && formik.errors.PlaceIssued && (
+                  <p className="text-red-500 text-sm mt-1">
+                    {formik.errors.PlaceIssued}
+                  </p>
+                )}
+              </div>
+              <div>
+                <FormField
+                  label="Date Issued"
+                  {...getFieldProps('DateIssued')}
+                  type="date"
+                  className="border-blue-200 focus:border-blue-500 focus:ring-blue-500"
+                />
+                {formik.touched.DateIssued && formik.errors.DateIssued && (
+                  <p className="text-red-500 text-sm mt-1">
+                    {formik.errors.DateIssued}
+                  </p>
+                )}
+              </div>
+              <div>
+                <FormField
+                  label="Certificate No."
+                  {...getFieldProps('CCNumber')}
+                  className="border-blue-200 focus:border-blue-500 focus:ring-blue-500 font-bold text-blue-600"
+                />
+                {formik.touched.CCNumber && formik.errors.CCNumber && (
+                  <p className="text-red-500 text-sm mt-1">
+                    {formik.errors.CCNumber}
+                  </p>
+                )}
+              </div>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-              <FormField
-                label="TIN (if Any)"
-                name="taxpayerTIN"
-                value={formData.taxpayerTIN}
-                onChange={(e) =>
-                  handleInputChange('taxpayerTIN', e.target.value)
-                }
-                className="border-blue-200 focus:border-blue-500 focus:ring-blue-500"
-              />
+              <div>
+                <FormField
+                  label="TIN (if Any)"
+                  {...getFieldProps('TIN')}
+                  className="border-blue-200 focus:border-blue-500 focus:ring-blue-500"
+                  placeholder="000-000-000-000"
+                />
+                {formik.touched.TIN && formik.errors.TIN && (
+                  <p className="text-red-500 text-sm mt-1">
+                    {formik.errors.TIN}
+                  </p>
+                )}
+              </div>
 
               {/* Empty columns to push the label to the right */}
               <div className="hidden md:block"></div>
@@ -130,143 +374,197 @@ const CommunityTaxForm = ({ onSubmit, onCancel }) => {
         </div>
 
         {/* Personal Information */}
-        <div className="rounded-lg border bg-white text-card-foreground  bg-white/80 backdrop-blur-sm">
+        <div className="rounded-lg border bg-white text-card-foreground bg-white/80 backdrop-blur-sm">
           <div className="flex flex-col space-y-1.5 p-6 bg-gradient-to-r from-blue-600 to-blue-700 text-white">
             <h3 className="text-2xl font-semibold leading-none tracking-tight flex items-center gap-2">
               <User className="h-5 w-5" />
               Personal Information
             </h3>
           </div>
-          <div className="p-6 pt-2 ">
+          <div className="p-6 pt-2">
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
-              <FormField
-                label="Surname"
-                name="surname"
-                value={formData.surname}
-                onChange={(e) => handleInputChange('surname', e.target.value)}
-                className="border-blue-200 focus:border-blue-500 focus:ring-blue-500"
-              />
-              <FormField
-                label="First Name"
-                name="firstName"
-                value={formData.firstName}
-                onChange={(e) => handleInputChange('firstName', e.target.value)}
-                className="border-blue-200 focus:border-blue-500 focus:ring-blue-500"
-              />
-              <FormField
-                label="Middle Name"
-                name="middleName"
-                value={formData.middleName}
-                onChange={(e) =>
-                  handleInputChange('middleName', e.target.value)
-                }
-                className="border-blue-200 focus:border-blue-500 focus:ring-blue-500"
-              />
+              <div>
+                <FormField
+                  label="Last Name"
+                  {...getFieldProps('LastName')}
+                  className="border-blue-200 focus:border-blue-500 focus:ring-blue-500"
+                />
+                {formik.touched.LastName && formik.errors.LastName && (
+                  <p className="text-red-500 text-sm mt-1">
+                    {formik.errors.LastName}
+                  </p>
+                )}
+              </div>
+              <div>
+                <FormField
+                  label="First Name"
+                  {...getFieldProps('FirstName')}
+                  className="border-blue-200 focus:border-blue-500 focus:ring-blue-500"
+                />
+                {formik.touched.FirstName && formik.errors.FirstName && (
+                  <p className="text-red-500 text-sm mt-1">
+                    {formik.errors.FirstName}
+                  </p>
+                )}
+              </div>
+              <div>
+                <FormField
+                  label="Middle Name"
+                  {...getFieldProps('MiddleName')}
+                  className="border-blue-200 focus:border-blue-500 focus:ring-blue-500"
+                />
+                {formik.touched.MiddleName && formik.errors.MiddleName && (
+                  <p className="text-red-500 text-sm mt-1">
+                    {formik.errors.MiddleName}
+                  </p>
+                )}
+              </div>
             </div>
 
             <div className="space-y-6">
-              <FormField
-                label={
-                  <span className="flex items-center gap-2">
-                    <MapPin className="h-4 w-4" />
-                    Address
-                  </span>
-                }
-                name="address"
-                value={formData.address}
-                onChange={(e) => handleInputChange('address', e.target.value)}
-                className="border-blue-200 focus:border-blue-500 focus:ring-blue-500"
-              />
-
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+              <div>
                 <FormField
-                  label="Citizenship"
-                  name="citizenship"
-                  type="select"
-                  value={formData.citizenship}
-                  onChange={(e) =>
-                    handleInputChange('citizenship', e.target.value)
+                  label={
+                    <span className="flex items-center gap-2">
+                      <MapPin className="h-4 w-4" />
+                      Address
+                    </span>
                   }
-                  options={citizenshipOptions}
+                  {...getFieldProps('Address')}
                   className="border-blue-200 focus:border-blue-500 focus:ring-blue-500"
                 />
-                <FormField
-                  label="ICR No."
-                  name="icrNumber"
-                  value={formData.icrNumber}
-                  onChange={(e) =>
-                    handleInputChange('icrNumber', e.target.value)
-                  }
-                  className="border-blue-200 focus:border-blue-500 focus:ring-blue-500"
-                />
-                <FormField
-                  label="Place of Birth"
-                  name="placeOfBirth"
-                  value={formData.placeOfBirth}
-                  onChange={(e) =>
-                    handleInputChange('placeOfBirth', e.target.value)
-                  }
-                  className="border-blue-200 focus:border-blue-500 focus:ring-blue-500"
-                />
-                <FormField
-                  label="Date of Birth"
-                  name="dateOfBirth"
-                  type="date"
-                  value={formData.dateOfBirth}
-                  onChange={(e) =>
-                    handleInputChange('dateOfBirth', e.target.value)
-                  }
-                  className="border-blue-200 focus:border-blue-500 focus:ring-blue-500"
-                />
+                {formik.touched.Address && formik.errors.Address && (
+                  <p className="text-red-500 text-sm mt-1">
+                    {formik.errors.Address}
+                  </p>
+                )}
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                <FormField
-                  label="Civil Status"
-                  name="civilStatus"
-                  type="radio"
-                  value={formData.civilStatus}
-                  onChange={(e) =>
-                    handleInputChange('civilStatus', e.target.value)
-                  }
-                  options={civilStatusOptions}
-                />
-                <FormField
-                  label="Profession/Occupation"
-                  name="profession"
-                  value={formData.profession}
-                  onChange={(e) =>
-                    handleInputChange('profession', e.target.value)
-                  }
-                  className="border-blue-200 focus:border-blue-500 focus:ring-blue-500"
-                />
-                <FormField
-                  label="Sex"
-                  name="sex"
-                  type="radio"
-                  value={formData.sex}
-                  onChange={(e) => handleInputChange('sex', e.target.value)}
-                  options={sexOptions}
-                />
+                <div>
+                  <FormField
+                    label="Citizenship"
+                    {...getFieldProps('Citizenship')}
+                    type="select"
+                    options={citizenshipOptions}
+                    className="border-blue-200 focus:border-blue-500 focus:ring-blue-500"
+                  />
+                  {formik.touched.Citizenship && formik.errors.Citizenship && (
+                    <p className="text-red-500 text-sm mt-1">
+                      {formik.errors.Citizenship}
+                    </p>
+                  )}
+                </div>
+                <div>
+                  <FormField
+                    label="ICR No."
+                    {...getFieldProps('ICRNo')}
+                    className="border-blue-200 focus:border-blue-500 focus:ring-blue-500"
+                  />
+                  {formik.touched.ICRNo && formik.errors.ICRNo && (
+                    <p className="text-red-500 text-sm mt-1">
+                      {formik.errors.ICRNo}
+                    </p>
+                  )}
+                </div>
+                <div>
+                  <FormField
+                    label="Place of Birth"
+                    {...getFieldProps('PlaceOfBirth')}
+                    className="border-blue-200 focus:border-blue-500 focus:ring-blue-500"
+                  />
+                  {formik.touched.PlaceOfBirth &&
+                    formik.errors.PlaceOfBirth && (
+                      <p className="text-red-500 text-sm mt-1">
+                        {formik.errors.PlaceOfBirth}
+                      </p>
+                    )}
+                </div>
+                <div>
+                  <FormField
+                    label="Date of Birth"
+                    {...getFieldProps('BirthDate')}
+                    type="date"
+                    className="border-blue-200 focus:border-blue-500 focus:ring-blue-500"
+                  />
+                  {formik.touched.BirthDate && formik.errors.BirthDate && (
+                    <p className="text-red-500 text-sm mt-1">
+                      {formik.errors.BirthDate}
+                    </p>
+                  )}
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                <div>
+                  <FormField
+                    label="Civil Status"
+                    {...getFieldProps('CivilStatus')}
+                    type="radio"
+                    options={civilStatusOptions}
+                  />
+                  {formik.touched.CivilStatus && formik.errors.CivilStatus && (
+                    <p className="text-red-500 text-sm mt-1">
+                      {formik.errors.CivilStatus}
+                    </p>
+                  )}
+                </div>
+                <div>
+                  <FormField
+                    label="Profession/Occupation"
+                    {...getFieldProps('Occupation')}
+                    className="border-blue-200 focus:border-blue-500 focus:ring-blue-500"
+                  />
+                  {formik.touched.Occupation && formik.errors.Occupation && (
+                    <p className="text-red-500 text-sm mt-1">
+                      {formik.errors.Occupation}
+                    </p>
+                  )}
+                </div>
+                <div>
+                  <FormField
+                    label="Sex"
+                    {...getFieldProps('Gender')}
+                    type="radio"
+                    options={sexOptions}
+                  />
+                  {formik.touched.Gender && formik.errors.Gender && (
+                    <p className="text-red-500 text-sm mt-1">
+                      {formik.errors.Gender}
+                    </p>
+                  )}
+                </div>
                 <div className="grid grid-cols-2 gap-3">
-                  <FormField
-                    label="Height (cm)"
-                    name="height"
-                    value={formData.height}
-                    onChange={(e) =>
-                      handleInputChange('height', e.target.value)
-                    }
-                    className="border-blue-200 focus:border-blue-500 focus:ring-blue-500"
-                  />
-                  <FormField
-                    label="Weight (kg)"
-                    name="weight"
-                    value={formData.weight}
-                    onChange={(e) =>
-                      handleInputChange('weight', e.target.value)
-                    }
-                    className="border-blue-200 focus:border-blue-500 focus:ring-blue-500"
-                  />
+                  <div>
+                    <FormField
+                      label="Height (cm)"
+                      {...getFieldProps('Height')}
+                      type="number"
+                      min="100"
+                      max="250"
+                      className="border-blue-200 focus:border-blue-500 focus:ring-blue-500"
+                    />
+                    {formik.touched.Height && formik.errors.Height && (
+                      <p className="text-red-500 text-sm mt-1">
+                        {formik.errors.Height}
+                      </p>
+                    )}
+                  </div>
+                  <div>
+                    <FormField
+                      label="Weight (kg)"
+                      {...getFieldProps('Weight')}
+                      type="number"
+                      min="30"
+                      max="300"
+                      className="border-blue-200 focus:border-blue-500 focus:ring-blue-500"
+                    />
+                    {formik.touched.Weight && formik.errors.Weight && (
+                      <p className="text-red-500 text-sm mt-1">
+                        {formik.errors.Weight}
+                      </p>
+                    )}
+                  </div>
                 </div>
               </div>
             </div>
@@ -274,41 +572,52 @@ const CommunityTaxForm = ({ onSubmit, onCancel }) => {
         </div>
 
         {/* Tax Information */}
-        <div className="rounded-lg border bg-white text-card-foreground  bg-white/80 backdrop-blur-sm">
+        <div className="rounded-lg border bg-white text-card-foreground bg-white/80 backdrop-blur-sm">
           <div className="flex flex-col space-y-1.5 p-6 bg-gradient-to-r from-blue-600 to-blue-700 text-white">
             <h3 className="text-2xl font-semibold leading-none tracking-tight flex items-center gap-2">
               <CreditCard className="h-5 w-5" />
               Tax Assessment
             </h3>
           </div>
-          <div className="p-6 pt-2 ">
+          <div className="p-6 pt-2">
             <div className="space-y-6">
               {/* Basic Community Tax */}
-              <div className="bg-blue-50 p-4 rounded-lg ">
+              <div className="bg-blue-50 p-4 rounded-lg">
                 <h3 className="font-semibold text-lg text-blue-900 mb-4">
                   A. Basic Community Tax (₱5.00) or Exempted (₱1.00)
                 </h3>
 
-                <div className="flex justify-end gap-3 ">
-                  <FormField
-                    name="basicTax"
-                    label={`Taxable Amount: `}
-                    value={formData.basicTax}
-                    onChange={(e) =>
-                      handleInputChange('basicTax', e.target.value)
-                    }
-                    className="w-32 text-right font-mono border-blue-200 focus:border-blue-500"
-                  />
-                  {/* TODO CHANGE THIS TO ACTUAL FOR FIELD NAME */}
-                  <FormField
-                    name="basicTax"
-                    label={`Community Due Amount: `}
-                    value={formData.basicTax}
-                    onChange={(e) =>
-                      handleInputChange('basicTax', e.target.value)
-                    }
-                    className="w-32 text-right font-mono border-blue-200 focus:border-blue-500"
-                  />
+                <div className="flex justify-end gap-3">
+                  <div>
+                    <FormField
+                      label="Taxable Amount:"
+                      {...getFieldProps('BasicTax')}
+                      type="number"
+                      min="0"
+                      step="0.01"
+                      className="w-32 text-right font-mono border-blue-200 focus:border-blue-500"
+                    />
+                    {formik.touched.BasicTax && formik.errors.BasicTax && (
+                      <p className="text-red-300 text-sm">
+                        {formik.errors.BasicTax}
+                      </p>
+                    )}
+                  </div>
+                  {/* <div>
+                    <FormField
+                      label="Community Due Amount:"
+                      {...getFieldProps('BasicTax')}
+                      type="number"
+                      min="0"
+                      step="0.01"
+                      className="w-32 text-right font-mono border-blue-200 focus:border-blue-500"
+                    />
+                    {formik.touched.BasicTax && formik.errors.BasicTax && (
+                      <p className="text-red-300 text-sm">
+                        {formik.errors.BasicTax}
+                      </p>
+                    )}
+                  </div> */}
                 </div>
               </div>
 
@@ -326,26 +635,40 @@ const CommunityTaxForm = ({ onSubmit, onCancel }) => {
                       </p>
                     </div>
                     <div className="flex gap-3">
-                      <FormField
-                        name="grossReceipts"
-                        value={formData.grossReceipts}
-                        onChange={(e) =>
-                          handleInputChange('grossReceipts', e.target.value)
-                        }
-                        label={`Taxable Amount: `}
-                        className="text-right font-mono border-blue-200 focus:border-blue-500"
-                        placeholder="Amount"
-                      />
-                      <FormField
-                        name="grossReceiptsTax"
-                        value={formData.grossReceiptsTax}
-                        label={`Community Due Amount: `}
-                        onChange={(e) =>
-                          handleInputChange('grossReceiptsTax', e.target.value)
-                        }
-                        className="w-24 text-right font-mono border-blue-200 focus:border-blue-500"
-                        placeholder="Tax"
-                      />
+                      <div>
+                        <FormField
+                          label="Taxable Amount:"
+                          {...getFieldProps('BusinessEarnings')}
+                          type="number"
+                          min="0"
+                          step="0.01"
+                          className="text-right font-mono border-blue-200 focus:border-blue-500"
+                          placeholder="Amount"
+                        />
+                        {formik.touched.BusinessEarnings &&
+                          formik.errors.BusinessEarnings && (
+                            <p className="text-red-300 text-sm">
+                              {formik.errors.BusinessEarnings}
+                            </p>
+                          )}
+                      </div>
+                      <div>
+                        <FormField
+                          label="Community Due Amount:"
+                          {...getFieldProps('BusinessTaxDue')}
+                          type="number"
+                          min="0"
+                          step="0.01"
+                          className="w-24 text-right font-mono border-blue-200 focus:border-blue-500"
+                          placeholder="Tax"
+                        />
+                        {formik.touched.BusinessTaxDue &&
+                          formik.errors.BusinessTaxDue && (
+                            <p className="text-red-300 text-sm">
+                              {formik.errors.BusinessTaxDue}
+                            </p>
+                          )}
+                      </div>
                     </div>
                   </div>
 
@@ -353,31 +676,45 @@ const CommunityTaxForm = ({ onSubmit, onCancel }) => {
                     <div className="lg:col-span-2">
                       <p className="text-sm text-gray-700">
                         2. Salaries or gross receipt or earnings derived from
-                        exercise of profession or pursuit of any occupation
+                        exercise of Occupation or pursuit of any occupation
                         (₱1.00 for every ₱1,000)
                       </p>
                     </div>
                     <div className="flex gap-3">
-                      <FormField
-                        name="salaries"
-                        value={formData.salaries}
-                        onChange={(e) =>
-                          handleInputChange('salaries', e.target.value)
-                        }
-                        label={`Taxable Amount: `}
-                        className="text-right font-mono border-blue-200 focus:border-blue-500"
-                        placeholder="Amount"
-                      />
-                      <FormField
-                        name="salariesTax"
-                        value={formData.salariesTax}
-                        label={`Community Due Amount: `}
-                        onChange={(e) =>
-                          handleInputChange('salariesTax', e.target.value)
-                        }
-                        className="w-24 text-right font-mono border-blue-200 focus:border-blue-500"
-                        placeholder="Tax"
-                      />
+                      <div>
+                        <FormField
+                          label="Taxable Amount:"
+                          {...getFieldProps('OccupationEarnings')}
+                          type="number"
+                          min="0"
+                          step="0.01"
+                          className="text-right font-mono border-blue-200 focus:border-blue-500"
+                          placeholder="Amount"
+                        />
+                        {formik.touched.OccupationEarnings &&
+                          formik.errors.OccupationEarnings && (
+                            <p className="text-red-300 text-sm">
+                              {formik.errors.OccupationEarnings}
+                            </p>
+                          )}
+                      </div>
+                      <div>
+                        <FormField
+                          label="Community Due Amount:"
+                          {...getFieldProps('OccupationTaxDue')}
+                          type="number"
+                          min="0"
+                          step="0.01"
+                          className="w-24 text-right font-mono border-blue-200 focus:border-blue-500"
+                          placeholder="Tax"
+                        />
+                        {formik.touched.OccupationTaxDue &&
+                          formik.errors.OccupationTaxDue && (
+                            <p className="text-red-300 text-sm">
+                              {formik.errors.OccupationTaxDue}
+                            </p>
+                          )}
+                      </div>
                     </div>
                   </div>
 
@@ -388,26 +725,40 @@ const CommunityTaxForm = ({ onSubmit, onCancel }) => {
                       </p>
                     </div>
                     <div className="flex gap-3">
-                      <FormField
-                        name="realProperty"
-                        value={formData.realProperty}
-                        onChange={(e) =>
-                          handleInputChange('realProperty', e.target.value)
-                        }
-                        label={`Taxable Amount: `}
-                        className="text-right font-mono border-blue-200 focus:border-blue-500"
-                        placeholder="Amount"
-                      />
-                      <FormField
-                        name="realPropertyTax"
-                        value={formData.realPropertyTax}
-                        label={`Community Due Amount: `}
-                        onChange={(e) =>
-                          handleInputChange('realPropertyTax', e.target.value)
-                        }
-                        className="w-24 text-right font-mono border-blue-200 focus:border-blue-500"
-                        placeholder="Tax"
-                      />
+                      <div>
+                        <FormField
+                          label="Taxable Amount:"
+                          {...getFieldProps('IncomeProperty')}
+                          type="number"
+                          min="0"
+                          step="0.01"
+                          className="text-right font-mono border-blue-200 focus:border-blue-500"
+                          placeholder="Amount"
+                        />
+                        {formik.touched.IncomeProperty &&
+                          formik.errors.IncomeProperty && (
+                            <p className="text-red-300 text-sm">
+                              {formik.errors.IncomeProperty}
+                            </p>
+                          )}
+                      </div>
+                      <div>
+                        <FormField
+                          label="Community Due Amount:"
+                          {...getFieldProps('PropertyTaxDue')}
+                          type="number"
+                          min="0"
+                          step="0.01"
+                          className="w-24 text-right font-mono border-blue-200 focus:border-blue-500"
+                          placeholder="Tax"
+                        />
+                        {formik.touched.PropertyTaxDue &&
+                          formik.errors.PropertyTaxDue && (
+                            <p className="text-red-300 text-sm">
+                              {formik.errors.PropertyTaxDue}
+                            </p>
+                          )}
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -421,24 +772,33 @@ const CommunityTaxForm = ({ onSubmit, onCancel }) => {
                     <div className="space-y-2">
                       <label className="font-medium block">Total</label>
                       <FormField
-                        name="totalTax"
-                        value={formData.totalTax}
-                        onChange={(e) =>
-                          handleInputChange('totalTax', e.target.value)
-                        }
+                        {...getFieldProps('Total')}
+                        type="number"
+                        min="0"
+                        step="0.01"
                         className="w-full text-right font-mono bg-white/20 border-white/30 text-white placeholder-white/70 px-3 py-2 rounded focus:outline-none focus:ring-2 focus:ring-white/50"
                       />
+                      {formik.touched.Total && formik.errors.Total && (
+                        <p className="text-red-300 text-sm">
+                          {formik.errors.Total}
+                        </p>
+                      )}
                     </div>
                     <div className="space-y-2">
                       <label className="font-medium block">Interest %</label>
                       <FormField
-                        name="interest"
-                        value={formData.interest}
-                        onChange={(e) =>
-                          handleInputChange('interest', e.target.value)
-                        }
+                        {...getFieldProps('Interest')}
+                        type="number"
+                        min="0"
+                        max="100"
+                        step="0.01"
                         className="w-full text-right font-mono bg-white/20 border-white/30 text-white placeholder-white/70 px-3 py-2 rounded focus:outline-none focus:ring-2 focus:ring-white/50"
                       />
+                      {formik.touched.Interest && formik.errors.Interest && (
+                        <p className="text-red-300 text-sm">
+                          {formik.errors.Interest}
+                        </p>
+                      )}
                     </div>
                   </div>
 
@@ -448,13 +808,18 @@ const CommunityTaxForm = ({ onSubmit, onCancel }) => {
                       Total Amount Paid
                     </label>
                     <FormField
-                      name="totalAmountPaid"
-                      value={formData.totalAmountPaid}
-                      onChange={(e) =>
-                        handleInputChange('totalAmountPaid', e.target.value)
-                      }
+                      {...getFieldProps('AmountReceived')}
+                      type="number"
+                      min="0"
+                      step="0.01"
                       className="w-full text-right font-mono bg-white/20 border-white/30 text-white placeholder-white/70 font-bold text-lg px-3 py-2 rounded focus:outline-none focus:ring-2 focus:ring-white/50"
                     />
+                    {formik.touched.AmountReceived &&
+                      formik.errors.AmountReceived && (
+                        <p className="text-red-300 text-sm">
+                          {formik.errors.AmountReceived}
+                        </p>
+                      )}
                   </div>
 
                   {/* Right Section - In Words */}
@@ -462,7 +827,7 @@ const CommunityTaxForm = ({ onSubmit, onCancel }) => {
                     <div className="text-center md:text-right">
                       <p className="text-sm text-white/80 mb-1">(in words)</p>
                       <p className="font-bold text-lg bg-white/10 px-3 py-2 rounded-lg inline-block w-full md:w-auto">
-                        NINETY-SIX PESOS
+                        {formik.values.AmountinWords || 'ZERO'} PESOS
                       </p>
                     </div>
                   </div>
@@ -472,12 +837,10 @@ const CommunityTaxForm = ({ onSubmit, onCancel }) => {
               {/* Remarks */}
               <FormField
                 label="Remarks"
-                name="remarks"
+                {...getFieldProps('Remarks')}
                 type="textarea"
-                value={formData.remarks}
-                onChange={(e) => handleInputChange('remarks', e.target.value)}
                 className="min-h-24 border-blue-200 focus:border-blue-500 focus:ring-blue-500"
-                placeholder="Enter any additional remarks here..."
+                placeholder="Enter any additional Remarks here..."
                 rows={3}
               />
             </div>
@@ -489,11 +852,32 @@ const CommunityTaxForm = ({ onSubmit, onCancel }) => {
           <button type="button" onClick={onCancel} className="btn btn-outline">
             Close
           </button>
-          <Button className="bg-blue-600 hover:bg-blue-700 text-white  text-lg rounded-md transition-colors">
-            Generate Certificate
+          <Button
+            type="submit"
+            className="bg-blue-600 hover:bg-blue-700 text-white text-lg rounded-md transition-colors"
+            disabled={!formik.isValid || formik.isSubmitting}
+          >
+            {formik.isSubmitting ? 'Generating...' : 'Generate Certificate'}
           </Button>
         </div>
-      </div>
+        {Object.keys(formik.errors).length > 0 && (
+          <div className="bg-red-50 border-l-4 border-red-500 p-4 mb-6">
+            <div className="flex">
+              <div className="flex-shrink-0">
+                <ExclamationCircleIcon className="h-5 w-5 text-red-500" />
+              </div>
+              <div className="ml-3">
+                <h3 className="text-sm font-medium text-red-800">
+                  There {Object.keys(formik.errors).length === 1 ? 'is' : 'are'}{' '}
+                  {Object.keys(formik.errors).length} error
+                  {Object.keys(formik.errors).length === 1 ? '' : 's'} in your
+                  form
+                </h3>
+              </div>
+            </div>
+          </div>
+        )}
+      </form>
     </div>
   );
 };

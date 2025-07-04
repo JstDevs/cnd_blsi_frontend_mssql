@@ -8,6 +8,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { fetchMunicipalities } from '@/features/settings/municipalitiesSlice';
 import { fetchUsers } from '@/features/settings/userSlice';
 import { fetchProvinces } from '@/features/settings/provincesSlice';
+import { fetchBurialRecords } from '@/features/collections/burialServiceSlice';
 function BurialServiceReceiptPage() {
   const dispatch = useDispatch();
   const { nationalities, isLoading: nationalityLoading } = useSelector(
@@ -20,31 +21,36 @@ function BurialServiceReceiptPage() {
   const { provinces, isLoading: provinceLoading } = useSelector(
     (state) => state.provinces
   );
+  const { records: burialRecord, isLoading } = useSelector(
+    (state) => state.burialRecords
+  );
+
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedReceipt, setSelectedReceipt] = useState(null);
-  const [receipts, setReceipts] = useState([
-    {
-      id: 1,
-      receiptNo: 'BSR-001',
-      name: 'John Doe',
-      cityMunicipality: 'Sample City',
-      province: 'Sample Province',
-      deceasedName: 'Jane Doe',
-      nationality: 'Filipino',
-      age: 75,
-      sex: 'Female',
-      dateOfDeath: '2024-03-15',
-      causeOfDeath: 'Natural Causes',
-      cemeteryName: 'Sample Cemetery',
-      serviceType: 'inter',
-    },
-  ]);
+  // const [receipts, setReceipts] = useState([
+  //   {
+  //     id: 1,
+  //     receiptNo: 'BSR-001',
+  //     name: 'John Doe',
+  //     cityMunicipality: 'Sample City',
+  //     province: 'Sample Province',
+  //     deceasedName: 'Jane Doe',
+  //     nationality: 'Filipino',
+  //     age: 75,
+  //     sex: 'Female',
+  //     dateOfDeath: '2024-03-15',
+  //     causeOfDeath: 'Natural Causes',
+  //     cemeteryName: 'Sample Cemetery',
+  //     serviceType: 'inter',
+  //   },
+  // ]);
 
   useEffect(() => {
     dispatch(fetchNationalities());
     dispatch(fetchUsers());
     dispatch(fetchMunicipalities());
     dispatch(fetchProvinces());
+    dispatch(fetchBurialRecords());
   }, [dispatch]);
 
   const columns = [
@@ -114,7 +120,7 @@ function BurialServiceReceiptPage() {
     }
     handleCloseModal();
   };
-
+  console.log({ burialRecord });
   return (
     <div className="container mx-auto px-4 py-8">
       <div className="flex justify-between items-center mb-6">
@@ -133,7 +139,7 @@ function BurialServiceReceiptPage() {
       <div className="bg-white rounded-lg shadow">
         <DataTable
           columns={columns}
-          data={receipts}
+          data={burialRecord}
           className="min-w-full divide-y divide-gray-200"
         />
       </div>
