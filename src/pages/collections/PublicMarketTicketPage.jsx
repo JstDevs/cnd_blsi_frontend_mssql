@@ -11,6 +11,7 @@ import {
   fetchPublicMarketTickets,
 } from '@/features/collections/PublicMarketTicketingSlice';
 import { useDispatch, useSelector } from 'react-redux';
+import { EyeIcon, PencilIcon, Trash } from 'lucide-react';
 
 const PublicMarketTicketPage = () => {
   const dispatch = useDispatch();
@@ -36,15 +37,11 @@ const PublicMarketTicketPage = () => {
     setIsModalOpen(true);
   };
 
-  const handleEdit = (ticket) => {
-    setSelectedTicket(ticket);
-    setIsModalOpen(true);
-  };
-
-  const handleDelete = async (id) => {
+  const handleDeleteTicket = async (ticket) => {
+    console.log('Deleting ticket:', ticket);
     if (window.confirm('Are you sure you want to delete this ticket?')) {
       try {
-        await dispatch(deletePublicMarketTicket(id)).unwrap();
+        await dispatch(deletePublicMarketTicket(ticket)).unwrap();
         toast.success('Ticket deleted successfully');
       } catch (error) {
         toast.error(error.message || 'Failed to delete ticket');
@@ -54,57 +51,80 @@ const PublicMarketTicketPage = () => {
 
   const columns = [
     {
-      key: 'ticketNumber',
+      key: 'Items',
       header: 'Items',
       accessorKey: 'items',
     },
-    { key: 'StartTime', header: 'Start Time', accessorKey: 'startTime' },
-    { key: 'EndTime', header: 'End Time', accessorKey: 'endTime' },
-    { key: 'issuedBy', header: 'Issued By', accessorKey: 'issuedBy' },
     {
-      key: 'dateIssued',
+      key: 'StartTime',
+      header: 'Start Time',
+      accessorKey: 'startTime',
+      cell: ({ row }) =>
+        new Date(row.original.startTime).toLocaleString('en-US', {
+          year: 'numeric',
+          month: 'long',
+          day: 'numeric',
+          hour: '2-digit',
+          minute: '2-digit',
+        }),
+    },
+    {
+      key: 'EndTime',
+      header: 'End Time',
+      accessorKey: 'endTime',
+      cell: ({ row }) =>
+        new Date(row.original.endTime).toLocaleString('en-US', {
+          year: 'numeric',
+          month: 'long',
+          day: 'numeric',
+          hour: '2-digit',
+          minute: '2-digit',
+        }),
+    },
+    { key: 'IssuedBy', header: 'Issued By', accessorKey: 'issuedBy' },
+    {
+      key: 'DateIssued',
       header: 'Date Issued',
       accessorKey: 'dateIssued',
       cell: ({ row }) => new Date(row.original.dateIssued).toLocaleDateString(),
     },
     {
-      key: 'postingPeriod',
+      key: 'PostingPeriod',
       header: 'Posting Period',
       accessorKey: 'postingPeriod',
       cell: ({ row }) =>
         new Date(row.original.postingPeriod).toLocaleDateString(),
     },
     {
-      key: 'amountIssued',
+      key: 'AmountIssued',
       header: 'Amount Issued',
       accessorKey: 'amountIssued',
       cell: ({ row }) => `₱${row.original.amountIssued?.toLocaleString()}`,
     },
-    { key: 'remarks', header: 'Remarks', accessorKey: 'remarks' },
+    { key: 'Remarks', header: 'Remarks', accessorKey: 'remarks' },
+  ];
+  const handleEditTicket = (ticket) => {
+    console.log('Edit ticket:', ticket);
+    setSelectedTicket(ticket);
+    setIsModalOpen(true);
+  };
+  // Actions for table rows
+  const actions = [
     {
-      key: 'actions',
-      header: 'Actions',
-      cell: ({ row }) => (
-        <div className="flex items-center space-x-2">
-          <button
-            onClick={() => handleEdit(row.original)}
-            className="text-blue-600 hover:text-blue-800"
-            disabled={isLoading}
-          >
-            <FiEdit2 className="w-5 h-5" />
-          </button>
-          <button
-            onClick={() => handleDelete(row.original.id)}
-            className="text-red-600 hover:text-red-800"
-            disabled={isLoading}
-          >
-            <FiTrash2 className="w-5 h-5" />
-          </button>
-        </div>
-      ),
+      icon: PencilIcon,
+      title: 'Edit',
+      onClick: handleEditTicket,
+      className:
+        'text-primary-600 hover:text-primary-900 p-1 rounded-full hover:bg-primary-50',
+    },
+    {
+      icon: Trash,
+      title: 'Delete',
+      onClick: handleDeleteTicket,
+      className:
+        'text-red-600 hover:text-red-900 p-1 rounded-full hover:bg-red-50',
     },
   ];
-
   return (
     <div className="container mx-auto px-4 py-8">
       <div className="flex justify-between items-center mb-6">
@@ -118,7 +138,12 @@ const PublicMarketTicketPage = () => {
       </div>
 
       <div className="bg-white rounded-lg shadow">
-        <DataTable columns={columns} data={tickets} isLoading={isLoading} />
+        <DataTable
+          columns={columns}
+          data={tickets}
+          isLoading={isLoading}
+          actions={actions}
+        />
       </div>
 
       <Modal

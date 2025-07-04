@@ -12,7 +12,7 @@ import DataTable from '@/components/common/DataTable';
 import { Formik, Form } from 'formik';
 import * as Yup from 'yup';
 import CTCForm from './CTCForm';
-import SearchableDropdown from '@/components/common/SearchableDropDown';
+import SearchableDropdown from '@/components/common/SearchableDropdown';
 import Modal from '@/components/common/Modal';
 
 // Sample data for demonstration
@@ -41,42 +41,6 @@ const sampleCertificates = [
     year: '2024',
     issuedBy: 'Treasury SH.',
     status: 'Requested',
-  },
-  {
-    id: 3,
-    customerId: '10',
-    customerName: 'sherwin pua ola',
-    total: 1300.0,
-    amountReceived: 100.0,
-    earnings: 1000000.0,
-    taxDue: 400.0,
-    year: '2024',
-    issuedBy: 'Treasury SH.',
-    status: 'Posted',
-  },
-  {
-    id: 4,
-    customerId: '10015',
-    customerName: 'LBM Enterprises',
-    total: 15750.0,
-    amountReceived: 1000.0,
-    earnings: 100000000.0,
-    taxDue: 40000.0,
-    year: '2024',
-    issuedBy: 'Treasury S H.',
-    status: 'Posted',
-  },
-  {
-    id: 5,
-    customerId: '13',
-    customerName: 'JST Technology',
-    total: 583.2,
-    amountReceived: 500.0,
-    earnings: 0.0,
-    taxDue: 0.0,
-    year: '2024',
-    issuedBy: 'Treasury SH.',
-    status: 'Cancelled',
   },
 ];
 
@@ -262,6 +226,11 @@ function CommunityTaxCorporationPage() {
   const handleCloseListModal = () => {
     setShowListModal(false);
   };
+  const handleCTCSubmitSuccess = () => {
+    // Here you would typically refresh the list or show a success message
+    console.log('Form submitted successfully');
+    handleBackToList();
+  };
   return (
     <div className="container mx-auto  sm:px-4 sm:py-8">
       {currentView === 'list' && (
@@ -374,7 +343,8 @@ function CommunityTaxCorporationPage() {
             <CTCForm
               initialData={currentCertificate}
               onCancel={handleBackToList}
-              onSubmitSuccess={handleBackToList}
+              onSubmitSuccess={handleCTCSubmitSuccess}
+              readOnly={false}
             />
           </div>
         </div>
@@ -519,124 +489,3 @@ function CommunityTaxCorporationPage() {
 }
 
 export default CommunityTaxCorporationPage;
-{
-  /* <Formik
-  initialValues={selectedRecord || {
-    certificateNo: '',
-    date: new Date().toISOString().split('T')[0],
-    corporationName: '',
-    tin: '',
-    address: '',
-    businessType: '',
-    grossReceipts: '',
-    purpose: '',
-    amount: '',
-    interest: ''
-  }}
-  validationSchema={corporationTaxSchema}
-  onSubmit={handleSubmit}
-  enableReinitialize
->
-  {({ isSubmitting }) => (
-    <Form className="space-y-4">
-      <div className="grid grid-cols-2 gap-4">
-        <FormField
-          label="Certificate No."
-          name="certificateNo"
-          type="text"
-          required
-        />
-        <FormField
-          label="Date"
-          name="date"
-          type="date"
-          required
-        />
-      </div>
-
-      <FormField
-        label="Corporation Name"
-        name="corporationName"
-        type="text"
-        required
-      />
-
-      <FormField
-        label="TIN"
-        name="tin"
-        type="text"
-        required
-      />
-
-      <FormField
-        label="Address"
-        name="address"
-        type="text"
-        required
-      />
-
-      <FormField
-        label="Business Type"
-        name="businessType"
-        type="select"
-        options={[
-          { value: 'Manufacturing', label: 'Manufacturing' },
-          { value: 'Trading', label: 'Trading' },
-          { value: 'Services', label: 'Services' },
-          { value: 'Construction', label: 'Construction' },
-          { value: 'Real Estate', label: 'Real Estate' },
-          { value: 'Others', label: 'Others' }
-        ]}
-        required
-      />
-
-      <FormField
-        label="Gross Receipts"
-        name="grossReceipts"
-        type="number"
-        required
-      />
-
-      <FormField
-        label="Purpose"
-        name="purpose"
-        type="textarea"
-        required
-      />
-
-      <FormField
-        label="Amount"
-        name="amount"
-        type="number"
-        required
-      />
-
-      <FormField
-        label="Interest (%)"
-        name="interest"
-        type="number"
-      />
-
-      <div className="flex justify-end gap-2 pt-4">
-        <button
-          type="button"
-          onClick={() => {
-            setIsModalOpen(false);
-            setSelectedRecord(null);
-          }}
-          className="px-4 py-2 border rounded-lg text-gray-600 hover:bg-gray-50"
-        >
-          Cancel
-        </button>
-        <button
-          type="submit"
-          disabled={isSubmitting}
-          className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-primary-dark disabled:opacity-50"
-        >
-          {isSubmitting ? 'Saving...' : 'Save'}
-        </button>
-      </div>
-    </Form>
-  )}
-</Formik> */
-}
