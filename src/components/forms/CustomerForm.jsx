@@ -100,7 +100,7 @@ function CustomerForm({ initialData, onSubmit, onClose }) {
         <FormField label="Phone Number" name="PhoneNumber" value={values.PhoneNumber} onChange={handleChange} onBlur={handleBlur} error={errors.PhoneNumber} touched={touched.PhoneNumber} required />
         <FormField label="Mobile Number" name="MobileNumber" value={values.MobileNumber} onChange={handleChange} onBlur={handleBlur} error={errors.MobileNumber} touched={touched.MobileNumber} required />
         <FormField label="Name" name="Name" value={values.Name} onChange={handleChange} onBlur={handleBlur} error={errors.Name} touched={touched.Name} required />
-        <FormField label="EmailAddress" name="EmailAddress" type="email" value={values.EmailAddress} onChange={handleChange} onBlur={handleBlur} error={errors.EmailAddress} touched={touched.EmailAddress} required />
+        <FormField label="Email" name="EmailAddress" type="email" value={values.EmailAddress} onChange={handleChange} onBlur={handleBlur} error={errors.EmailAddress} touched={touched.EmailAddress} required />
         <FormField label="Website" name="Website" value={values.Website} onChange={handleChange} onBlur={handleBlur} error={errors.Website} touched={touched.Website} required />
         <FormField label="Region" name="RegionID" type="select" options={regions.map(r => ({ value: r.ID, label: r.Name }))} value={values.RegionID} onChange={handleChange} onBlur={handleBlur} error={errors.RegionID} touched={touched.RegionID} required />
         <FormField label="Province" name="ProvinceID" type="select" options={provinces.map(p => ({ value: p.ID, label: p.Name }))} value={values.ProvinceID} onChange={handleChange} onBlur={handleBlur} error={errors.ProvinceID} touched={touched.ProvinceID} required />

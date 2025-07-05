@@ -119,6 +119,7 @@ import CollectionDashboardPage from './pages/collections/CollectionDashboardPage
 import GeneralReceiptPage from './pages/collections/GeneralReceipt/GeneralReceiptPage';
 import RealPropertyTaxPage from './pages/collections/RealProprtyTax/RealPropertyTaxPage';
 import TrialBalance from './pages/reports/TrialBalance';
+import TrialBalancePage from './pages/reports/TrialBalancePage';
 
 function App() {
   const { isAuthenticated, isLoading } = useSelector((state) => state.auth);
@@ -460,7 +461,8 @@ function App() {
           />
           <Route path="/reports/budget" element={<BudgetReportPage />} />
           <Route path="/reports/bir" element={<BirReportPage />} />
-          <Route path="/reports/trial-balance" element={<TrialBalance />} />
+          {/* <Route path="/reports/trial-balance" element={<TrialBalance />} /> */}
+          <Route path="/reports/trial-balance" element={<TrialBalancePage />} />
 
           {/* ---------------------------CHANGE PASSWORD------------------- */}
           <Route path="/change-password" element={<ChangePassword />} />

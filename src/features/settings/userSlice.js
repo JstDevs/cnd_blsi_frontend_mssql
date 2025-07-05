@@ -242,6 +242,9 @@ const userSlice = createSlice({
       })
       .addCase(addUser.fulfilled, (state, action) => {
         state.isLoading = false;
+        if (!Array.isArray(state.users)) {
+          state.users = [];
+        }
         state.users.push(action.payload);
         state.error = null;
       })

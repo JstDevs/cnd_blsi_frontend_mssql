@@ -1,15 +1,18 @@
 import React, { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import GeneralJournalForm from '../../components/forms/GeneralJournalForm';
+import TrialBalanceForm from '../../components/forms/TrialBalanceForm';
 import DataTable from '../../components/common/DataTable';
-import { fetchGeneralJournals, resetGeneralJournalState } from '../../features/disbursement/generalJournalSlice';
+import { fetchTrialBalances, resetTrialBalanceState } from '../../features/reports/trialBalanceSlice';
 import { fetchFunds } from '../../features/budget/fundsSlice';
+import { fetchEmployees } from "@/features/settings/employeeSlice";
 
-function GeneralJournalPage() {
+function TrialBalancePage() {
   const API_URL = import.meta.env.VITE_API_URL;
   const dispatch = useDispatch();
-  const { generalJournals, isLoading, error } = useSelector(state => state.generalJournal);
+
+  const { trialBalances, isLoading, error } = useSelector(state => state.trialBalance);
   const { funds } = useSelector(state => state.funds);
+  const { employees } = useSelector(state => state.employees);
 
   // Format currency for display
   const formatCurrency = (amount) => {
@@ -20,36 +23,21 @@ function GeneralJournalPage() {
   };
   
   useEffect(() => {
-    dispatch(resetGeneralJournalState()); // Reset state on mount
+    dispatch(resetTrialBalanceState());
     dispatch(fetchFunds());
+    dispatch(fetchEmployees());
   }, [dispatch]);
 
   // Table columns definition
   const columns = [
-    {
-      key: 'Date',
-      header: 'Date',
-      sortable: true,
-      render: (value) => new Date(value).toLocaleDateString(),
-    },
-    {
-      key: 'VoucherNo',
-      header: 'Voucher No',
-      sortable: true,
-    },
-    {
-      key: 'Remarks',
-      header: 'Remarks',
-      sortable: true,
-    },
     {
       key: 'AccountCode',
       header: 'Account Code',
       sortable: true,
     },
     {
-      key: 'S/L',
-      header: 'S/L',
+      key: 'AccountName',
+      header: 'Account Name',
       sortable: true,
     },
     {
@@ -67,13 +55,28 @@ function GeneralJournalPage() {
       className: 'text-right',
     },
     {
-      key: 'Approver',
-      header: 'Approver',
+      key: 'EndDate',
+      header: 'End Date',
+      sortable: true,
+    },
+    {
+      key: 'Funds',
+      header: 'Funds',
+      sortable: true,
+    },
+    {
+      key: 'FullName',
+      header: 'Full Name',
       sortable: true,
     },
     {
       key: 'Position',
       header: 'Position',
+      sortable: true,
+    },
+    {
+      key: 'Municipality',
+      header: 'Municipality',
       sortable: true,
     },
   ];
@@ -82,15 +85,16 @@ function GeneralJournalPage() {
   // Handle export to Excel
   const handleExport = async (values) => {
     try {
-      const response = await fetch(`${API_URL}/generalJournal/exportExcel`, {
+      const response = await fetch(`${API_URL}/trialBalanceReport/exportExcel`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
         },
         body: JSON.stringify({
-          startDate: values.startDate,
           endDate: values.endDate,
           fundID: values.fundID,
+          approverID: values.approverID,
+          ledger: values.ledger,
         })
       });
 
@@ -98,7 +102,7 @@ function GeneralJournalPage() {
 
       const blob = await response.blob();
       const disposition = response.headers.get('Content-Disposition');
-      let filename = `General_Journal.xlsx`;
+      let filename = `Trial_Balance.xlsx`;
       if (disposition && disposition.includes('filename=')) {
         filename = disposition.split('filename=')[1].replace(/['"]/g, '');
       }
@@ -117,25 +121,26 @@ function GeneralJournalPage() {
 
     } catch (err) {
       console.error('Export failed:', err);
-      alert(err.message || 'Failed to export general journal');
+      alert(err.message || 'Failed to export trial balance');
     }
   };
 
   // Handle view to Excel
   const handleView = (values) => {
-    dispatch(fetchGeneralJournals(values));
+    dispatch(fetchTrialBalances(values));
   };
 
   return (
     <div>
       <div className="page-header">
-        <h1>General Journal</h1>
-        <p>Generate general journal reports.</p>
+        <h1>Trial Balance</h1>
+        <p>Generate trial balance reports.</p>
       </div>
       
       <div className="mt-4 p-6 bg-white rounded-md shadow">
-        <GeneralJournalForm 
+        <TrialBalanceForm
           funds={funds}
+          employees={employees}
           onExportExcel={handleExport}
           onView={handleView}
           onClose={() => {}}
@@ -151,7 +156,7 @@ function GeneralJournalPage() {
       <div className="mt-6">
         <DataTable
           columns={columns}
-          data={generalJournals}
+          data={trialBalances}
           loading={isLoading}
           pagination={true}
         />
@@ -160,4 +165,4 @@ function GeneralJournalPage() {
   );
 }
 
-export default GeneralJournalPage; 
+export default TrialBalancePage;

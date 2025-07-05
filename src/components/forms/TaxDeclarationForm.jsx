@@ -182,7 +182,7 @@ function TaxDeclarationForm({ initialData, onSubmit, onClose }) {
       </fieldset>
 
       <fieldset className="grid grid-cols-1 md:grid-cols-3 gap-4 p-4 border border-gray-300">
-        <FormField label="OCT/TCT/CLOA No." name="OCT_TCT_CLOA_Number" type="number" {...{ value: values.OCT_TCT_CLOA_Number, onChange: handleChange, onBlur: handleBlur, error: errors.OCT_TCT_CLOA_Number, touched: touched.OCT_TCT_CLOA_Number }} />
+        <FormField label="OCT/TCTCLOA No." name="OCT_TCT_CLOA_Number" type="number" {...{ value: values.OCT_TCT_CLOA_Number, onChange: handleChange, onBlur: handleBlur, error: errors.OCT_TCT_CLOA_Number, touched: touched.OCT_TCT_CLOA_Number }} />
         <FormField label="Survey No." name="SurveyNumber" type="number" {...{ value: values.SurveyNumber, onChange: handleChange, onBlur: handleBlur, error: errors.SurveyNumber, touched: touched.SurveyNumber }} />
         <FormField label="Lot No." name="LotNumber" type="text" {...{ value: values.LotNumber, onChange: handleChange, onBlur: handleBlur, error: errors.LotNumber, touched: touched.LotNumber }} />
         <FormField label="CCT" name="CCT" type="text" {...{ value: values.CCT, onChange: handleChange, onBlur: handleBlur, error: errors.CCT, touched: touched.CCT }} />
@@ -273,7 +273,7 @@ function TaxDeclarationForm({ initialData, onSubmit, onClose }) {
             Effectivity of Assessment/Reassessment
           </label>
           <input
-            type="date"
+            type="text"
             name="Effectivity"
             value={values.Effectivity}
             onChange={handleChange}

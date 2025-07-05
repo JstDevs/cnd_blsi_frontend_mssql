@@ -1,76 +1,43 @@
-import { useState } from 'react';
-import { useSelector } from 'react-redux';
-import { PrinterIcon, ArrowDownTrayIcon } from '@heroicons/react/24/outline';
+import React, { useEffect } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import GeneralLedgerForm from '../../components/forms/GeneralLedgerForm';
 import DataTable from '../../components/common/DataTable';
-import FormField from '../../components/common/FormField';
+import { fetchGeneralLedgers, resetGeneralLedgerState } from '../../features/reports/generalLedgerSlice';
+import { fetchFunds } from '../../features/budget/fundsSlice';
+import { fetchAccounts } from '../../features/settings/chartOfAccountsSlice';
 
 function GeneralLedgerPage() {
-  const [filters, setFilters] = useState({
-    startDate: '',
-    endDate: '',
-    accountCode: '',
-    fund: '',
-  });
+  const API_URL = import.meta.env.VITE_API_URL;
+  const dispatch = useDispatch();
 
-  // Mock data for dropdowns
-  const accounts = [
-    {
-      value: '1-01-01-010',
-      label: '1-01-01-010 - Cash in Bank - Local Currency, Current Account',
-    },
-    {
-      value: '1-01-02-020',
-      label: '1-01-02-020 - Cash - Treasury/Collecting Officer',
-    },
-  ];
+  const { generalLedgers, isLoading, error } = useSelector(state => state.generalLedger);
+  const { funds } = useSelector(state => state.funds);
+  const { accounts } = useSelector((state) => state.chartOfAccounts);  
 
-  const funds = [
-    { value: 'General Fund', label: 'General Fund' },
-    { value: 'Special Education Fund', label: 'Special Education Fund' },
-    { value: 'Trust Fund', label: 'Trust Fund' },
-  ];
-
-  // Mock data for table
-  const entries = [
-    {
-      id: 1,
-      ap_ar: 'AR', // Accounts Receivable
-      fund: 'General Fund',
-      account_name: 'Real Property Tax Receivable',
-      account_code: '1-01-01-010',
-      date: '2024-01-15',
-      ledger_item: 'Collection of RPT',
-      invoice_number: 'INV-2024-001',
-      account_code_secondary: '1-01-02-100',
-      account_name_secondary: 'Cash in Bank - LBP',
-      debit: 50000.0,
-      credit: 0.0,
-      balance: 50000.0,
-      municipality: 'BASCO (Capital)',
-      reference: 'JEV-2024-01-0001',
-      particulars: 'To record collection of real property tax for Q1 2024',
-    },
-  ];
-
-  // Format amount as Philippine Peso
+  // Format currency for display
   const formatCurrency = (amount) => {
     return new Intl.NumberFormat('en-PH', {
       style: 'currency',
       currency: 'PHP',
     }).format(amount);
   };
+  
+  useEffect(() => {
+    dispatch(resetGeneralLedgerState());
+    dispatch(fetchFunds());
+    dispatch(fetchAccounts());
+  }, [dispatch]);
 
-  // Table columns
+  // Table columns definition
   const columns = [
     {
       key: 'id',
       header: 'ID',
       sortable: true,
-      className: 'font-medium',
     },
     {
       key: 'ap_ar',
-      header: 'AP/AR',
+      header: 'AP AR',
       sortable: true,
     },
     {
@@ -82,7 +49,6 @@ function GeneralLedgerPage() {
       key: 'account_name',
       header: 'Account Name',
       sortable: true,
-      className: 'font-medium',
     },
     {
       key: 'account_code',
@@ -93,7 +59,6 @@ function GeneralLedgerPage() {
       key: 'date',
       header: 'Date',
       sortable: true,
-      render: (value) => new Date(value).toLocaleDateString(),
     },
     {
       key: 'ledger_item',
@@ -106,13 +71,13 @@ function GeneralLedgerPage() {
       sortable: true,
     },
     {
-      key: 'account_code_secondary',
-      header: 'Account Code',
+      key: 'account_code_display',
+      header: 'Account Code Display',
       sortable: true,
     },
     {
-      key: 'account_name_secondary',
-      header: 'Account Name',
+      key: 'account_name_display',
+      header: 'Account Name Display',
       sortable: true,
     },
     {
@@ -134,7 +99,7 @@ function GeneralLedgerPage() {
       header: 'Balance',
       sortable: true,
       render: (value) => formatCurrency(value),
-      className: 'text-right font-medium',
+      className: 'text-right',
     },
     {
       key: 'municipality',
@@ -143,100 +108,90 @@ function GeneralLedgerPage() {
     },
   ];
 
+  
+  // Handle export to Excel
+  const handleExport = async (values) => {
+    try {
+      const response = await fetch(`${API_URL}/generalLedger/exportExcel`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          startDate: values.startDate,
+          endDate: values.endDate,
+          fundID: values.fundID,
+        })
+      });
+
+      if (!response.ok) throw new Error('Server response was not ok');
+
+      const blob = await response.blob();
+      const disposition = response.headers.get('Content-Disposition');
+      let filename = `General_Ledger.xlsx`;
+      if (disposition && disposition.includes('filename=')) {
+        filename = disposition.split('filename=')[1].replace(/['"]/g, '');
+      }
+
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+
+      // Optional: custom file name
+      link.download = filename;
+
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(url);
+
+    } catch (err) {
+      console.error('Export failed:', err);
+      alert(err.message || 'Failed to export general ledger');
+    }
+  };
+
+  // Handle view to Excel
+  const handleView = (values) => {
+    dispatch(fetchGeneralLedgers(values));
+  };
+
   return (
     <div>
       <div className="page-header">
-        <div className="flex justify-between items-center">
-          <div>
-            <h1>General Ledger</h1>
-            <p>View and print general ledger reports</p>
-          </div>
-          <div className="flex space-x-2">
-            <button type="button" className="btn btn-outline flex items-center">
-              <ArrowDownTrayIcon className="h-5 w-5 mr-2" />
-              Export
-            </button>
-            <button type="button" className="btn btn-outline flex items-center">
-              <PrinterIcon className="h-5 w-5 mr-2" />
-              Print
-            </button>
-          </div>
-        </div>
+        <h1>General Ledger</h1>
+        <p>Generate general ledger reports.</p>
+      </div>
+      
+      <div className="mt-4 p-6 bg-white rounded-md shadow">
+        <GeneralLedgerForm 
+          funds={funds}
+          accountOptions={accounts.map(acc => ({
+            value: acc.ID,
+            label: `${acc.AccountCode} - ${acc.Name}`,
+          }))}
+          onExportExcel={handleExport}
+          onView={handleView}
+          onClose={() => {}}
+        />
       </div>
 
-      <div className="mt-4 card p-4">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {/* <FormField
-            label="End Date"
-            name="endDate"
-            type="date"
-            value={filters.endDate}
-            onChange={(e) => setFilters({ ...filters, endDate: e.target.value })}
-          /> */}
-
-          <FormField
-            label="Account"
-            name="accountCode"
-            type="select"
-            value={filters.accountCode}
-            onChange={(e) =>
-              setFilters({ ...filters, accountCode: e.target.value })
-            }
-            options={accounts}
-          />
-
-          <FormField
-            label="Cut-off Date"
-            name="startDate"
-            type="date"
-            value={filters.startDate}
-            onChange={(e) =>
-              setFilters({ ...filters, startDate: e.target.value })
-            }
-          />
-          <FormField
-            label="Fund"
-            name="fund"
-            type="select"
-            value={filters.fund}
-            onChange={(e) => setFilters({ ...filters, fund: e.target.value })}
-            options={funds}
-          />
+      {error && (
+        <div className="mt-4 p-4 bg-error-50 border border-error-200 rounded-md">
+          <p className="text-error-700">{error}</p>
         </div>
+      )}
 
-        <div className="flex justify-end gap-4 mt-4">
-          <button
-            type="button"
-            className="btn mt-2 sm:mt-0 btn-outline w-full sm:w-auto"
-            onClick={() =>
-              setFilters({
-                startDate: '',
-                endDate: '',
-                accountCode: '',
-                subAccount: '',
-                fund: '',
-              })
-            }
-          >
-            Clear
-          </button>
-          <button
-            type="button"
-            className="btn btn-primary"
-            onClick={() => {
-              // Handle filter application
-            }}
-          >
-            View
-          </button>
-        </div>
-      </div>
-
-      <div className="mt-4">
-        <DataTable columns={columns} data={entries} pagination={true} />
+      <div className="mt-6">
+        <DataTable
+          columns={columns}
+          data={generalLedgers}
+          loading={isLoading}
+          pagination={true}
+        />
       </div>
     </div>
   );
 }
 
-export default GeneralLedgerPage;
+export default GeneralLedgerPage; 

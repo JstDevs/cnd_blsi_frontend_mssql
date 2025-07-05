@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import DisbursementJournalForm from '../../components/forms/DisbursementJournalForm';
 import DataTable from '../../components/common/DataTable';
-import { fetchDisbursementJournals } from '../../features/disbursement/disbursementJournalSlice';
+import { fetchDisbursementJournals, resetDisbursementJournalState } from '../../features/disbursement/disbursementJournalSlice';
 import { fetchAccounts } from '../../features/settings/chartOfAccountsSlice';
 import { fetchFunds } from '../../features/budget/fundsSlice';
 
@@ -22,6 +22,7 @@ function DisbursementJournalPage() {
   ];
 
   useEffect(() => {
+    dispatch(resetDisbursementJournalState()); // Reset state on mount
     dispatch(fetchAccounts());
     dispatch(fetchFunds());
   }, [dispatch]);

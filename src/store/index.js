@@ -60,6 +60,10 @@ import generalServiceReceiptsReducer from '../features/collections/generalServic
 import disbursementJournalReducer from '../features/disbursement/disbursementJournalSlice';
 import beginningBalanceSlice from '../features/disbursement/beginningBalanceSlice';
 import generalJournalReducer from '../features/disbursement/generalJournalSlice';
+import generalLedgerReducer from '../features/reports/generalLedgerSlice';
+import trialBalanceReducer from '../features/reports/trialBalanceSlice';
+import subsidiaryLedgerReducer from '../features/reports/subsidiaryLedgerSlice';
+import financialStatementReportsReducer from '../features/reports/financialStatementSlice';
 import realPropertyTaxReducer from '../features/collections/realPropertyTaxSlice';
 import budgetReducer from '../features/budget/budgetSlice';
 import { burialRecordsReducer } from '@/features/collections/burialServiceSlice';
@@ -125,6 +129,10 @@ export const store = configureStore({
     disbursementJournal: disbursementJournalReducer,
     beginningBalance: beginningBalanceSlice,
     generalJournal: generalJournalReducer,
+    generalLedger: generalLedgerReducer,
+    trialBalance: trialBalanceReducer,
+    subsidiaryLedger: subsidiaryLedgerReducer,
+    financialStatementsReports: financialStatementReportsReducer,
     budget: budgetReducer,
     subFunds: subFundsReducer,
     funds: fundsReducer,
