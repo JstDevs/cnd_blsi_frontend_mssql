@@ -10,9 +10,14 @@ import { ExclamationCircleIcon } from '@heroicons/react/24/outline';
 const validationSchema = Yup.object({
   // Certificate Information
   Year: Yup.number()
+    .typeError('Year must be a number')
     .required('Year is required')
     .min(1900, 'Year must be after 1900')
     .max(new Date().getFullYear(), 'Year cannot be in the future'),
+  // .transform((value, originalValue) => {
+  //   // Convert to string when valid
+  //   return isNaN(value) ? originalValue : String(value);
+  // }),
   PlaceIssued: Yup.string()
     .required('Place of issue is required')
     .min(2, 'Place of issue must be at least 2 characters'),
@@ -80,13 +85,18 @@ const validationSchema = Yup.object({
     .min(2, 'Profession must be at least 2 characters'),
   Gender: Yup.string().required('Sex is required'),
   Height: Yup.number()
+    .typeError('Height must be a number')
     .required('Height is required')
     .min(100, 'Height must be at least 100 cm')
     .max(250, 'Height must not exceed 250 cm'),
+  // .transform((value) => (isNaN(value) ? value : String(value))),
+
   Weight: Yup.number()
+    .typeError('Weight must be a number')
     .required('Weight is required')
     .min(30, 'Weight must be at least 30 kg')
     .max(300, 'Weight must not exceed 300 kg'),
+  // .transform((value) => (isNaN(value) ? value : String(value))),
 
   // Tax Information
   BasicTax: Yup.number()
@@ -214,6 +224,8 @@ const CommunityTaxForm = ({
             IsNew: 'false',
             IsSelectedFromIndividual: 'False',
             EmployeeID: 1,
+            ID: initialData.ID,
+            customerID: initialData.Customer.ID,
             ...transformValues(values),
           }
         : {
@@ -234,7 +246,9 @@ const CommunityTaxForm = ({
   const transformValues = (values) => {
     const transformedValues = {
       ...values,
-
+      Year: String(values.Year),
+      Height: String(values.Height),
+      Weight: String(values.Weight),
       InputOne: Number(values.BusinessEarnings), // Previously Business Earnings
       InputTwo: Number(values.OccupationEarnings), // Previously Occupation Earnings
       InputThree: Number(values.IncomeProperty), // Previously Real Property
