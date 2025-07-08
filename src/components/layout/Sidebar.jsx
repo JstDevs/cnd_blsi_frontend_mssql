@@ -122,9 +122,9 @@ const navigation = [
         ],
       },
       {
-        name: 'Employees',
+        name: 'Employee',
         submenu: [
-          { name: 'Employees', href: '/settings/employees' },
+          { name: 'Employee Details', href: '/settings/employees' },
           { name: 'Employment Status', href: '/settings/employmentStatus' },
           { name: 'Positions', href: '/settings/positions' },
           { name: 'Nationalities', href: '/settings/nationalities' },

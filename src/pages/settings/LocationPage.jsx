@@ -46,10 +46,10 @@ function LocationPage() {
 
   const dispatch = useDispatch();
 
-  const { regions } = useSelector(state => state.regions);
-  const { provinces } = useSelector(state => state.provinces);
-  const { municipalities } = useSelector(state => state.municipalities);
-  const { barangays } = useSelector(state => state.barangays);
+  const { regions } = useSelector((state) => state.regions);
+  const { provinces } = useSelector((state) => state.provinces);
+  const { municipalities } = useSelector((state) => state.municipalities);
+  const { barangays } = useSelector((state) => state.barangays);
 
   useEffect(() => {
     dispatch(fetchRegions());
@@ -165,13 +165,15 @@ function LocationPage() {
       icon: PencilIcon,
       title: 'Edit',
       onClick: (location) => handleEditLocation(location),
-      className: 'text-primary-600 hover:text-primary-900 p-1 rounded-full hover:bg-primary-50'
+      className:
+        'text-primary-600 hover:text-primary-900 p-1 rounded-full hover:bg-primary-50',
     },
     {
       icon: TrashIcon,
       title: 'Delete',
       onClick: (location) => handleDeleteLocation(location),
-      className: 'text-error-600 hover:text-error-900 p-1 rounded-full hover:bg-error-50'
+      className:
+        'text-error-600 hover:text-error-900 p-1 rounded-full hover:bg-error-50',
     },
   ];
 
@@ -206,7 +208,7 @@ function LocationPage() {
           RegionCode: '',
           ProvinceCode: '',
           MunicipalityCode: '',
-        }
+        },
       });
     }
   }, [isModalOpen, currentLocation]);
@@ -222,7 +224,9 @@ function LocationPage() {
     validationSchema: getValidationSchema(),
     onSubmit: async (values, { setSubmitting }) => {
       const action = currentLocation ? getUpdateAction() : getAddAction();
-      const payload = currentLocation ? { ...currentLocation, ...values } : values;
+      const payload = currentLocation
+        ? { ...currentLocation, ...values }
+        : values;
       await dispatch(action(payload));
       setIsModalOpen(false);
       setSubmitting(false);
@@ -236,7 +240,11 @@ function LocationPage() {
       onBlur: formik.handleBlur,
       required: true,
     };
-
+    // Helper function to get region/province name from code
+    const getNameFromCode = (code, list) => {
+      const item = list.find((item) => item.ID.toString() === code.toString());
+      return item ? item.Name : '';
+    };
     switch (activeTab) {
       case 'region':
         return (
@@ -268,7 +276,7 @@ function LocationPage() {
               label="Region"
               name="RegionCode"
               type="select"
-              options={regions.map(r => ({ value: r.ID, label: r.Name }))}
+              options={regions.map((r) => ({ value: r.ID, label: r.Name }))}
               value={formik.values.RegionCode}
               error={formik.errors.RegionCode}
               touched={formik.touched.RegionCode}
@@ -293,21 +301,34 @@ function LocationPage() {
               label="Province"
               name="ProvinceCode"
               type="select"
-              options={provinces.map(p => ({ value: p.ID, label: p.Name }))}
+              options={provinces.map((p) => ({ value: p.ID, label: p.Name }))}
               value={formik.values.ProvinceCode}
               error={formik.errors.ProvinceCode}
               touched={formik.touched.ProvinceCode}
-              {...commonProps}
+              onChange={(e) => {
+                const provinceCode = e.target.value;
+                const selectedProvince = provinces.find(
+                  (p) => p.ID.toString() === provinceCode.toString()
+                );
+
+                formik.setFieldValue('ProvinceCode', provinceCode);
+                if (selectedProvince) {
+                  formik.setFieldValue(
+                    'RegionCode',
+                    selectedProvince.RegionCode
+                  );
+                }
+              }}
+              onBlur={formik.handleBlur} // Explicitly set here
+              required={true} // Explicitly set here
             />
             <FormField
               label="Region"
               name="RegionCode"
-              type="select"
-              options={regions.map(r => ({ value: r.ID, label: r.Name }))}
-              value={formik.values.RegionCode}
-              error={formik.errors.RegionCode}
-              touched={formik.touched.RegionCode}
-              {...commonProps}
+              type="text"
+              value={getNameFromCode(formik.values.RegionCode, regions)}
+              readOnly
+              className="bg-gray-100 cursor-not-allowed"
             />
           </>
         );
@@ -328,31 +349,49 @@ function LocationPage() {
               label="Municipality"
               name="MunicipalityCode"
               type="select"
-              options={municipalities.map(m => ({ value: m.ID, label: m.Name }))}
+              options={municipalities.map((m) => ({
+                value: m.ID,
+                label: m.Name,
+              }))}
               value={formik.values.MunicipalityCode}
               error={formik.errors.MunicipalityCode}
               touched={formik.touched.MunicipalityCode}
-              {...commonProps}
+              onChange={(e) => {
+                const municipalityCode = e.target.value;
+                const selectedMunicipality = municipalities.find(
+                  (m) => m.ID.toString() === municipalityCode.toString()
+                );
+
+                formik.setFieldValue('MunicipalityCode', municipalityCode);
+                if (selectedMunicipality) {
+                  formik.setFieldValue(
+                    'ProvinceCode',
+                    selectedMunicipality.ProvinceCode
+                  );
+                  formik.setFieldValue(
+                    'RegionCode',
+                    selectedMunicipality.RegionCode
+                  );
+                }
+              }}
+              onBlur={formik.handleBlur}
+              required={true}
             />
             <FormField
               label="Province"
               name="ProvinceCode"
-              type="select"
-              options={provinces.map(p => ({ value: p.ID, label: p.Name }))}
-              value={formik.values.ProvinceCode}
-              error={formik.errors.ProvinceCode}
-              touched={formik.touched.ProvinceCode}
-              {...commonProps}
+              type="text"
+              value={getNameFromCode(formik.values.ProvinceCode, provinces)}
+              readOnly
+              className="bg-gray-100 cursor-not-allowed"
             />
             <FormField
               label="Region"
               name="RegionCode"
-              type="select"
-              options={regions.map(r => ({ value: r.ID, label: r.Name }))}
-              value={formik.values.RegionCode}
-              error={formik.errors.RegionCode}
-              touched={formik.touched.RegionCode}
-              {...commonProps}
+              type="text"
+              value={getNameFromCode(formik.values.RegionCode, regions)}
+              readOnly
+              className="bg-gray-100 cursor-not-allowed"
             />
           </>
         );
@@ -427,7 +466,11 @@ function LocationPage() {
               className="btn btn-primary"
               disabled={formik.isSubmitting}
             >
-              {formik.isSubmitting ? 'Saving...' : currentLocation ? 'Update' : 'Save'}
+              {formik.isSubmitting
+                ? 'Saving...'
+                : currentLocation
+                ? 'Update'
+                : 'Save'}
             </button>
           </div>
         </form>

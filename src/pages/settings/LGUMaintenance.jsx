@@ -1,19 +1,17 @@
-import React, { useState, useEffect } from "react";
-import { useDispatch, useSelector } from "react-redux";
-import { useFormik } from "formik";
-import * as Yup from "yup";
-import { Building } from "lucide-react";
-import FormField from "../../components/common/FormField";
-import { fetchBarangays } from "../../features/settings/barangaysSlice";
-import { fetchMunicipalities } from "../../features/settings/municipalitiesSlice";
-import { fetchProvinces } from "../../features/settings/provincesSlice";
-import { fetchRegions } from "../../features/settings/regionsSlice";
-
+import React, { useState, useEffect } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import { useFormik } from 'formik';
+import * as Yup from 'yup';
+import { Building } from 'lucide-react';
+import FormField from '../../components/common/FormField';
+import { fetchBarangays } from '../../features/settings/barangaysSlice';
+import { fetchMunicipalities } from '../../features/settings/municipalitiesSlice';
+import { fetchProvinces } from '../../features/settings/provincesSlice';
+import { fetchRegions } from '../../features/settings/regionsSlice';
 
 const LGUMaintenance = () => {
   const dispatch = useDispatch();
   const [logoFile, setLogoFile] = useState(null);
-
 
   useEffect(() => {
     dispatch(fetchBarangays());
@@ -26,7 +24,6 @@ const LGUMaintenance = () => {
   const API_URL = import.meta.env.VITE_API_URL;
   const fetchLguData = async () => {
     try {
-
       const token = localStorage.getItem('token');
 
       const response = await fetch(`${API_URL}/lgu`, {
@@ -35,13 +32,13 @@ const LGUMaintenance = () => {
         },
       });
       if (!response.ok) {
-        throw new Error("Failed to fetch LGU data");
+        throw new Error('Failed to fetch LGU data');
       }
       const data = await response.json();
       setLgu(data);
-      setImage(data.Logo || "https://placehold.co/150x150?text=LGU+Logo");
+      setImage(data.Logo || 'https://placehold.co/150x150?text=LGU+Logo');
     } catch (error) {
-      console.error("Error loading LGU data:", error);
+      console.error('Error loading LGU data:', error);
     }
   };
 
@@ -72,8 +69,8 @@ const LGUMaintenance = () => {
   //   }
   // };
   const updateLguData = async (values, file) => {
-  try {
-      const token = localStorage.getItem("token");
+    try {
+      const token = localStorage.getItem('token');
 
       const formData = new FormData();
       // Append fields
@@ -83,11 +80,11 @@ const LGUMaintenance = () => {
 
       // Append file (if selected)
       if (file) {
-        formData.append("Logo", file);
+        formData.append('Logo', file);
       }
 
       const response = await fetch(`${API_URL}/lgu/${values.ID}`, {
-        method: "PUT",
+        method: 'PUT',
         headers: {
           Authorization: `Bearer ${token}`,
           // Do not manually set Content-Type!
@@ -96,20 +93,18 @@ const LGUMaintenance = () => {
       });
 
       if (!response.ok) {
-        throw new Error("Failed to update LGU");
+        throw new Error('Failed to update LGU');
       }
 
       const updated = await response.json();
       setLgu(updated);
-      setImage(updated.Logo || "https://placehold.co/150x150?text=LGU+Logo");
+      setImage(updated.Logo || 'https://placehold.co/150x150?text=LGU+Logo');
       return true;
     } catch (error) {
-      console.error("Update error:", error);
+      console.error('Update error:', error);
       return false;
     }
   };
-
-
 
   const { barangays } = useSelector((state) => state.barangays);
   const { municipalities } = useSelector((state) => state.municipalities);
@@ -117,46 +112,50 @@ const LGUMaintenance = () => {
   const { regions } = useSelector((state) => state.regions);
 
   const [lgu, setLgu] = useState({
-    ID: "1",
-    Code: "",
-    Name: "",
-    TIN: "",
-    RDO: "",
-    StreetAddress: "",
-    BarangayName: "",
-    MunicipalityName: "",
-    ProvinceName: "",
-    RegionName: "",
-    ZIPCode: "",
-    PhoneNumber: "",
-    EmailAddress: "",
-    Website: "",
+    ID: '1',
+    Code: '',
+    Name: '',
+    TIN: '',
+    RDO: '',
+    StreetAddress: '',
+    BarangayName: '',
+    MunicipalityName: '',
+    ProvinceName: '',
+    RegionName: '',
+    ZIPCode: '',
+    PhoneNumber: '',
+    EmailAddress: '',
+    Website: '',
   });
 
-  const [image, setImage] = useState("https://placehold.co/150x150?text=LGU+Logo");
+  const [image, setImage] = useState(
+    'https://placehold.co/150x150?text=LGU+Logo'
+  );
   const [isEditing, setIsEditing] = useState(false);
 
   const validationSchema = Yup.object({
-    Code: Yup.string().required("Code is required"),
-    Name: Yup.string().required("Name is required"),
-    TIN: Yup.string().required("TIN is required"),
-    RDO: Yup.string().required("RDO is required"),
-    StreetAddress: Yup.string().required("Street Address is required"),
-    BarangayID: Yup.string().required("Barangay is required"),
-    MunicipalityID: Yup.string().required("Municipality is required"),
-    ProvinceID: Yup.string().required("Province is required"),
-    RegionID: Yup.string().required("Region is required"),
-    ZIPCode: Yup.string().required("Zip Code is required"),
-    PhoneNumber: Yup.string().required("Phone Number is required"),
-    EmailAddress: Yup.string().email("Invalid email").required("Email is required"),
-    Website: Yup.string().required("Website is required"),
+    Code: Yup.string().required('Code is required'),
+    Name: Yup.string().required('Name is required'),
+    TIN: Yup.string().required('TIN is required'),
+    RDO: Yup.string().required('RDO is required'),
+    StreetAddress: Yup.string().required('Street Address is required'),
+    BarangayID: Yup.string().required('Barangay is required'),
+    MunicipalityID: Yup.string().required('Municipality is required'),
+    ProvinceID: Yup.string().required('Province is required'),
+    RegionID: Yup.string().required('Region is required'),
+    ZIPCode: Yup.string().required('Zip Code is required'),
+    PhoneNumber: Yup.string().required('Phone Number is required'),
+    EmailAddress: Yup.string()
+      .email('Invalid email')
+      .required('Email is required'),
+    Website: Yup.string().required('Website is required'),
   });
 
   const formik = useFormik({
     initialValues: lgu,
     validationSchema,
     enableReinitialize: true,
-    
+
     onSubmit: async (values, { setSubmitting }) => {
       // const success = await updateLguData(values);
       const success = await updateLguData(values, logoFile);
@@ -189,7 +188,13 @@ const LGUMaintenance = () => {
   //     reader.readAsDataURL(file);
   //   }
   // };
-
+  const rdos = [
+    { ID: 1, Name: 'RDO 1' },
+    { ID: 2, Name: 'RDO 2' },
+    { ID: 3, Name: 'RDO 3' },
+    { ID: 4, Name: 'RDO 4' },
+    { ID: 5, Name: 'RDO 5' },
+  ];
   return (
     <div className="py-6 px-4">
       <header className="mb-8">
@@ -269,6 +274,8 @@ const LGUMaintenance = () => {
                 <FormField
                   label="RDO"
                   name="RDO"
+                  type="select"
+                  options={rdos.map((r) => ({ value: r.ID, label: r.Name }))}
                   value={formik.values.RDO}
                   onChange={formik.handleChange}
                   onBlur={formik.handleBlur}
@@ -295,7 +302,10 @@ const LGUMaintenance = () => {
                   onBlur={formik.handleBlur}
                   error={formik.errors.BarangayID}
                   touched={formik.touched.BarangayID}
-                  options={barangays.map((b) => ({ value: b.ID, label: b.Name }))}
+                  options={barangays.map((b) => ({
+                    value: b.ID,
+                    label: b.Name,
+                  }))}
                   required
                 />
 
@@ -308,7 +318,10 @@ const LGUMaintenance = () => {
                   onBlur={formik.handleBlur}
                   error={formik.errors.MunicipalityID}
                   touched={formik.touched.MunicipalityID}
-                  options={municipalities.map((m) => ({ value: m.ID, label: m.Name }))}
+                  options={municipalities.map((m) => ({
+                    value: m.ID,
+                    label: m.Name,
+                  }))}
                   required
                 />
 
@@ -321,7 +334,10 @@ const LGUMaintenance = () => {
                   onBlur={formik.handleBlur}
                   error={formik.errors.ProvinceID}
                   touched={formik.touched.ProvinceID}
-                  options={provinces.map((p) => ({ value: p.ID, label: p.Name }))}
+                  options={provinces.map((p) => ({
+                    value: p.ID,
+                    label: p.Name,
+                  }))}
                   required
                 />
 
@@ -397,26 +413,26 @@ const LGUMaintenance = () => {
                   className="btn btn-primary"
                   disabled={formik.isSubmitting}
                 >
-                  {formik.isSubmitting ? "Saving..." : "Save"}
+                  {formik.isSubmitting ? 'Saving...' : 'Save'}
                 </button>
               </div>
             </form>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {Object.entries({
-                Code: "LGU Code",
-                Name: "LGU Name",
-                TIN: "TIN",
-                RDO: "RDO",
-                StreetAddress: "Street Address",
-                BarangayName: "Barangay",
-                MunicipalityName: "Municipality",
-                ProvinceName: "Province",
-                RegionName: "Region",
-                ZIPCode: "ZIP Code",
-                PhoneNumber: "Phone Number",
-                EmailAddress: "Email Address",
-                Website: "Website",
+                Code: 'LGU Code',
+                Name: 'LGU Name',
+                TIN: 'TIN',
+                RDO: 'RDO',
+                StreetAddress: 'Street Address',
+                BarangayName: 'Barangay',
+                MunicipalityName: 'Municipality',
+                ProvinceName: 'Province',
+                RegionName: 'Region',
+                ZIPCode: 'ZIP Code',
+                PhoneNumber: 'Phone Number',
+                EmailAddress: 'Email Address',
+                Website: 'Website',
               }).map(([key, label]) => (
                 <div key={key} className="space-y-1">
                   <h3 className="text-sm font-medium text-gray-500">{label}</h3>

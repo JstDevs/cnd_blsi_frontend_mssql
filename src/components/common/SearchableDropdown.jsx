@@ -28,9 +28,9 @@ const SearchableDropdown = ({ options, label, placeholder = 'Search...' }) => {
             </Combobox.Label>
 
             <div className="relative">
-              <div className="relative w-full cursor-default overflow-hidden rounded-lg bg-white text-left shadow-sm sm:text-sm transition-all duration-200">
+              <div className="relative w-full cursor-default overflow-hidden rounded-md bg-white text-left shadow-sm sm:text-sm transition-all duration-200">
                 <Combobox.Input
-                  className="w-full border-none py-2.5 pl-3 pr-10 text-sm leading-5 focus-visible:outline-none text-gray-900 "
+                  className="w-full border rounded-md border-gray-300 py-2.5 pl-3 pr-10 text-sm leading-5 focus-visible:outline-none text-gray-900 "
                   placeholder={placeholder}
                   displayValue={(option) => option || ''}
                   onChange={(event) => setQuery(event.target.value)}
