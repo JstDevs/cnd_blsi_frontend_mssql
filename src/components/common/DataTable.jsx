@@ -196,9 +196,9 @@ function DataTable({
               {actions.length > 0 && (
                 <th
                   scope="col"
-                  className="relative px-6 py-3 whitespace-nowrap"
+                  className="px-6 py-3 text-center text-xs font-medium text-neutral-500 uppercase tracking-wider cursor-pointer whitespace-nowrap"
                 >
-                  <span className="sr-only">Actions</span>
+                  <span>Actions</span>
                 </th>
               )}
             </tr>
@@ -224,30 +224,6 @@ function DataTable({
                       : row[column.key]}
                   </td>
                 ))}
-                {/* {actions.length > 0 && (
-                  <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium space-x-2">
-                    {actions.map((action, i) => (
-                      <button
-                        key={i}
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          action.onClick(row);
-                        }}
-                        className={
-                          action.className ||
-                          'text-primary-600 hover:text-primary-900'
-                        }
-                        title={action.title}
-                      >
-                        {action.icon ? (
-                          <action.icon className="h-5 w-5" aria-hidden="true" />
-                        ) : (
-                          action.label
-                        )}
-                      </button>
-                    ))}
-                  </td>
-                )} */}
 
                 {typeof actions === 'function'
                   ? (() => {
@@ -263,12 +239,16 @@ function DataTable({
                                   action.onClick(row);
                                 }}
                                 className={
-                                  action.className || 'text-primary-600 hover:text-primary-900'
+                                  action.className ||
+                                  'text-primary-600 hover:text-primary-900'
                                 }
                                 title={action.title}
                               >
                                 {action.icon ? (
-                                  <action.icon className="h-5 w-5" aria-hidden="true" />
+                                  <action.icon
+                                    className="h-5 w-5"
+                                    aria-hidden="true"
+                                  />
                                 ) : (
                                   action.label
                                 )}
@@ -288,12 +268,16 @@ function DataTable({
                               action.onClick(row);
                             }}
                             className={
-                              action.className || 'text-primary-600 hover:text-primary-900'
+                              action.className ||
+                              'text-primary-600 hover:text-primary-900'
                             }
                             title={action.title}
                           >
                             {action.icon ? (
-                              <action.icon className="h-5 w-5" aria-hidden="true" />
+                              <action.icon
+                                className="h-5 w-5"
+                                aria-hidden="true"
+                              />
                             ) : (
                               action.label
                             )}
@@ -301,8 +285,6 @@ function DataTable({
                         ))}
                       </td>
                     )}
-
-
               </tr>
             ))}
           </tbody>

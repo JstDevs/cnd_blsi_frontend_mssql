@@ -81,6 +81,7 @@ const GeneralRevisionForm = ({ initialData, onSubmit, onCancel, isEdit }) => {
       />
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        // TODO CHANGE THIS
         <SearchableDropdown
           label="City Or Municipality Assessor"
           options={employeeOptions.map((e) => e.name)}
@@ -102,7 +103,6 @@ const GeneralRevisionForm = ({ initialData, onSubmit, onCancel, isEdit }) => {
           error={formik.errors.CityorMunicipalityAssessor}
           touched={formik.touched.CityorMunicipalityAssessor}
         />
-
         <SearchableDropdown
           label="Assistant City Or Municipality Assessor"
           options={employeeOptions.map((e) => e.name)}
@@ -124,7 +124,6 @@ const GeneralRevisionForm = ({ initialData, onSubmit, onCancel, isEdit }) => {
           error={formik.errors.CityorMunicipalityAssistantAssessor}
           touched={formik.touched.CityorMunicipalityAssistantAssessor}
         />
-
         <SearchableDropdown
           label="Provincial Assessor"
           options={employeeOptions.map((e) => e.name)}
@@ -146,7 +145,6 @@ const GeneralRevisionForm = ({ initialData, onSubmit, onCancel, isEdit }) => {
           error={formik.errors.ProvincialAssessor}
           touched={formik.touched.ProvincialAssessor}
         />
-
         <SearchableDropdown
           label="Assistant Provincial Assessor"
           options={employeeOptions.map((e) => e.name)}

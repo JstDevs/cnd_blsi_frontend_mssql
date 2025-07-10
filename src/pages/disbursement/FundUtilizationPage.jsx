@@ -27,18 +27,17 @@ function FundUtilizationPage() {
     (state) => state.fundUtilizations
   );
 
-  const { employees } = useSelector(state => state.employees);
-  const { customers } = useSelector(state => state.customers);
-  const { vendorDetails } = useSelector(state => state.vendorDetails);
-  const { departments } = useSelector(state => state.departments);
-  const { projectDetails } = useSelector(state => state.projectDetails);
-  const { funds } = useSelector(state => state.funds);
-  const { fiscalYears } = useSelector(state => state.fiscalYears);
-  const { items } = useSelector(state => state.items);
-  const { taxCodes } = useSelector(state => state.taxCodes);
-  const { itemUnits } = useSelector(state => state.itemUnits);
-  const { budgets } = useSelector(state => state.budget);
-
+  const { employees } = useSelector((state) => state.employees);
+  const { customers } = useSelector((state) => state.customers);
+  const { vendorDetails } = useSelector((state) => state.vendorDetails);
+  const { departments } = useSelector((state) => state.departments);
+  const { projectDetails } = useSelector((state) => state.projectDetails);
+  const { funds } = useSelector((state) => state.funds);
+  const { fiscalYears } = useSelector((state) => state.fiscalYears);
+  const { items } = useSelector((state) => state.items);
+  const { taxCodes } = useSelector((state) => state.taxCodes);
+  const { itemUnits } = useSelector((state) => state.itemUnits);
+  const { budgets } = useSelector((state) => state.budget);
 
   const [currentView, setCurrentView] = useState('list'); // 'list', 'form', 'details'
   const [currentObligationRequest, setCurrentObligationRequest] =
@@ -89,7 +88,6 @@ function FundUtilizationPage() {
 
   // Table columns definition
   const columns = [
-    
     {
       key: 'Status',
       header: 'Status',
@@ -191,7 +189,7 @@ function FundUtilizationPage() {
                 className="btn btn-primary flex items-center"
               >
                 <PlusIcon className="h-5 w-5 mr-2" aria-hidden="true" />
-                Create OR
+                Create
               </button>
             </div>
           </div>
@@ -208,7 +206,8 @@ function FundUtilizationPage() {
                     icon: PencilIcon,
                     title: 'Edit',
                     onClick: () => handleEditOR(row),
-                    className: 'text-primary-600 hover:text-primary-900 p-1 rounded-full hover:bg-primary-50',
+                    className:
+                      'text-primary-600 hover:text-primary-900 p-1 rounded-full hover:bg-primary-50',
                   });
                 }
 
@@ -240,7 +239,8 @@ function FundUtilizationPage() {
                   </h1>
                   <p>
                     Fill out the form to{' '}
-                    {currentObligationRequest ? 'update' : 'create'} a fund utilization request.
+                    {currentObligationRequest ? 'update' : 'create'} a fund
+                    utilization request.
                   </p>
                 </div>
               </div>
@@ -250,54 +250,55 @@ function FundUtilizationPage() {
           <div className="mt-4">
             <FundUtilizationForm
               initialData={currentObligationRequest}
-              employeeOptions={employees.map(emp => ({
+              employeeOptions={employees.map((emp) => ({
                 value: emp.ID,
-                label: emp.FirstName + ' ' + emp.MiddleName + ' ' + emp.LastName,
+                label:
+                  emp.FirstName + ' ' + emp.MiddleName + ' ' + emp.LastName,
               }))}
-              vendorOptions={vendorDetails.map(vendor => ({
+              vendorOptions={vendorDetails.map((vendor) => ({
                 value: vendor.ID,
                 label: vendor.Name,
               }))}
-              individualOptions={customers.map(customer => ({
+              individualOptions={customers.map((customer) => ({
                 value: customer.ID,
                 label: customer.Name,
               }))}
               employeeData={employees}
               vendorData={vendorDetails}
               individualData={customers}
-              departmentOptions={departments.map(dept => ({
+              departmentOptions={departments.map((dept) => ({
                 value: dept.ID,
                 label: dept.Name,
               }))}
-              fundOptions={funds.map(fund => ({
+              fundOptions={funds.map((fund) => ({
                 value: fund.ID,
                 label: fund.Name,
               }))}
-              projectOptions={projectDetails.map(project => ({
+              projectOptions={projectDetails.map((project) => ({
                 value: project.ID,
                 label: project.Title,
               }))}
-              fiscalYearOptions={fiscalYears.map(fiscalYear => ({
+              fiscalYearOptions={fiscalYears.map((fiscalYear) => ({
                 value: fiscalYear.ID,
                 label: fiscalYear.Name,
               }))}
-              particularsOptions={items.map(item => ({
+              particularsOptions={items.map((item) => ({
                 value: item.ID,
                 label: item.Name,
               }))}
-              unitOptions={itemUnits.map(unit => ({
+              unitOptions={itemUnits.map((unit) => ({
                 value: unit.ID,
                 label: unit.Name,
               }))}
-              taxCodeOptions={taxCodes.map(code => ({
+              taxCodeOptions={taxCodes.map((code) => ({
                 value: code.ID,
                 label: code.Name,
               }))}
-              budgetOptions={budgets.map(code => ({
+              budgetOptions={budgets.map((code) => ({
                 value: code.ID,
                 label: code.Name,
               }))}
-              taxCodeFull = {taxCodes}
+              taxCodeFull={taxCodes}
               onCancel={handleBackToList}
               onSubmitSuccess={handleBackToList}
               onClose={handleBackToList}

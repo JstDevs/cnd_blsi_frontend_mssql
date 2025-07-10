@@ -24,7 +24,7 @@ export const fetchCommunityTaxes = createAsyncThunk(
         throw new Error(res.message || 'Failed to fetch community taxes');
       }
 
-      return res.data;
+      return res;
     } catch (error) {
       return thunkAPI.rejectWithValue(error.message);
     }

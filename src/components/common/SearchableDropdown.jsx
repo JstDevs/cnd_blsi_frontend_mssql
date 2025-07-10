@@ -18,7 +18,7 @@ const SearchableDropdown = ({
     query === ''
       ? options
       : options.filter((option) => {
-          return option.toLowerCase().includes(query.toLowerCase());
+          return option.label.toLowerCase().includes(query.toLowerCase());
         });
 
   const clearSelection = () => {
@@ -47,7 +47,9 @@ const SearchableDropdown = ({
                 <Combobox.Input
                   className="w-full py-2.5 pl-3 pr-10 text-sm leading-5 focus-visible:outline-none text-gray-900"
                   placeholder={placeholder}
-                  displayValue={(option) => option || ''}
+                  displayValue={(option) =>
+                    options.find((opt) => opt.value === option)?.label || ''
+                  }
                   onChange={(event) => setQuery(event.target.value)}
                 />
 
@@ -83,13 +85,13 @@ const SearchableDropdown = ({
                 ) : (
                   filteredOptions.map((option) => (
                     <Combobox.Option
-                      key={option}
+                      key={option.value}
                       className={({ active }) =>
                         `relative cursor-default select-none py-2 pl-10 pr-4 transition-colors ${
                           active ? 'bg-blue-50 text-blue-700' : 'text-gray-900'
                         }`
                       }
-                      value={option}
+                      value={option.value}
                     >
                       {({ selected, active }) => (
                         <>
@@ -98,7 +100,7 @@ const SearchableDropdown = ({
                               selected ? 'font-medium' : 'font-normal'
                             }`}
                           >
-                            {option}
+                            {option.label}
                           </span>
                           {selected ? (
                             <span

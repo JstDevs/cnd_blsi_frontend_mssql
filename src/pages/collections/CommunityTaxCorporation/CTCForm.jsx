@@ -5,13 +5,14 @@ import Button from '@/components/common/Button';
 import * as Yup from 'yup';
 import { useEffect } from 'react';
 import numToWords from '@/components/helper/numToWords';
+import { ExclamationCircleIcon } from '@heroicons/react/24/outline';
 
 const validationSchema = Yup.object().shape({
   Year: Yup.string()
     .required('Year is required')
     .matches(/^\d{4}$/, 'Year must be 4 digits'),
 
-  Municipality: Yup.string()
+  PlaceIssued: Yup.string()
     .required('Place of issue is required')
     .max(100, 'Place of issue must be less than 100 characters'),
 
@@ -19,11 +20,11 @@ const validationSchema = Yup.object().shape({
     .required('Date issued is required')
     .max(new Date(), 'Date cannot be in the future'),
 
-  InvoiceNumber: Yup.string()
+  CCNumber: Yup.string()
     .required('Certificate number is required')
     .matches(/^[A-Za-z0-9-]+$/, 'Only letters, numbers and hyphens allowed'),
 
-  Vendor: Yup.string()
+  Name: Yup.string()
     .required('Company name is required')
     .max(200, 'Company name must be less than 200 characters'),
 
@@ -38,18 +39,18 @@ const validationSchema = Yup.object().shape({
 
   dateOfRegistration: Yup.date().required('Registration date is required'),
 
-  OrgType: Yup.string()
+  KindofOrganization: Yup.string()
     .required('Organization type is required')
     .oneOf(
-      ['corporation', 'partnership', 'association'],
+      ['Corporation', 'Partnership', 'Association'],
       'Invalid organization type'
     ),
 
-  PlaceOfIncorporation: Yup.string().required(
+  PlaceofIncorporation: Yup.string().required(
     'Place of incorporation is required'
   ),
 
-  KindOfOrganization: Yup.string().required('Business nature is required'),
+  NatureOfOrganization: Yup.string().required('Business nature is required'),
 
   // taxableAmount: Yup.number()
   //   .typeError('Must be a number')
@@ -61,10 +62,10 @@ const validationSchema = Yup.object().shape({
   //   .min(0, 'Cannot be negative')
   //   .required('Community tax due is required'),
 
-  basicCommunityTax: Yup.number()
-    .typeError('Must be a number')
-    .min(0, 'Cannot be negative')
-    .required('Basic community tax is required'),
+  // basicCommunityTax: Yup.number()
+  //   .typeError('Must be a number')
+  //   .min(0, 'Cannot be negative')
+  //   .required('Basic community tax is required'),
 
   BasicTax: Yup.number()
     .typeError('Must be a number')
@@ -108,42 +109,50 @@ const validationSchema = Yup.object().shape({
   ),
 });
 
-const CTCForm = ({ initialData = null, onBack, onSubmitSuccess, readOnly }) => {
+const CTCForm = ({
+  selectedVendor = null,
+  initialData = null,
+  onBack,
+  onSubmitSuccess,
+  readOnly,
+}) => {
   const organizationOptions = [
-    { value: 'corporation', label: 'Corporation' },
-    { value: 'partnership', label: 'Partnership' },
-    { value: 'association', label: 'Association' },
+    { value: 'Corporation', label: 'Corporation' },
+    { value: 'Partnership', label: 'Partnership' },
+    { value: 'Association', label: 'Association' },
   ];
-
+  // console.log('Selected Vendors CTC:', selectedVendor, initialData);
+  const customerSource = initialData?.Customer || selectedVendor;
+  console.log('Customer Source:', customerSource);
   const formik = useFormik({
     initialValues: {
       // BASIC INFO
       Year: initialData?.Year || '',
-      Municipality: initialData?.Municipality || '', // PLACE OF ISSUE
-      DateIssued: initialData?.DateIssued || '',
-      InvoiceNumber: initialData?.InvoiceNumber || '',
+      PlaceIssued: initialData?.PlaceIssued || '', // PLACE OF ISSUE
+      DateIssued: initialData?.InvoiceDate || '',
+      CCNumber: initialData?.InvoiceNumber || '',
       // COMPANY INFO
-      Vendor: initialData?.Vendor || '', // COMPANY FULL NAME
+      Name: initialData?.CustomerName || '', // COMPANY FULL NAME
       TIN: initialData?.TIN || '',
-      Address: initialData?.Address || '',
-      dateOfRegistration: initialData?.dateOfRegistration || '',
-      OrgType: initialData?.OrgType || 'corporation',
-      PlaceOfIncorporation: initialData?.PlaceOfIncorporation || '',
-      KindOfOrganization: initialData?.KindOfOrganization || '',
+      Address: customerSource?.StreetAddress || '',
+      dateOfRegistration: customerSource?.DateofRegistration || '',
+      KindofOrganization: customerSource?.KindofOrganization || 'Corporation',
+      PlaceofIncorporation: customerSource?.PlaceofIncorporation || '',
+      NatureOfOrganization: customerSource?.NatureOfOrganization || '',
 
       //  TAX INFO
       BasicTax: initialData?.BasicTax || 0,
       // basicCommunityTax: initialData?.basicCommunityTax || '',
 
-      assessedValueRealProperty: initialData?.assessedValueRealProperty || '',
-      assessedValueTax: initialData?.assessedValueTax || '',
+      assessedValueRealProperty: initialData?.BusinessEarnings || '',
+      assessedValueTax: initialData?.BusinessTaxDue || '',
 
-      grossReceipts: initialData?.grossReceipts || '',
-      grossReceiptsTax: initialData?.grossReceiptsTax || '',
+      grossReceipts: initialData?.OccupationEarnings || '',
+      grossReceiptsTax: initialData?.OccupationTaxDue || '',
       // TOTAL TAX DUE: ++++ ALL CHANGED
       Total: initialData?.Total || '',
       Interest: initialData?.Interest || '',
-      AmountPaid: initialData?.AmountPaid || '',
+      AmountPaid: initialData?.AmountReceived || '',
 
       Remarks: initialData?.Remarks || '',
       AmountinWords: initialData?.AmountinWords || '',
@@ -153,12 +162,18 @@ const CTCForm = ({ initialData = null, onBack, onSubmitSuccess, readOnly }) => {
       const isEdit = Boolean(initialData);
       const payload = isEdit
         ? {
-            LinkID: initialData.LinkID,
             IsNew: 'false',
+            IsSelectedFromIndividual: 'true',
+            CustomerID: initialData?.CustomerID,
             ID: initialData.ID,
             ...transformValues(values),
           }
-        : { IsNew: 'true', ...transformValues(values) };
+        : {
+            IsNew: 'true',
+            IsSelectedFromIndividual: 'true',
+            CustomerID: selectedVendor?.ID,
+            ...transformValues(values),
+          };
       console.log('Submitted values:', payload);
       onSubmitSuccess(payload);
     },
@@ -167,11 +182,17 @@ const CTCForm = ({ initialData = null, onBack, onSubmitSuccess, readOnly }) => {
     const transformedValues = {
       ...values,
 
-      InputOne: values.assessedValueRealProperty, // Previously Business Earnings
-      InputTwo: values.grossReceipts, // Previously Occupation Earnings
+      InputOne: Number(values.assessedValueRealProperty), // Previously Business Earnings
+      InputTwo: Number(values.grossReceipts), // Previously Occupation Earnings
 
-      OutputOne: values.assessedValueTax,
-      OutputTwo: values.grossReceiptsTax,
+      OutputOne: Number(values.assessedValueTax),
+      OutputTwo: Number(values.grossReceiptsTax),
+
+      BasicTax: Number(values.BasicTax),
+      Total: Number(values.Total),
+      AmountPaid: Number(values.AmountPaid),
+      Interest: Number(values.Interest),
+      Words: values.AmountinWords,
     };
     // Remove the original frontend field names
     delete transformedValues.assessedValueRealProperty;
@@ -179,6 +200,7 @@ const CTCForm = ({ initialData = null, onBack, onSubmitSuccess, readOnly }) => {
 
     delete transformedValues.grossReceipts;
     delete transformedValues.grossReceiptsTax;
+    delete transformedValues.AmountinWords;
 
     return transformedValues;
   };
@@ -191,6 +213,7 @@ const CTCForm = ({ initialData = null, onBack, onSubmitSuccess, readOnly }) => {
     const totalAmountInWords = numToWords(totalAmountValue);
     formik.setFieldValue('AmountinWords', totalAmountInWords);
   };
+  console.log('Formik Values:', formik.errors);
   return (
     <div className="min-h-screen">
       <form
@@ -225,15 +248,15 @@ const CTCForm = ({ initialData = null, onBack, onSubmitSuccess, readOnly }) => {
               <div>
                 <FormField
                   label="Place of Issue (City/Mun/Province)"
-                  name="Municipality"
-                  value={formik.values.Municipality}
+                  name="PlaceIssued"
+                  value={formik.values.PlaceIssued}
                   onChange={formik.handleChange}
                   disabled={readOnly}
                   className="border-blue-200 focus:border-blue-500 focus:ring-blue-500"
                 />
-                {formik.touched.Municipality && formik.errors.Municipality ? (
+                {formik.touched.PlaceIssued && formik.errors.PlaceIssued ? (
                   <div className="text-red-500 text-sm mt-1">
-                    {formik.errors.Municipality}
+                    {formik.errors.PlaceIssued}
                   </div>
                 ) : null}
               </div>
@@ -256,15 +279,15 @@ const CTCForm = ({ initialData = null, onBack, onSubmitSuccess, readOnly }) => {
               <div>
                 <FormField
                   label="Certificate No."
-                  name="InvoiceNumber"
-                  value={formik.values.InvoiceNumber}
+                  name="CCNumber"
+                  value={formik.values.CCNumber}
                   onChange={formik.handleChange}
                   disabled={readOnly}
                   className="border-blue-200 focus:border-blue-500 focus:ring-blue-500 font-bold text-blue-600"
                 />
-                {formik.touched.InvoiceNumber && formik.errors.InvoiceNumber ? (
+                {formik.touched.CCNumber && formik.errors.CCNumber ? (
                   <div className="text-red-500 text-sm mt-1">
-                    {formik.errors.InvoiceNumber}
+                    {formik.errors.CCNumber}
                   </div>
                 ) : null}
               </div>
@@ -292,15 +315,15 @@ const CTCForm = ({ initialData = null, onBack, onSubmitSuccess, readOnly }) => {
                 <div>
                   <FormField
                     label="Company's Full Name"
-                    name="Vendor"
-                    value={formik.values.Vendor}
+                    name="Name"
+                    value={formik.values.Name}
                     onChange={formik.handleChange}
                     disabled={readOnly}
                     className="border-blue-200 focus:border-blue-500 focus:ring-blue-500"
                   />
-                  {formik.touched.Vendor && formik.errors.Vendor ? (
+                  {formik.touched.Name && formik.errors.Name ? (
                     <div className="text-red-500 text-sm mt-1">
-                      {formik.errors.Vendor}
+                      {formik.errors.Name}
                     </div>
                   ) : null}
                 </div>
@@ -365,32 +388,33 @@ const CTCForm = ({ initialData = null, onBack, onSubmitSuccess, readOnly }) => {
                 <div>
                   <FormField
                     label="Kind of Organization"
-                    name="OrgType"
+                    name="KindofOrganization"
                     type="radio"
-                    value={formik.values.OrgType}
+                    value={formik.values.KindofOrganization}
                     onChange={formik.handleChange}
                     options={organizationOptions}
                     disabled={readOnly}
                   />
-                  {formik.touched.OrgType && formik.errors.OrgType ? (
+                  {formik.touched.KindofOrganization &&
+                  formik.errors.KindofOrganization ? (
                     <div className="text-red-500 text-sm mt-1">
-                      {formik.errors.OrgType}
+                      {formik.errors.KindofOrganization}
                     </div>
                   ) : null}
                 </div>
                 <div>
                   <FormField
                     label="Place of Incorporation"
-                    name="PlaceOfIncorporation"
-                    value={formik.values.PlaceOfIncorporation}
+                    name="PlaceofIncorporation"
+                    value={formik.values.PlaceofIncorporation}
                     onChange={formik.handleChange}
                     disabled={readOnly}
                     className="border-blue-200 focus:border-blue-500 focus:ring-blue-500"
                   />
-                  {formik.touched.PlaceOfIncorporation &&
-                  formik.errors.PlaceOfIncorporation ? (
+                  {formik.touched.PlaceofIncorporation &&
+                  formik.errors.PlaceofIncorporation ? (
                     <div className="text-red-500 text-sm mt-1">
-                      {formik.errors.PlaceOfIncorporation}
+                      {formik.errors.PlaceofIncorporation}
                     </div>
                   ) : null}
                 </div>
@@ -399,16 +423,16 @@ const CTCForm = ({ initialData = null, onBack, onSubmitSuccess, readOnly }) => {
               <div>
                 <FormField
                   label="Kind/Nature of Business"
-                  name="KindOfOrganization"
-                  value={formik.values.KindOfOrganization}
+                  name="NatureOfOrganization"
+                  value={formik.values.NatureOfOrganization}
                   onChange={formik.handleChange}
                   disabled={readOnly}
                   className="border-blue-200 focus:border-blue-500 focus:ring-blue-500"
                 />
-                {formik.touched.KindOfOrganization &&
-                formik.errors.KindOfOrganization ? (
+                {formik.touched.NatureOfOrganization &&
+                formik.errors.NatureOfOrganization ? (
                   <div className="text-red-500 text-sm mt-1">
-                    {formik.errors.KindOfOrganization}
+                    {formik.errors.NatureOfOrganization}
                   </div>
                 ) : null}
               </div>
@@ -705,11 +729,29 @@ const CTCForm = ({ initialData = null, onBack, onSubmitSuccess, readOnly }) => {
           <Button
             type="submit"
             className="bg-blue-600 hover:bg-blue-700 text-white text-lg rounded-md transition-colors"
+            // disabled={formik.isSubmitting}
           >
-            Generate Certificate
+            {formik.isSubmitting ? 'Generating...' : 'Generate Certificate'}
           </Button>
         </div>
       </form>
+      {!formik.isValid && Object.keys(formik.errors).length > 0 && (
+        <div className="bg-red-50 border-l-4 border-red-500 p-4 mb-6">
+          <div className="flex">
+            <div className="flex-shrink-0">
+              <ExclamationCircleIcon className="h-5 w-5 text-red-500" />
+            </div>
+            <div className="ml-3">
+              <h3 className="text-sm font-medium text-red-800">
+                There {Object.keys(formik.errors).length === 1 ? 'is' : 'are'}{' '}
+                {Object.keys(formik.errors).length} error
+                {Object.keys(formik.errors).length === 1 ? '' : 's'} in your
+                form
+              </h3>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

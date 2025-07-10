@@ -262,7 +262,7 @@ function RealPropertyTaxPage() {
           </div>
 
           <div className="bg-white rounded-lg shadow-md p-6 mb-6">
-            <div className="flex flex-wrap items-start gap-4 mb-4">
+            {/* <div className="flex flex-wrap items-start gap-4 mb-4">
               <div className="flex-1">
                 <div className="relative">
                   <input
@@ -290,7 +290,7 @@ function RealPropertyTaxPage() {
                   </div>
                 </div>
               </div>
-            </div>
+            </div> */}
 
             <DataTable
               columns={columns}

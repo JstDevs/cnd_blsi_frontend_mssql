@@ -16,60 +16,26 @@ import {
   deleteCommunityTax,
   addCommunityTax,
 } from '@/features/collections/CommunityTaxSlice';
-import { Delete, Trash } from 'lucide-react';
-// import CommunityTaxDetails from './CommunityTaxDetails';
-// import { fetchCommunityTaxes } from '@/features/tax/communityTaxSlice';
-// Add sample data (will be used if Redux state is empty)
-// const sampleCertificates = [
-//   {
-//     id: 1,
-//     certificateNo: 'CTC-2024-001',
-//     date: '2024-01-15',
-//     name: 'Leivan Jake Baguio',
-//     address: '123 Main St, Baguio City',
-//     amount: 96.0,
-//     totalAmount: 96.0,
-//     receivedAmount: 100.0,
-//     change: 4.0,
-//     status: 'Active',
-//     purpose: 'Business Permit',
-//     issuedBy: 'Treasury S Head',
-//     employee: 'Juan Dela Cruz',
-//     employeeId: 'EMP-001',
-//     postedDate: '2024-01-16',
-//   },
-//   {
-//     id: 2,
-//     certificateNo: 'CTC-2024-002',
-//     date: '2024-02-20',
-//     name: 'Maria Santos',
-//     address: '456 Pine St, Baguio City',
-//     amount: 120.5,
-//     totalAmount: 120.5,
-//     receivedAmount: 150.0,
-//     change: 29.5,
-//     status: 'Active',
-//     purpose: 'Employment Requirement',
-//     issuedBy: 'Treasury S Head',
-//     employee: 'Ana Reyes',
-//     employeeId: 'EMP-002',
-//     postedDate: '2024-02-21',
-//   },
-//   // ... other sample certificates
-// ];
+import { Trash } from 'lucide-react';
+import { fetchCustomers } from '@/features/settings/customersSlice';
+import toast from 'react-hot-toast';
 function CommunityTaxPage() {
   const dispatch = useDispatch();
   const { records: certificates, isLoading } = useSelector(
     (state) => state.communityTax
   );
-  console.log({ certificates });
+  const { customers, isLoading: customersLoading } = useSelector(
+    (state) => state.customers
+  );
+  // console.log({ certificates, customers });
   const [currentView, setCurrentView] = useState('list'); // 'list', 'form', 'details'
   const [currentCertificate, setCurrentCertificate] = useState(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [showListModal, setShowListModal] = useState(false);
-
+  const [selectedCustomer, setSelectedCustomer] = useState({});
   useEffect(() => {
     dispatch(fetchCommunityTaxes());
+    dispatch(fetchCustomers());
   }, [dispatch]);
 
   const handleCreateCertificate = () => {
@@ -85,6 +51,8 @@ function CommunityTaxPage() {
   const handleEditCertificate = (certificate) => {
     setCurrentCertificate(certificate);
     setCurrentView('form');
+    console.log('Edit certificate:', certificate);
+    handleCustomerChange(certificate.CustomerID);
   };
 
   const handlePrintCertificate = (certificate) => {
@@ -95,6 +63,7 @@ function CommunityTaxPage() {
   const handleBackToList = () => {
     setCurrentView('list');
     setCurrentCertificate(null);
+    setSelectedCustomer(null);
   };
   // ----------DELETE CERTIFICATE FUNCTION------------
   const handleDeleteCertificate = async (certificate) => {
@@ -102,7 +71,7 @@ function CommunityTaxPage() {
       await dispatch(deleteCommunityTax(certificate.ID)).unwrap();
       // If deletion was successful, refetch the data
       dispatch(fetchCommunityTaxes());
-      console.log('Certificate deleted and data reFetched');
+      // console.log('Certificate deleted and data reFetched');
     } catch (error) {
       console.error('Error deleting certificate:', error);
     }
@@ -157,13 +126,6 @@ function CommunityTaxPage() {
       header: 'Employee',
       sortable: true,
     },
-    // {
-    //   key: 'change',
-    //   header: 'Change',
-    //   sortable: true,
-    //   render: (value) => formatCurrency(value),
-    //   className: 'text-right',
-    // },
     {
       key: 'Status',
       header: 'Status',
@@ -228,18 +190,6 @@ function CommunityTaxPage() {
         'text-red-600 hover:text-red-900 p-1 rounded-full hover:bg-red-50',
     },
   ];
-  const fruits = [
-    'Apple',
-    'Banana',
-    'Cherry',
-    'Date',
-    'Elderberry',
-    'Fig',
-    'Grape',
-    'Honeydew',
-    'Kiwi',
-    'Lemon',
-  ];
   const handleShowList = () => {
     setShowListModal(true);
   };
@@ -250,16 +200,21 @@ function CommunityTaxPage() {
 
   const handleFormSubmit = async (formData) => {
     try {
-      console.log('Form data to save:', formData);
+      // console.log('Form data to save:', formData);
       await dispatch(addCommunityTax(formData)).unwrap();
       dispatch(fetchCommunityTaxes());
-      // For now, we'll just show a success message and go back to list
-
-      handleBackToList();
+      toast.success('Certificate saved successfully.');
     } catch (error) {
       console.error('Error saving certificate:', error);
-      alert('Failed to save certificate. Please try again.');
+      toast.error('Failed to save certificate. Please try again.');
+    } finally {
+      handleBackToList();
     }
+  };
+  const handleCustomerChange = (customerID) => {
+    const selectedCustomer = customers.find((c) => c.ID === customerID);
+    // console.log('Selected customer:', selectedCustomer, customer);
+    setSelectedCustomer(selectedCustomer);
   };
   return (
     <div className="container mx-auto p-2 sm:px-4 sm:py-8">
@@ -284,41 +239,11 @@ function CommunityTaxPage() {
           </div>
 
           <div className="bg-white rounded-lg shadow-md p-6 mb-6">
-            <div className="flex flex-wrap items-start gap-4 mb-4">
-              <div className="flex-1">
-                <div className="relative">
-                  <input
-                    type="text"
-                    placeholder="Search by certificate no., name, or address..."
-                    value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
-                    className="w-full pl-10 pr-4 py-2 border rounded-lg focus:ring-2 focus:ring-primary focus:border-primary"
-                  />
-                  <div className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400">
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      className="h-5 w-5"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                      stroke="currentColor"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
-                      />
-                    </svg>
-                  </div>
-                </div>
-              </div>
-            </div>
-
             <DataTable
               columns={columns}
               data={filteredCertificates}
               actions={actions}
-              loading={isLoading}
+              loading={isLoading || customersLoading}
               onRowClick={handleViewCertificate}
             />
           </div>
@@ -350,8 +275,17 @@ function CommunityTaxPage() {
             </div>
             <div className="flex items-end gap-2 justify-end w-full">
               <SearchableDropdown
-                options={fruits}
+                options={
+                  customers?.map((customer) => ({
+                    label: customer.Name,
+                    value: customer.ID,
+                  })) || []
+                }
                 placeholder="Choose Citizen"
+                selectedValue={selectedCustomer?.ID}
+                onSelect={handleCustomerChange}
+                label="Choose Citizen"
+                required
               />
 
               <button
@@ -369,11 +303,19 @@ function CommunityTaxPage() {
           </div>
 
           <div className="bg-white rounded-lg shadow-md p-2 sm:p-6">
-            <CommunityTaxForm
-              initialData={currentCertificate}
-              onCancel={handleBackToList}
-              onSubmitForm={handleFormSubmit}
-            />
+            {selectedCustomer ? (
+              <CommunityTaxForm
+                key={selectedCustomer?.ID}
+                selectedCustomer={selectedCustomer}
+                initialData={currentCertificate}
+                onCancel={handleBackToList}
+                onSubmitForm={handleFormSubmit}
+              />
+            ) : (
+              <h2 className="text-2xl font-bold text-gray-800 text-center h-[50vh]">
+                Please select a Citizen first to start{' '}
+              </h2>
+            )}
           </div>
         </>
       )}
@@ -421,7 +363,7 @@ function CommunityTaxPage() {
             <CommunityTaxForm
               initialData={currentCertificate}
               onCancel={handleBackToList}
-              isReadOnly={true} // Add this prop to make the form read-only
+              isReadOnly={true}
             />
           </div>
         </>

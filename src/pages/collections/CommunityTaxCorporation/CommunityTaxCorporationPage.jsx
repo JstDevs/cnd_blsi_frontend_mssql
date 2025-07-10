@@ -8,49 +8,37 @@ import {
   PrinterIcon,
 } from '@heroicons/react/24/outline';
 import DataTable from '@/components/common/DataTable';
-// import CommunityTaxCorporationForm from './CommunityTaxCorporationForm';
-import { Formik, Form } from 'formik';
-import * as Yup from 'yup';
 import CTCForm from './CTCForm';
 import SearchableDropdown from '@/components/common/SearchableDropdown';
 import Modal from '@/components/common/Modal';
-
-// Sample data for demonstration
-// Updated sample data to match the image structure
-const sampleCertificates = [
-  {
-    id: 1,
-    customerId: 'CAC',
-    customerName: 'aera sc',
-    total: 540.0,
-    amountReceived: 50.0,
-    earnings: 500000.0,
-    taxDue: 200.0,
-    year: '2024',
-    issuedBy: 'Treasury SH.',
-    status: 'Posted',
-  },
-  {
-    id: 2,
-    customerId: '10015',
-    customerName: 'LBM Enterprises',
-    total: 0.0,
-    amountReceived: 0.0,
-    earnings: 50000.0,
-    taxDue: 0.0,
-    year: '2024',
-    issuedBy: 'Treasury SH.',
-    status: 'Requested',
-  },
-];
+import { fetchVendorDetails } from '@/features/settings/vendorDetailsSlice';
+import { Trash } from 'lucide-react';
+import {
+  fetchCorporateCommunityTaxes,
+  deleteCorporateCommunityTax,
+  addCorporateCommunityTax,
+} from '@/features/collections/CoorporateCommunityTax';
+import toast from 'react-hot-toast';
 
 function CommunityTaxCorporationPage() {
   const [currentView, setCurrentView] = useState('list'); // 'list', 'form', 'details'
   const [currentCertificate, setCurrentCertificate] = useState(null);
-  const [searchTerm, setSearchTerm] = useState('');
+  // const [searchTerm, setSearchTerm] = useState('');
   const [showListModal, setShowListModal] = useState(false);
-  // Use sample data (replace with Redux when implemented)
-  const certificates = sampleCertificates;
+  const [selectedVendor, setSelectedVendor] = useState(null);
+
+  const { records: certificates, isLoading: certificatesLoading } = useSelector(
+    (state) => state.corporateCommunityTax
+  );
+  const { vendorDetails, isLoading } = useSelector(
+    (state) => state.vendorDetails
+  );
+  const dispatch = useDispatch();
+
+  useEffect(() => {
+    dispatch(fetchVendorDetails());
+    dispatch(fetchCorporateCommunityTaxes());
+  }, [dispatch]);
 
   const handleCreateCertificate = () => {
     setCurrentCertificate(null);
@@ -64,6 +52,8 @@ function CommunityTaxCorporationPage() {
 
   const handleEditCertificate = (certificate) => {
     setCurrentCertificate(certificate);
+    console.log('Edit certificate:', certificate);
+    handleVendorChange(certificate.CustomerID);
     setCurrentView('form');
   };
 
@@ -74,71 +64,61 @@ function CommunityTaxCorporationPage() {
   const handleBackToList = () => {
     setCurrentView('list');
     setCurrentCertificate(null);
+    setSelectedVendor(null);
   };
-
-  // Filter certificates based on search term
-  const filteredCertificates = certificates?.filter((cert) => {
-    const searchLower = searchTerm.toLowerCase();
-    return (
-      cert.customerId.toLowerCase().includes(searchLower) ||
-      cert.customerName.toLowerCase().includes(searchLower) ||
-      cert.issuedBy.toLowerCase().includes(searchLower)
-    );
-  });
-
   // Updated columns definition to match the image
   const columns = [
     {
-      key: 'customerId',
+      key: 'CustomerID',
       header: 'Customer ID',
       sortable: true,
       className: 'font-medium text-neutral-900',
     },
     {
-      key: 'customerName',
+      key: 'CustomerName',
       header: 'Customer Name',
       sortable: true,
     },
     {
-      key: 'total',
+      key: 'Total',
       header: 'Total',
       sortable: true,
       render: (value) => formatCurrency(value),
       className: 'text-right',
     },
     {
-      key: 'amountReceived',
+      key: 'AmountReceived',
       header: 'Amount Received',
       sortable: true,
       render: (value) => formatCurrency(value),
       className: 'text-right',
     },
     {
-      key: 'earnings',
+      key: 'Earnings',
       header: 'Earnings',
       sortable: true,
       render: (value) => formatCurrency(value),
       className: 'text-right',
     },
     {
-      key: 'taxDue',
+      key: 'TaxDue',
       header: 'Tax Due',
       sortable: true,
       render: (value) => formatCurrency(value),
       className: 'text-right',
     },
     {
-      key: 'year',
+      key: 'Year',
       header: 'Year',
       sortable: true,
     },
     {
-      key: 'issuedBy',
+      key: 'IssuedBy',
       header: 'Issued By',
       sortable: true,
     },
     {
-      key: 'status',
+      key: 'Status',
       header: 'Status',
       // sortable: true,
       render: (value) => renderStatusBadge(value),
@@ -189,7 +169,21 @@ function CommunityTaxCorporationPage() {
       </span>
     );
   };
-
+  // ----------DELETE CERTIFICATE FUNCTION------------
+  const handleDeleteCertificate = async (certificate) => {
+    try {
+      await dispatch(deleteCorporateCommunityTax(certificate.ID)).unwrap();
+      // If deletion was successful, refetch the data
+      dispatch(fetchCorporateCommunityTaxes());
+      console.log('Certificate deleted and data reFetched');
+      toast.success('Certificate deleted successfully.');
+    } catch (error) {
+      console.error('Error deleting certificate:', error);
+      toast.error('Failed to delete certificate. Please try again.');
+    } finally {
+      handleBackToList();
+    }
+  };
   // Actions for table rows
   const actions = [
     {
@@ -206,19 +200,15 @@ function CommunityTaxCorporationPage() {
       className:
         'text-primary-600 hover:text-primary-900 p-1 rounded-full hover:bg-primary-50',
     },
+    {
+      icon: Trash,
+      title: 'Delete',
+      onClick: handleDeleteCertificate,
+      className:
+        'text-red-600 hover:text-red-900 p-1 rounded-full hover:bg-red-50',
+    },
   ];
-  const fruits = [
-    'Apple',
-    'Banana',
-    'Cherry',
-    'Date',
-    'Elderberry',
-    'Fig',
-    'Grape',
-    'Honeydew',
-    'Kiwi',
-    'Lemon',
-  ];
+
   const handleShowList = () => {
     setShowListModal(true);
   };
@@ -226,10 +216,24 @@ function CommunityTaxCorporationPage() {
   const handleCloseListModal = () => {
     setShowListModal(false);
   };
-  const handleCTCSubmitSuccess = () => {
-    // Here you would typically refresh the list or show a success message
-    console.log('Form submitted successfully');
-    handleBackToList();
+  const handleCTCSubmitSuccess = async (formData) => {
+    try {
+      await dispatch(addCorporateCommunityTax(formData)).unwrap();
+
+      dispatch(fetchCorporateCommunityTaxes());
+
+      toast.success('Certificate saved successfully.');
+    } catch (error) {
+      console.error('Error saving certificate:', error);
+      toast.error('Failed to save certificate. Please try again.');
+    } finally {
+      handleBackToList();
+    }
+  };
+  const handleVendorChange = (value) => {
+    const selectedVendor = vendorDetails.find((vendor) => vendor.ID === value);
+    setSelectedVendor(selectedVendor);
+    console.log('Selected vendor:', selectedVendor);
   };
   return (
     <div className="container mx-auto  sm:px-4 sm:py-8">
@@ -255,41 +259,11 @@ function CommunityTaxCorporationPage() {
           </div>
 
           <div className="bg-white rounded-lg shadow-md p-6 mb-6">
-            <div className="flex flex-wrap items-start gap-4 mb-4">
-              <div className="flex-1">
-                <div className="relative">
-                  <input
-                    type="text"
-                    placeholder="Search by certificate no., corporation name, or TIN..."
-                    value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
-                    className="w-full pl-10 pr-4 py-2 border rounded-lg focus:ring-2 focus:ring-primary focus:border-primary"
-                  />
-                  <div className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400">
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      className="h-5 w-5"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                      stroke="currentColor"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
-                      />
-                    </svg>
-                  </div>
-                </div>
-              </div>
-            </div>
-
             <DataTable
               columns={columns}
-              data={filteredCertificates}
+              data={certificates}
               actions={actions}
-              loading={false}
+              loading={isLoading || certificatesLoading}
               onRowClick={handleViewCertificate}
             />
           </div>
@@ -321,8 +295,17 @@ function CommunityTaxCorporationPage() {
             </div>
             <div className="flex items-end gap-2 justify-end w-full">
               <SearchableDropdown
-                options={fruits}
-                placeholder="Choose Vendors"
+                options={
+                  vendorDetails?.map((vendors) => ({
+                    label: vendors.Name,
+                    value: vendors.ID,
+                  })) || []
+                }
+                selectedValue={selectedVendor?.ID}
+                label="Choose Vendor"
+                placeholder="Choose Vendor"
+                onSelect={handleVendorChange}
+                required
               />
 
               <button
@@ -340,12 +323,20 @@ function CommunityTaxCorporationPage() {
           </div>
 
           <div className="bg-white rounded-lg shadow-md p-2 sm:p-6">
-            <CTCForm
-              initialData={currentCertificate}
-              onCancel={handleBackToList}
-              onSubmitSuccess={handleCTCSubmitSuccess}
-              readOnly={false}
-            />
+            {selectedVendor ? (
+              <CTCForm
+                key={selectedVendor?.ID}
+                selectedVendor={selectedVendor}
+                initialData={currentCertificate}
+                onCancel={handleBackToList}
+                onSubmitSuccess={handleCTCSubmitSuccess}
+                readOnly={false}
+              />
+            ) : (
+              <h2 className="text-2xl font-bold text-gray-800 text-center h-[50vh]">
+                Please select a vendor first to start{' '}
+              </h2>
+            )}
           </div>
         </div>
       )}
