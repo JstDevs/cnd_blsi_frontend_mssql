@@ -15,7 +15,8 @@ function TravelOrderForm({ initialData, onSubmit, onClose, officeOptions, employ
 
   const { departments } = useSelector(state => state.departments);
   const { employees } = useSelector(state => state.employees);
-  const { budgets } = useSelector(state => state.budget);
+  // const { budgets } = useSelector(state => state.budget);
+  const budgets = [{ ID: '1', Name: '2023 Budget' }, { ID: '2', Name: '2024 Budget' }];
 
   const dispatch = useDispatch();
   useEffect(() => {
@@ -342,8 +343,8 @@ function TravelOrderForm({ initialData, onSubmit, onClose, officeOptions, employ
                     label="Source of Fund"
                     name={`TravelPayments[${index}].BudgetID`}
                     options={budgets.map(budget => ({
-                      value: budget.id,
-                      label: budget.budgetName
+                      value: budget.ID,
+                      label: budget.Name
                     }))}
                     value={TravelPayment.BudgetID}
                     onChange={handleChange}
