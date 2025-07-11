@@ -79,7 +79,7 @@ import GeneralServiceReceiptPage from './pages/collections/GeneralReceipt/Genera
 import BurialServiceReceiptPage from './pages/collections/BurialServiceReceiptPage';
 import MarriageServiceReceiptPage from './pages/collections/MarriageServiceReceiptPage';
 import CashbookPage from './pages/collections/CashbookPage';
-import CollectionReportPage from './pages/collections/CollectionReportPage';
+// import CollectionReportPage from './pages/collections/CollectionReport/CollectionReportPage';
 import PublicMarketTicketPage from './pages/collections/PublicMarketTicketPage';
 
 // Budget pages
@@ -130,6 +130,7 @@ import BudgetSummaryOfComparison from './pages/budget/BudgetSummaryOfComparison'
 import BudgetStatementOfAppropriation from './pages/budget/BudgetStatementOfAppropriation';
 import BudgetSubFundsPage from './pages/budget/BudgetSubFundsPage';
 import BudgetFundTransferPage from './pages/budget/BudgetFundTransferPage';
+import CollectionReportPage from './pages/collections/CollectionReport/CollectionReportPage';
 
 function App() {
   const { isAuthenticated, isLoading } = useSelector((state) => state.auth);

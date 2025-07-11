@@ -1,48 +1,52 @@
 import { Formik, Form } from 'formik';
 import * as Yup from 'yup';
-import FormField from '../common/FormField';
+import FormField from '../../../components/common/FormField';
 import { useState } from 'react';
 
 const COLLECTION_REPORT_SCHEMA = Yup.object().shape({
   reportType: Yup.string().required('Report type is required'),
-  // Dynamic validation based on report type
   date: Yup.date().when('reportType', {
-    is: 'daily',
-    then: Yup.date().required('Date is required'),
+    is: 'daily', // Direct value comparison
+    then: (schema) => schema.required('Date is required'),
   }),
+  action: Yup.string().required('Action is required'),
   month: Yup.number().when('reportType', {
-    is: 'monthly',
-    then: Yup.number().required('Month is required').min(1).max(12),
+    is: 'monthly', // Direct value comparison
+    then: (schema) => schema.required('Month is required').min(1).max(12),
   }),
   year: Yup.number().when('reportType', {
-    is: (val) => ['monthly', 'quarterly'].includes(val),
-    then: Yup.number().required('Year is required').min(2000).max(2100),
+    is: (val) => ['monthly', 'quarterly'].includes(val), // Function for array check
+    then: (schema) => schema.required('Year is required').min(2000).max(2100),
   }),
   quarter: Yup.number().when('reportType', {
-    is: 'quarterly',
-    then: Yup.number().required('Quarter is required').min(1).max(4),
+    is: 'quarterly', // Direct value comparison
+    then: (schema) => schema.required('Quarter is required').min(1).max(4),
   }),
   fromDate: Yup.date().when('reportType', {
-    is: 'flexible',
-    then: Yup.date().required('From date is required'),
+    is: 'flexible', // Direct value comparison
+    then: (schema) => schema.required('From date is required'),
   }),
   toDate: Yup.date().when('reportType', {
-    is: 'flexible',
-    then: Yup.date()
-      .required('To date is required')
-      .min(Yup.ref('fromDate'), 'To date must be after from date'),
+    is: 'flexible', // Direct value comparison
+    then: (schema) =>
+      schema
+        .required('To date is required')
+        .min(Yup.ref('fromDate'), 'To date must be after from date'),
   }),
   notedBy: Yup.string().when('reportType', {
-    is: 'flexible',
-    then: Yup.string().required('Noted by is required'),
+    is: 'flexible', // Direct value comparison
+    then: (schema) => schema.required('Noted by is required'),
   }),
 });
 
-function CollectionReportForm({ onSubmitCollectionReport }) {
-  const [activeReportType, setActiveReportType] = useState('daily');
-
+function CollectionReportForm({
+  onSubmitCollectionReport,
+  activeReportType,
+  setActiveReportType,
+}) {
   const initialValues = {
     reportType: 'daily',
+    action: '',
     date: '',
     month: '',
     year: new Date().getFullYear(),
@@ -96,7 +100,7 @@ function CollectionReportForm({ onSubmitCollectionReport }) {
     { value: 'clerk', label: 'Clerk' },
   ];
 
-  const renderDateInputs = (errors, touched) => {
+  const renderDateInputs = (errors, touched, values, handleChange) => {
     switch (activeReportType) {
       case 'daily':
         return (
@@ -106,6 +110,8 @@ function CollectionReportForm({ onSubmitCollectionReport }) {
             type="date"
             required
             className="w-full"
+            onChange={handleChange}
+            value={values.date}
             error={errors.date}
             touched={touched.date}
           />
@@ -118,6 +124,8 @@ function CollectionReportForm({ onSubmitCollectionReport }) {
               name="month"
               type="select"
               options={months}
+              value={values.month}
+              onChange={handleChange}
               required
               error={errors.month}
               touched={touched.month}
@@ -129,6 +137,8 @@ function CollectionReportForm({ onSubmitCollectionReport }) {
               required
               min={2000}
               max={2100}
+              value={values.year}
+              onChange={handleChange}
               error={errors.year}
               touched={touched.year}
             />
@@ -142,6 +152,8 @@ function CollectionReportForm({ onSubmitCollectionReport }) {
               name="quarter"
               type="select"
               options={quarters}
+              value={values.quarter}
+              onChange={handleChange}
               required
               error={errors.quarter}
               touched={touched.quarter}
@@ -151,6 +163,8 @@ function CollectionReportForm({ onSubmitCollectionReport }) {
               name="year"
               type="number"
               required
+              value={values.year}
+              onChange={handleChange}
               min={2000}
               max={2100}
               error={errors.year}
@@ -167,6 +181,8 @@ function CollectionReportForm({ onSubmitCollectionReport }) {
                 name="fromDate"
                 type="date"
                 required
+                value={values.fromDate}
+                onChange={handleChange}
                 error={errors.fromDate}
                 touched={touched.fromDate}
               />
@@ -175,6 +191,8 @@ function CollectionReportForm({ onSubmitCollectionReport }) {
                 name="toDate"
                 type="date"
                 required
+                value={values.toDate}
+                onChange={handleChange}
                 error={errors.toDate}
                 touched={touched.toDate}
               />
@@ -185,6 +203,8 @@ function CollectionReportForm({ onSubmitCollectionReport }) {
               type="select"
               options={notedByOptions}
               required
+              value={values.notedBy}
+              onChange={handleChange}
               error={errors.notedBy}
               touched={touched.notedBy}
             />
@@ -194,18 +214,87 @@ function CollectionReportForm({ onSubmitCollectionReport }) {
         return null;
     }
   };
+  const handleFormSubmit = (values, { setSubmitting, setErrors }) => {
+    try {
+      // Base params common to all report types
+      const baseParams = {
+        ctc: values.documentTypes.communityTax ? 1 : 0,
+        btc: values.documentTypes.burialCert ? 1 : 0,
+        mrc: values.documentTypes.marriageCert ? 1 : 0,
+        gsi: values.documentTypes.generalService ? 1 : 0,
+        rpt: values.documentTypes.propertyTax ? 1 : 0,
+        pmt: values.documentTypes.marketTicketing ? 1 : 0,
+      };
 
+      // Type-specific params
+      let typeParams = {};
+      switch (values.reportType) {
+        case 'daily':
+          typeParams = { date: values.date };
+          break;
+        case 'monthly':
+          typeParams = {
+            month: values.month,
+            year: values.year,
+          };
+          break;
+        case 'quarterly':
+          typeParams = {
+            quarter: values.quarter,
+            year: values.year,
+          };
+          break;
+        case 'flexible':
+          typeParams = {
+            startdate: values.fromDate,
+            enddate: values.toDate,
+            note: values.notedBy,
+          };
+          break;
+        default:
+          throw new Error('Invalid report type');
+      }
+
+      // Combine all params
+      const params = {
+        ...baseParams,
+        ...typeParams,
+      };
+
+      // Pass to parent handler
+      onSubmitCollectionReport({
+        ...values,
+        action: values.action,
+        params,
+      });
+    } catch (error) {
+      console.error('Error submitting form:', error);
+      setErrors({ submit: error.message });
+    } finally {
+      setSubmitting(false);
+    }
+  };
   return (
     <Formik
       initialValues={initialValues}
       validationSchema={COLLECTION_REPORT_SCHEMA}
-      onSubmit={(values) => {
-        onSubmitCollectionReport(values);
-      }}
+      onSubmit={handleFormSubmit}
     >
-      {({ values, errors, touched, setFieldValue, isSubmitting }) => (
+      {({
+        values,
+        errors,
+        touched,
+        setFieldValue,
+        handleSubmit,
+        handleChange,
+        setErrors,
+        isSubmitting,
+      }) => (
         <Form className="space-y-4">
           {/* Report Type Buttons */}
+          {(function () {
+            console.log(activeReportType, values, errors);
+          })()}
           <div className="flex flex-wrap gap-2 mb-6">
             {reportTypes.map((type) => (
               <button
@@ -228,7 +317,7 @@ function CollectionReportForm({ onSubmitCollectionReport }) {
 
           {/* Dynamic Date Inputs */}
           <div className="bg-gray-50 p-4 rounded-lg mb-6">
-            {renderDateInputs(errors, touched)}
+            {renderDateInputs(errors, touched, values, handleChange)}
           </div>
 
           {/* Document Types */}
@@ -274,21 +363,31 @@ function CollectionReportForm({ onSubmitCollectionReport }) {
           <div className="flex justify-end pt-4 border-t border-neutral-200 gap-4 sm:flex-row flex-col">
             <button
               type="button"
-              onClick={() => onSubmit({ ...values, action: 'view' })}
+              onClick={() => {
+                setFieldValue('action', 'view');
+                handleSubmit();
+                setErrors({}); // Clear all form errors
+              }}
               className="btn btn-primary sm:w-auto w-full"
             >
               View
             </button>
             <button
               type="button"
-              onClick={() => onSubmit({ ...values, action: 'generate' })}
+              onClick={() => {
+                setFieldValue('action', 'generate');
+                handleSubmit();
+              }}
               className="btn btn-secondary sm:w-auto w-full"
             >
               Generate Journal
             </button>
             <button
               type="button"
-              onClick={() => onSubmit({ ...values, action: 'export' })}
+              onClick={() => {
+                setFieldValue('action', 'export');
+                handleSubmit();
+              }}
               className="btn btn-outline sm:w-auto w-full"
             >
               Export to Excel
