@@ -78,7 +78,7 @@ import MarketCollectionsPage from './pages/collections/MarketCollectionsPage';
 import GeneralServiceReceiptPage from './pages/collections/GeneralReceipt/GeneralServiceReceiptPage';
 import BurialServiceReceiptPage from './pages/collections/BurialServiceReceiptPage';
 import MarriageServiceReceiptPage from './pages/collections/MarriageServiceReceiptPage';
-import CashbookPage from './pages/collections/CashbookPage';
+// import CashbookPage from './pages/collections/Cashbook/CashbookPage';
 // import CollectionReportPage from './pages/collections/CollectionReport/CollectionReportPage';
 import PublicMarketTicketPage from './pages/collections/PublicMarketTicketPage';
 
@@ -131,6 +131,7 @@ import BudgetStatementOfAppropriation from './pages/budget/BudgetStatementOfAppr
 import BudgetSubFundsPage from './pages/budget/BudgetSubFundsPage';
 import BudgetFundTransferPage from './pages/budget/BudgetFundTransferPage';
 import CollectionReportPage from './pages/collections/CollectionReport/CollectionReportPage';
+import CashbookPage from './pages/collections/Cashbook/CashbookPage';
 
 function App() {
   const { isAuthenticated, isLoading } = useSelector((state) => state.auth);

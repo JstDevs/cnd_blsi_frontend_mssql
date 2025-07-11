@@ -54,22 +54,22 @@ function CollectionReportPage() {
     }
   };
   // Actions for table rows
-  const actions = [
-    {
-      icon: EyeIcon,
-      title: 'View',
-      onClick: () => {},
-      className:
-        'text-primary-600 hover:text-primary-900 p-1 rounded-full hover:bg-primary-50',
-    },
-    {
-      icon: PencilIcon,
-      title: 'Edit',
-      onClick: () => {},
-      className:
-        'text-primary-600 hover:text-primary-900 p-1 rounded-full hover:bg-primary-50',
-    },
-  ];
+  // const actions = [
+  //   {
+  //     icon: EyeIcon,
+  //     title: 'View',
+  //     onClick: () => {},
+  //     className:
+  //       'text-primary-600 hover:text-primary-900 p-1 rounded-full hover:bg-primary-50',
+  //   },
+  //   {
+  //     icon: PencilIcon,
+  //     title: 'Edit',
+  //     onClick: () => {},
+  //     className:
+  //       'text-primary-600 hover:text-primary-900 p-1 rounded-full hover:bg-primary-50',
+  //   },
+  // ];
   const reportColumns = {
     daily: [
       {
@@ -295,7 +295,7 @@ function CollectionReportPage() {
           columns={reportColumns[activeReportType]}
           data={reportData[activeReportType]}
           loading={isLoading}
-          actions={actions}
+          // actions={actions}
           emptyMessage="No collection entries found for the selected date."
         />
       </div>

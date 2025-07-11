@@ -54,13 +54,15 @@ export const createGeneralServiceReceipt = createAsyncThunk(
   async (receiptData, thunkAPI) => {
     try {
       const token = localStorage.getItem('token');
+
+      // Remove the Content-Type header - let the browser set it automatically
       const response = await axios.post(
         `${API_URL}/generalservicerecipt`,
-        receiptData,
+        receiptData, // This should be the FormData object
         {
           headers: {
-            'Content-Type': 'application/json',
             Authorization: `Bearer ${token}`,
+            // Don't set Content-Type - it will be set automatically with the boundary
           },
         }
       );

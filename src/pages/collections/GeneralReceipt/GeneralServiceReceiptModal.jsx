@@ -10,7 +10,14 @@ import { useDispatch, useSelector } from 'react-redux';
 import SearchableDropdown from '@/components/common/SearchableDropdown';
 import Customer from '@/pages/settings/Customer';
 import { fetchFunds } from '@/features/budget/fundsSlice';
-import { Cross, CrosshairIcon, CrossIcon, XIcon } from 'lucide-react';
+import {
+  Cross,
+  CrosshairIcon,
+  CrossIcon,
+  Paperclip,
+  Trash2,
+  XIcon,
+} from 'lucide-react';
 import { fetchItems } from '@/features/settings/itemSlice';
 import { fetchBudgets } from '@/features/budget/budgetSlice';
 
@@ -50,6 +57,7 @@ function GeneralServiceReceiptModal({
   onSubmit,
 }) {
   const [payorType, setPayorType] = useState('Individual');
+  const [showAttachmentModal, setShowAttachmentModal] = useState(false);
   const { customers } = useSelector((state) => state.customers);
   const { vendorDetails } = useSelector((state) => state.vendorDetails);
   const { funds } = useSelector((state) => state.funds);
@@ -106,12 +114,29 @@ function GeneralServiceReceiptModal({
     PayeeBank: selectedReceipt?.PayeeBank || '',
     CheckDate: selectedReceipt?.CheckDate || '',
     MoneyOrderDate: selectedReceipt?.MoneyOrderDate || '',
-    Attachments: [],
+    Attachments: selectedReceipt?.Attachments || [],
 
     PaymentMethodID: 2,
     TransactionItemsAll: selectedReceipt?.TransactionItemsAll || [],
   };
-  const handleSubmit = (values) => {
+  // -------------FILE UPLOAD-------------
+  const handleFileUpload = (event, setFieldValue, values) => {
+    const files = Array.from(event.target.files);
+
+    // Create new attachments array with just the File objects
+    const newAttachments = files.map((file) => file); // Just store the File objects directly
+
+    // Combine with existing attachments
+    setFieldValue('Attachments', [...values.Attachments, ...newAttachments]);
+  };
+  // -----------REMOVE ATTACHMENT-------------
+  const removeAttachment = (index, setFieldValue, values) => {
+    const updatedAttachments = [...values.Attachments];
+    updatedAttachments.splice(index, 1);
+    setFieldValue('Attachments', updatedAttachments);
+  };
+  // -----------SUBMIT ------------
+  const handleSubmit = async (values) => {
     const formData = new FormData();
 
     // Append all non-attachment fields
@@ -131,21 +156,12 @@ function GeneralServiceReceiptModal({
       }
     }
 
-    // Handle attachments
-    if (values.Attachments && Array.isArray(values.Attachments)) {
-      values.Attachments.forEach((att, idx) => {
-        if (att.File) {
-          formData.append(`Attachments[${idx}].File`, att.File);
-        }
-        if (att.ID) {
-          formData.append(`Attachments[${idx}].ID`, att.ID);
-        }
-        if (att.Name) {
-          formData.append(`Attachments[${idx}].Name`, att.Name);
-        }
-        // Add any other attachment properties you need
-      });
-    }
+    // if (values.Attachments && Array.isArray(values.Attachments)) {
+    // Handle attachments - simplified format
+    values.Attachments.forEach((file, index) => {
+      formData.append(`Attachments[${index}].File`, file);
+    });
+    // }
     // Add ID if editing existing receipt
     if (selectedReceipt) {
       formData.append('IsNew', 'false');
@@ -153,11 +169,17 @@ function GeneralServiceReceiptModal({
       formData.append('ID', selectedReceipt.ID);
     } else {
       formData.append('IsNew', 'true');
-      formData.append('Attachments', '[]');
     }
 
-    onSubmit(formData);
-    console.log('Form submitted with values:', formData);
+    try {
+      await onSubmit(formData);
+
+      console.log('Form submitted with values:', formData);
+    } catch (error) {
+      console.error('Error submitting form:', error);
+    } finally {
+      onClose();
+    }
   };
   return (
     <Modal
@@ -174,11 +196,15 @@ function GeneralServiceReceiptModal({
         <button type="button" className="btn btn-secondary flex-initial">
           Show List
         </button>
-        <button className="btn btn-primary flex-initial">
+        <button
+          className="btn btn-primary flex-initial"
+          onClick={() => setShowAttachmentModal(true)}
+        >
           Add Attachments
         </button>
         <button className="btn btn-outline flex-initial">Print</button>
       </div>
+
       <Formik
         initialValues={initialValues}
         validationSchema={generalServiceReceiptSchema}
@@ -193,7 +219,7 @@ function GeneralServiceReceiptModal({
           errors,
           touched,
         }) => {
-          console.log(values);
+          // console.log(values);
           return (
             <Form className="space-y-6">
               {/* Section 1: Basic Information */}
@@ -474,12 +500,12 @@ function GeneralServiceReceiptModal({
                     label="Amount in Words"
                     name="amountInWords"
                     type="text"
-                    // value={`${convertAmountToWords(
-                    //   values.items.reduce(
-                    //     (sum, item) => sum + item.quantity * item.price,
-                    //     0
-                    //   )
-                    // )} PESOS`}
+                    value={convertAmountToWords(
+                      values.TransactionItemsAll.reduce(
+                        (sum, item) => sum + item.Quantity * item.Price,
+                        0
+                      )
+                    )}
                     readOnly
                   />{' '}
                 </div>
@@ -586,7 +612,69 @@ function GeneralServiceReceiptModal({
                   error={errors.Remarks && touched.Remarks}
                 />
               </div>
+              {/* Section 5: Attachments */}
+              <div className="bg-gray-50 p-4 rounded-lg space-y-4">
+                <h3 className="font-medium text-lg">Attachments</h3>
 
+                {values.Attachments.length > 0 ? (
+                  <div className="space-y-2">
+                    {values.Attachments.map((file, index) => (
+                      <div
+                        key={index}
+                        className="flex items-center justify-between p-2 border rounded"
+                      >
+                        <div className="flex items-center">
+                          <Paperclip className="h-4 w-4 text-gray-500 mr-2" />
+                          <span className="text-sm">
+                            {file.name || file.DataName}
+                          </span>
+                        </div>
+                        <button
+                          type="button"
+                          onClick={() =>
+                            removeAttachment(index, setFieldValue, values)
+                          }
+                          className="text-red-500 hover:text-red-700"
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <p className="text-sm text-gray-500">No attachments added</p>
+                )}
+              </div>
+              {showAttachmentModal && (
+                <Modal
+                  isOpen={showAttachmentModal}
+                  onClose={() => setShowAttachmentModal(false)}
+                  title="Attachments"
+                  size="md"
+                >
+                  <div className="space-y-4">
+                    <div className="border-2 border-dashed border-gray-300 rounded-lg p-4 text-center">
+                      <label className="cursor-pointer">
+                        <div className="flex flex-col items-center justify-center">
+                          <Paperclip className="h-8 w-8 text-gray-400" />
+                          <p className="mt-2 text-sm text-gray-600">
+                            Click to browse or drag and drop files
+                          </p>
+                          <input
+                            type="file"
+                            className="hidden"
+                            multiple
+                            onChange={(e) => {
+                              handleFileUpload(e, setFieldValue, values);
+                              setShowAttachmentModal(false);
+                            }}
+                          />
+                        </div>
+                      </label>
+                    </div>
+                  </div>
+                </Modal>
+              )}
               {/* Action Buttons */}
               <div className="flex justify-end gap-2 pt-4">
                 <button
@@ -601,9 +689,7 @@ function GeneralServiceReceiptModal({
                   // disabled={isSubmitting}
                   className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50"
                 >
-                  {/* {isSubmitting ? 'Saving...' : 'Save'}
-                  save
-                   */}
+                  {/* {isSubmitting ? 'Saving...' : 'Save'} */}
                   save
                 </button>
               </div>

@@ -202,13 +202,6 @@ function GeneralReceiptPage() {
       className:
         'text-error-600 hover:text-error-900 p-1 rounded-full hover:bg-error-50',
     },
-    // {
-    //   icon: PrinterIcon,
-    //   title: 'Print',
-    //   onClick: (receipt) => console.log('Print receipt:', receipt),
-    //   className:
-    //     'text-primary-600 hover:text-primary-900 p-1 rounded-full hover:bg-primary-50',
-    // },
   ];
 
   const handleGeneralServiceReceiptSubmit = async (values) => {
@@ -219,7 +212,7 @@ function GeneralReceiptPage() {
         createGeneralServiceReceipt(values)
       ).unwrap();
 
-      console.log('Operation successful:', result);
+      console.log('Operation successful:', result, values);
 
       dispatch(fetchGeneralServiceReceipts());
 
@@ -383,90 +376,3 @@ function GeneralReceiptPage() {
 }
 
 export default GeneralReceiptPage;
-// <Modal
-//     isOpen={isCreateModalOpen}
-//     onClose={handleCloseCreateModal}
-//     title={
-//       currentReceipt ? 'Edit General Receipt' : 'Create General Receipt'
-//     }
-//     size="lg"
-//   >
-//     <div className="p-4 space-y-4">
-//       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-//         <FormField
-//           label="Receipt Date"
-//           name="receiptDate"
-//           type="date"
-//           required
-//         />
-
-//         <FormField
-//           label="Fund"
-//           name="fund"
-//           type="select"
-//           required
-//           options={[
-//             { value: 'General Fund', label: 'General Fund' },
-//             {
-//               value: 'Special Education Fund',
-//               label: 'Special Education Fund',
-//             },
-//             { value: 'Trust Fund', label: 'Trust Fund' },
-//           ]}
-//         />
-//       </div>
-
-//       <FormField
-//         label="Payor Name"
-//         name="payorName"
-//         type="text"
-//         required
-//         placeholder="Enter payor name"
-//       />
-
-//       <FormField
-//         label="Payor Address"
-//         name="payorAddress"
-//         type="textarea"
-//         placeholder="Enter payor address"
-//         rows={2}
-//       />
-
-//       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-//         <FormField
-//           label="Mode of Payment"
-//           name="modeOfPayment"
-//           type="select"
-//           required
-//           options={[
-//             { value: 'Cash', label: 'Cash' },
-//             { value: 'Cheque', label: 'Cheque' },
-//             { value: 'Bank Transfer', label: 'Bank Transfer' },
-//           ]}
-//         />
-
-//         <FormField
-//           label="Amount"
-//           name="amount"
-//           type="number"
-//           required
-//           placeholder="0.00"
-//           min="0"
-//           step="0.01"
-//         />
-//       </div>
-
-//       <div className="flex justify-end space-x-3 pt-4 border-t border-neutral-200">
-//         <button
-//           type="button"
-//           onClick={handleCloseCreateModal}
-//           className="btn btn-outline"
-//         >
-//           Cancel
-//         </button>
-//         <button type="submit" className="btn btn-primary">
-//           {currentReceipt ? 'Update' : 'Create'}
-//         </button>
-//       </div>
-//     </div>
-//   </Modal>
