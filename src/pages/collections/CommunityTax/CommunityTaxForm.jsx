@@ -75,21 +75,17 @@ const validationSchema = Yup.object({
       }
       return age >= 18;
     }),
-  CivilStatus: Yup.string().required('Civil status is required'),
-  Occupation: Yup.string()
-    .required('Profession/Occupation is required')
-    .min(2, 'Profession must be at least 2 characters'),
+  CivilStatus: Yup.string(),
+  Occupation: Yup.string().min(2, 'Profession must be at least 2 characters'),
   Gender: Yup.string().required('Sex is required'),
   HeightFeet: Yup.number()
     .typeError('Feet must be a number')
-    .required('Feet is required')
     .min(3, 'Minimum height is 3 feet')
     .max(8, 'Maximum height is 8 feet')
     .integer('Feet must be a whole number'),
 
   HeightInches: Yup.number()
     .typeError('Inches must be a number')
-    .required('Inches is required')
     .min(0, 'Inches cannot be negative')
     .max(11, 'Inches must be between 0 and 11')
     .test(
@@ -105,7 +101,6 @@ const validationSchema = Yup.object({
 
   Weight: Yup.number()
     .typeError('Weight must be a number')
-    .required('Weight is required')
     .min(30, 'Weight must be at least 30 kg')
     .max(300, 'Weight must not exceed 300 kg'),
 
@@ -512,7 +507,6 @@ const CommunityTaxForm = ({
                       formik.touched.CivilStatus && formik.errors.CivilStatus
                     }
                     touched={formik.touched.CivilStatus}
-                    required
                   />
                 </div>
                 <div>
@@ -524,7 +518,6 @@ const CommunityTaxForm = ({
                       formik.touched.Occupation && formik.errors.Occupation
                     }
                     touched={formik.touched.Occupation}
-                    required
                   />
                 </div>
                 <div>
@@ -552,7 +545,6 @@ const CommunityTaxForm = ({
                         formik.touched.HeightFeet && formik.errors.HeightFeet
                       }
                       touched={formik.touched.HeightFeet}
-                      required
                     />
                   </div>
                   <div>
@@ -569,7 +561,6 @@ const CommunityTaxForm = ({
                         formik.errors.HeightInches
                       }
                       touched={formik.touched.HeightInches}
-                      required
                     />
                   </div>
                   <div>
@@ -582,7 +573,6 @@ const CommunityTaxForm = ({
                       className="border-blue-200 focus:border-blue-500 focus:ring-blue-500"
                       error={formik.touched.Weight && formik.errors.Weight}
                       touched={formik.touched.Weight}
-                      required
                     />
                   </div>
                 </div>

@@ -70,7 +70,41 @@ function CustomerForm({ initialData, onSubmit, onClose }) {
     onSubmit: onSubmit,
   });
 
-  const { values, handleChange, handleBlur, errors, touched } = formik;
+  const { values, handleChange, handleBlur, errors, touched, setFieldValue } =
+    formik;
+  useEffect(() => {
+    const selectedBarangay = barangays.find(
+      (b) => b.ID.toString() === values.BarangayID
+    );
+    if (selectedBarangay) {
+      if (selectedBarangay.MunicipalityCode)
+        setFieldValue('MunicipalityID', selectedBarangay.MunicipalityCode);
+      if (selectedBarangay.ProvinceCode)
+        setFieldValue('ProvinceID', selectedBarangay.ProvinceCode);
+      if (selectedBarangay.RegionCode)
+        setFieldValue('RegionID', selectedBarangay.RegionCode);
+    }
+  }, [values.BarangayID]);
+
+  useEffect(() => {
+    const selectedMunicipality = municipalities.find(
+      (m) => m.ID.toString() === values.MunicipalityID
+    );
+    if (selectedMunicipality) {
+      if (selectedMunicipality.ProvinceCode)
+        setFieldValue('ProvinceID', selectedMunicipality.ProvinceCode);
+      if (selectedMunicipality.RegionCode)
+        setFieldValue('RegionID', selectedMunicipality.RegionCode);
+    }
+  }, [values.MunicipalityID]);
+
+  useEffect(() => {
+    const selectedProvince = provinces.find(
+      (p) => p.ID.toString() === values.ProvinceID
+    );
+    if (selectedProvince && selectedProvince.RegionCode)
+      setFieldValue('RegionID', selectedProvince.RegionCode);
+  }, [values.ProvinceID]);
 
   return (
     <form onSubmit={formik.handleSubmit} className="space-y-6">

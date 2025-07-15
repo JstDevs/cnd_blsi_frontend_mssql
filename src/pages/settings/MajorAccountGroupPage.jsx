@@ -77,7 +77,7 @@ function MajorAccountGroupPage() {
     }
   };
 
-  const handleSubmit = (values, { resetForm }) => {
+  const handleSubmit = async (values, { resetForm }) => {
     const accountTypeName =
       accountGroups.find((d) => d.ID === Number(values.AccountTypeID))?.Name ||
       '';
@@ -88,15 +88,16 @@ function MajorAccountGroupPage() {
     };
 
     if (currentMajorAccountGroup) {
-      dispatch(
+      await dispatch(
         updateMajorAccountGroup({
           ...submissionData,
           ID: currentMajorAccountGroup.ID,
         })
-      );
+      ).unwrap();
     } else {
-      dispatch(addMajorAccountGroup(submissionData));
+      await dispatch(addMajorAccountGroup(submissionData)).unwrap();
     }
+    fetchMajorAccountGroups();
     setIsModalOpen(false);
     resetForm();
   };

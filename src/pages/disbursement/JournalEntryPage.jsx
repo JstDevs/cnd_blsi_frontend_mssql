@@ -213,7 +213,7 @@ function JournalEntryPage() {
         <div className="flex justify-between items-center">
           <div>
             <h1>Journal Entries Voucher </h1>
-            <p>Manage your Journal Entries</p>
+            <p>Manage your Journal Entry Vouchers</p>
           </div>
           <button
             type="button"

@@ -1,7 +1,9 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { PrinterIcon, ArrowDownTrayIcon } from '@heroicons/react/24/outline';
 import DataTable from '../../components/common/DataTable';
 import FormField from '../../components/common/FormField';
+import { useDispatch, useSelector } from 'react-redux';
+import { fetchFunds } from '@/features/budget/fundsSlice';
 
 function BudgetReportPage() {
   const [filters, setFilters] = useState({
@@ -10,19 +12,32 @@ function BudgetReportPage() {
     reportType: 'summary',
     fund: '',
   });
-  
-  const funds = [
-    { value: 'General Fund', label: 'General Fund' },
-    { value: 'Special Education Fund', label: 'Special Education Fund' },
-    { value: 'Trust Fund', label: 'Trust Fund' },
-  ];
-  
+  // --------------FETCH FUNDs--------------
+  const dispatch = useDispatch();
+
+  const { funds, isLoading } = useSelector((state) => state.funds);
+
+  useEffect(() => {
+    dispatch(fetchFunds());
+  }, []);
+  // const funds = [
+  //   { value: 'General Fund', label: 'General Fund' },
+  //   { value: 'Special Education Fund', label: 'Special Education Fund' },
+  //   { value: 'Trust Fund', label: 'Trust Fund' },
+  // ];
+
   const reportTypes = [
     { value: 'summary', label: 'Budget Summary' },
-    { value: 'saaob', label: 'Statement of Appropriations, Allotments and Obligations' },
-    { value: 'scba', label: 'Statement of Comparison of Budget and Actual Amounts' },
+    {
+      value: 'saaob',
+      label: 'Statement of Appropriations, Allotments and Obligations',
+    },
+    {
+      value: 'scba',
+      label: 'Statement of Comparison of Budget and Actual Amounts',
+    },
   ];
-  
+
   // Format amount as Philippine Peso
   const formatCurrency = (amount) => {
     return new Intl.NumberFormat('en-PH', {
@@ -30,7 +45,7 @@ function BudgetReportPage() {
       currency: 'PHP',
     }).format(amount);
   };
-  
+
   // Format percentage
   const formatPercentage = (value) => {
     return new Intl.NumberFormat('en-PH', {
@@ -39,7 +54,7 @@ function BudgetReportPage() {
       maximumFractionDigits: 2,
     }).format(value);
   };
-  
+
   // Mock data for table
   const entries = [
     {
@@ -63,7 +78,7 @@ function BudgetReportPage() {
       utilizationRate: 0.75,
     },
   ];
-  
+
   // Table columns
   const columns = [
     {
@@ -123,24 +138,18 @@ function BudgetReportPage() {
             <p>View and generate budget utilization reports</p>
           </div>
           <div className="flex space-x-2">
-            <button
-              type="button"
-              className="btn btn-outline flex items-center"
-            >
+            <button type="button" className="btn btn-outline flex items-center">
               <ArrowDownTrayIcon className="h-5 w-5 mr-2" />
               Export
             </button>
-            <button
-              type="button"
-              className="btn btn-outline flex items-center"
-            >
+            <button type="button" className="btn btn-outline flex items-center">
               <PrinterIcon className="h-5 w-5 mr-2" />
               Print
             </button>
           </div>
         </div>
       </div>
-      
+
       <div className="mt-4 card p-4">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
           <FormField
@@ -152,7 +161,7 @@ function BudgetReportPage() {
             min="2000"
             max="2100"
           />
-          
+
           <FormField
             label="Month"
             name="month"
@@ -174,16 +183,19 @@ function BudgetReportPage() {
               { value: '12', label: 'December' },
             ]}
           />
-          
+
           <FormField
             label="Report Type"
             name="reportType"
             type="select"
+            className="whitespace-normal break-words"
             value={filters.reportType}
-            onChange={(e) => setFilters({ ...filters, reportType: e.target.value })}
+            onChange={(e) =>
+              setFilters({ ...filters, reportType: e.target.value })
+            }
             options={reportTypes}
           />
-          
+
           <FormField
             label="Fund"
             name="fund"
@@ -193,7 +205,7 @@ function BudgetReportPage() {
             options={funds}
           />
         </div>
-        
+
         <div className="flex justify-end mt-4">
           <button
             type="button"
@@ -202,41 +214,67 @@ function BudgetReportPage() {
               // Handle filter application
             }}
           >
-            Generate Report
+            View
           </button>
         </div>
       </div>
-      
+
       <div className="mt-8">
         <div className="text-center space-y-2 mb-6">
           <h2 className="text-xl font-bold">Local Government Unit</h2>
-          <h3 className="text-lg font-semibold">Statement of Appropriations, Allotments and Obligations</h3>
-          <p className="text-sm text-neutral-600">For the Month Ended {new Date(filters.year, filters.month - 1).toLocaleDateString('en-PH', { month: 'long', year: 'numeric' })}</p>
+          <h3 className="text-lg font-semibold">
+            Statement of Appropriations, Allotments and Obligations
+          </h3>
+          <p className="text-sm text-neutral-600">
+            For the Month Ended{' '}
+            {new Date(filters.year, filters.month - 1).toLocaleDateString(
+              'en-PH',
+              { month: 'long', year: 'numeric' }
+            )}
+          </p>
         </div>
-        
+
         <DataTable
           columns={columns}
           data={entries}
           pagination={true}
+          loading={isLoading}
         />
-        
+
         <div className="mt-4 p-4 bg-neutral-50 rounded-lg border border-neutral-200">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
             <div>
               <p className="text-sm text-neutral-600">Total Appropriation</p>
-              <p className="text-lg font-semibold">{formatCurrency(entries.reduce((sum, item) => sum + item.appropriation, 0))}</p>
+              <p className="text-lg font-semibold">
+                {formatCurrency(
+                  entries.reduce((sum, item) => sum + item.appropriation, 0)
+                )}
+              </p>
             </div>
             <div>
               <p className="text-sm text-neutral-600">Total Allotment</p>
-              <p className="text-lg font-semibold">{formatCurrency(entries.reduce((sum, item) => sum + item.allotment, 0))}</p>
+              <p className="text-lg font-semibold">
+                {formatCurrency(
+                  entries.reduce((sum, item) => sum + item.allotment, 0)
+                )}
+              </p>
             </div>
             <div>
               <p className="text-sm text-neutral-600">Total Obligation</p>
-              <p className="text-lg font-semibold">{formatCurrency(entries.reduce((sum, item) => sum + item.obligation, 0))}</p>
+              <p className="text-lg font-semibold">
+                {formatCurrency(
+                  entries.reduce((sum, item) => sum + item.obligation, 0)
+                )}
+              </p>
             </div>
             <div>
               <p className="text-sm text-neutral-600">Overall Utilization</p>
-              <p className="text-lg font-semibold">{formatPercentage(entries.reduce((sum, item) => sum + item.obligation, 0) / entries.reduce((sum, item) => sum + item.appropriation, 0))}</p>
+              <p className="text-lg font-semibold">
+                {formatPercentage(
+                  entries.reduce((sum, item) => sum + item.obligation, 0) /
+                    entries.reduce((sum, item) => sum + item.appropriation, 0)
+                )}
+              </p>
             </div>
           </div>
         </div>

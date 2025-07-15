@@ -91,11 +91,11 @@ const BankPage = () => {
       sortable: true,
       // render: (value, row) => formatCurrency(value, row.currency),
     },
-    {
-      key: 'CurrencyID',
-      header: 'CurrencyID',
-      sortable: true,
-    },
+    // {
+    //   key: 'CurrencyID',
+    //   header: 'CurrencyID',
+    //   sortable: true,
+    // },
     {
       key: 'Currency',
       header: 'Currency',

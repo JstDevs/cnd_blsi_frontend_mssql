@@ -85,7 +85,6 @@ const GeneralRevisionForm = ({ initialData, onSubmit, onCancel, isEdit }) => {
       />
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        // TODO CHANGE THIS
         <SearchableDropdown
           label="City Or Municipality Assessor"
           options={employeeOptions} // Now passing the array of {label, value} objects

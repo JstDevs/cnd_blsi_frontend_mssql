@@ -141,10 +141,10 @@ function VendorDetailsPage() {
         return terms?.Name || 'N/A';
       },
     },
-    {
-      key: 'PaymentMethodID',
-      header: 'Payment Method ID',
-    },
+    // {
+    //   key: 'PaymentMethodID',
+    //   header: 'Payment Method ID',
+    // },
     {
       key: 'PaymentMethodID',
       header: 'Payment Method',
@@ -330,6 +330,9 @@ function VendorDetailsPage() {
           initialData={currentVendorDetails}
           onClose={() => setIsModalOpen(false)}
           onSubmit={handleSubmit}
+          provinces={provinces}
+          municipalities={municipalities}
+          barangays={barangays}
           regionOptions={regionOptions}
           provinceOptions={provinceOptions}
           municipalityOptions={municipalityOptions}

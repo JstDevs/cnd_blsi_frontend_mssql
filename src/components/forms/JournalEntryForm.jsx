@@ -163,13 +163,13 @@ function JournalEntryForm({
         <div className="grid grid-cols-3 gap-4">
           <FormField
             type="text"
-            label="DV No"
-            name="SAI_No"
-            value={values.SAI_No}
+            label="OBR No"
+            name="ObligationRequestNumber"
+            value={values.ObligationRequestNumber}
             onChange={handleChange}
             onBlur={handleBlur}
-            error={errors.SAI_No}
-            touched={touched.SAI_No}
+            error={errors.ObligationRequestNumber}
+            touched={touched.ObligationRequestNumber}
           />
           <FormField
             type="text"
@@ -200,13 +200,13 @@ function JournalEntryForm({
           <div className="grid grid-cols-3 gap-4">
             <FormField
               type="text"
-              label="OBR No"
-              name="ObligationRequestNumber"
-              value={values.ObligationRequestNumber}
+              label="DV No"
+              name="SAI_No"
+              value={values.SAI_No}
               onChange={handleChange}
               onBlur={handleBlur}
-              error={errors.ObligationRequestNumber}
-              touched={touched.ObligationRequestNumber}
+              error={errors.SAI_No}
+              touched={touched.SAI_No}
             />
             <FormField
               type="text"
