@@ -186,7 +186,7 @@ const BudgetSupplementalPage = () => {
 
   // Apply filters to data
   const filteredData = data.filter((item) => {
-    // console.log(filters, item);
+    console.log(filters, item);
     return (
       (!filters.department || item.DepartmentID == filters.department) &&
       (!filters.subDepartment ||

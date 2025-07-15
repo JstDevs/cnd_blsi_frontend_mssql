@@ -111,42 +111,48 @@ const BudgetAllotmentPage = () => {
   };
 
   const columns = [
-    { key: 'Name', header: 'Name' },
     {
-      key: 'FiscalYearID',
-      header: 'Fiscal Year',
-      render: (_, row) => <span>{row?.FiscalYear?.Name}</span>,
+      key: 'Status',
+      header: 'Status',
+      render: (_, row) => <span>{row.Status}</span>,
     },
     {
-      key: 'DepartmentID',
-      header: 'Department',
-      render: (_, row) => <span>{row?.Department?.Name}</span>,
+      key: 'InvoiceNumber',
+      header: 'Invoice Number',
+      render: (_, row) => <span>{row.InvoiceNumber}</span>,
     },
     {
-      key: 'SubDepartmentID',
-      header: 'Sub Department',
-      render: (_, row) => <span>{row?.SubDepartment?.Name}</span>,
+      key: 'Budget',
+      header: 'Budget',
+      render: (_, row) => <span>{row.Budget?.Name}</span>,
     },
     {
-      key: 'ChartofAccountsID',
-      header: 'Chart of Accounts',
-      render: (_, row) => <span>{row?.ChartofAccounts?.Name}</span>,
+      key: 'InvoiceDate',
+      header: 'Invoice Date',
+      render: (_, row) => {
+        const date = new Date(row.InvoiceDate);
+        return (
+          <span>
+            {date.toLocaleDateString('en-US', {
+              month: '2-digit',
+              day: '2-digit',
+              year: 'numeric',
+            })}
+          </span>
+        );
+      },
     },
     {
-      key: 'FundID',
-      header: 'Fund',
-      render: (_, row) => <span>{row?.Funds?.Name}</span>,
+      key: 'Total',
+      header: 'Total',
+      render: (_, row) => (
+        <span>
+          {parseFloat(row.Total).toLocaleString('en-US', {
+            minimumFractionDigits: 2,
+          })}
+        </span>
+      ),
     },
-    {
-      key: 'ProjectID',
-      header: 'Project',
-      render: (_, row) => <span>{row?.Project?.Title}</span>,
-    },
-    { key: 'Appropriation', header: 'Appropriation' },
-    { key: 'AppropriationBalance', header: 'Appropriation Balance' },
-    { key: 'TotalAmount', header: 'Total Amount' },
-    { key: 'Allotment', header: 'Allotment' },
-    { key: 'AllotmentBalance', header: 'Allotment Balance' },
   ];
 
   const actions = [
