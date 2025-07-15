@@ -1,128 +1,110 @@
-import React, { useState, useEffect } from 'react'
-import { Formik, Form } from 'formik'
-import * as Yup from 'yup'
-import FormField from '../common/FormField'
+import React, { useState, useEffect } from 'react';
+import { Formik, Form } from 'formik';
+import * as Yup from 'yup';
+import FormField from '../common/FormField';
 
 const validationSchema = Yup.object().shape({
-  budgetName: Yup.string().required('Budget name is required'),
-  fiscalYear: Yup.string().required('Fiscal year is required'),
-  department: Yup.string().required('Department is required'),
-  subDepartment: Yup.string().required('Sub department is required'),
-  chartOfAccounts: Yup.string().required('Chart of accounts is required'),
-  fund: Yup.string().required('Fund is required'),
-  project: Yup.string().required('Project is required'),
-  january: Yup.string().required('January is required'),
-  february: Yup.string().required('February is required'),
-  march: Yup.string().required('March is required'),
-  april: Yup.string().required('April is required'),
-  may: Yup.string().required('May is required'),
-  june: Yup.string().required('June is required'),
-  july: Yup.string().required('July is required'),
-  august: Yup.string().required('August is required'),
-  september: Yup.string().required('September is required'),
-  october: Yup.string().required('October is required'),
-  november: Yup.string().required('November is required'),
-  december: Yup.string().required('December is required')
-})
+  Name: Yup.string().required('Budget name is required'),
+  FiscalYearID: Yup.number().required('Fiscal year is required'),
+  DepartmentID: Yup.number().required('Department is required'),
+  SubDepartmentID: Yup.number().required('Sub department is required'),
+  ChartofAccountsID: Yup.number().required('Chart of accounts is required'),
+  FundID: Yup.number().required('Fund is required'),
+  ProjectID: Yup.number().required('Project is required'),
+  Appropriation: Yup.number().required('Appropriation is required'),
+  Charges: Yup.number().required('Charges is required'),
+
+  // Months are optional — no `.required()`:
+  January: Yup.number().nullable(),
+  February: Yup.number().nullable(),
+  March: Yup.number().nullable(),
+  April: Yup.number().nullable(),
+  May: Yup.number().nullable(),
+  June: Yup.number().nullable(),
+  July: Yup.number().nullable(),
+  August: Yup.number().nullable(),
+  September: Yup.number().nullable(),
+  October: Yup.number().nullable(),
+  November: Yup.number().nullable(),
+  December: Yup.number().nullable(),
+});
 
 const initialValues = {
-  budgetName: '',
-  fiscalYear: 1,
-  department: 1,
-  subDepartment: 1,
-  chartOfAccounts: 1,
-  fund: 1,
-  project: 1,
-  appropriation: 0,
-  charges: 0,
-  totalAmount: 0,
-  balance: 0,
-  january: 0,
-  february: 0,
-  march: 0,
-  april: 0,
-  may: 0,
-  june: 0,
-  july: 0,
-  august: 0,
-  september: 0,
-  october: 0,
-  november: 0,
-  december: 0
-}
+  ID: '',
+  IsNew: true,
+  Name: '',
+  FiscalYearID: '',
+  DepartmentID: '',
+  SubDepartmentID: '',
+  ChartofAccountsID: '',
+  FundID: '',
+  ProjectID: '',
+  Appropriation: 0,
+  Charges: 0,
+  January: 0,
+  February: 0,
+  March: 0,
+  April: 0,
+  May: 0,
+  June: 0,
+  July: 0,
+  August: 0,
+  September: 0,
+  October: 0,
+  November: 0,
+  December: 0,
+};
 
-// Mock data for select options
-const fiscalYears = [
-  { value: 1, label: 'FY 2023–24' },
-  { value: 2, label: 'FY 2024–25' },
-  { value: 3, label: 'FY 2025–26' }
-]
-
-const departments = [
-  { value: 1, label: 'Finance' },
-  { value: 2, label: 'Human Resources' },
-  { value: 3, label: 'Information Technology' }
-]
-
-const subDepartments = [
-  { value: 1, label: 'Accounts Payable' },
-  { value: 2, label: 'Recruitment' },
-  { value: 3, label: 'Infrastructure Support' }
-]
-
-const chartOfAccounts = [
-  { value: 1, label: 'Cash and Cash Equivalents' },
-  { value: 2, label: 'Accounts Receivable' },
-  { value: 3, label: 'Office Supplies Expense' }
-]
-
-const projects = [
-  { value: 1, label: 'ERP Implementation' },
-  { value: 2, label: 'Employee Onboarding Automation' },
-  { value: 3, label: 'Cloud Migration' }
-]
-
-function BudgetForm({ initialData, onSubmit, onClose }) {
-  const [formData, setFormData] = useState({ ...initialValues })
+function BudgetForm({
+  initialData,
+  onSubmit,
+  onClose,
+  departmentOptions,
+  subDepartmentOptions,
+  chartOfAccountsOptions,
+  fundOptions,
+  projectOptions,
+  fiscalYearOptions,
+}) {
+  const [formData, setFormData] = useState({ ...initialValues });
 
   const handleSubmit = (values, { setSubmitting }) => {
-    onSubmit(values)
-    setSubmitting(false)
-    console.log('Form submitted with values:', values)
-  }
+    onSubmit(values);
+    setSubmitting(false);
+    console.log('Form submitted with values:', values);
+  };
 
   useEffect(() => {
     if (initialData?.ID) {
       setFormData({
-        id: initialData?.ID,
-        budgetName: initialData?.Name,
-        fiscalYear: initialData?.FiscalYearID,
-        department: initialData?.DepartmentID,
-        subDepartment: initialData?.SubDepartmentID,
-        chartOfAccounts: initialData?.ChartofAccountsID,
-        fund: initialData?.FundID,
-        project: initialData?.ProjectID,
-        appropriation: initialData?.Appropriation,
-        charges: initialData?.Charges,
-        totalAmount: initialData?.TotalAmount,
-        balance: initialData?.AppropriationBalance,
-        january: initialData?.January,
-        february: initialData?.February,
-        march: initialData?.March,
-        april: initialData?.April,
-        may: initialData?.May,
-        june: initialData?.June,
-        july: initialData?.July,
-        august: initialData?.August,
-        september: initialData?.September,
-        october: initialData?.October,
-        november: initialData?.November,
-        december: initialData?.December
-      })
+        ID: initialData.ID,
+        IsNew: false,
+        Name: initialData.Name || '',
+        FiscalYearID: initialData.FiscalYearID || '',
+        DepartmentID: initialData.DepartmentID || '',
+        SubDepartmentID: initialData.SubDepartmentID || '',
+        ChartofAccountsID: initialData.ChartofAccountsID || '', // ✅ change from "ChartofAccountsID"
+        FundID: initialData.FundID || '',
+        ProjectID: initialData.ProjectID || '',
+        Appropriation: initialData.Appropriation || 0,
+        Charges: initialData.Charges || 0,
+        January: initialData.January || 0,
+        February: initialData.February || 0,
+        March: initialData.March || 0,
+        April: initialData.April || 0,
+        May: initialData.May || 0,
+        June: initialData.June || 0,
+        July: initialData.July || 0,
+        August: initialData.August || 0,
+        September: initialData.September || 0,
+        October: initialData.October || 0,
+        November: initialData.November || 0,
+        December: initialData.December || 0,
+      });
     } else {
-      setFormData(initialValues)
+      setFormData(initialValues);
     }
-  }, [initialData])
+  }, [initialData]);
 
   return (
     <Formik
@@ -137,282 +119,205 @@ function BudgetForm({ initialData, onSubmit, onClose }) {
         touched,
         handleChange,
         handleBlur,
-        isSubmitting
+        isSubmitting,
+        submitCount,
       }) => (
-        <Form className='space-y-4'>
-          <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
+        <Form className="space-y-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="col-span-2">
+              <FormField
+                label="Budget Name"
+                name="Name" // ✅ change from "budgetName"
+                value={values.Name}
+                type="text"
+                onChange={handleChange}
+                onBlur={handleBlur}
+                error={errors.Name}
+                touched={touched.Name}
+                required
+              />
+            </div>
             <FormField
-              label='Budget Name'
-              name='budgetName'
-              type='text'
+              label="Fiscal Year"
+              name="FiscalYearID"
+              type="select"
               onChange={handleChange}
               onBlur={handleBlur}
-              value={values.budgetName}
-              error={errors.budgetName}
-              touched={touched.budgetName}
+              value={values.FiscalYearID}
+              error={errors.FiscalYearID}
+              touched={touched.FiscalYearID}
+              options={fiscalYearOptions}
               required
             />
             <FormField
-              label='Fiscal Year'
-              name='fiscalYear'
-              type='select'
+              label="Department"
+              name="DepartmentID"
+              type="select"
               onChange={handleChange}
               onBlur={handleBlur}
-              value={values.fiscalYear}
-              error={errors.fiscalYear}
-              touched={touched.fiscalYear}
-              options={fiscalYears}
+              value={values.DepartmentID}
+              error={errors.DepartmentID}
+              touched={touched.DepartmentID}
+              options={departmentOptions}
               required
             />
             <FormField
-              label='Department'
-              name='department'
-              type='select'
+              label="Sub-Department"
+              name="SubDepartmentID"
+              type="select"
               onChange={handleChange}
               onBlur={handleBlur}
-              value={values.department}
-              error={errors.department}
-              touched={touched.department}
-              options={departments}
+              value={values.SubDepartmentID}
+              error={errors.SubDepartmentID}
+              touched={touched.SubDepartmentID}
+              options={subDepartmentOptions}
               required
             />
             <FormField
-              label='Sub-Department'
-              name='subDepartment'
-              type='select'
+              label="Chart of Accounts"
+              name="ChartofAccountsID"
+              type="select"
               onChange={handleChange}
               onBlur={handleBlur}
-              value={values.subDepartment}
-              error={errors.subDepartment}
-              touched={touched.subDepartment}
-              options={subDepartments}
+              value={values.ChartofAccountsID}
+              error={errors.ChartofAccountsID}
+              touched={touched.ChartofAccountsID}
+              options={chartOfAccountsOptions}
               required
             />
             <FormField
-              label='Chart of Accounts'
-              name='chartOfAccounts'
-              type='select'
+              label="Fund"
+              name="FundID"
+              type="select"
               onChange={handleChange}
               onBlur={handleBlur}
-              value={values.chartOfAccounts}
-              error={errors.chartOfAccounts}
-              touched={touched.chartOfAccounts}
-              options={chartOfAccounts}
+              value={values.FundID}
+              error={errors.FundID}
+              touched={touched.FundID}
+              options={fundOptions}
               required
             />
             <FormField
-              label='Fund'
-              name='fund'
-              type='select'
+              label="Project"
+              name="ProjectID"
+              type="select"
               onChange={handleChange}
               onBlur={handleBlur}
-              value={values.fund}
-              error={errors.fund}
-              touched={touched.fund}
-              options={[{ value: '1', label: 'General Fund' }]}
+              value={values.ProjectID}
+              error={errors.ProjectID}
+              touched={touched.ProjectID}
+              options={projectOptions}
               required
             />
             <FormField
-              label='Project'
-              name='project'
-              type='select'
+              label="Appropriation"
+              name="Appropriation"
               onChange={handleChange}
               onBlur={handleBlur}
-              value={values.project}
-              error={errors.project}
-              touched={touched.project}
-              options={projects}
+              value={values.Appropriation}
+              error={errors.Appropriation}
+              touched={touched.Appropriation}
+              type="number"
               required
             />
             <FormField
-              label='Appropriation'
-              name='appropriation'
+              label="Charges"
+              name="Charges"
+              type="number"
               onChange={handleChange}
               onBlur={handleBlur}
-              value={values.appropriation}
-              error={errors.appropriation}
-              touched={touched.appropriation}
-              type='number'
+              value={values.Charges}
+              error={errors.Charges}
+              touched={touched.Charges}
               required
             />
             <FormField
-              label='Charges'
-              name='charges'
-              type='number'
+              label="Total Amount"
+              name="TotalAmount"
+              type="number"
               onChange={handleChange}
               onBlur={handleBlur}
-              value={values.charges}
-              error={errors.charges}
-              touched={touched.charges}
-              required
+              value={values.TotalAmount}
+              error={errors.TotalAmount}
+              touched={touched.TotalAmount}
+              readOnly
+              className="bg-gray-100"
             />
             <FormField
-              label='Total Amount'
-              name='totalAmount'
-              type='number'
+              label="Balance"
+              name="AppropriationBalance"
+              type="number"
               onChange={handleChange}
               onBlur={handleBlur}
-              value={values.totalAmount}
-              error={errors.totalAmount}
-              touched={touched.totalAmount}
-              required
-            />
-            <FormField
-              label='Balance'
-              name='balance'
-              type='number'
-              onChange={handleChange}
-              onBlur={handleBlur}
-              value={values.balance}
-              error={errors.balance}
-              touched={touched.balance}
-              required
+              value={values.AppropriationBalance}
+              error={errors.AppropriationBalance}
+              touched={touched.AppropriationBalance}
+              readOnly
+              className="bg-gray-100"
             />
           </div>
 
-          <div className='grid grid-cols-1 md:grid-cols-3 gap-4'>
-            <FormField
-              label='January'
-              name='january'
-              type='number'
-              onChange={handleChange}
-              onBlur={handleBlur}
-              value={values.january}
-              error={errors.january}
-              touched={touched.january}
-            />
-            <FormField
-              label='February'
-              name='february'
-              type='number'
-              onChange={handleChange}
-              onBlur={handleBlur}
-              value={values.february}
-              error={errors.february}
-              touched={touched.february}
-            />
-            <FormField
-              label='March'
-              name='march'
-              type='number'
-              onChange={handleChange}
-              onBlur={handleBlur}
-              value={values.march}
-              error={errors.march}
-              touched={touched.march}
-            />
-            <FormField
-              label='April'
-              name='april'
-              type='number'
-              onChange={handleChange}
-              onBlur={handleBlur}
-              value={values.april}
-              error={errors.april}
-              touched={touched.april}
-            />
-            <FormField
-              label='May'
-              name='may'
-              type='number'
-              onChange={handleChange}
-              onBlur={handleBlur}
-              value={values.may}
-              error={errors.may}
-              touched={touched.may}
-            />
-            <FormField
-              label='June'
-              name='june'
-              type='number'
-              onChange={handleChange}
-              onBlur={handleBlur}
-              value={values.june}
-              error={errors.june}
-              touched={touched.june}
-            />
-            <FormField
-              label='July'
-              name='july'
-              type='number'
-              onChange={handleChange}
-              onBlur={handleBlur}
-              value={values.july}
-              error={errors.july}
-              touched={touched.july}
-            />
-            <FormField
-              label='August'
-              name='august'
-              type='number'
-              onChange={handleChange}
-              onBlur={handleBlur}
-              value={values.august}
-              error={errors.august}
-              touched={touched.august}
-            />
-            <FormField
-              label='September'
-              name='september'
-              type='number'
-              onChange={handleChange}
-              onBlur={handleBlur}
-              value={values.september}
-              error={errors.september}
-              touched={touched.september}
-            />
-            <FormField
-              label='October'
-              name='october'
-              type='number'
-              onChange={handleChange}
-              onBlur={handleBlur}
-              value={values.october}
-              error={errors.october}
-              touched={touched.october}
-            />
-            <FormField
-              label='November'
-              name='november'
-              type='number'
-              onChange={handleChange}
-              onBlur={handleBlur}
-              value={values.november}
-              error={errors.november}
-              touched={touched.november}
-            />
-            <FormField
-              label='December'
-              name='december'
-              type='number'
-              onChange={handleChange}
-              onBlur={handleBlur}
-              value={values.december}
-              error={errors.december}
-              touched={touched.december}
-            />
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            {[
+              'January',
+              'February',
+              'March',
+              'April',
+              'May',
+              'June',
+              'July',
+              'August',
+              'September',
+              'October',
+              'November',
+              'December',
+            ].map((month) => (
+              <FormField
+                key={month}
+                label={month}
+                name={month}
+                type="number"
+                onChange={handleChange}
+                onBlur={handleBlur}
+                value={values[month]}
+                error={errors[month]}
+                touched={touched[month]}
+              />
+            ))}
           </div>
 
-          <div className='flex justify-end space-x-3'>
+          <div className="flex justify-end space-x-3">
             <button
-              type='button'
+              type="button"
               onClick={onClose}
-              className='px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500'
+              className="px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500"
             >
               Cancel
             </button>
             <button
-              type='submit'
+              type="submit"
               disabled={isSubmitting}
-              className='px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-primary-600 hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500'
+              className="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-primary-600 hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500"
             >
               {initialData ? 'Update' : 'Save'}
             </button>
           </div>
+          {submitCount > 0 && Object.keys(errors).length > 0 && (
+            <div className="mt-4 p-4 bg-red-50 border-l-4 border-red-500 rounded">
+              <h3 className="text-sm font-medium text-red-800">
+                Please fix the following errors:
+              </h3>
+              <ul className="mt-2 text-sm text-red-700 list-disc pl-5 space-y-1">
+                {Object.entries(errors).map(([fieldName, errorMessage]) => (
+                  <li key={fieldName}>{errorMessage}</li>
+                ))}
+              </ul>
+            </div>
+          )}
         </Form>
       )}
     </Formik>
-  )
+  );
 }
 
-export default BudgetForm
+export default BudgetForm;

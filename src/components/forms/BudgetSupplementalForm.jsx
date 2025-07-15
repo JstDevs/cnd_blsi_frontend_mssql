@@ -1,36 +1,37 @@
-import React, { useState, useEffect } from 'react'
-import { Formik, Form } from 'formik'
-import * as Yup from 'yup'
-import FormField from '../common/FormField'
+import React, { useState, useEffect } from 'react';
+import { Formik, Form } from 'formik';
+import * as Yup from 'yup';
+import FormField from '../common/FormField';
+import SearchableDropdown from '../common/SearchableDropdown';
+import { Paperclip, Trash2 } from 'lucide-react';
 
 const validationSchema = Yup.object().shape({
-  budgetName: Yup.string().required('Budget name is required'),
-  fiscalYear: Yup.string().required('Fiscal year is required'),
-  department: Yup.string().required('Department is required'),
-  subDepartment: Yup.string().required('Sub department is required'),
-  chartOfAccounts: Yup.string().required('Chart of accounts is required'),
-  fund: Yup.string().required('Fund is required'),
-  project: Yup.string().required('Project is required'),
-  supplemental: Yup.number().integer().required('Allotment is required'),
-  remarks: Yup.string().required('Remarks is required'),
-  appropriation: Yup.number().integer().required('Appropriation is required'),
-  balance: Yup.number().integer().required('Balance is required'),
-  releasedAllotments: Yup.number()
-    .integer()
-    .required('Released allotments is required'),
-  releasedBalance: Yup.number()
-    .integer()
-    .required('Released balance is required')
-})
+  BudgetID: Yup.string().required('Budget is required'),
+  budgetName: Yup.string(),
+  fiscalYearID: Yup.string(),
+  departmentID: Yup.string(),
+  subDepartmentID: Yup.string(),
+  chartOfAccountsID: Yup.string(),
+  fundID: Yup.string(),
+  projectID: Yup.string(),
+  supplemental: Yup.number().integer().required('Supplemental is required'),
+  remarks: Yup.string(),
+  appropriation: Yup.number().integer(),
+  balance: Yup.number().integer(),
+  releasedAllotments: Yup.number().integer(),
+  releasedBalance: Yup.number().integer(),
+  Attachments: Yup.array(),
+});
 
 const initialValues = {
+  BudgetID: '',
   budgetName: '',
-  fiscalYear: 1,
-  department: 1,
-  subDepartment: 1,
-  chartOfAccounts: 1,
-  fund: 1,
-  project: 1,
+  fiscalYearID: '',
+  departmentID: '',
+  subDepartmentID: '',
+  chartOfAccountsID: '',
+  fundID: '',
+  projectID: '',
   supplemental: 0,
   charges: 0,
   totalAmount: 0,
@@ -39,76 +40,139 @@ const initialValues = {
   remarks: '',
   appropriation: 0,
   releasedAllotments: 0,
-  releasedBalance: 0
-}
+  releasedBalance: 0,
+  Attachments: [],
+};
 
-// Mock data for select options
-const fiscalYears = [
-  { value: 1, label: 'FY 2023–24' },
-  { value: 2, label: 'FY 2024–25' },
-  { value: 3, label: 'FY 2025–26' }
-]
-
-const departments = [
-  { value: 1, label: 'Finance' },
-  { value: 2, label: 'Human Resources' },
-  { value: 3, label: 'Information Technology' }
-]
-
-const subDepartments = [
-  { value: 1, label: 'Accounts Payable' },
-  { value: 2, label: 'Recruitment' },
-  { value: 3, label: 'Infrastructure Support' }
-]
-
-const chartOfAccounts = [
-  { value: 1, label: 'Cash and Cash Equivalents' },
-  { value: 2, label: 'Accounts Receivable' },
-  { value: 3, label: 'Office Supplies Expense' }
-]
-
-const projects = [
-  { value: 1, label: 'ERP Implementation' },
-  { value: 2, label: 'Employee Onboarding Automation' },
-  { value: 3, label: 'Cloud Migration' }
-]
-
-function BudgetSupplementalForm({ initialData, onSubmit, onClose }) {
-  const [formData, setFormData] = useState({ ...initialValues })
-
-  const handleSubmit = (values, { setSubmitting }) => {
-    onSubmit(values)
-    setSubmitting(false)
-    console.log('Form submitted with values:', values)
-  }
+function BudgetSupplementalForm({
+  initialData,
+  onSubmit,
+  onClose,
+  budgetList,
+  departmentOptions,
+  subDepartmentOptions,
+  chartOfAccountsOptions,
+  fundOptions,
+  projectOptions,
+  fiscalYearOptions,
+}) {
+  const [formData, setFormData] = useState({ ...initialValues });
 
   useEffect(() => {
     if (initialData?.ID) {
+      const { Budget } = initialData;
       setFormData({
-        id: initialData?.ID,
-        budgetName: initialData?.Name,
-        fiscalYear: initialData?.FiscalYearID,
-        department: initialData?.DepartmentID,
-        subDepartment: initialData?.SubDepartmentID,
-        chartOfAccounts: initialData?.ChartofAccountsID,
-        fund: initialData?.FundID,
-        project: initialData?.ProjectID,
-        appropriation: initialData?.Appropriation,
-        charges: initialData?.Charges,
-        totalAmount: initialData?.TotalAmount,
-        balance: initialData?.AppropriationBalance
-      })
+        BudgetID: Budget.ID,
+        budgetName: Budget.Name || '',
+        fiscalYearID: Budget.FiscalYearID || '',
+        departmentID: Budget.DepartmentID || '',
+        subDepartmentID: Budget.SubDepartmentID || '',
+        chartOfAccountsID: Budget.ChartofAccountsID || '',
+        fundID: Budget.FundID || '',
+        projectID: Budget.ProjectID || '',
+        supplemental: Budget.Supplemental || 0,
+        charges: Budget.Charges || 0,
+        totalAmount: Budget.TotalAmount || 0,
+        balance: Budget.AppropriationBalance || 0,
+        remarks: initialData.Remarks || '',
+        appropriation: Budget.Appropriation || 0,
+        releasedAllotments: Budget.ReleasedAllotments || 0,
+        releasedBalance: Budget.ReleasedBalance || 0,
+        Attachments: Budget.Attachments || [],
+      });
     } else {
-      setFormData(initialValues)
+      setFormData(initialValues);
     }
-  }, [initialData])
+  }, [initialData]);
 
+  const handleSubmit = async (values, { setSubmitting }) => {
+    try {
+      const formData = new FormData();
+
+      // Handle attachments
+
+      values?.Attachments.forEach((att, idx) => {
+        if (att.ID) {
+          formData.append(`Attachments[${idx}].ID`, att.ID);
+        } else {
+          formData.append(`Attachments[${idx}].File`, att);
+        }
+      });
+
+      if (values?.Attachments.length === 0) {
+        formData.append('Attachments', '[]');
+      }
+      console.log({ values });
+      // Common fields for both new and existing data
+      const commonFields = {
+        BudgetID: values.BudgetID,
+        Remarks: values.remarks,
+        Supplemental: values.supplemental,
+      };
+
+      // Add common fields to formData
+      Object.entries(commonFields).forEach(([key, value]) => {
+        formData.append(key, JSON.stringify(value));
+      });
+
+      // Conditional fields based on whether it's initial data
+      if (initialData) {
+        formData.append('LinkID', JSON.stringify(initialData.LinkID));
+        formData.append('IsNew', JSON.stringify(false));
+      } else {
+        formData.append('IsNew', JSON.stringify(true));
+      }
+
+      // Call onSubmit with the prepared formData
+      await onSubmit(formData);
+    } catch (error) {
+      console.error('Submission error:', error);
+      // You might want to handle the error state here
+    } finally {
+      setSubmitting(false);
+    }
+  };
+  const handleBudgetSelect = (value) => {
+    const selected = budgetList?.find((item) => item.ID === parseInt(value));
+    if (selected) {
+      setFormData({
+        ...formData,
+        BudgetID: selected.ID,
+        budgetName: selected.Name || '',
+        fiscalYearID: selected.FiscalYearID || '',
+        departmentID: selected.DepartmentID || '',
+        subDepartmentID: selected.SubDepartmentID || '',
+        chartOfAccountsID: selected.ChartofAccountsID || '',
+        fundID: selected.FundID || '',
+        projectID: selected.ProjectID || '',
+        appropriation: parseFloat(selected.Appropriation) || 0,
+        balance: parseFloat(selected.AppropriationBalance) || 0,
+        charges: parseFloat(selected.Charges || 0),
+      });
+    }
+  };
+  // -------------FILE UPLOAD-------------
+  const handleFileUpload = (event, setFieldValue, values) => {
+    const files = Array.from(event.target.files);
+
+    // Create new attachments array with just the File objects
+    const newAttachments = files.map((file) => file); // Just store the File objects directly
+
+    // Combine with existing attachments
+    setFieldValue('Attachments', [...values.Attachments, ...newAttachments]);
+  };
+  // -----------REMOVE ATTACHMENT-------------
+  const removeAttachment = (index, setFieldValue, values) => {
+    const updatedAttachments = [...values.Attachments];
+    updatedAttachments.splice(index, 1);
+    setFieldValue('Attachments', updatedAttachments);
+  };
   return (
     <Formik
       enableReinitialize
-      onSubmit={handleSubmit}
       initialValues={formData}
       validationSchema={validationSchema}
+      onSubmit={handleSubmit}
     >
       {({
         values,
@@ -116,173 +180,267 @@ function BudgetSupplementalForm({ initialData, onSubmit, onClose }) {
         touched,
         handleChange,
         handleBlur,
-        isSubmitting
+        isSubmitting,
+        setFieldValue,
       }) => (
-        <Form className='space-y-4'>
-          <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
+        <Form className="space-y-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="md:col-span-2  pt-4">
+              <SearchableDropdown
+                label="Select Budget"
+                name="BudgetID"
+                type="select"
+                required
+                selectedValue={formData.BudgetID}
+                onSelect={handleBudgetSelect}
+                options={budgetList.map((b) => ({
+                  label: b.Name,
+                  value: b.ID,
+                }))}
+                error={errors.BudgetID}
+                touched={touched.BudgetID}
+              />
+            </div>
+            {/* Attachments Section */}
+            <div className="mb-4 md:col-span-2 py-4 border-b border-gray-300">
+              <div className="space-y-2">
+                <h2 className="font-bold mb-2">Attachments</h2>
+                <input
+                  type="file"
+                  multiple
+                  onChange={(e) => handleFileUpload(e, setFieldValue, values)}
+                  className="block w-full text-sm text-gray-500
+                  file:mr-4 file:py-2 file:px-4
+                  file:rounded-md file:border-0
+                  file:text-sm file:font-medium
+                  file:bg-blue-50 file:text-blue-700
+                  hover:file:bg-blue-100"
+                />
+              </div>
+              {values?.Attachments?.length > 0 ? (
+                <div className="space-y-2 py-2 mt-2">
+                  {values.Attachments.map((file, index) => (
+                    <div
+                      key={index}
+                      className="flex items-center justify-between p-2 border rounded"
+                    >
+                      <div className="flex items-center">
+                        <Paperclip className="h-4 w-4 text-gray-500 mr-2" />
+                        <span className="text-sm">
+                          {file.ID ? (
+                            <a
+                              href={`${API_URL}/uploads/${file.DataImage}`}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="text-blue-600 hover:underline"
+                            >
+                              {file.name || file.DataName}
+                            </a>
+                          ) : (
+                            file.name || file.DataName
+                          )}
+                        </span>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() =>
+                          removeAttachment(index, setFieldValue, values)
+                        }
+                        className="text-red-500 hover:text-red-700"
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <p className="text-sm text-gray-500 mt-2">
+                  No attachments added
+                </p>
+              )}
+            </div>
             <FormField
-              label='Budget Name'
-              name='budgetName'
-              type='text'
+              label="Budget Name"
+              name="budgetName"
+              type="text"
+              value={values.budgetName}
               onChange={handleChange}
               onBlur={handleBlur}
-              value={values.budgetName}
               error={errors.budgetName}
               touched={touched.budgetName}
-              required
+              disabled
+              className="bg-gray-100"
+              readOnly
             />
             <FormField
-              label='Fiscal Year'
-              name='fiscalYear'
-              type='select'
+              label="Fiscal Year"
+              name="fiscalYearID"
+              type="select"
+              value={values.fiscalYearID}
               onChange={handleChange}
               onBlur={handleBlur}
-              value={values.fiscalYear}
-              error={errors.fiscalYear}
-              touched={touched.fiscalYear}
-              options={fiscalYears}
-              required
+              error={errors.fiscalYearID}
+              touched={touched.fiscalYearID}
+              options={fiscalYearOptions}
+              disabled
+              className="bg-gray-100"
+              readOnly
             />
             <FormField
-              label='Department'
-              name='department'
-              type='select'
+              label="Department"
+              name="departmentID"
+              type="select"
+              value={values.departmentID}
               onChange={handleChange}
               onBlur={handleBlur}
-              value={values.department}
-              error={errors.department}
-              touched={touched.department}
-              options={departments}
-              required
+              error={errors.departmentID}
+              touched={touched.departmentID}
+              options={departmentOptions}
+              disabled
+              className="bg-gray-100"
+              readOnly
             />
             <FormField
-              label='Sub-Department'
-              name='subDepartment'
-              type='select'
+              label="Sub-Department"
+              name="subDepartmentID"
+              type="select"
+              value={values.subDepartmentID}
               onChange={handleChange}
               onBlur={handleBlur}
-              value={values.subDepartment}
-              error={errors.subDepartment}
-              touched={touched.subDepartment}
-              options={subDepartments}
-              required
+              error={errors.subDepartmentID}
+              touched={touched.subDepartmentID}
+              options={subDepartmentOptions}
+              disabled
+              className="bg-gray-100"
+              readOnly
             />
             <FormField
-              label='Chart of Accounts'
-              name='chartOfAccounts'
-              type='select'
+              label="Chart of Accounts"
+              name="chartOfAccountsID"
+              type="select"
+              value={values.chartOfAccountsID}
               onChange={handleChange}
               onBlur={handleBlur}
-              value={values.chartOfAccounts}
-              error={errors.chartOfAccounts}
-              touched={touched.chartOfAccounts}
-              options={chartOfAccounts}
-              required
+              error={errors.chartOfAccountsID}
+              touched={touched.chartOfAccountsID}
+              options={chartOfAccountsOptions}
+              disabled
+              className="bg-gray-100"
+              readOnly
             />
             <FormField
-              label='Fund'
-              name='fund'
-              type='select'
+              label="Fund"
+              name="fundID"
+              type="select"
+              value={values.fundID}
               onChange={handleChange}
               onBlur={handleBlur}
-              value={values.fund}
-              error={errors.fund}
-              touched={touched.fund}
-              options={[{ value: '1', label: 'General Fund' }]}
-              required
+              error={errors.fundID}
+              touched={touched.fundID}
+              options={fundOptions}
+              disabled
+              className="bg-gray-100"
+              readOnly
             />
             <FormField
-              label='Project'
-              name='project'
-              type='select'
+              label="Project"
+              name="projectID"
+              type="select"
+              value={values.projectID}
               onChange={handleChange}
               onBlur={handleBlur}
-              value={values.project}
-              error={errors.project}
-              touched={touched.project}
-              options={projects}
-              required
+              error={errors.projectID}
+              touched={touched.projectID}
+              options={projectOptions}
+              disabled
+              className="bg-gray-100"
+              readOnly
             />
+
             <FormField
-              label='Supplemental'
-              name='supplemental'
-              onChange={handleChange}
-              onBlur={handleBlur}
-              value={values.supplemental}
-              error={errors.supplemental}
-              touched={touched.supplemental}
-              type='number'
-              required
-            />
-            <FormField
-              label='Appropriation'
-              name='appropriation'
-              type='number'
-              onChange={handleChange}
-              onBlur={handleBlur}
+              label="Appropriation"
+              name="appropriation"
+              type="number"
               value={values.appropriation}
+              onChange={handleChange}
+              onBlur={handleBlur}
               error={errors.appropriation}
               touched={touched.appropriation}
-              required
+              disabled
+              className="bg-gray-100"
+              readOnly
             />
             <FormField
-              label='Balance'
-              name='balance'
-              type='number'
+              label="Balance"
+              name="balance"
+              type="number"
+              value={values.balance}
               onChange={handleChange}
               onBlur={handleBlur}
-              value={values.balance}
               error={errors.balance}
               touched={touched.balance}
-              required
+              disabled
+              className="bg-gray-100"
+              readOnly
             />
             <FormField
-              label='Released Allotments'
-              name='releasedAllotments'
-              type='number'
+              label="Released Allotments"
+              name="releasedAllotments"
+              type="number"
+              value={values.releasedAllotments}
               onChange={handleChange}
               onBlur={handleBlur}
-              value={values.releasedAllotments}
               error={errors.releasedAllotments}
               touched={touched.releasedAllotments}
-              required
+              disabled
+              className="bg-gray-100"
+              readOnly
             />
             <FormField
-              type='number'
-              label='Released Balance'
-              name='releasedBalance'
+              label="Released Balance"
+              name="releasedBalance"
+              type="number"
+              value={values.releasedBalance}
               onChange={handleChange}
               onBlur={handleBlur}
-              value={values.releasedBalance}
               error={errors.releasedBalance}
               touched={touched.releasedBalance}
+              disabled
+              className="bg-gray-100"
+              readOnly
+            />
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 border-t border-gray-300 py-4">
+            <FormField
+              label="Supplemental"
+              name="supplemental"
+              type="number"
+              value={values.supplemental}
+              onChange={handleChange}
+              onBlur={handleBlur}
+              error={errors.supplemental}
+              touched={touched.supplemental}
               required
             />
             <FormField
-              label='Remarks'
-              name='remarks'
-              type='textarea'
+              label="Remarks"
+              name="remarks"
+              type="textarea"
+              value={values.remarks}
               onChange={handleChange}
               onBlur={handleBlur}
-              value={values.remarks}
               error={errors.remarks}
               touched={touched.remarks}
-              required
             />
           </div>
-
-          <div className='flex justify-end space-x-3'>
-            <button
-              type='button'
-              onClick={onClose}
-              className='px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500'
-            >
+          <div className="flex justify-end space-x-3">
+            <button type="button" onClick={onClose} className="btn btn-outline">
               Cancel
             </button>
             <button
-              type='submit'
+              type="submit"
               disabled={isSubmitting}
-              className='px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-primary-600 hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500'
+              className="btn btn-primary"
             >
               {initialData ? 'Update' : 'Save'}
             </button>
@@ -290,7 +448,7 @@ function BudgetSupplementalForm({ initialData, onSubmit, onClose }) {
         </Form>
       )}
     </Formik>
-  )
+  );
 }
 
-export default BudgetSupplementalForm
+export default BudgetSupplementalForm;

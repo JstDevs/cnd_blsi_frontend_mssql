@@ -68,11 +68,11 @@ const BudgetSummaryPage = () => {
   const columns = [
     { key: 'Name', header: 'Name', sortable: true },
     { key: 'FiscalYearID', header: 'Fiscal Year', sortable: true },
-    { key: 'Department', header: 'Department', sortable: true },
-    { key: 'SubDepartment', header: 'Sub Department', sortable: true },
-    { key: 'ChartOfAccounts', header: 'Chart of Accounts', sortable: true },
-    { key: 'Funds', header: 'Fund', sortable: true },
-    { key: 'Project', header: 'Project', sortable: true },
+    { key: 'DepartmentID', header: 'Department', sortable: true },
+    { key: 'SubDepartmentID', header: 'Sub Department', sortable: true },
+    { key: 'ChartOfAccountsID', header: 'Chart of Accounts', sortable: true },
+    { key: 'FundsID', header: 'Fund', sortable: true },
+    { key: 'ProjectID', header: 'Project', sortable: true },
     { key: 'Appropriation', header: 'Appropriation', sortable: true },
     {
       key: 'AppropriationBalance',

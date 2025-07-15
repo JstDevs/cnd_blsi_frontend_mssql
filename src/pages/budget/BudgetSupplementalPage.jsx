@@ -10,22 +10,55 @@ import { useEffect } from 'react';
 import { fetchDepartments } from '@/features/settings/departmentSlice';
 import { fetchSubdepartments } from '@/features/settings/subdepartmentSlice';
 import { fetchAccounts } from '@/features/settings/chartOfAccountsSlice';
+import axiosInstance from '@/utils/axiosInstance';
+import { fetchFiscalYears } from '@/features/settings/fiscalYearSlice';
+import { fetchFunds } from '@/features/budget/fundsSlice';
+import { fetchProjectDetails } from '@/features/settings/projectDetailsSlice';
 
 const BudgetSupplementalPage = () => {
   const dispatch = useDispatch();
 
-  const { departments, isLoading } = useSelector((state) => state.departments);
-  const { subdepartments, isLoading: subdepartmentsLoading } = useSelector(
-    (state) => state.subdepartments
-  );
+  const { departments } = useSelector((state) => state.departments);
+  const { subdepartments } = useSelector((state) => state.subdepartments);
   const chartOfAccounts = useSelector(
     (state) => state.chartOfAccounts?.accounts || []
   );
+  const { fiscalYears } = useSelector((state) => state.fiscalYears);
+  const { funds } = useSelector((state) => state.funds);
+  const { projectDetails } = useSelector((state) => state.projectDetails);
+  const [data, setData] = useState([]);
+  const [budgetList, setBudgetList] = useState([]);
+
   useEffect(() => {
+    dispatch(fetchFiscalYears());
+    dispatch(fetchFunds());
+    dispatch(fetchProjectDetails());
     dispatch(fetchDepartments());
     dispatch(fetchSubdepartments());
     dispatch(fetchAccounts());
+    fetchBudgetSupplementals();
+    fetchBudgetList();
   }, []);
+  const fetchBudgetSupplementals = async () => {
+    try {
+      const res = await axiosInstance('/budgetSupplemental/list');
+
+      setData(res?.data);
+    } catch (error) {
+      toast.error('Failed to load data');
+      toast.error(error.message);
+    }
+  };
+  const fetchBudgetList = async () => {
+    try {
+      const res = await axiosInstance('/budgetSupplemental/budgetList');
+
+      setBudgetList(res?.data);
+    } catch (error) {
+      toast.error('Failed to load data');
+      toast.error(error.message);
+    }
+  };
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [activeRow, setActiveRow] = useState(null);
 
@@ -40,18 +73,48 @@ const BudgetSupplementalPage = () => {
     setIsModalOpen(true);
   };
 
-  const handleDelete = (row) => {
-    toast.success(`Deleted ${row.Name}`);
-    // dispatch(deleteSupplemental(row.id)); // real call
+  const handleDelete = async (row) => {
+    // NOTHING IN OLD SOFTWARE
+    // toast.success(`Deleted ${row.Name}`);
+    try {
+      // Make API call using your axiosInstance
+      // await axiosInstance.delete(`/budgetSupplemental/${row.ID}`);
+      // toast.success('Budget Supplemental dDeleted Successfully');
+      // fetchBudgetSupplementals();
+    } catch (error) {
+      // toast.error(error.message || 'Failed to delete Budget Supplemental');
+    }
   };
 
-  const handleSubmit = (formValues) => {
-    if (activeRow) {
-      toast.success('Supplemental updated successfully');
-    } else {
-      toast.success('New supplemental added');
+  const handleSubmit = async (formData) => {
+    try {
+      // Make API call using your axiosInstance
+      const response = await axiosInstance.post(
+        'budgetSupplemental/save',
+        formData,
+        {
+          headers: {
+            'Content-Type': 'multipart/form-data',
+          },
+        }
+      );
+      if (response.data) {
+        toast.success(
+          activeRow
+            ? 'Supplemental updated successfully'
+            : 'New supplemental added'
+        );
+
+        fetchBudgetSupplementals();
+      } else {
+        toast.error('Failed to save supplemental');
+      }
+    } catch (error) {
+      console.error('Error submitting supplemental:', error);
+      toast.error(error.message || 'Failed to save supplemental');
+    } finally {
+      setIsModalOpen(false);
     }
-    setIsModalOpen(false);
   };
 
   const handleFilterChange = (e) => {
@@ -60,22 +123,48 @@ const BudgetSupplementalPage = () => {
   };
 
   const columns = [
-    { key: 'Name', header: 'Name', sortable: true },
-    { key: 'FiscalYear', header: 'Fiscal Year', sortable: true },
-    { key: 'Department', header: 'Department', sortable: true },
-    { key: 'SubDepartment', header: 'Sub Department', sortable: true },
-    { key: 'ChartOfAccounts', header: 'Chart of Accounts', sortable: true },
-    { key: 'Fund', header: 'Fund', sortable: true },
-    { key: 'Project', header: 'Project', sortable: true },
-    { key: 'Appropriation', header: 'Appropriation', sortable: true },
     {
-      key: 'AppropriationBalance',
-      header: 'Appropriation Balance',
-      sortable: true,
+      key: 'Status',
+      header: 'Status',
+      render: (_, row) => <span>{row.Status}</span>,
     },
-    { key: 'TotalAmount', header: 'Total Amount', sortable: true },
-    { key: 'Allotment', header: 'Allotment', sortable: true },
-    { key: 'AllotmentBalance', header: 'Allotment Balance', sortable: true },
+    {
+      key: 'InvoiceNumber',
+      header: 'Invoice Number',
+      render: (_, row) => <span>{row.InvoiceNumber}</span>,
+    },
+    {
+      key: 'Budget',
+      header: 'Budget',
+      render: (_, row) => <span>{row.Budget?.Name}</span>,
+    },
+    {
+      key: 'InvoiceDate',
+      header: 'Invoice Date',
+      render: (_, row) => {
+        const date = new Date(row.InvoiceDate);
+        return (
+          <span>
+            {date.toLocaleDateString('en-US', {
+              month: '2-digit',
+              day: '2-digit',
+              year: 'numeric',
+            })}
+          </span>
+        );
+      },
+    },
+    {
+      key: 'Total',
+      header: 'Total',
+      render: (_, row) => (
+        <span>
+          {parseFloat(row.Total).toLocaleString('en-US', {
+            minimumFractionDigits: 2,
+          })}
+        </span>
+      ),
+    },
   ];
 
   const actions = [
@@ -95,46 +184,15 @@ const BudgetSupplementalPage = () => {
     },
   ];
 
-  const allData = [
-    {
-      Name: 'Travelling E...',
-      FiscalYear: 'january to d...',
-      Department: 'Municipal Di...',
-      SubDepartment: 'Network Op...',
-      ChartOfAccounts: 'Travelling E...',
-      Fund: 'General Fund',
-      Project: 'No Project',
-      Appropriation: '1,00,000.00',
-      AppropriationBalance: '-8,45,000.00',
-      TotalAmount: '1,55,000.00',
-      Allotment: '1,00,000.00',
-      AllotmentBalance: '1,00,000.00',
-    },
-    {
-      Name: 'Investments',
-      FiscalYear: 'feb aug',
-      Department: 'Accounting',
-      SubDepartment: 'Payroll',
-      ChartOfAccounts: 'Investments',
-      Fund: 'General Fund',
-      Project: 'No Project',
-      Appropriation: '60,000.00',
-      AppropriationBalance: '60,000.00',
-      TotalAmount: '60,000.00',
-      Allotment: '0.00',
-      AllotmentBalance: '0.00',
-    },
-    // ... more
-  ];
-
   // Apply filters to data
-  const filteredData = allData.filter((item) => {
+  const filteredData = data.filter((item) => {
+    // console.log(filters, item);
     return (
-      (!filters.department || item.Department === filters.department) &&
+      (!filters.department || item.DepartmentID == filters.department) &&
       (!filters.subDepartment ||
-        item.SubDepartment === filters.subDepartment) &&
+        item.SubDepartmentID == filters.subDepartment) &&
       (!filters.chartOfAccounts ||
-        item.ChartOfAccounts === filters.chartOfAccounts)
+        item.ChartofAccountsID == filters.chartOfAccounts)
     );
   });
 
@@ -165,7 +223,7 @@ const BudgetSupplementalPage = () => {
         >
           <option value="">Select Department</option>
           {departments?.map((d) => (
-            <option key={d.ID} value={d.Name}>
+            <option key={d.ID} value={d.ID}>
               {d.Name}
             </option>
           ))}
@@ -179,7 +237,7 @@ const BudgetSupplementalPage = () => {
         >
           <option value="">Select Sub Department</option>
           {subdepartments?.map((sd) => (
-            <option key={sd.ID} value={sd.Name}>
+            <option key={sd.ID} value={sd.ID}>
               {sd.Name}
             </option>
           ))}
@@ -193,7 +251,7 @@ const BudgetSupplementalPage = () => {
         >
           <option value="">Select Chart of Account</option>
           {chartOfAccounts?.map((c) => (
-            <option key={c.ID} value={c.Name}>
+            <option key={c.ID} value={c.ID}>
               {c.Name}
             </option>
           ))}
@@ -204,7 +262,7 @@ const BudgetSupplementalPage = () => {
       <DataTable
         columns={columns}
         data={filteredData}
-        loading={isLoading || subdepartmentsLoading}
+        // loading={isLoading }
         actions={actions}
         pagination={true}
       />
@@ -217,6 +275,31 @@ const BudgetSupplementalPage = () => {
         title={activeRow ? 'Edit Supplemental' : 'Add New Supplemental'}
       >
         <BudgetSupplementalForm
+          budgetList={budgetList}
+          departmentOptions={departments.map((dept) => ({
+            value: dept.ID,
+            label: dept.Name,
+          }))}
+          subDepartmentOptions={subdepartments.map((subDept) => ({
+            value: subDept.ID,
+            label: subDept.Name,
+          }))}
+          chartOfAccountsOptions={chartOfAccounts.map((account) => ({
+            value: account.ID,
+            label: account.Name,
+          }))}
+          fundOptions={funds.map((fund) => ({
+            value: fund.ID,
+            label: fund.Name,
+          }))}
+          projectOptions={projectDetails.map((project) => ({
+            value: project.ID,
+            label: project.Title,
+          }))}
+          fiscalYearOptions={fiscalYears.map((fiscalYear) => ({
+            value: fiscalYear.ID,
+            label: fiscalYear.Name,
+          }))}
           onSubmit={handleSubmit}
           initialData={activeRow}
           onClose={() => setIsModalOpen(false)}

@@ -10,18 +10,50 @@ import BudgetForm from '@/components/forms/BudgetForm';
 import { fetchDepartments } from '@/features/settings/departmentSlice';
 import { fetchSubdepartments } from '@/features/settings/subdepartmentSlice';
 import { fetchAccounts } from '@/features/settings/chartOfAccountsSlice';
+import { fetchFiscalYears } from '@/features/settings/fiscalYearSlice';
+import { fetchFunds } from '@/features/budget/fundsSlice';
+import { fetchProjectDetails } from '@/features/settings/projectDetailsSlice';
 
 const API_URL = import.meta.env.VITE_API_URL;
+const mapFormToPayload = (values) => {
+  return {
+    IsNew: !values?.ID,
+    ID: values?.ID || '',
+    Name: values.Name,
+    FiscalYearID: Number(values.FiscalYearID),
+    DepartmentID: Number(values.DepartmentID),
+    SubDepartmentID: Number(values.SubDepartmentID),
+    ChartOfAccountsID: Number(values.ChartofAccountsID),
+    FundID: Number(values.FundID),
+    ProjectID: Number(values.ProjectID),
+    Appropriation: Number(values.Appropriation),
+    Charges: Number(values.Charges),
+    January: Number(values.January),
+    February: Number(values.February),
+    March: Number(values.March),
+    April: Number(values.April),
+    May: Number(values.May),
+    June: Number(values.June),
+    July: Number(values.July),
+    August: Number(values.August),
+    September: Number(values.September),
+    October: Number(values.October),
+    November: Number(values.November),
+    December: Number(values.December),
+  };
+};
 
 const BudgetDetailsPage = () => {
   const dispatch = useDispatch();
-  const { user } = useSelector((state) => state.auth);
+  // const { user } = useSelector((state) => state.auth);
   const { departments } = useSelector((state) => state.departments);
   const { subdepartments } = useSelector((state) => state.subdepartments);
   const accounts = useSelector(
     (state) => state.chartOfAccounts?.accounts || []
   );
-
+  const { fiscalYears } = useSelector((state) => state.fiscalYears);
+  const { funds } = useSelector((state) => state.funds);
+  const { projectDetails } = useSelector((state) => state.projectDetails);
   const [data, setData] = useState([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [activeRow, setActiveRow] = useState(null);
@@ -35,6 +67,9 @@ const BudgetDetailsPage = () => {
     dispatch(fetchDepartments());
     dispatch(fetchSubdepartments());
     dispatch(fetchAccounts());
+    dispatch(fetchFiscalYears());
+    dispatch(fetchFunds());
+    dispatch(fetchProjectDetails());
     fetchBudgetDetails();
   }, []);
 
@@ -63,16 +98,10 @@ const BudgetDetailsPage = () => {
 
   const handleCreate = async (values) => {
     try {
-      const res = await fetch(`${API_URL}/budget`, {
+      const res = await fetch(`${API_URL}/budgetDetails/save`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          ...mapFormToPayload(values),
-          CreatedBy: user?.UserName,
-          CreatedDate: new Date().toISOString(),
-          ModifyBy: user?.UserName,
-          ModifyDate: new Date().toISOString(),
-        }),
+        body: JSON.stringify(mapFormToPayload(values)),
       });
       const json = await res.json();
       if (json) {
@@ -87,14 +116,10 @@ const BudgetDetailsPage = () => {
 
   const handleUpdate = async (values) => {
     try {
-      const res = await fetch(`${API_URL}/budget/${values?.id}`, {
-        method: 'PUT',
+      const res = await fetch(`${API_URL}/budgetDetails/save`, {
+        method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          ...mapFormToPayload(values),
-          ModifyBy: user?.UserName,
-          ModifyDate: new Date().toISOString(),
-        }),
+        body: JSON.stringify(mapFormToPayload(values)),
       });
       const json = await res.json();
       if (json) {
@@ -120,40 +145,61 @@ const BudgetDetailsPage = () => {
     }
   };
 
-  const mapFormToPayload = (values) => ({
-    FiscalYearID: values?.fiscalYear,
-    FundID: values?.fund,
-    ProjectID: values?.project,
-    Name: values?.budgetName,
-    DepartmentID: values?.department,
-    SubDepartmentID: values?.subDepartment,
-    ChartofAccountsID: values?.chartOfAccounts,
-    Appropriation: values?.appropriation,
-    TotalAmount: values?.totalAmount,
-    AppropriationBalance: values?.charges,
-    Charges: values?.charges,
-    January: values?.january,
-    February: values?.february,
-    March: values?.march,
-    April: values?.april,
-    May: values?.may,
-    June: values?.june,
-    July: values?.july,
-    August: values?.august,
-    September: values?.september,
-    October: values?.october,
-    November: values?.november,
-    December: values?.december,
-  });
-
   const columns = [
     { key: 'Name', header: 'Name' },
-    { key: 'FiscalYear', header: 'Fiscal Year' },
-    { key: 'Department.Name', header: 'Department' },
-    { key: 'SubDepartment.Name', header: 'Sub Department' },
-    { key: 'ChartofAccounts.Name', header: 'Chart of Accounts' },
-    { key: 'FundId', header: 'Fund' },
-    { key: 'ProjectID', header: 'Project' },
+    {
+      key: 'FiscalYearID',
+      header: 'Fiscal Year',
+      render: (value) => {
+        const row = fiscalYears?.find((f) => f.ID === value);
+        return <span>{row?.Name}</span>;
+      },
+    },
+    {
+      key: 'DepartmentID',
+      header: 'Department',
+
+      render: (value) => {
+        const departmentName = departments?.find((d) => d.ID === value)?.Name;
+        return <span>{departmentName}</span>;
+      },
+    },
+    {
+      key: 'SubDepartmentID',
+      header: 'Sub Department',
+      render: (value) => {
+        const departmentName = subdepartments?.find(
+          (d) => d.ID === value
+        )?.Name;
+        return <span>{departmentName}</span>;
+      },
+    },
+    {
+      key: 'ChartofAccounts.Name',
+      header: 'Chart of Accounts',
+      render: (value) => {
+        const departmentName = accounts?.find((d) => d.ID === value)?.Name;
+        return <span>{departmentName}</span>;
+      },
+    },
+    {
+      key: 'FundID',
+      header: 'Fund',
+      render: (value) => {
+        const departmentName = funds?.find((d) => d.ID === value)?.Name;
+        return <span>{departmentName}</span>;
+      },
+    },
+    {
+      key: 'ProjectID',
+      header: 'Project',
+      render: (value) => {
+        const departmentName = projectDetails?.find(
+          (d) => d.ID === value
+        )?.Title;
+        return <span>{departmentName}</span>;
+      },
+    },
     { key: 'Appropriation', header: 'Appropriation' },
     { key: 'AppropriationBalance', header: 'Appropriation Balance' },
     { key: 'TotalAmount', header: 'Total Amount' },
@@ -284,6 +330,30 @@ const BudgetDetailsPage = () => {
         title={activeRow ? 'Edit Budget' : 'Add Budget'}
       >
         <BudgetForm
+          departmentOptions={departments.map((dept) => ({
+            value: dept.ID,
+            label: dept.Name,
+          }))}
+          subDepartmentOptions={subdepartments.map((subDept) => ({
+            value: subDept.ID,
+            label: subDept.Name,
+          }))}
+          chartOfAccountsOptions={accounts.map((account) => ({
+            value: account.ID,
+            label: account.Name,
+          }))}
+          fundOptions={funds.map((fund) => ({
+            value: fund.ID,
+            label: fund.Name,
+          }))}
+          projectOptions={projectDetails.map((project) => ({
+            value: project.ID,
+            label: project.Title,
+          }))}
+          fiscalYearOptions={fiscalYears.map((fiscalYear) => ({
+            value: fiscalYear.ID,
+            label: fiscalYear.Name,
+          }))}
           onSubmit={handleSubmit}
           initialData={activeRow}
           onClose={() => setIsModalOpen(false)}

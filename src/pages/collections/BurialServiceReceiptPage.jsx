@@ -232,14 +232,7 @@ function BurialServiceReceiptPage() {
           data={burialRecord}
           className="min-w-full divide-y divide-gray-200"
           actions={actions}
-          isLoading={
-            isLoading ||
-            nationalityLoading ||
-            userLoading ||
-            municipalityLoading ||
-            provinceLoading ||
-            customerLoading
-          }
+          isLoading={isLoading || nationalityLoading || customerLoading}
         />
       </div>
 
@@ -257,10 +250,10 @@ function BurialServiceReceiptPage() {
           onClose={handleCloseModal}
           onSubmit={handleFormSubmit}
           nationalities={nationalities}
-          municipalities={municipalities}
-          provinces={provinces}
+          // municipalities={municipalities}
+          // provinces={provinces}
           customers={customers}
-          users={users}
+          // users={users}
         />
       </Modal>
     </div>

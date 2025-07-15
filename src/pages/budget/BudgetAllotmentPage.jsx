@@ -43,7 +43,7 @@ const BudgetAllotmentPage = () => {
 
   const fetchBudgetAllotments = async () => {
     try {
-      const res = await fetch(`${API_URL}/budgetAllotment/getAll`);
+      const res = await fetch(`${API_URL}/budgetAllotment/budgetList`);
       const data = await res.json();
 
       setData(data);
@@ -64,18 +64,15 @@ const BudgetAllotmentPage = () => {
 
   const handleCreate = async (values) => {
     try {
-      const response = await fetch(
-        `${API_URL}/budget/createOrUpdateBudgetAllotment`,
-        {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            ...values,
-            userId: user?.ID,
-            isNew: 'true',
-          }),
-        }
-      );
+      const response = await fetch(`${API_URL}/budgetAllotment`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          ...values,
+          userId: user?.ID,
+          isNew: 'true',
+        }),
+      });
       const res = await response.json();
       if (res) {
         fetchBudgetAllotments();
@@ -115,12 +112,36 @@ const BudgetAllotmentPage = () => {
 
   const columns = [
     { key: 'Name', header: 'Name' },
-    { key: 'FiscalYear', header: 'Fiscal Year' },
-    { key: 'Department', header: 'Department' },
-    { key: 'SubDepartment', header: 'Sub Department' },
-    { key: 'ChartOfAccounts', header: 'Chart of Accounts' },
-    { key: 'Fund', header: 'Fund' },
-    { key: 'Project', header: 'Project' },
+    {
+      key: 'FiscalYearID',
+      header: 'Fiscal Year',
+      render: (_, row) => <span>{row?.FiscalYear?.Name}</span>,
+    },
+    {
+      key: 'DepartmentID',
+      header: 'Department',
+      render: (_, row) => <span>{row?.Department?.Name}</span>,
+    },
+    {
+      key: 'SubDepartmentID',
+      header: 'Sub Department',
+      render: (_, row) => <span>{row?.SubDepartment?.Name}</span>,
+    },
+    {
+      key: 'ChartofAccountsID',
+      header: 'Chart of Accounts',
+      render: (_, row) => <span>{row?.ChartofAccounts?.Name}</span>,
+    },
+    {
+      key: 'FundID',
+      header: 'Fund',
+      render: (_, row) => <span>{row?.Funds?.Name}</span>,
+    },
+    {
+      key: 'ProjectID',
+      header: 'Project',
+      render: (_, row) => <span>{row?.Project?.Title}</span>,
+    },
     { key: 'Appropriation', header: 'Appropriation' },
     { key: 'AppropriationBalance', header: 'Appropriation Balance' },
     { key: 'TotalAmount', header: 'Total Amount' },

@@ -1,7 +1,7 @@
-import React, { useState, useEffect } from 'react'
-import { Formik, Form } from 'formik'
-import * as Yup from 'yup'
-import FormField from '../common/FormField'
+import React, { useState, useEffect } from 'react';
+import { Formik, Form } from 'formik';
+import * as Yup from 'yup';
+import FormField from '../common/FormField';
 
 const validationSchema = Yup.object().shape({
   budgetName: Yup.string().required('Budget name is required'),
@@ -20,8 +20,8 @@ const validationSchema = Yup.object().shape({
     .required('Released allotments is required'),
   releasedBalance: Yup.number()
     .integer()
-    .required('Released balance is required')
-})
+    .required('Released balance is required'),
+});
 
 const initialValues = {
   budgetName: '',
@@ -38,48 +38,48 @@ const initialValues = {
   allotment: 0,
   remarks: '',
   releasedAllotments: 0,
-  releasedBalance: 0
-}
+  releasedBalance: 0,
+};
 
 // Mock data for select options
 const fiscalYears = [
   { value: 1, label: 'FY 2023–24' },
   { value: 2, label: 'FY 2024–25' },
-  { value: 3, label: 'FY 2025–26' }
-]
+  { value: 3, label: 'FY 2025–26' },
+];
 
 const departments = [
   { value: 1, label: 'Finance' },
   { value: 2, label: 'Human Resources' },
-  { value: 3, label: 'Information Technology' }
-]
+  { value: 3, label: 'Information Technology' },
+];
 
 const subDepartments = [
   { value: 1, label: 'Accounts Payable' },
   { value: 2, label: 'Recruitment' },
-  { value: 3, label: 'Infrastructure Support' }
-]
+  { value: 3, label: 'Infrastructure Support' },
+];
 
 const chartOfAccounts = [
   { value: 1, label: 'Cash and Cash Equivalents' },
   { value: 2, label: 'Accounts Receivable' },
-  { value: 3, label: 'Office Supplies Expense' }
-]
+  { value: 3, label: 'Office Supplies Expense' },
+];
 
 const projects = [
   { value: 1, label: 'ERP Implementation' },
   { value: 2, label: 'Employee Onboarding Automation' },
-  { value: 3, label: 'Cloud Migration' }
-]
+  { value: 3, label: 'Cloud Migration' },
+];
 
 function BudgetAllotmentForm({ initialData, onSubmit, onClose }) {
-  const [formData, setFormData] = useState({ ...initialValues })
+  const [formData, setFormData] = useState({ ...initialValues });
 
   const handleSubmit = (values, { setSubmitting }) => {
-    onSubmit(values)
-    setSubmitting(false)
-    console.log('Form submitted with values:', values)
-  }
+    onSubmit(values);
+    setSubmitting(false);
+    console.log('Form submitted with values:', values);
+  };
 
   useEffect(() => {
     if (initialData?.ID) {
@@ -95,12 +95,12 @@ function BudgetAllotmentForm({ initialData, onSubmit, onClose }) {
         appropriation: initialData?.Appropriation,
         charges: initialData?.Charges,
         totalAmount: initialData?.TotalAmount,
-        balance: initialData?.AppropriationBalance
-      })
+        balance: initialData?.AppropriationBalance,
+      });
     } else {
-      setFormData(initialValues)
+      setFormData(initialValues);
     }
-  }, [initialData])
+  }, [initialData]);
 
   return (
     <Formik
@@ -115,14 +115,14 @@ function BudgetAllotmentForm({ initialData, onSubmit, onClose }) {
         touched,
         handleChange,
         handleBlur,
-        isSubmitting
+        isSubmitting,
       }) => (
-        <Form className='space-y-4'>
-          <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
+        <Form className="space-y-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <FormField
-              label='Budget Name'
-              name='budgetName'
-              type='text'
+              label="Budget Name"
+              name="budgetName"
+              type="text"
               onChange={handleChange}
               onBlur={handleBlur}
               value={values.budgetName}
@@ -131,9 +131,9 @@ function BudgetAllotmentForm({ initialData, onSubmit, onClose }) {
               required
             />
             <FormField
-              label='Fiscal Year'
-              name='fiscalYear'
-              type='select'
+              label="Fiscal Year"
+              name="fiscalYear"
+              type="select"
               onChange={handleChange}
               onBlur={handleBlur}
               value={values.fiscalYear}
@@ -143,9 +143,9 @@ function BudgetAllotmentForm({ initialData, onSubmit, onClose }) {
               required
             />
             <FormField
-              label='Department'
-              name='department'
-              type='select'
+              label="Department"
+              name="department"
+              type="select"
               onChange={handleChange}
               onBlur={handleBlur}
               value={values.department}
@@ -155,9 +155,9 @@ function BudgetAllotmentForm({ initialData, onSubmit, onClose }) {
               required
             />
             <FormField
-              label='Sub-Department'
-              name='subDepartment'
-              type='select'
+              label="Sub-Department"
+              name="subDepartment"
+              type="select"
               onChange={handleChange}
               onBlur={handleBlur}
               value={values.subDepartment}
@@ -167,9 +167,9 @@ function BudgetAllotmentForm({ initialData, onSubmit, onClose }) {
               required
             />
             <FormField
-              label='Chart of Accounts'
-              name='chartOfAccounts'
-              type='select'
+              label="Chart of Accounts"
+              name="chartOfAccounts"
+              type="select"
               onChange={handleChange}
               onBlur={handleBlur}
               value={values.chartOfAccounts}
@@ -179,9 +179,9 @@ function BudgetAllotmentForm({ initialData, onSubmit, onClose }) {
               required
             />
             <FormField
-              label='Fund'
-              name='fund'
-              type='select'
+              label="Fund"
+              name="fund"
+              type="select"
               onChange={handleChange}
               onBlur={handleBlur}
               value={values.fund}
@@ -191,9 +191,9 @@ function BudgetAllotmentForm({ initialData, onSubmit, onClose }) {
               required
             />
             <FormField
-              label='Project'
-              name='project'
-              type='select'
+              label="Project"
+              name="project"
+              type="select"
               onChange={handleChange}
               onBlur={handleBlur}
               value={values.project}
@@ -203,20 +203,20 @@ function BudgetAllotmentForm({ initialData, onSubmit, onClose }) {
               required
             />
             <FormField
-              label='Allotment'
-              name='allotment'
+              label="Allotment"
+              name="allotment"
               onChange={handleChange}
               onBlur={handleBlur}
               value={values.allotment}
               error={errors.allotment}
               touched={touched.allotment}
-              type='number'
+              type="number"
               required
             />
             <FormField
-              label='Appropriation'
-              name='appropriation'
-              type='number'
+              label="Appropriation"
+              name="appropriation"
+              type="number"
               onChange={handleChange}
               onBlur={handleBlur}
               value={values.appropriation}
@@ -225,9 +225,9 @@ function BudgetAllotmentForm({ initialData, onSubmit, onClose }) {
               required
             />
             <FormField
-              label='Balance'
-              name='balance'
-              type='number'
+              label="Balance"
+              name="balance"
+              type="number"
               onChange={handleChange}
               onBlur={handleBlur}
               value={values.balance}
@@ -236,9 +236,9 @@ function BudgetAllotmentForm({ initialData, onSubmit, onClose }) {
               required
             />
             <FormField
-              label='Released Allotments'
-              name='releasedAllotments'
-              type='number'
+              label="Released Allotments"
+              name="releasedAllotments"
+              type="number"
               onChange={handleChange}
               onBlur={handleBlur}
               value={values.releasedAllotments}
@@ -247,9 +247,9 @@ function BudgetAllotmentForm({ initialData, onSubmit, onClose }) {
               required
             />
             <FormField
-              type='number'
-              label='Released Balance'
-              name='releasedBalance'
+              type="number"
+              label="Released Balance"
+              name="releasedBalance"
               onChange={handleChange}
               onBlur={handleBlur}
               value={values.releasedBalance}
@@ -258,9 +258,9 @@ function BudgetAllotmentForm({ initialData, onSubmit, onClose }) {
               required
             />
             <FormField
-              label='Remarks'
-              name='remarks'
-              type='textarea'
+              label="Remarks"
+              name="remarks"
+              type="textarea"
               onChange={handleChange}
               onBlur={handleBlur}
               value={values.remarks}
@@ -270,18 +270,18 @@ function BudgetAllotmentForm({ initialData, onSubmit, onClose }) {
             />
           </div>
 
-          <div className='flex justify-end space-x-3'>
+          <div className="flex justify-end space-x-3">
             <button
-              type='button'
+              type="button"
               onClick={onClose}
-              className='px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500'
+              className="px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500"
             >
               Cancel
             </button>
             <button
-              type='submit'
+              type="submit"
               disabled={isSubmitting}
-              className='px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-primary-600 hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500'
+              className="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-primary-600 hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500"
             >
               {initialData ? 'Update' : 'Save'}
             </button>
@@ -289,7 +289,7 @@ function BudgetAllotmentForm({ initialData, onSubmit, onClose }) {
         </Form>
       )}
     </Formik>
-  )
+  );
 }
 
-export default BudgetAllotmentForm
+export default BudgetAllotmentForm;
