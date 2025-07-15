@@ -4,41 +4,80 @@ import DataTable from '../../components/common/DataTable';
 import FormField from '../../components/common/FormField';
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchFunds } from '@/features/budget/fundsSlice';
+import { fetchDepartments } from '@/features/settings/departmentSlice';
+import { fetchFiscalYears } from '@/features/settings/fiscalYearSlice';
+import axios from 'axios';
+import toast from 'react-hot-toast';
+
+const API_URL = import.meta.env.VITE_API_URL;
 
 function BudgetReportPage() {
-  const [filters, setFilters] = useState({
-    year: new Date().getFullYear().toString(),
-    month: (new Date().getMonth() + 1).toString().padStart(2, '0'),
-    reportType: 'summary',
-    fund: '',
-  });
-  // --------------FETCH FUNDs--------------
-  const dispatch = useDispatch();
+  const [startDate, setStartDate] = useState('');
+  const [endDate, setEndDate] = useState('');
+  const [fiscalYearID, setFiscalYearID] = useState('');
+  const [fundsID, setFundsID] = useState('');
+  const [departmentID, setDepartmentID] = useState('');
+  const [entries, setEntries] = useState([]);
+  const [loading, setLoading] = useState(false);
 
-  const { funds, isLoading } = useSelector((state) => state.funds);
+  const dispatch = useDispatch();
+  const { funds } = useSelector((state) => state.funds);
+  const { departments } = useSelector((state) => state.departments);
+  const { fiscalYears } = useSelector((state) => state.fiscalYears);
 
   useEffect(() => {
     dispatch(fetchFunds());
-  }, []);
-  // const funds = [
-  //   { value: 'General Fund', label: 'General Fund' },
-  //   { value: 'Special Education Fund', label: 'Special Education Fund' },
-  //   { value: 'Trust Fund', label: 'Trust Fund' },
-  // ];
+    dispatch(fetchDepartments());
+    dispatch(fetchFiscalYears());
+  }, [dispatch]);
 
-  const reportTypes = [
-    { value: 'summary', label: 'Budget Summary' },
+  const columns = [
+    { key: 'Account Code', header: 'Account Code', sortable: true },
+    { key: 'Name', header: 'Account Title', sortable: true },
     {
-      value: 'saaob',
-      label: 'Statement of Appropriations, Allotments and Obligations',
+      key: 'Appropriated',
+      header: 'Appropriation',
+      sortable: true,
+      render: (v) => formatCurrency(v),
+      className: 'text-right',
     },
     {
-      value: 'scba',
-      label: 'Statement of Comparison of Budget and Actual Amounts',
+      key: 'Adjustments',
+      header: 'Adjustments',
+      sortable: true,
+      render: (v) => formatCurrency(v),
+      className: 'text-right',
+    },
+    {
+      key: 'Allotments',
+      header: 'Allotments',
+      sortable: true,
+      render: (v) => formatCurrency(v),
+      className: 'text-right',
+    },
+    {
+      key: 'Obligations',
+      header: 'Obligations',
+      sortable: true,
+      render: (v) => formatCurrency(v),
+      className: 'text-right',
+    },
+    {
+      key: 'Appropriation Balance',
+      header: 'Appropriation Balance',
+      sortable: true,
+      render: (v) => formatCurrency(v),
+      className: 'text-right',
+    },
+    {
+      key: 'Allotment Balance',
+      header: 'Allotment Balance',
+      sortable: true,
+      render: (v) => formatCurrency(v),
+      className: 'text-right',
     },
   ];
 
-  // Format amount as Philippine Peso
   const formatCurrency = (amount) => {
     return new Intl.NumberFormat('en-PH', {
       style: 'currency',
@@ -46,88 +85,62 @@ function BudgetReportPage() {
     }).format(amount);
   };
 
-  // Format percentage
-  const formatPercentage = (value) => {
-    return new Intl.NumberFormat('en-PH', {
-      style: 'percent',
-      minimumFractionDigits: 2,
-      maximumFractionDigits: 2,
-    }).format(value);
+  const buildPayload = () => ({
+    startDate,
+    endDate,
+    fiscalYearID,
+    fundsID,
+    departmentID,
+  });
+
+  const handleView = async () => {
+    if (!validateFilters()) {
+      toast.error('Please select all filters');
+      return;
+    }
+    try {
+      setLoading(true);
+      const res = await axios.post(
+        `${API_URL}/budgetReport/view`,
+        buildPayload()
+      );
+      setEntries(res.data || []);
+    } catch (err) {
+      toast.error('Failed to fetch data');
+    } finally {
+      setLoading(false);
+    }
   };
-
-  // Mock data for table
-  const entries = [
-    {
-      id: 1,
-      accountCode: '5-01-01-010',
-      accountTitle: 'Personal Services - Regular',
-      appropriation: 5000000,
-      allotment: 4500000,
-      obligation: 3500000,
-      balance: 1000000,
-      utilizationRate: 0.78,
-    },
-    {
-      id: 2,
-      accountCode: '5-02-01-010',
-      accountTitle: 'Traveling Expenses - Local',
-      appropriation: 1000000,
-      allotment: 800000,
-      obligation: 600000,
-      balance: 200000,
-      utilizationRate: 0.75,
-    },
-  ];
-
-  // Table columns
-  const columns = [
-    {
-      key: 'accountCode',
-      header: 'Account Code',
-      sortable: true,
-      className: 'font-medium text-neutral-900',
-    },
-    {
-      key: 'accountTitle',
-      header: 'Account Title',
-      sortable: true,
-    },
-    {
-      key: 'appropriation',
-      header: 'Appropriation',
-      sortable: true,
-      render: (value) => formatCurrency(value),
-      className: 'text-right',
-    },
-    {
-      key: 'allotment',
-      header: 'Allotment',
-      sortable: true,
-      render: (value) => formatCurrency(value),
-      className: 'text-right',
-    },
-    {
-      key: 'obligation',
-      header: 'Obligation',
-      sortable: true,
-      render: (value) => formatCurrency(value),
-      className: 'text-right',
-    },
-    {
-      key: 'balance',
-      header: 'Balance',
-      sortable: true,
-      render: (value) => formatCurrency(value),
-      className: 'text-right',
-    },
-    {
-      key: 'utilizationRate',
-      header: 'Utilization',
-      sortable: true,
-      render: (value) => formatPercentage(value),
-      className: 'text-right',
-    },
-  ];
+  const validateFilters = () => {
+    return startDate && endDate && fiscalYearID && fundsID && departmentID;
+  };
+  const handleExport = async () => {
+    if (!validateFilters()) {
+      toast.error('Please select all filters');
+      return;
+    }
+    try {
+      const res = await axios.post(
+        `${API_URL}/budgetReport/exportExcel`,
+        buildPayload(),
+        {
+          responseType: 'blob',
+        }
+      );
+      const blob = new Blob([res.data], {
+        type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+      });
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = 'Budget_Report.xlsx';
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    } catch (err) {
+      toast.error('Export failed');
+    }
+  };
 
   return (
     <div>
@@ -138,81 +151,80 @@ function BudgetReportPage() {
             <p>View and generate budget utilization reports</p>
           </div>
           <div className="flex space-x-2">
-            <button type="button" className="btn btn-outline flex items-center">
-              <ArrowDownTrayIcon className="h-5 w-5 mr-2" />
-              Export
+            <button
+              onClick={handleExport}
+              className="btn btn-outline flex items-center"
+            >
+              <ArrowDownTrayIcon className="h-5 w-5 mr-2" /> Export
             </button>
-            <button type="button" className="btn btn-outline flex items-center">
-              <PrinterIcon className="h-5 w-5 mr-2" />
-              Print
+            <button className="btn btn-outline flex items-center">
+              <PrinterIcon className="h-5 w-5 mr-2" /> Print
             </button>
           </div>
         </div>
       </div>
 
       <div className="mt-4 card p-4">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-          <FormField
-            label="Year"
-            name="year"
-            type="number"
-            value={filters.year}
-            onChange={(e) => setFilters({ ...filters, year: e.target.value })}
-            min="2000"
-            max="2100"
-          />
-
-          <FormField
-            label="Month"
-            name="month"
-            type="select"
-            value={filters.month}
-            onChange={(e) => setFilters({ ...filters, month: e.target.value })}
-            options={[
-              { value: '01', label: 'January' },
-              { value: '02', label: 'February' },
-              { value: '03', label: 'March' },
-              { value: '04', label: 'April' },
-              { value: '05', label: 'May' },
-              { value: '06', label: 'June' },
-              { value: '07', label: 'July' },
-              { value: '08', label: 'August' },
-              { value: '09', label: 'September' },
-              { value: '10', label: 'October' },
-              { value: '11', label: 'November' },
-              { value: '12', label: 'December' },
-            ]}
-          />
-
-          <FormField
-            label="Report Type"
-            name="reportType"
-            type="select"
-            className="whitespace-normal break-words"
-            value={filters.reportType}
-            onChange={(e) =>
-              setFilters({ ...filters, reportType: e.target.value })
-            }
-            options={reportTypes}
-          />
-
-          <FormField
-            label="Fund"
-            name="fund"
-            type="select"
-            value={filters.fund}
-            onChange={(e) => setFilters({ ...filters, fund: e.target.value })}
-            options={funds}
-          />
+        <div className="flex flex-wrap gap-4 items-end mb-4">
+          <div className="w-44">
+            <FormField
+              label="Start Date"
+              name="startDate"
+              type="date"
+              value={startDate}
+              required
+              onChange={(e) => setStartDate(e.target.value)}
+            />
+          </div>
+          <div className="w-44">
+            <FormField
+              label="End Date"
+              name="endDate"
+              type="date"
+              value={endDate}
+              required
+              onChange={(e) => setEndDate(e.target.value)}
+            />
+          </div>
+          <div className="w-44">
+            <FormField
+              label="Fiscal Year"
+              name="fiscalYearID"
+              type="select"
+              value={fiscalYearID}
+              required
+              onChange={(e) => setFiscalYearID(e.target.value)}
+              options={fiscalYears.map((y) => ({ label: y.Name, value: y.ID }))}
+            />
+          </div>
+          <div className="w-44">
+            <FormField
+              label="Fund"
+              name="fundsID"
+              type="select"
+              value={fundsID}
+              required
+              onChange={(e) => setFundsID(e.target.value)}
+              options={funds.map((f) => ({ label: f.Name, value: f.ID }))}
+            />
+          </div>
+          <div className="w-44">
+            <FormField
+              label="Department"
+              name="departmentID"
+              type="select"
+              value={departmentID}
+              required
+              onChange={(e) => setDepartmentID(e.target.value)}
+              options={departments.map((d) => ({ label: d.Name, value: d.ID }))}
+            />
+          </div>
         </div>
-
-        <div className="flex justify-end mt-4">
+        <div className="flex justify-end">
           <button
             type="button"
             className="btn btn-primary"
-            onClick={() => {
-              // Handle filter application
-            }}
+            onClick={handleView}
           >
             View
           </button>
@@ -220,64 +232,12 @@ function BudgetReportPage() {
       </div>
 
       <div className="mt-8">
-        <div className="text-center space-y-2 mb-6">
-          <h2 className="text-xl font-bold">Local Government Unit</h2>
-          <h3 className="text-lg font-semibold">
-            Statement of Appropriations, Allotments and Obligations
-          </h3>
-          <p className="text-sm text-neutral-600">
-            For the Month Ended{' '}
-            {new Date(filters.year, filters.month - 1).toLocaleDateString(
-              'en-PH',
-              { month: 'long', year: 'numeric' }
-            )}
-          </p>
-        </div>
-
         <DataTable
           columns={columns}
           data={entries}
           pagination={true}
-          loading={isLoading}
+          loading={loading}
         />
-
-        <div className="mt-4 p-4 bg-neutral-50 rounded-lg border border-neutral-200">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            <div>
-              <p className="text-sm text-neutral-600">Total Appropriation</p>
-              <p className="text-lg font-semibold">
-                {formatCurrency(
-                  entries.reduce((sum, item) => sum + item.appropriation, 0)
-                )}
-              </p>
-            </div>
-            <div>
-              <p className="text-sm text-neutral-600">Total Allotment</p>
-              <p className="text-lg font-semibold">
-                {formatCurrency(
-                  entries.reduce((sum, item) => sum + item.allotment, 0)
-                )}
-              </p>
-            </div>
-            <div>
-              <p className="text-sm text-neutral-600">Total Obligation</p>
-              <p className="text-lg font-semibold">
-                {formatCurrency(
-                  entries.reduce((sum, item) => sum + item.obligation, 0)
-                )}
-              </p>
-            </div>
-            <div>
-              <p className="text-sm text-neutral-600">Overall Utilization</p>
-              <p className="text-lg font-semibold">
-                {formatPercentage(
-                  entries.reduce((sum, item) => sum + item.obligation, 0) /
-                    entries.reduce((sum, item) => sum + item.appropriation, 0)
-                )}
-              </p>
-            </div>
-          </div>
-        </div>
       </div>
     </div>
   );

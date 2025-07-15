@@ -15,6 +15,8 @@ import { fetchRegions } from '@/features/settings/regionsSlice';
 import { fetchProvinces } from '@/features/settings/provincesSlice';
 import { fetchMunicipalities } from '@/features/settings/municipalitiesSlice';
 import { fetchBarangays } from '@/features/settings/barangaysSlice';
+import { fetchNationalities } from '@/features/settings/nationalitiesSlice';
+import SearchableDropdown from '@/components/common/SearchableDropdown';
 
 // Validation schema
 const employeeSchema = Yup.object().shape({
@@ -43,6 +45,7 @@ const employeeSchema = Yup.object().shape({
   IDNumber: Yup.number(),
   DepartmentID: Yup.number().required('Department is required'),
   PositionID: Yup.string().required('Position is required'),
+  NationalityID: Yup.string().required('Nationality is required'),
   EmploymentStatusID: Yup.string().required('Employment status is required'),
   DateHired: Yup.date().required('Date hired is required'),
   TIN: Yup.string(),
@@ -50,6 +53,11 @@ const employeeSchema = Yup.object().shape({
   Philhealth: Yup.string(),
   Pagibig: Yup.string(),
   Active: Yup.string().required('Status is required'),
+  ZIPCode: Yup.string().max(6, 'ZIP code must be at most 6 characters'),
+  Region: Yup.string().required('Region is required'),
+  Province: Yup.string().required('Province is required'),
+  Municipality: Yup.string().required('Municipality is required'),
+  Barangay: Yup.string().required('Barangay is required'),
 });
 
 function EmployeeForm({ initialData, onClose }) {
@@ -62,12 +70,19 @@ function EmployeeForm({ initialData, onClose }) {
     dispatch(fetchProvinces());
     dispatch(fetchMunicipalities());
     dispatch(fetchBarangays());
+    dispatch(fetchNationalities());
   }, [dispatch]);
 
   const { regions } = useSelector((state) => state.regions);
   const { provinces } = useSelector((state) => state.provinces);
   const { municipalities } = useSelector((state) => state.municipalities);
   const { barangays } = useSelector((state) => state.barangays);
+  const { nationalities } = useSelector((state) => state.nationalities);
+
+  const nationalitiesOptions = nationalities?.map((Nationality) => ({
+    value: Nationality.ID,
+    label: Nationality.Name,
+  }));
   const regionOptions = regions.map((r) => ({
     value: r.ID.toString(),
     label: r.Name,
@@ -127,6 +142,8 @@ function EmployeeForm({ initialData, onClose }) {
         DepartmentID: '',
         PositionID: '',
         IDNumber: '',
+        NationalityID: '',
+        Nationality: '',
         EmploymentStatusID: '',
         DateHired: new Date().toISOString().split('T')[0],
         TIN: '',
@@ -134,6 +151,11 @@ function EmployeeForm({ initialData, onClose }) {
         Philhealth: '',
         Pagibig: '',
         Active: 1,
+        ZIPCode: '',
+        Region: '',
+        Province: '',
+        Municipality: '',
+        Barangay: '',
       };
 
   const handleSubmit = (values) => {
@@ -353,24 +375,40 @@ function EmployeeForm({ initialData, onClose }) {
 
                 <div className="space-y-4">
                   <h3 className="font-medium">Contact Information</h3>
-                  <div className="grid grid-cols-2 gap-4">
-                    <FormField
+                  <div className="grid grid-cols-1 gap-4">
+                    <SearchableDropdown
                       label="Nationality"
-                      name="Nationality"
-                      type="text"
-                      value={values.Nationality || ''}
-                      onChange={handleChange}
-                      readOnly
-                    />
-                    <FormField
-                      label="Zip Code"
-                      name="ZipCode"
-                      type="text"
-                      value={values.ZipCode || ''}
-                      onChange={handleChange}
-                      readOnly
+                      name="NationalityID"
+                      type="select"
+                      options={nationalitiesOptions}
+                      required
+                      placeholder="Select Nationality"
+                      onSelect={(value) => {
+                        const selectedOption = nationalitiesOptions.find(
+                          (option) => option.value === value
+                        );
+                        setFieldValue('NationalityID', value || '');
+                        setFieldValue(
+                          'Nationality',
+                          selectedOption?.label || ''
+                        );
+                      }}
+                      className="w-full"
+                      selectedValue={values.NationalityID}
+                      error={errors.Nationality}
+                      touched={touched.Nationality}
                     />
                   </div>
+                  <FormField
+                    label="Zip Code"
+                    name="ZIPCode"
+                    type="text"
+                    value={values.ZIPCode || ''}
+                    onChange={handleChange}
+                    onBlur={handleBlur}
+                    error={errors.ZIPCode}
+                    touched={touched.ZIPCode}
+                  />
                   <FormField
                     label="Mobile Number"
                     name="MobileNumber"
@@ -400,7 +438,9 @@ function EmployeeForm({ initialData, onClose }) {
                       type="text"
                       value={values.EmergencyContact || ''}
                       onChange={handleChange}
-                      readOnly
+                      onBlur={handleBlur}
+                      error={errors.EmergencyContact}
+                      touched={touched.EmergencyContact}
                     />
                     <FormField
                       label="Emergency Number"
@@ -408,7 +448,9 @@ function EmployeeForm({ initialData, onClose }) {
                       type="text"
                       value={values.EmergencyNumber || ''}
                       onChange={handleChange}
-                      readOnly
+                      onBlur={handleBlur}
+                      error={errors.EmergencyNumber}
+                      touched={touched.EmergencyNumber}
                     />
                   </div>
                 </div>
@@ -570,7 +612,7 @@ function EmployeeForm({ initialData, onClose }) {
               </button>
               <button
                 type="submit"
-                disabled={isSubmitting || !isValid}
+                disabled={isSubmitting}
                 className="btn btn-primary"
               >
                 {isSubmitting ? 'Saving...' : initialData ? 'Update' : 'Save'}

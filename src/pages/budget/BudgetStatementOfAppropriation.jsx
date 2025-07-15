@@ -247,9 +247,9 @@ const BudgetStatementOfAppropriation = () => {
         >
           View SAO
         </button>
-        <button className="btn btn-primary">Generate SAAOB</button>
-        <button className="btn btn-primary">Generate SAO</button>
-        <button className="btn btn-primary" onClick={handleExport}>
+        <button className="btn btn-secondary">Generate SAAOB</button>
+        <button className="btn btn-secondary">Generate SAO</button>
+        <button className="btn btn-outline" onClick={handleExport}>
           Export to Excel
         </button>
       </div>

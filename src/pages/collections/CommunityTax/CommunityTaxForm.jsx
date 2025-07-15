@@ -852,7 +852,7 @@ const CommunityTaxForm = ({
           <Button
             type="submit"
             className="bg-blue-600 hover:bg-blue-700 text-white text-lg rounded-md transition-colors"
-            disabled={!formik.isValid || formik.isSubmitting}
+            disabled={formik.isSubmitting}
           >
             {formik.isSubmitting ? 'Generating...' : 'Generate Certificate'}
           </Button>
