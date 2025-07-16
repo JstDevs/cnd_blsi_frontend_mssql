@@ -13,7 +13,9 @@ import {
 
 function ApprovalMatrixPage() {
   const dispatch = useDispatch();
-  const { approvalMatrix, isLoading, error } = useSelector(state => state.approvalMatrix);
+  const { approvalMatrix, isLoading, error } = useSelector(
+    (state) => state.approvalMatrix
+  );
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [currentMatrix, setCurrentMatrix] = useState(null);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
@@ -29,17 +31,15 @@ function ApprovalMatrixPage() {
   };
 
   const handleEdit = (row) => {
-    const mappedApprovers = row.Approvers?.map((a) => ({
-      type: a.PositionorEmployee,
-      value: a.PositionorEmployeeID,
-      amountFrom: Number(a.AmountFrom),
-      amountTo: Number(a.AmountTo),
-    })) || [];
+    const mappedApprovers =
+      row.Approvers?.map((a) => ({
+        type: a.PositionorEmployee,
+        value: a.PositionorEmployeeID,
+        amountFrom: Number(a.AmountFrom),
+        amountTo: Number(a.AmountTo),
+      })) || [];
 
-    const {
-      Approvers,
-      ...rest
-    } = row;
+    const { Approvers, ...rest } = row;
 
     setCurrentMatrix({
       ...rest,
@@ -53,7 +53,7 @@ function ApprovalMatrixPage() {
     setMatrixToDelete(row);
     setIsDeleteModalOpen(true);
   };
-  
+
   const confirmDelete = async () => {
     if (matrixToDelete) {
       try {
@@ -70,10 +70,13 @@ function ApprovalMatrixPage() {
   const handleSubmit = async (values) => {
     try {
       if (currentMatrix) {
-        await dispatch(updateApprovalMatrix({ ...values, ID: currentMatrix.ID })).unwrap();
+        await dispatch(
+          updateApprovalMatrix({ ...values, ID: currentMatrix.ID })
+        ).unwrap();
       } else {
         await dispatch(addApprovalMatrix(values)).unwrap(); // <- Important: unwrap to catch errors
       }
+      dispatch(fetchApprovalMatrix());
       setIsModalOpen(false); // Only close modal on success
     } catch (err) {
       console.error('Failed to submit approval matrix:', err);
@@ -93,13 +96,15 @@ function ApprovalMatrixPage() {
       icon: PencilIcon,
       title: 'Edit',
       onClick: handleEdit,
-      className: 'text-primary-600 hover:text-primary-900 p-1 rounded-full hover:bg-primary-50',
+      className:
+        'text-primary-600 hover:text-primary-900 p-1 rounded-full hover:bg-primary-50',
     },
     {
       icon: TrashIcon,
       title: 'Delete',
       onClick: handleDelete,
-      className: 'text-error-600 hover:text-error-900 p-1 rounded-full hover:bg-error-50',
+      className:
+        'text-error-600 hover:text-error-900 p-1 rounded-full hover:bg-error-50',
     },
   ];
 
@@ -111,18 +116,35 @@ function ApprovalMatrixPage() {
             <h1>Approval Matrix</h1>
             <p>Manage approval matrix for document types</p>
           </div>
-          <button type="button" onClick={handleAdd} className="btn btn-primary flex items-center">
+          <button
+            type="button"
+            onClick={handleAdd}
+            className="btn btn-primary flex items-center"
+          >
             <PlusIcon className="h-5 w-5 mr-2" aria-hidden="true" />
             Add Approval Matrix
           </button>
         </div>
       </div>
       <div className="mt-4">
-        <DataTable columns={columns} data={approvalMatrix} actions={actions} loading={isLoading} />
+        <DataTable
+          columns={columns}
+          data={approvalMatrix}
+          actions={actions}
+          loading={isLoading}
+        />
         {error && <div className="text-error-600 mt-2">{error}</div>}
       </div>
-      <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} title={currentMatrix ? 'Edit Approval Matrix' : 'Add Approval Matrix'}>
-        <ApprovalMatrixForm initialData={currentMatrix} onClose={() => setIsModalOpen(false)} onSubmit={handleSubmit} />
+      <Modal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        title={currentMatrix ? 'Edit Approval Matrix' : 'Add Approval Matrix'}
+      >
+        <ApprovalMatrixForm
+          initialData={currentMatrix}
+          onClose={() => setIsModalOpen(false)}
+          onSubmit={handleSubmit}
+        />
       </Modal>
 
       {/* Delete Confirmation Modal */}
@@ -160,4 +182,4 @@ function ApprovalMatrixPage() {
   );
 }
 
-export default ApprovalMatrixPage; 
+export default ApprovalMatrixPage;

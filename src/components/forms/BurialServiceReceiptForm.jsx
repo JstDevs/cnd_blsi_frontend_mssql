@@ -43,15 +43,9 @@ function BurialServiceReceiptForm({
   onClose,
   onSubmit,
   nationalities,
-  // municipalities,
-  // provinces,
   customers,
-  // users,
 }) {
   const [showAdditionalFields, setShowAdditionalFields] = useState(false);
-  // const [selectedFiles, setSelectedFiles] = useState([]);
-  // const [formError, setFormError] = useState(null);
-
   const initialValues = {
     InvoiceNumber: initialData?.InvoiceNumber || '',
     Name: initialData?.Name || '',

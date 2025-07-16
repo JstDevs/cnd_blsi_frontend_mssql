@@ -5,9 +5,6 @@ import Modal from '../../components/common/Modal';
 import DataTable from '../../components/common/DataTable';
 import { fetchNationalities } from '../../features/settings/nationalitiesSlice';
 import { useDispatch, useSelector } from 'react-redux';
-// import { fetchMunicipalities } from '@/features/settings/municipalitiesSlice';
-// import { fetchUsers } from '@/features/settings/userSlice';
-// import { fetchProvinces } from '@/features/settings/provincesSlice';
 import {
   fetchBurialRecords,
   deleteBurialRecord,
@@ -26,13 +23,6 @@ function BurialServiceReceiptPage() {
   const { nationalities, isLoading: nationalityLoading } = useSelector(
     (state) => state.nationalities
   );
-  // const { users, isLoading: userLoading } = useSelector((state) => state.users);
-  // const { municipalities, isLoading: municipalityLoading } = useSelector(
-  //   (state) => state.municipalities
-  // );
-  // const { provinces, isLoading: provinceLoading } = useSelector(
-  //   (state) => state.provinces
-  // );
   const { records: burialRecord, isLoading } = useSelector(
     (state) => state.burialRecords
   );
@@ -42,9 +32,6 @@ function BurialServiceReceiptPage() {
 
   useEffect(() => {
     dispatch(fetchNationalities());
-    // dispatch(fetchUsers());
-    // dispatch(fetchMunicipalities());
-    // dispatch(fetchProvinces());
     dispatch(fetchBurialRecords());
     dispatch(fetchCustomers());
   }, [dispatch]);
@@ -250,10 +237,7 @@ function BurialServiceReceiptPage() {
           onClose={handleCloseModal}
           onSubmit={handleFormSubmit}
           nationalities={nationalities}
-          // municipalities={municipalities}
-          // provinces={provinces}
           customers={customers}
-          // users={users}
         />
       </Modal>
     </div>

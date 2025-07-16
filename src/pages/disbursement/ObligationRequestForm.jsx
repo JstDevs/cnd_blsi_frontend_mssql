@@ -238,10 +238,10 @@ function ObligationRequestForm({
 
     /* ⬇︎ Attachments (handle files or IDs) */
     values.Attachments.forEach((att, idx) => {
-      if (att.File) {
-        fd.append(`Attachments[${idx}].File`, att.File);
-      } else if (att.ID) {
+      if (att.ID) {
         fd.append(`Attachments[${idx}].ID`, att.ID);
+      } else {
+        fd.append(`Attachments[${idx}].File`, att);
       }
     });
 

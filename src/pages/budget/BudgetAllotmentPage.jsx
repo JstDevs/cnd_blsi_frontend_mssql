@@ -159,7 +159,7 @@ const BudgetAllotmentPage = () => {
   ];
 
   const filteredData = data?.filter((item) => {
-    console.log('item', item, filters);
+    // console.log('item', item, filters);
     const { Budget } = item;
     return (
       (!filters.department || Budget?.DepartmentID == filters.department) &&
