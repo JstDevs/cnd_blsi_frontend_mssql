@@ -136,7 +136,9 @@ const LGUMaintenance = () => {
   const validationSchema = Yup.object({
     Code: Yup.string().required('Code is required'),
     Name: Yup.string().required('Name is required'),
-    TIN: Yup.string().required('TIN is required'),
+    TIN: Yup.string()
+      .required('TIN is required')
+      .matches(/^\d{14}$/, 'TIN must be exactly 14 digits'),
     RDO: Yup.string().required('RDO is required'),
     StreetAddress: Yup.string().required('Street Address is required'),
     BarangayID: Yup.string().required('Barangay is required'),
@@ -144,7 +146,7 @@ const LGUMaintenance = () => {
     ProvinceID: Yup.string().required('Province is required'),
     RegionID: Yup.string().required('Region is required'),
     ZIPCode: Yup.string().required('Zip Code is required'),
-    PhoneNumber: Yup.string().required('Phone Number is required'),
+    PhoneNumber: Yup.number().required('Phone Number is required'),
     EmailAddress: Yup.string()
       .email('Invalid email')
       .required('Email is required'),

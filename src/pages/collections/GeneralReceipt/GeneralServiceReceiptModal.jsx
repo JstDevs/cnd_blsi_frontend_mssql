@@ -137,7 +137,7 @@ function GeneralServiceReceiptModal({
     setFieldValue('Attachments', updatedAttachments);
   };
   // -----------SUBMIT ------------
-  const handleSubmit = async (values) => {
+  const handleSubmit = async (values, { setSubmitting }) => {
     const formData = new FormData();
 
     // Append all non-attachment fields
@@ -157,10 +157,7 @@ function GeneralServiceReceiptModal({
       }
     }
 
-    // Handle attachments - simplified format
-    // values?.Attachments.forEach((file, index) => {
-    //   formData.append(`Attachments[${index}].File`, file);
-    // });
+    // Handle attachments - simplified format (only File objects)
     values?.Attachments.forEach((att, idx) => {
       if (att.ID) {
         formData.append(`Attachments[${idx}].ID`, att.ID);
@@ -186,6 +183,7 @@ function GeneralServiceReceiptModal({
       console.error('Error submitting form:', error);
     } finally {
       onClose();
+      setSubmitting(false);
     }
   };
   return (
@@ -226,8 +224,10 @@ function GeneralServiceReceiptModal({
           isSubmitting,
           errors,
           touched,
+          submitCount,
+          isValid,
         }) => {
-          console.log(errors);
+          // console.log(errors);
           return (
             <Form className="space-y-6">
               {/* Section 5: Attachments */}
@@ -419,6 +419,9 @@ function GeneralServiceReceiptModal({
                           key={index}
                           className="grid grid-cols-1 md:grid-cols-5 gap-3 items-end"
                         >
+                          {(() => {
+                            console.log(item);
+                          })()}
                           <FormField
                             label="Item ID"
                             name={`TransactionItemsAll.${index}.ItemID`}
@@ -427,6 +430,7 @@ function GeneralServiceReceiptModal({
                             required
                             value={item.ItemID}
                             onChange={handleChange}
+                            onBlur={handleBlur}
                             error={errors.TransactionItemsAll?.[index]?.ItemID}
                             touched={
                               touched.TransactionItemsAll?.[index]?.ItemID
@@ -441,6 +445,7 @@ function GeneralServiceReceiptModal({
                             required
                             value={item.ChargeAccountID}
                             onChange={handleChange}
+                            onBlur={handleBlur}
                             error={
                               errors.TransactionItemsAll?.[index]
                                 ?.ChargeAccountID
@@ -459,6 +464,7 @@ function GeneralServiceReceiptModal({
                             min="1"
                             value={item.Quantity}
                             onChange={handleChange}
+                            onBlur={handleBlur}
                             error={
                               errors.TransactionItemsAll?.[index]?.Quantity
                             }
@@ -475,13 +481,15 @@ function GeneralServiceReceiptModal({
                             min="0"
                             value={item.Price}
                             onChange={handleChange}
+                            onBlur={handleBlur}
                             error={errors.TransactionItemsAll?.[index]?.Price}
                             touched={
                               touched.TransactionItemsAll?.[index]?.Price
                             }
                           />
                           <div className="flex items-center">
-                            <input
+                            <FormField
+                              label="Vatable"
                               type="checkbox"
                               id={`TransactionItemsAll.${index}.Vatable`}
                               name={`TransactionItemsAll.${index}.Vatable`}
@@ -494,12 +502,6 @@ function GeneralServiceReceiptModal({
                               }
                               className="h-4 w-4 text-primary-600 focus:ring-primary-500 border-neutral-300 rounded"
                             />
-                            <label
-                              htmlFor={`TransactionItemsAll.${index}.Vatable`}
-                              className="ml-2 block text-sm text-neutral-700"
-                            >
-                              Vatable
-                            </label>
                           </div>
                           <div className="flex items-center space-x-2">
                             <div className="text-sm font-medium">
@@ -706,13 +708,24 @@ function GeneralServiceReceiptModal({
                 </button>
                 <button
                   type="submit"
-                  // disabled={isSubmitting}
+                  disabled={isSubmitting || !isValid}
                   className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50"
                 >
-                  {/* {isSubmitting ? 'Saving...' : 'Save'} */}
-                  save
+                  {isSubmitting ? 'Saving...' : 'Save'}
                 </button>
               </div>
+              {submitCount > 0 && Object.keys(errors).length > 0 && (
+                <div className="mt-4 p-4 bg-red-50 border-l-4 border-red-500 rounded">
+                  <h3 className="text-sm font-medium text-red-800">
+                    Please fix the following errors:
+                  </h3>
+                  <ul className="mt-2 text-sm text-red-700 list-disc pl-5 space-y-1">
+                    {Object.entries(errors).map(([fieldName, errorMessage]) => (
+                      <li key={fieldName}>{errorMessage}</li>
+                    ))}
+                  </ul>
+                </div>
+              )}
             </Form>
           );
         }}

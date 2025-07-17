@@ -41,47 +41,52 @@ const vendorSchema = Yup.object().shape({
     .required('Email is required'),
   tin: Yup.string()
     .required('TIN is required')
-    .matches(/^\d{3}-\d{3}-\d{3}-\d{3}$/, 'Invalid TIN format (e.g., 123-456-789-000)'),
-  category: Yup.string()
-    .required('Category is required'),
-  accreditationDate: Yup.date()
-    .required('Accreditation date is required'),
+    .matches(/^\d{14}$/, 'TIN must be exactly 14 digits'),
+  category: Yup.string().required('Category is required'),
+  accreditationDate: Yup.date().required('Accreditation date is required'),
   accreditationExpiry: Yup.date()
     .required('Accreditation expiry is required')
-    .min(Yup.ref('accreditationDate'), 'Expiry date must be after accreditation date'),
-  bankAccount: Yup.string()
-    .matches(/^[0-9-]+$/, 'Invalid bank account format'),
+    .min(
+      Yup.ref('accreditationDate'),
+      'Expiry date must be after accreditation date'
+    ),
+  bankAccount: Yup.string().matches(/^[0-9-]+$/, 'Invalid bank account format'),
   bankName: Yup.string(),
-  status: Yup.string()
-    .required('Status is required'),
+  status: Yup.string().required('Status is required'),
 });
 
 function VendorForm({ initialData, onClose }) {
   const dispatch = useDispatch();
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const initialValues = initialData ? { ...initialData } : {
-    vendorName: '',
-    address: '',
-    contactPerson: '',
-    contactNumber: '',
-    email: '',
-    tin: '',
-    category: '',
-    accreditationDate: new Date().toISOString().split('T')[0],
-    accreditationExpiry: '',
-    bankAccount: '',
-    bankName: '',
-    status: 'Active',
-  };
+  const initialValues = initialData
+    ? { ...initialData }
+    : {
+        vendorName: '',
+        address: '',
+        contactPerson: '',
+        contactNumber: '',
+        email: '',
+        tin: '',
+        category: '',
+        accreditationDate: new Date().toISOString().split('T')[0],
+        accreditationExpiry: '',
+        bankAccount: '',
+        bankName: '',
+        status: 'Active',
+      };
 
   const handleSubmit = (values) => {
     setIsSubmitting(true);
-    
-    const action = initialData 
-      ? updateVendor({ ...values, id: initialData.id, vendorCode: initialData.vendorCode })
+
+    const action = initialData
+      ? updateVendor({
+          ...values,
+          id: initialData.id,
+          vendorCode: initialData.vendorCode,
+        })
       : addVendor(values);
-    
+
     dispatch(action)
       .unwrap()
       .then(() => {
@@ -105,7 +110,7 @@ function VendorForm({ initialData, onClose }) {
       {({ values, errors, touched, handleChange, handleBlur, isValid }) => (
         <Form className="space-y-4">
           <FormField
-            className='p-3 focus:outline-none'
+            className="p-3 focus:outline-none"
             label="Vendor Name"
             name="vendorName"
             type="text"
@@ -117,9 +122,9 @@ function VendorForm({ initialData, onClose }) {
             error={errors.vendorName}
             touched={touched.vendorName}
           />
-          
+
           <FormField
-            className='p-3 focus:outline-none'
+            className="p-3 focus:outline-none"
             label="Address"
             name="address"
             type="textarea"
@@ -132,10 +137,10 @@ function VendorForm({ initialData, onClose }) {
             touched={touched.address}
             rows={2}
           />
-          
+
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <FormField
-              className='p-3 focus:outline-none'
+              className="p-3 focus:outline-none"
               label="Contact Person"
               name="contactPerson"
               type="text"
@@ -147,9 +152,9 @@ function VendorForm({ initialData, onClose }) {
               error={errors.contactPerson}
               touched={touched.contactPerson}
             />
-            
+
             <FormField
-              className='p-3 focus:outline-none'
+              className="p-3 focus:outline-none"
               label="Contact Number"
               name="contactNumber"
               type="text"
@@ -162,10 +167,10 @@ function VendorForm({ initialData, onClose }) {
               touched={touched.contactNumber}
             />
           </div>
-          
+
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <FormField
-              className='p-3 focus:outline-none'
+              className="p-3 focus:outline-none"
               label="Email"
               name="email"
               type="email"
@@ -177,9 +182,9 @@ function VendorForm({ initialData, onClose }) {
               error={errors.email}
               touched={touched.email}
             />
-            
+
             <FormField
-              className='p-3 focus:outline-none'
+              className="p-3 focus:outline-none"
               label="TIN"
               name="tin"
               type="text"
@@ -192,9 +197,9 @@ function VendorForm({ initialData, onClose }) {
               touched={touched.tin}
             />
           </div>
-          
+
           <FormField
-            className='p-3 focus:outline-none'
+            className="p-3 focus:outline-none"
             label="Category"
             name="category"
             type="select"
@@ -206,10 +211,10 @@ function VendorForm({ initialData, onClose }) {
             touched={touched.category}
             options={categories}
           />
-          
+
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <FormField
-              className='p-3 focus:outline-none'
+              className="p-3 focus:outline-none"
               label="Accreditation Date"
               name="accreditationDate"
               type="date"
@@ -220,9 +225,9 @@ function VendorForm({ initialData, onClose }) {
               error={errors.accreditationDate}
               touched={touched.accreditationDate}
             />
-            
+
             <FormField
-              className='p-3 focus:outline-none'
+              className="p-3 focus:outline-none"
               label="Accreditation Expiry"
               name="accreditationExpiry"
               type="date"
@@ -234,10 +239,10 @@ function VendorForm({ initialData, onClose }) {
               touched={touched.accreditationExpiry}
             />
           </div>
-          
+
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <FormField
-              className='p-3 focus:outline-none'
+              className="p-3 focus:outline-none"
               label="Bank Account"
               name="bankAccount"
               type="text"
@@ -248,9 +253,9 @@ function VendorForm({ initialData, onClose }) {
               error={errors.bankAccount}
               touched={touched.bankAccount}
             />
-            
+
             <FormField
-              className='p-3 focus:outline-none'
+              className="p-3 focus:outline-none"
               label="Bank Name"
               name="bankName"
               type="select"
@@ -262,7 +267,7 @@ function VendorForm({ initialData, onClose }) {
               options={banks}
             />
           </div>
-          
+
           <FormField
             label="Status"
             name="status"
@@ -278,13 +283,9 @@ function VendorForm({ initialData, onClose }) {
               { value: 'Inactive', label: 'Inactive' },
             ]}
           />
-          
+
           <div className="flex justify-end space-x-3 pt-4 border-t border-neutral-200">
-            <button
-              type="button"
-              onClick={onClose}
-              className="btn btn-outline"
-            >
+            <button type="button" onClick={onClose} className="btn btn-outline">
               Cancel
             </button>
             <button

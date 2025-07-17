@@ -2,17 +2,23 @@ import React, { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import GeneralLedgerForm from '../../components/forms/GeneralLedgerForm';
 import DataTable from '../../components/common/DataTable';
-import { fetchGeneralLedgers, resetGeneralLedgerState } from '../../features/reports/generalLedgerSlice';
+import {
+  fetchGeneralLedgers,
+  resetGeneralLedgerState,
+} from '../../features/reports/generalLedgerSlice';
 import { fetchFunds } from '../../features/budget/fundsSlice';
 import { fetchAccounts } from '../../features/settings/chartOfAccountsSlice';
+import toast from 'react-hot-toast';
+const API_URL = import.meta.env.VITE_API_URL;
 
 function GeneralLedgerPage() {
-  const API_URL = import.meta.env.VITE_API_URL;
   const dispatch = useDispatch();
 
-  const { generalLedgers, isLoading, error } = useSelector(state => state.generalLedger);
-  const { funds } = useSelector(state => state.funds);
-  const { accounts } = useSelector((state) => state.chartOfAccounts);  
+  const { generalLedgers, isLoading, error } = useSelector(
+    (state) => state.generalLedger
+  );
+  const { funds } = useSelector((state) => state.funds);
+  const { accounts } = useSelector((state) => state.chartOfAccounts);
 
   // Format currency for display
   const formatCurrency = (amount) => {
@@ -21,7 +27,7 @@ function GeneralLedgerPage() {
       currency: 'PHP',
     }).format(amount);
   };
-  
+
   useEffect(() => {
     dispatch(resetGeneralLedgerState());
     dispatch(fetchFunds());
@@ -108,20 +114,16 @@ function GeneralLedgerPage() {
     },
   ];
 
-  
   // Handle export to Excel
   const handleExport = async (values) => {
+    console.log({ values });
     try {
       const response = await fetch(`${API_URL}/generalLedger/exportExcel`, {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/json'
+          'Content-Type': 'application/json',
         },
-        body: JSON.stringify({
-          startDate: values.startDate,
-          endDate: values.endDate,
-          fundID: values.fundID,
-        })
+        body: JSON.stringify(values),
       });
 
       if (!response.ok) throw new Error('Server response was not ok');
@@ -144,10 +146,9 @@ function GeneralLedgerPage() {
       link.click();
       document.body.removeChild(link);
       window.URL.revokeObjectURL(url);
-
     } catch (err) {
       console.error('Export failed:', err);
-      alert(err.message || 'Failed to export general ledger');
+      toast.error(err.message || 'Failed to export general ledger');
     }
   };
 
@@ -162,11 +163,11 @@ function GeneralLedgerPage() {
         <h1>General Ledger</h1>
         <p>Generate general ledger reports.</p>
       </div>
-      
+
       <div className="mt-4 p-6 bg-white rounded-md shadow">
-        <GeneralLedgerForm 
+        <GeneralLedgerForm
           funds={funds}
-          accountOptions={accounts.map(acc => ({
+          accountOptions={accounts.map((acc) => ({
             value: acc.ID,
             label: `${acc.AccountCode} - ${acc.Name}`,
           }))}
@@ -194,4 +195,4 @@ function GeneralLedgerPage() {
   );
 }
 
-export default GeneralLedgerPage; 
+export default GeneralLedgerPage;

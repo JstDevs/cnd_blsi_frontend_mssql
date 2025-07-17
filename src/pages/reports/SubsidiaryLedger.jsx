@@ -2,16 +2,22 @@ import React, { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import SubsidiaryLedgerForm from '../../components/forms/SubsidiaryLedgerForm';
 import DataTable from '../../components/common/DataTable';
-import { fetchSubsidiaryLedgers, resetSubsidiaryLedgerState } from '../../features/reports/subsidiaryLedgerSlice';
+import {
+  fetchSubsidiaryLedgers,
+  resetSubsidiaryLedgerState,
+} from '../../features/reports/subsidiaryLedgerSlice';
 import { fetchFunds } from '../../features/budget/fundsSlice';
 import { fetchAccounts } from '../../features/settings/chartOfAccountsSlice';
+import toast from 'react-hot-toast';
 
 function SubsidiaryLedger() {
   const API_URL = import.meta.env.VITE_API_URL;
   const dispatch = useDispatch();
-  const { subsidiaryLedgers, isLoading, error } = useSelector(state => state.subsidiaryLedger);
-  const { funds } = useSelector(state => state.funds);
-  const { accounts } = useSelector((state) => state.chartOfAccounts);  
+  const { subsidiaryLedgers, isLoading, error } = useSelector(
+    (state) => state.subsidiaryLedger
+  );
+  const { funds } = useSelector((state) => state.funds);
+  const { accounts } = useSelector((state) => state.chartOfAccounts);
 
   // Format currency for display
   const formatCurrency = (amount) => {
@@ -20,7 +26,7 @@ function SubsidiaryLedger() {
       currency: 'PHP',
     }).format(amount);
   };
-  
+
   useEffect(() => {
     dispatch(resetSubsidiaryLedgerState());
     dispatch(fetchFunds());
@@ -87,20 +93,15 @@ function SubsidiaryLedger() {
     },
   ];
 
-  
   // Handle export to Excel
   const handleExport = async (values) => {
     try {
       const response = await fetch(`${API_URL}/subsidiaryLeadger/exportExcel`, {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/json'
+          'Content-Type': 'application/json',
         },
-        body: JSON.stringify({
-          startDate: values.startDate,
-          endDate: values.endDate,
-          fundID: values.fundID,
-        })
+        body: JSON.stringify(values),
       });
 
       if (!response.ok) throw new Error('Server response was not ok');
@@ -123,10 +124,9 @@ function SubsidiaryLedger() {
       link.click();
       document.body.removeChild(link);
       window.URL.revokeObjectURL(url);
-
     } catch (err) {
       console.error('Export failed:', err);
-      alert(err.message || 'Failed to export subsidiary ledger');
+      toast.error(err.message || 'Failed to export subsidiary ledger');
     }
   };
 
@@ -141,11 +141,11 @@ function SubsidiaryLedger() {
         <h1>Subsidiary Ledger</h1>
         <p>Generate subsidiary ledger reports.</p>
       </div>
-      
+
       <div className="mt-4 p-6 bg-white rounded-md shadow">
         <SubsidiaryLedgerForm
           funds={funds}
-          accountOptions={accounts.map(acc => ({
+          accountOptions={accounts.map((acc) => ({
             value: acc.ID,
             label: `${acc.AccountCode} - ${acc.Name}`,
           }))}

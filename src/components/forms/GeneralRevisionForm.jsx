@@ -120,7 +120,7 @@ const GeneralRevisionForm = ({ initialData, onSubmit, onCancel, isEdit }) => {
           onSelect={(selected) => {
             formik.setFieldValue('ProvincialAssessor', selected || '');
           }}
-          selectedValue={employeeOptions.find(formik.values.ProvincialAssessor)}
+          selectedValue={formik.values.ProvincialAssessor}
           error={formik.errors.ProvincialAssessor}
           touched={formik.touched.ProvincialAssessor}
         />

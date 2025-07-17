@@ -7,6 +7,7 @@ import PPEForm from './PPEForm';
 import { fetchPPEs, deletePPE } from '../../../features/settings/ppeSlice';
 import { Printer } from 'lucide-react';
 import FormField from '@/components/common/FormField';
+// import { render } from '@headlessui/react/dist/utils/render';
 
 const FIELDS = [
   { key: 'CategoryID', header: 'PPE Category' },
@@ -14,7 +15,10 @@ const FIELDS = [
   { key: 'DepreciationRate', header: 'Depreciation Rate (%)' },
   { key: 'DepreciationValue', header: 'Depreciation Value' },
   { key: 'NetBookValue', header: 'Net Book Value' },
-  { key: 'Supplier', header: 'Supplier' },
+  {
+    key: 'SupplierID',
+    header: 'Supplier',
+  },
   { key: 'PPENumber', header: 'PPE Number' },
   { key: 'Unit', header: 'Unit' },
   { key: 'Barcode', header: 'Barcode' },
@@ -75,12 +79,24 @@ function PPEPage() {
   };
 
   // DataTable columns
-  const columns = FIELDS.map((field) => ({
-    key: field.key,
-    header: field.header,
-    sortable: true,
-    className: 'text-neutral-900',
-  }));
+  const columns = FIELDS.map((field) => {
+    if (field.key === 'SupplierID') {
+      return {
+        key: field.key,
+        header: field.header,
+        sortable: true,
+        className: 'text-neutral-900',
+        render: (_, ppe) => ppe.Supplier.Name || 'N/A',
+      };
+    }
+
+    return {
+      key: field.key,
+      header: field.header,
+      sortable: true,
+      className: 'text-neutral-900',
+    };
+  });
 
   // Actions for table rows
   const actions = [

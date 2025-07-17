@@ -34,7 +34,9 @@ function CustomerForm({ initialData, onSubmit, onClose }) {
     PlaceOfBirth: Yup.string().required('Place of Birth is required'),
     Occupation: Yup.string().required('Occupation is required'),
     CivilStatus: Yup.string().required('Civil Status is required'),
-    TIN: Yup.string().required('TIN is required'),
+    TIN: Yup.string()
+      .required('TIN is required')
+      .matches(/^\d{14}$/, 'TIN must be exactly 14 digits'),
     EmailAddress: Yup.string().email().required('Email is required'),
     RegionID: Yup.string().required('Region is required'),
     ProvinceID: Yup.string().required('Province is required'),

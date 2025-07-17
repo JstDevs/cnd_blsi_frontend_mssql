@@ -13,6 +13,8 @@ import {
   deleteSubdepartment,
 } from '../../features/settings/subdepartmentSlice';
 import { fetchDepartments } from '../../features/settings/departmentSlice';
+import SearchableDropdown from '@/components/common/SearchableDropdown';
+import toast from 'react-hot-toast';
 
 function SubdepartmentPage() {
   const dispatch = useDispatch();
@@ -93,15 +95,22 @@ function SubdepartmentPage() {
     setIsDeleteModalOpen(true);
   };
 
-  const confirmDelete = () => {
-    if (subdepartmentToDelete) {
-      dispatch(deleteSubdepartment(subdepartmentToDelete.ID));
-      setIsDeleteModalOpen(false);
+  const confirmDelete = async () => {
+    try {
+      if (subdepartmentToDelete) {
+        await dispatch(deleteSubdepartment(subdepartmentToDelete.ID)).unwrap();
+        toast.success('Subdepartment deleted successfully.');
+      }
+    } catch (error) {
+      console.error('Failed to delete subdepartment:', error);
+      toast.error('Failed to delete subdepartment. Please try again.');
+    } finally {
       setSubdepartmentToDelete(null);
+      setIsDeleteModalOpen(false);
     }
   };
 
-  const handleSubmit = (values, { resetForm }) => {
+  const handleSubmit = async (values, { resetForm }) => {
     const departmentName =
       departments.find((d) => d.ID === Number(values.DepartmentID))?.Name || '';
 
@@ -110,15 +119,25 @@ function SubdepartmentPage() {
       departmentName,
     };
 
-    if (currentSubdepartment) {
-      dispatch(
-        updateSubdepartment({ ...submissionData, ID: currentSubdepartment.ID })
-      );
-    } else {
-      dispatch(addSubdepartment(submissionData));
+    try {
+      if (currentSubdepartment) {
+        dispatch(
+          updateSubdepartment({
+            ...submissionData,
+            ID: currentSubdepartment.ID,
+          })
+        );
+      } else {
+        dispatch(addSubdepartment(submissionData));
+      }
+      toast.success('Subdepartment saved successfully.');
+    } catch (error) {
+      console.log(error);
+      toast.error('Failed to save subdepartment. Please try again.');
+    } finally {
+      setIsModalOpen(false);
+      resetForm();
     }
-    setIsModalOpen(false);
-    resetForm();
   };
 
   // Table columns definition
@@ -211,6 +230,7 @@ function SubdepartmentPage() {
             handleChange,
             handleBlur,
             isSubmitting,
+            setFieldValue,
           }) => (
             <Form className="space-y-4">
               <FormField
@@ -239,7 +259,23 @@ function SubdepartmentPage() {
                 error={errors.Name}
                 touched={touched.Name}
               />
-              <FormField
+              <SearchableDropdown
+                // className="p-3 focus:outline-none"
+                label="Department"
+                name="DepartmentID"
+                type="select"
+                required
+                selectedValue={values.DepartmentID}
+                onSelect={(value) => setFieldValue('DepartmentID', value)}
+                onBlur={handleBlur}
+                error={errors.DepartmentID}
+                touched={touched.DepartmentID}
+                options={departments.map((dept) => ({
+                  value: dept.ID,
+                  label: dept.Name,
+                }))}
+              />
+              {/* <FormField
                 className="p-3 focus:outline-none"
                 label="Department"
                 name="DepartmentID"
@@ -254,7 +290,7 @@ function SubdepartmentPage() {
                   value: dept.ID,
                   label: dept.Name,
                 }))}
-              />
+              /> */}
               <div className="flex justify-end space-x-3 pt-4 border-t border-neutral-200">
                 <button
                   type="button"

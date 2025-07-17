@@ -18,7 +18,7 @@ const SearchableDropdown = ({
     query === ''
       ? options
       : options.filter((option) => {
-          return option.label.toLowerCase().includes(query.toLowerCase());
+          return option?.label?.toLowerCase().includes(query.toLowerCase());
         });
 
   const clearSelection = () => {
@@ -27,7 +27,7 @@ const SearchableDropdown = ({
   };
 
   return (
-    <div className="w-full max-w-xs">
+    <div className="w-full ">
       <Combobox value={selectedValue} onChange={onSelect}>
         {({ open }) => (
           <>
@@ -77,7 +77,7 @@ const SearchableDropdown = ({
                 <p className="mt-1 text-sm text-red-600">{error}</p>
               )}
 
-              <Combobox.Options className="absolute z-50 mt-1.5 w-full max-h-60 overflow-auto rounded-md bg-white py-1 text-base shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm animate-fadeIn">
+              <Combobox.Options className="absolute z-[500] mt-1.5 w-full max-h-60 overflow-auto rounded-md bg-white py-1 text-base shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm animate-fadeIn">
                 {filteredOptions.length === 0 && query !== '' ? (
                   <div className="relative cursor-default select-none py-2 px-4 text-gray-500">
                     No results found

@@ -75,7 +75,6 @@ import CommunityTaxPage from './pages/collections/CommunityTax/CommunityTaxPage'
 import CommunityTaxCorporationPage from './pages/collections/CommunityTaxCorporation/CommunityTaxCorporationPage';
 // import RealPropertyTaxPage from './pages/collections/RealPropertyTaxPage';
 import MarketCollectionsPage from './pages/collections/MarketCollectionsPage';
-import GeneralServiceReceiptPage from './pages/collections/GeneralReceipt/GeneralServiceReceiptPage';
 import BurialServiceReceiptPage from './pages/collections/BurialServiceReceiptPage';
 import MarriageServiceReceiptPage from './pages/collections/MarriageServiceReceiptPage';
 // import CashbookPage from './pages/collections/Cashbook/CashbookPage';
@@ -386,10 +385,10 @@ function App() {
           />
 
           {/* Collections module */}
-          <Route
+          {/* <Route
             path="/collections/receipts"
             element={<GeneralReceiptPage />}
-          />
+          /> */}
           <Route
             path="/collections/community-tax"
             element={<CommunityTaxPage />}

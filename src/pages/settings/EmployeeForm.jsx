@@ -48,7 +48,7 @@ const employeeSchema = Yup.object().shape({
   NationalityID: Yup.string().required('Nationality is required'),
   EmploymentStatusID: Yup.string().required('Employment status is required'),
   DateHired: Yup.date().required('Date hired is required'),
-  TIN: Yup.string(),
+  TIN: Yup.string().matches(/^\d{14}$/, 'TIN must be exactly 14 digits'),
   GSIS: Yup.string(),
   Philhealth: Yup.string(),
   Pagibig: Yup.string(),

@@ -57,7 +57,7 @@ function Modal({
             leaveTo="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
           >
             <div
-              className={`inline-block w-full align-bottom sm:align-middle bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 ${sizeClasses[size]}`}
+              className={`inline-block w-full align-bottom sm:align-middle bg-white rounded-lg text-left  shadow-xl transform transition-all sm:my-8 ${sizeClasses[size]}`}
             >
               {/* Modal header */}
               <div className="flex items-center justify-between px-6 py-4 border-b border-neutral-200">
