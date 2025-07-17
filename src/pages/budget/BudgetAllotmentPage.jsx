@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { PlusIcon } from '@heroicons/react/24/solid';
-import { PencilIcon } from 'lucide-react';
+import { PencilIcon, PrinterIcon } from 'lucide-react';
 import { toast } from 'react-hot-toast';
 
 import Modal from '@/components/common/Modal';
@@ -173,18 +173,28 @@ const BudgetAllotmentPage = () => {
   return (
     <div className="page-container">
       {/* Header */}
-      <div className="page-header flex justify-between items-center">
+      <div className="page-header flex justify-between items-center gap-4 flex-wrap">
         <div>
           <h1>Budget Allotment</h1>
           <p>Manage budget allotments here</p>
         </div>
-        <button
-          onClick={() => handleEdit(null)}
-          className="btn btn-primary flex items-center"
-        >
-          <PlusIcon className="h-5 w-5 mr-2" />
-          Add Allotment
-        </button>
+        <div className="flex gap-4">
+          <button
+            onClick={() => handleEdit(null)}
+            className="btn btn-primary flex items-center"
+          >
+            <PlusIcon className="h-5 w-5 mr-2" />
+            Add Allotment
+          </button>
+          <button
+            // TODO : Add print functionality
+            onClick={() => {}}
+            className="btn btn-outline flex items-center"
+          >
+            <PrinterIcon className="h-5 w-5 mr-2" />
+            Print
+          </button>
+        </div>
       </div>
 
       {/* Filters */}

@@ -44,7 +44,7 @@ const BudgetFundsPage = () => {
       key: 'OriginalAmount',
       header: 'Original Amount',
       sortable: true,
-      className: 'text-right',
+      // className: 'text-right',
       render: (value) => (
         <span className="font-medium">
           {value ? formatCurrency(value) : '—'}

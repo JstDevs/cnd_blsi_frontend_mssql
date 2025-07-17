@@ -4,8 +4,9 @@ import FormField from '@/components/common/FormField';
 import Button from '@/components/common/Button';
 import * as Yup from 'yup';
 import { useEffect } from 'react';
-import numToWords from '@/components/helper/numToWords';
+// import numToWords from '@/components/helper/numToWords';
 import { ExclamationCircleIcon } from '@heroicons/react/24/outline';
+import { convertAmountToWords } from '@/utils/amountToWords';
 
 const validationSchema = Yup.object().shape({
   Year: Yup.string()
@@ -28,10 +29,9 @@ const validationSchema = Yup.object().shape({
     .required('Company name is required')
     .max(200, 'Company name must be less than 200 characters'),
 
-  TIN: Yup.string().matches(
-    /^\d{3}-\d{3}-\d{3}-\d{3}$|^\d{9}$|^$/,
-    'TIN must be 9 digits or in XXX-XXX-XXX-XXX format'
-  ),
+  TIN: Yup.string()
+    .matches(/^\d{14}$/, 'TIN must be exactly 14 digits')
+    .nullable(),
 
   Address: Yup.string()
     .required('Business address is required')
@@ -205,12 +205,12 @@ const CTCForm = ({
     return transformedValues;
   };
   // Calculate amount in words whenever AmountReceived changes
-  useEffect(() => {
-    calculateAmountsInWords();
-  }, [formik.values.AmountPaid]);
+  // useEffect(() => {
+  //   calculateAmountsInWords();
+  // }, [formik.values.AmountPaid]);
   const calculateAmountsInWords = () => {
     const totalAmountValue = formik.values.Total;
-    const totalAmountInWords = numToWords(totalAmountValue);
+    const totalAmountInWords = convertAmountToWords(totalAmountValue);
     formik.setFieldValue('AmountinWords', totalAmountInWords);
   };
   console.log('Formik Values:', formik.errors);
@@ -236,14 +236,13 @@ const CTCForm = ({
                   name="Year"
                   value={formik.values.Year}
                   onChange={formik.handleChange}
+                  onBlur={formik.handleBlur}
                   disabled={readOnly}
+                  required
+                  error={formik.touched.Year && formik.errors.Year}
+                  touched={formik.touched.Year}
                   className="border-blue-200 focus:border-blue-500 focus:ring-blue-500"
                 />
-                {formik.touched.Year && formik.errors.Year ? (
-                  <div className="text-red-500 text-sm mt-1">
-                    {formik.errors.Year}
-                  </div>
-                ) : null}
               </div>
               <div>
                 <FormField
@@ -252,13 +251,13 @@ const CTCForm = ({
                   value={formik.values.PlaceIssued}
                   onChange={formik.handleChange}
                   disabled={readOnly}
+                  error={
+                    formik.touched.PlaceIssued && formik.errors.PlaceIssued
+                  }
+                  required
+                  touched={formik.touched.PlaceIssued}
                   className="border-blue-200 focus:border-blue-500 focus:ring-blue-500"
                 />
-                {formik.touched.PlaceIssued && formik.errors.PlaceIssued ? (
-                  <div className="text-red-500 text-sm mt-1">
-                    {formik.errors.PlaceIssued}
-                  </div>
-                ) : null}
               </div>
               <div>
                 <FormField
@@ -268,13 +267,11 @@ const CTCForm = ({
                   value={formik.values.DateIssued}
                   onChange={formik.handleChange}
                   disabled={readOnly}
+                  required
+                  error={formik.touched.DateIssued && formik.errors.DateIssued}
+                  touched={formik.touched.DateIssued}
                   className="border-blue-200 focus:border-blue-500 focus:ring-blue-500"
                 />
-                {formik.touched.DateIssued && formik.errors.DateIssued ? (
-                  <div className="text-red-500 text-sm mt-1">
-                    {formik.errors.DateIssued}
-                  </div>
-                ) : null}
               </div>
               <div>
                 <FormField
@@ -283,13 +280,11 @@ const CTCForm = ({
                   value={formik.values.CCNumber}
                   onChange={formik.handleChange}
                   disabled={readOnly}
+                  required
                   className="border-blue-200 focus:border-blue-500 focus:ring-blue-500 font-bold text-blue-600"
+                  error={formik.touched.CCNumber && formik.errors.CCNumber}
+                  touched={formik.touched.CCNumber}
                 />
-                {formik.touched.CCNumber && formik.errors.CCNumber ? (
-                  <div className="text-red-500 text-sm mt-1">
-                    {formik.errors.CCNumber}
-                  </div>
-                ) : null}
               </div>
             </div>
 
@@ -319,13 +314,11 @@ const CTCForm = ({
                     value={formik.values.Name}
                     onChange={formik.handleChange}
                     disabled={readOnly}
+                    required
+                    error={formik.touched.Name && formik.errors.Name}
+                    touched={formik.touched.Name}
                     className="border-blue-200 focus:border-blue-500 focus:ring-blue-500"
                   />
-                  {formik.touched.Name && formik.errors.Name ? (
-                    <div className="text-red-500 text-sm mt-1">
-                      {formik.errors.Name}
-                    </div>
-                  ) : null}
                 </div>
                 <div>
                   <FormField
@@ -334,13 +327,11 @@ const CTCForm = ({
                     value={formik.values.TIN}
                     onChange={formik.handleChange}
                     disabled={readOnly}
+                    onBlur={formik.handleBlur}
                     className="border-blue-200 focus:border-blue-500 focus:ring-blue-500"
+                    error={formik.touched.TIN && formik.errors.TIN}
+                    touched={formik.touched.TIN}
                   />
-                  {formik.touched.TIN && formik.errors.TIN ? (
-                    <div className="text-red-500 text-sm mt-1">
-                      {formik.errors.TIN}
-                    </div>
-                  ) : null}
                 </div>
               </div>
 
@@ -348,22 +339,20 @@ const CTCForm = ({
                 <div>
                   <FormField
                     label={
-                      <span className="flex items-center gap-2">
-                        <MapPin className="h-4 w-4" />
-                        Address of Principal Place of Business
-                      </span>
+                      // <span className="flex items-center gap-2">
+                      // {/* <MapPin className="h-4 w-4" /> */}
+                      ' Address of Principal Place of Business'
+                      // </span>
                     }
                     name="Address"
                     value={formik.values.Address}
                     onChange={formik.handleChange}
                     disabled={readOnly}
+                    required
                     className="border-blue-200 focus:border-blue-500 focus:ring-blue-500"
+                    error={formik.touched.Address && formik.errors.Address}
+                    touched={formik.touched.Address}
                   />
-                  {formik.touched.Address && formik.errors.Address ? (
-                    <div className="text-red-500 text-sm mt-1">
-                      {formik.errors.Address}
-                    </div>
-                  ) : null}
                 </div>
                 <div>
                   <FormField
@@ -373,14 +362,14 @@ const CTCForm = ({
                     value={formik.values.dateOfRegistration}
                     onChange={formik.handleChange}
                     disabled={readOnly}
+                    required
                     className="border-blue-200 focus:border-blue-500 focus:ring-blue-500"
+                    error={
+                      formik.touched.dateOfRegistration &&
+                      formik.errors.dateOfRegistration
+                    }
+                    touched={formik.touched.dateOfRegistration}
                   />
-                  {formik.touched.dateOfRegistration &&
-                  formik.errors.dateOfRegistration ? (
-                    <div className="text-red-500 text-sm mt-1">
-                      {formik.errors.dateOfRegistration}
-                    </div>
-                  ) : null}
                 </div>
               </div>
 
@@ -394,13 +383,12 @@ const CTCForm = ({
                     onChange={formik.handleChange}
                     options={organizationOptions}
                     disabled={readOnly}
+                    error={
+                      formik.touched.KindofOrganization &&
+                      formik.errors.KindofOrganization
+                    }
+                    touched={formik.touched.KindofOrganization}
                   />
-                  {formik.touched.KindofOrganization &&
-                  formik.errors.KindofOrganization ? (
-                    <div className="text-red-500 text-sm mt-1">
-                      {formik.errors.KindofOrganization}
-                    </div>
-                  ) : null}
                 </div>
                 <div>
                   <FormField
@@ -410,13 +398,12 @@ const CTCForm = ({
                     onChange={formik.handleChange}
                     disabled={readOnly}
                     className="border-blue-200 focus:border-blue-500 focus:ring-blue-500"
+                    error={
+                      formik.touched.PlaceofIncorporation &&
+                      formik.errors.PlaceofIncorporation
+                    }
+                    touched={formik.touched.PlaceofIncorporation}
                   />
-                  {formik.touched.PlaceofIncorporation &&
-                  formik.errors.PlaceofIncorporation ? (
-                    <div className="text-red-500 text-sm mt-1">
-                      {formik.errors.PlaceofIncorporation}
-                    </div>
-                  ) : null}
                 </div>
               </div>
 
@@ -428,13 +415,12 @@ const CTCForm = ({
                   onChange={formik.handleChange}
                   disabled={readOnly}
                   className="border-blue-200 focus:border-blue-500 focus:ring-blue-500"
+                  error={
+                    formik.touched.NatureOfOrganization &&
+                    formik.errors.NatureOfOrganization
+                  }
+                  touched={formik.touched.NatureOfOrganization}
                 />
-                {formik.touched.NatureOfOrganization &&
-                formik.errors.NatureOfOrganization ? (
-                  <div className="text-red-500 text-sm mt-1">
-                    {formik.errors.NatureOfOrganization}
-                  </div>
-                ) : null}
               </div>
 
               {/* <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -516,12 +502,9 @@ const CTCForm = ({
                       onChange={formik.handleChange}
                       disabled={readOnly}
                       className="w-32 text-right font-mono border-blue-200 focus:border-blue-500"
+                      error={formik.touched.BasicTax && formik.errors.BasicTax}
+                      touched={formik.touched.BasicTax}
                     />
-                    {formik.touched.BasicTax && formik.errors.BasicTax ? (
-                      <div className="text-red-500 text-sm mt-1">
-                        {formik.errors.BasicTax}
-                      </div>
-                    ) : null}
                   </div>
                 </div>
               </div>
@@ -549,13 +532,12 @@ const CTCForm = ({
                           disabled={readOnly}
                           className="text-right font-mono border-blue-200 focus:border-blue-500"
                           placeholder="Amount"
+                          error={
+                            formik.touched.assessedValueRealProperty &&
+                            formik.errors.assessedValueRealProperty
+                          }
+                          touched={formik.touched.assessedValueRealProperty}
                         />
-                        {formik.touched.assessedValueRealProperty &&
-                        formik.errors.assessedValueRealProperty ? (
-                          <div className="text-red-500 text-sm mt-1">
-                            {formik.errors.assessedValueRealProperty}
-                          </div>
-                        ) : null}
                       </div>
                       <div>
                         <FormField
@@ -566,13 +548,12 @@ const CTCForm = ({
                           disabled={readOnly}
                           className="w-24 text-right font-mono border-blue-200 focus:border-blue-500"
                           placeholder="Tax"
+                          error={
+                            formik.touched.assessedValueTax &&
+                            formik.errors.assessedValueTax
+                          }
+                          touched={formik.touched.assessedValueTax}
                         />
-                        {formik.touched.assessedValueTax &&
-                        formik.errors.assessedValueTax ? (
-                          <div className="text-red-500 text-sm mt-1">
-                            {formik.errors.assessedValueTax}
-                          </div>
-                        ) : null}
                       </div>
                     </div>
                   </div>
@@ -595,13 +576,12 @@ const CTCForm = ({
                           disabled={readOnly}
                           className="text-right font-mono border-blue-200 focus:border-blue-500"
                           placeholder="Amount"
+                          error={
+                            formik.touched.grossReceipts &&
+                            formik.errors.grossReceipts
+                          }
+                          touched={formik.touched.grossReceipts}
                         />
-                        {formik.touched.grossReceipts &&
-                        formik.errors.grossReceipts ? (
-                          <div className="text-red-500 text-sm mt-1">
-                            {formik.errors.grossReceipts}
-                          </div>
-                        ) : null}
                       </div>
                       <div>
                         <FormField
@@ -612,13 +592,12 @@ const CTCForm = ({
                           disabled={readOnly}
                           className="w-24 text-right font-mono border-blue-200 focus:border-blue-500"
                           placeholder="Tax"
+                          error={
+                            formik.touched.grossReceiptsTax &&
+                            formik.errors.grossReceiptsTax
+                          }
+                          touched={formik.touched.grossReceiptsTax}
                         />
-                        {formik.touched.grossReceiptsTax &&
-                        formik.errors.grossReceiptsTax ? (
-                          <div className="text-red-500 text-sm mt-1">
-                            {formik.errors.grossReceiptsTax}
-                          </div>
-                        ) : null}
                       </div>
                     </div>
                   </div>
@@ -639,12 +618,10 @@ const CTCForm = ({
                           onChange={formik.handleChange}
                           disabled={readOnly}
                           className="w-full px-3 py-2 rounded bg-white/20 border border-white/30 text-right font-mono text-white focus:ring-2 focus:ring-white/50 focus:outline-none"
+                          placeholder="Total"
+                          error={formik.touched.Total && formik.errors.Total}
+                          touched={formik.touched.Total}
                         />
-                        {formik.touched.Total && formik.errors.Total ? (
-                          <div className="text-red-300 text-sm mt-1">
-                            {formik.errors.Total}
-                          </div>
-                        ) : null}
                       </div>
 
                       <div className="space-y-2">
@@ -655,12 +632,12 @@ const CTCForm = ({
                           onChange={formik.handleChange}
                           disabled={readOnly}
                           className="w-full px-3 py-2 rounded bg-white/20 border border-white/30 text-right font-mono text-white focus:ring-2 focus:ring-white/50 focus:outline-none"
+                          placeholder="%"
+                          error={
+                            formik.touched.Interest && formik.errors.Interest
+                          }
+                          touched={formik.touched.Interest}
                         />
-                        {formik.touched.Interest && formik.errors.Interest ? (
-                          <div className="text-red-300 text-sm mt-1">
-                            {formik.errors.Interest}
-                          </div>
-                        ) : null}
                       </div>
                     </div>
                   </div>
@@ -676,13 +653,13 @@ const CTCForm = ({
                         value={formik.values.AmountPaid}
                         onChange={formik.handleChange}
                         disabled={readOnly}
+                        // required
+                        error={
+                          formik.touched.AmountPaid && formik.errors.AmountPaid
+                        }
+                        touched={formik.touched.AmountPaid}
                         className="w-full px-3 py-2 rounded bg-white/20 border border-white/30 text-right font-mono font-bold text-lg text-white focus:ring-2 focus:ring-white/50 focus:outline-none"
                       />
-                      {formik.touched.AmountPaid && formik.errors.AmountPaid ? (
-                        <div className="text-red-300 text-sm mt-1">
-                          {formik.errors.AmountPaid}
-                        </div>
-                      ) : null}
                     </div>
                   </div>
 
@@ -691,7 +668,7 @@ const CTCForm = ({
                     <div className="text-center md:text-right w-full md:w-auto">
                       <p className="text-sm text-white/80 mb-1">(in words)</p>
                       <p className="font-bold text-lg bg-white/10 px-3 py-2 rounded-lg inline-block w-full md:w-auto">
-                        {formik.values.AmountinWords || 'ZERO'} PESOS
+                        {convertAmountToWords(formik.values.AmountPaid) || '-'}
                       </p>
                     </div>
                   </div>
@@ -710,12 +687,9 @@ const CTCForm = ({
                   className="min-h-24 border-blue-200 focus:border-blue-500 focus:ring-blue-500"
                   placeholder="Enter any additional Remarks here..."
                   rows={3}
+                  error={formik.touched.Remarks && formik.errors.Remarks}
+                  touched={formik.touched.Remarks}
                 />
-                {formik.touched.Remarks && formik.errors.Remarks ? (
-                  <div className="text-red-500 text-sm mt-1">
-                    {formik.errors.Remarks}
-                  </div>
-                ) : null}
               </div>
             </div>
           </div>
@@ -729,7 +703,7 @@ const CTCForm = ({
           <Button
             type="submit"
             className="bg-blue-600 hover:bg-blue-700 text-white text-lg rounded-md transition-colors"
-            // disabled={formik.isSubmitting}
+            disabled={formik.isSubmitting}
           >
             {formik.isSubmitting ? 'Generating...' : 'Generate Certificate'}
           </Button>

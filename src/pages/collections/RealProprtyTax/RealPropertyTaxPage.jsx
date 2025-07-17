@@ -238,10 +238,10 @@ function RealPropertyTaxPage() {
   ];
 
   return (
-    <div className="container mx-auto  md:px-4 md:py-8">
+    <>
       {currentView === 'list' && (
-        <div>
-          <div className="flex justify-between items-center mb-6">
+        <>
+          <div className="flex justify-between items-center mb-6 page-header">
             <div>
               <h1 className="text-2xl font-bold text-gray-800">
                 Real Property Tax Records
@@ -269,7 +269,7 @@ function RealPropertyTaxPage() {
               onRowClick={handleViewProperty}
             />
           </div>
-        </div>
+        </>
       )}
 
       {currentView === 'form' && (
@@ -355,7 +355,7 @@ function RealPropertyTaxPage() {
           </div>
         </div>
       )}
-    </div>
+    </>
   );
 }
 

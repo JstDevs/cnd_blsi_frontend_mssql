@@ -32,8 +32,8 @@ function BudgetReportPage() {
   }, [dispatch]);
 
   const columns = [
+    { key: 'Name', header: 'Name', sortable: true },
     { key: 'Account Code', header: 'Account Code', sortable: true },
-    { key: 'Name', header: 'Account Title', sortable: true },
     {
       key: 'Appropriated',
       header: 'Appropriation',
@@ -145,7 +145,7 @@ function BudgetReportPage() {
   return (
     <div>
       <div className="page-header">
-        <div className="flex justify-between items-center">
+        <div className="flex justify-between items-center gap-4 flex-wrap">
           <div>
             <h1>Budget Reports</h1>
             <p>View and generate budget utilization reports</p>
@@ -157,9 +157,9 @@ function BudgetReportPage() {
             >
               <ArrowDownTrayIcon className="h-5 w-5 mr-2" /> Export
             </button>
-            <button className="btn btn-outline flex items-center">
+            {/* <button className="btn btn-outline flex items-center">
               <PrinterIcon className="h-5 w-5 mr-2" /> Print
-            </button>
+            </button> */}
           </div>
         </div>
       </div>

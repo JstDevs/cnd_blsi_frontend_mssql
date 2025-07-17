@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { PencilIcon, TrashIcon } from 'lucide-react';
+import { PencilIcon, PrinterIcon, TrashIcon } from 'lucide-react';
 import { PlusIcon } from '@heroicons/react/24/outline';
 import Modal from '@/components/common/Modal';
 import BudgetSupplementalForm from '@/components/forms/BudgetSupplementalForm';
@@ -200,18 +200,28 @@ const BudgetSupplementalPage = () => {
   return (
     <div className="page-container">
       {/* Header */}
-      <div className="page-header flex justify-between items-center">
+      <div className="page-header flex justify-between items-center gap-4 flex-wrap">
         <div>
           <h1>Budget Supplemental</h1>
           <p>Manage your supplemental budgets here</p>
         </div>
-        <button
-          onClick={() => handleEdit(null)}
-          className="btn btn-primary flex items-center"
-        >
-          <PlusIcon className="h-5 w-5 mr-2" />
-          Add Supplemental
-        </button>
+        <div className="flex gap-4">
+          <button
+            onClick={() => handleEdit(null)}
+            className="btn btn-primary flex items-center"
+          >
+            <PlusIcon className="h-5 w-5 mr-2" />
+            Add Supplemental
+          </button>
+          <button
+            // TODO : Add print functionality
+            onClick={() => {}}
+            className="btn btn-outline flex items-center"
+          >
+            <PrinterIcon className="h-5 w-5 mr-2" />
+            Print
+          </button>
+        </div>
       </div>
 
       {/* Filters */}

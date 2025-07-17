@@ -74,7 +74,7 @@ function JournalEntryPage() {
       }
     }
   };
-
+  console.log(journalEntries);
   const handleSubmit = async (values) => {
     try {
       if (currentJournalEntry) {
@@ -141,7 +141,7 @@ function JournalEntryPage() {
       },
     },
     {
-      key: 'RequestedByName',
+      key: 'RequestedByEmployee',
       header: 'Requested By',
       sortable: true,
     },

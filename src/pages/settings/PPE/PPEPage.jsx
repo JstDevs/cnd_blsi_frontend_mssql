@@ -52,7 +52,7 @@ function PPEPage() {
   };
 
   const handlePrintAcknowledgementForm = () => {
-    window.print();
+    // window.print();
   };
 
   const handleCloseAcknowledgementModal = () => {
@@ -135,7 +135,7 @@ function PPEPage() {
             <button
               type="button"
               // TODO CHANGE THIS
-              onClick={() => window.print()}
+              // onClick={() => window.print()}
               className="btn btn-primary flex items-center justify-center max-sm:w-full"
             >
               <Printer className="h-5 w-5 mr-2" aria-hidden="true" />

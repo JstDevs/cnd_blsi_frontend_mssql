@@ -181,7 +181,7 @@ function FormField({
             onChange={onChange}
             onBlur={onBlur}
             className={clsx(
-              'form-input border border-gray-300 px-4 py-2',
+              'form-input border border-gray-300 h-[42px] px-4 py-2',
               isInvalid &&
                 'border-error-300 text-error-900 placeholder-error-300 focus:ring-error-500 focus:border-error-500',
               className
