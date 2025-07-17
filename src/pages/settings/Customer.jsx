@@ -14,6 +14,7 @@ import { fetchIndustries } from '@/features/settings/industrySlice';
 import { fetchTaxCodes } from '@/features/settings/taxCodeSlice';
 import { fetchPaymentTerms } from '@/features/settings/paymentTermsSlice';
 import { fetchModeOfPayments } from '@/features/settings/modeOfPaymentSlice';
+import toast from 'react-hot-toast';
 
 function Customer() {
   const dispatch = useDispatch();
@@ -63,13 +64,23 @@ function Customer() {
     }
   };
 
-  const handleSubmit = (values) => {
-    if (currentCustomer) {
-      dispatch(updateCustomer({ ...values, ID: currentCustomer.ID }));
-    } else {
-      dispatch(addCustomer(values));
+  const handleSubmit = async (values) => {
+    try {
+      if (currentCustomer) {
+        await dispatch(
+          updateCustomer({ ...values, ID: currentCustomer.ID })
+        ).unwrap();
+      } else {
+        await dispatch(addCustomer(values)).unwrap();
+      }
+    } catch (error) {
+      console.error('Failed to save Individual/Citizen:', error);
+      toast.error(error.message || 'Failed to save Individual/Citizen');
+    } finally {
+      setCurrentCustomer(null);
+      dispatch(fetchCustomers());
+      setIsModalOpen(false);
     }
-    setIsModalOpen(false);
   };
 
   const columns = [
@@ -77,16 +88,19 @@ function Customer() {
       key: 'Code',
       header: 'Code',
       sortable: true,
+      render: (value) => value || 'N/A',
     },
     {
       key: 'Name',
       header: 'Name',
       sortable: true,
+      render: (value) => value || 'N/A',
     },
     {
       key: 'TIN',
       header: 'TIN',
       sortable: true,
+      render: (value) => value || 'N/A',
     },
     {
       key: 'PaymentTermsID',
@@ -128,21 +142,25 @@ function Customer() {
       key: 'ZIPCode',
       header: 'ZIP Code',
       sortable: true,
+      render: (value) => value || 'N/A',
     },
     {
       key: 'PlaceofIncorporation',
       header: 'Place of Incorporation',
       sortable: true,
+      render: (value) => value || 'N/A',
     },
     {
       key: 'KindofOrganization',
       header: 'Kind of Organization',
       sortable: true,
+      render: (value) => value || 'N/A',
     },
     {
       key: 'DateofRegistration',
       header: 'Date of Registration',
       sortable: true,
+      render: (value) => value || 'N/A',
     },
   ];
 

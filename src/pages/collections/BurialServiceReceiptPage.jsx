@@ -199,11 +199,14 @@ function BurialServiceReceiptPage() {
   ];
   // console.log({ burialRecord });
   return (
-    <div className="container mx-auto px-4 py-8">
-      <div className="flex justify-between items-center mb-6">
-        <h1 className="text-2xl font-semibold text-gray-900">
-          Burial Service Receipts
-        </h1>
+    <>
+      <div className="flex justify-between items-center mb-6 page-header">
+        <div>
+          <h1 className="text-2xl font-semibold text-gray-900">
+            Burial Service Receipts
+          </h1>
+          <p className="text-gray-600">Manage Burial Service Receipts</p>
+        </div>
         <button
           onClick={handleAdd}
           className="btn btn-primary flex items-center"
@@ -213,7 +216,7 @@ function BurialServiceReceiptPage() {
         </button>
       </div>
 
-      <div className="bg-white rounded-lg shadow">
+      <div className="mt-6">
         <DataTable
           columns={columns}
           data={burialRecord}
@@ -240,7 +243,7 @@ function BurialServiceReceiptPage() {
           customers={customers}
         />
       </Modal>
-    </div>
+    </>
   );
 }
 

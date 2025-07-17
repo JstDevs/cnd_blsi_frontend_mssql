@@ -6,21 +6,59 @@ import { PlusIcon, PencilIcon, TrashIcon } from '@heroicons/react/24/outline';
 import DataTable from '../../components/common/DataTable';
 import FormField from '../../components/common/FormField';
 import Modal from '../../components/common/Modal';
-import { fetchCurrencies, addCurrency, updateCurrency, deleteCurrency } from '../../features/settings/currencySlice';
+import {
+  fetchCurrencies,
+  addCurrency,
+  updateCurrency,
+  deleteCurrency,
+} from '../../features/settings/currencySlice';
+import toast from 'react-hot-toast';
 
 // Validation schema for currency form
-const currencySchema = Yup.object().shape({
-  Code: Yup.string()
-    .required('Code is required')
-    .max(10, 'Code must be at most 10 characters'),
-  Name: Yup.string()
-    .required('Name is required')
-    .max(100, 'Name must be at most 100 characters'),
-});
-
+// const currencySchema = Yup.object().shape({
+//   Code: Yup.string()
+//     .required('Code is required')
+//     .max(10, 'Code must be at most 10 characters'),
+//   Name: Yup.string()
+//     .required('Name is required')
+//     .max(100, 'Name must be at most 100 characters'),
+// });
+export const getCurrencySchema = (currencies = [], currentCurrency = null) =>
+  Yup.object().shape({
+    Code: Yup.string()
+      .required('Code is required')
+      .max(3, 'Code must be exactly 3 characters')
+      .min(3, 'Code must be exactly 3 characters')
+      .matches(/^[A-Z]{3}$/, 'Code must be 3 uppercase letters (ISO 4217)')
+      .test('unique-code', 'Code already exists', function (value) {
+        if (!value) return true;
+        const code = value.trim().toUpperCase();
+        const duplicate = currencies.some(
+          (c) =>
+            c.Code.trim().toUpperCase() === code &&
+            (!currentCurrency || c.ID !== currentCurrency.ID)
+        );
+        return !duplicate;
+      }),
+    Name: Yup.string()
+      .required('Name is required')
+      .max(100, 'Name must be at most 100 characters')
+      .test('unique-name', 'Name already exists', function (value) {
+        if (!value) return true;
+        const name = value.trim().toLowerCase();
+        const duplicate = currencies.some(
+          (c) =>
+            c.Name.trim().toLowerCase() === name &&
+            (!currentCurrency || c.ID !== currentCurrency.ID)
+        );
+        return !duplicate;
+      }),
+  });
 function CurrencyPage() {
   const dispatch = useDispatch();
-  const { currencies, isLoading, error } = useSelector(state => state.currencies);
+  const { currencies, isLoading, error } = useSelector(
+    (state) => state.currencies
+  );
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [currentCurrency, setCurrentCurrency] = useState(null);
@@ -45,25 +83,38 @@ function CurrencyPage() {
     setCurrencyToDelete(currency);
     setIsDeleteModalOpen(true);
   };
-  
-  const confirmDelete = () => {
-    if (currencyToDelete) {
-      dispatch(deleteCurrency(currencyToDelete.ID));
-      setIsDeleteModalOpen(false);
-      setCurrencyToDelete(null);
+
+  const confirmDelete = async () => {
+    try {
+      if (currencyToDelete) {
+        dispatch(deleteCurrency(currencyToDelete.ID));
+        setIsDeleteModalOpen(false);
+        setCurrencyToDelete(null);
+      }
+      toast.success('Currency deleted successfully.');
+    } catch (error) {
+      console.error('Failed to delete currency:', error);
+      toast.error('Failed to delete currency. Please try again.');
     }
   };
-  
+
   const handleSubmit = (values, { resetForm }) => {
-    if (currentCurrency) {
-      dispatch(updateCurrency({ ...values, ID: currentCurrency.ID }));
-    } else {
-      dispatch(addCurrency(values));
+    try {
+      if (currentCurrency) {
+        dispatch(updateCurrency({ ...values, ID: currentCurrency.ID }));
+      } else {
+        dispatch(addCurrency(values));
+      }
+      toast.success('Currency saved successfully.');
+    } catch (error) {
+      console.error('Failed to save currency:', error);
+      toast.error('Failed to save currency. Please try again.');
+    } finally {
+      setIsModalOpen(false);
+      resetForm();
     }
-    setIsModalOpen(false);
-    resetForm();
   };
-  
+
   // Table columns definition
   const columns = [
     {
@@ -78,20 +129,22 @@ function CurrencyPage() {
       sortable: true,
     },
   ];
-  
+
   // Actions for table rows
   const actions = [
     {
       icon: PencilIcon,
       title: 'Edit',
       onClick: handleEditCurrency,
-      className: 'text-primary-600 hover:text-primary-900 p-1 rounded-full hover:bg-primary-50'
+      className:
+        'text-primary-600 hover:text-primary-900 p-1 rounded-full hover:bg-primary-50',
     },
     {
       icon: TrashIcon,
       title: 'Delete',
       onClick: handleDeleteCurrency,
-      className: 'text-error-600 hover:text-error-900 p-1 rounded-full hover:bg-error-50'
+      className:
+        'text-error-600 hover:text-error-900 p-1 rounded-full hover:bg-error-50',
     },
   ];
 
@@ -113,7 +166,7 @@ function CurrencyPage() {
           </button>
         </div>
       </div>
-      
+
       <div className="mt-4">
         <DataTable
           columns={columns}
@@ -127,20 +180,27 @@ function CurrencyPage() {
       <Modal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
-        title={currentCurrency ? "Edit Currency" : "Add Currency"}
+        title={currentCurrency ? 'Edit Currency' : 'Add Currency'}
       >
         <Formik
           initialValues={{
             Code: currentCurrency?.Code || '',
             Name: currentCurrency?.Name || '',
           }}
-          validationSchema={currencySchema}
+          validationSchema={getCurrencySchema(currencies, currentCurrency)}
           onSubmit={handleSubmit}
         >
-          {({ values, errors, touched, handleChange, handleBlur, isSubmitting }) => (
+          {({
+            values,
+            errors,
+            touched,
+            handleChange,
+            handleBlur,
+            isSubmitting,
+          }) => (
             <Form className="space-y-4">
               <FormField
-                className='p-3 focus:outline-none'
+                className="p-3 focus:outline-none"
                 label="Code"
                 name="Code"
                 type="text"
@@ -153,7 +213,7 @@ function CurrencyPage() {
                 touched={touched.Code}
               />
               <FormField
-                className='p-3 focus:outline-none'
+                className="p-3 focus:outline-none"
                 label="Name"
                 name="Name"
                 type="text"
@@ -185,7 +245,7 @@ function CurrencyPage() {
           )}
         </Formik>
       </Modal>
-      
+
       {/* Delete Confirmation Modal */}
       <Modal
         isOpen={isDeleteModalOpen}
@@ -194,10 +254,12 @@ function CurrencyPage() {
       >
         <div className="py-3">
           <p className="text-neutral-700">
-            Are you sure you want to delete the currency <span className="font-medium">{currencyToDelete?.Name}</span>?
+            Are you sure you want to delete the currency{' '}
+            <span className="font-medium">{currencyToDelete?.Name}</span>?
           </p>
           <p className="text-sm text-neutral-500 mt-2">
-            This action cannot be undone and may affect related records in the system.
+            This action cannot be undone and may affect related records in the
+            system.
           </p>
         </div>
         <div className="flex justify-end space-x-3 pt-4 border-t border-neutral-200">

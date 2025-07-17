@@ -123,8 +123,8 @@ const PublicMarketTicketPage = () => {
     },
   ];
   return (
-    <div className="container mx-auto px-4 py-8">
-      <div className="flex justify-between items-center mb-6">
+    <>
+      <div className="flex justify-between items-center mb-6 page-header">
         <h1 className="text-2xl font-semibold text-gray-900">
           Public Market Tickets
         </h1>
@@ -153,7 +153,7 @@ const PublicMarketTicketPage = () => {
           onClose={() => setIsModalOpen(false)}
         />
       </Modal>
-    </div>
+    </>
   );
 };
 

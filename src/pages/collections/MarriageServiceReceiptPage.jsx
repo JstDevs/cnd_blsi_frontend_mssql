@@ -225,11 +225,15 @@ function MarriageServiceReceiptPage() {
   ];
 
   return (
-    <div className="container mx-auto px-4 py-8">
-      <div className="flex justify-between items-center mb-6">
-        <h1 className="text-2xl font-semibold text-gray-900">
-          Marriage Service Receipts
-        </h1>
+    <>
+      <div className="flex justify-between items-center mb-6 page-header">
+        <div>
+          <h1 className="text-2xl font-semibold text-gray-900">
+            Marriage Service Receipts
+          </h1>
+          <p className="text-gray-600">Manage Marriage Service Receipts</p>
+        </div>
+
         <button
           onClick={() => setIsModalOpen(true)}
           className="btn btn-primary flex items-center"
@@ -259,7 +263,7 @@ function MarriageServiceReceiptPage() {
           onSubmit={handleAddReceipt}
         />
       </Modal>
-    </div>
+    </>
   );
 }
 

@@ -55,6 +55,12 @@ function StatementComparison() {
       className: 'text-right',
     },
     { key: 'Period', header: 'Period', sortable: true },
+    { key: 'Original_Sum', header: 'Original_Sum', sortable: true },
+    { key: 'Final_Sum', header: 'Final_Sum', sortable: true },
+    { key: 'Difference_Sum', header: 'Difference_Sum', sortable: true },
+    { key: 'Actual_Sum', header: 'Actual_Sum', sortable: true },
+    { key: 'Difference2_Sum', header: 'Difference2_Sum', sortable: true },
+
     { key: 'Municipality', header: 'Municipality', sortable: true },
     { key: 'Province', header: 'Province', sortable: true },
   ];

@@ -236,10 +236,10 @@ function CommunityTaxCorporationPage() {
     console.log('Selected vendor:', selectedVendor);
   };
   return (
-    <div className="container mx-auto  sm:px-4 sm:py-8">
+    <>
       {currentView === 'list' && (
-        <div>
-          <div className="flex justify-between items-center mb-6 flex-wrap gap-4">
+        <>
+          <div className="flex justify-between items-center mb-6 flex-wrap gap-4 page-header">
             <div>
               <h1 className="text-2xl font-bold text-gray-800">
                 Corporation Tax Certificate
@@ -258,7 +258,7 @@ function CommunityTaxCorporationPage() {
             </button>
           </div>
 
-          <div className="bg-white rounded-lg shadow-md p-6 mb-6">
+          <div className="mt-6">
             <DataTable
               columns={columns}
               data={certificates}
@@ -267,7 +267,7 @@ function CommunityTaxCorporationPage() {
               onRowClick={handleViewCertificate}
             />
           </div>
-        </div>
+        </>
       )}
 
       {currentView === 'form' && (
@@ -475,7 +475,7 @@ function CommunityTaxCorporationPage() {
           </table>
         </div>
       </Modal>
-    </div>
+    </>
   );
 }
 

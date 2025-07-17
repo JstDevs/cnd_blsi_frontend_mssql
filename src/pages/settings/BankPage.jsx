@@ -1,12 +1,13 @@
 import { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { Link } from 'react-router-dom';
-import { toast } from 'react-toastify';
+// import { toast } from 'react-toastify';
 import { PlusIcon, PencilIcon, TrashIcon } from '@heroicons/react/24/outline';
 import DataTable from '../../components/common/DataTable';
 import Modal from '../../components/common/Modal';
 import BankForm from '../../components/forms/BankForm';
 import { fetchBanks, deleteBank } from '../../features/settings/bankSlice';
+import toast from 'react-hot-toast';
 
 const BankPage = () => {
   const dispatch = useDispatch();
@@ -18,7 +19,7 @@ const BankPage = () => {
 
   useEffect(() => {
     dispatch(fetchBanks());
-  }, [dispatch]);
+  }, []);
 
   const handleAddBank = () => {
     setCurrentBank(null);
@@ -45,11 +46,13 @@ const BankPage = () => {
       try {
         await dispatch(deleteBank(bankToDelete.ID)).unwrap();
         toast.success('Bank deleted successfully');
-        setIsDeleteModalOpen(false);
-        setBankToDelete(null);
       } catch (error) {
         toast.error(error.message || 'Failed to delete bank');
         // Optionally show an error message to the user
+      } finally {
+        setIsDeleteModalOpen(false);
+        setBankToDelete(null);
+        dispatch(fetchBanks());
       }
     }
   };

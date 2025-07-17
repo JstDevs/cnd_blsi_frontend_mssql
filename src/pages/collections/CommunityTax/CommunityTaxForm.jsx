@@ -6,6 +6,7 @@ import Button from '@/components/common/Button';
 import numToWords from '@/components/helper/numToWords';
 import { useEffect } from 'react';
 import { ExclamationCircleIcon } from '@heroicons/react/24/outline';
+import { convertAmountToWords } from '@/utils/amountToWords';
 // Validation schema
 const validationSchema = Yup.object({
   // Certificate Information
@@ -24,7 +25,7 @@ const validationSchema = Yup.object({
     .required('Certificate number is required')
     .min(3, 'Certificate number must be at least 3 characters'),
   TIN: Yup.string()
-    .matches(/^[0-9-]*$/, 'TIN must contain only numbers and dashes')
+    .matches(/^\d{14}$/, 'TIN must be exactly 14 digits')
     .nullable(),
 
   // Personal Information
@@ -310,14 +311,14 @@ const CommunityTaxForm = ({
     disabled: isReadOnly,
   });
   // Calculate amount in words whenever AmountReceived changes
-  useEffect(() => {
-    calculateAmountsInWords();
-  }, [formik.values.AmountReceived]);
-  const calculateAmountsInWords = () => {
-    const totalAmountValue = formik.values.Total;
-    const totalAmountInWords = numToWords(totalAmountValue);
-    formik.setFieldValue('AmountinWords', totalAmountInWords);
-  };
+  // useEffect(() => {
+  //   calculateAmountsInWords();
+  // }, [formik.values.AmountReceived]);
+  // const calculateAmountsInWords = () => {
+  //   const totalAmountValue = formik.values.Total;
+  //   const totalAmountInWords = numToWords(totalAmountValue);
+  //   formik.setFieldValue('AmountinWords', totalAmountInWords);
+  // };
   // console.log('Form errors:', formik.errors);
   return (
     <div className="min-h-screen">
@@ -824,7 +825,8 @@ const CommunityTaxForm = ({
                     <div className="text-center md:text-right">
                       <p className="text-sm text-white/80 mb-1">(in words)</p>
                       <p className="font-bold text-lg bg-white/10 px-3 py-2 rounded-lg inline-block w-full md:w-auto">
-                        {formik.values.AmountinWords || 'ZERO'} PESOS
+                        {convertAmountToWords(formik.values.AmountReceived) ||
+                          '-'}
                       </p>
                     </div>
                   </div>

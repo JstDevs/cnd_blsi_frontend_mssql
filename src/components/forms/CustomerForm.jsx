@@ -67,11 +67,19 @@ function CustomerForm({ initialData, onSubmit, onClose }) {
       RDO: '',
     },
     validationSchema,
-    onSubmit: onSubmit,
+    onSubmit: (values) => onSubmit(values),
   });
 
-  const { values, handleChange, handleBlur, errors, touched, setFieldValue } =
-    formik;
+  const {
+    values,
+    handleChange,
+    handleBlur,
+    errors,
+    touched,
+    setFieldValue,
+    handleSubmit,
+    submitCount,
+  } = formik;
   useEffect(() => {
     const selectedBarangay = barangays.find(
       (b) => b.ID.toString() === values.BarangayID
@@ -105,9 +113,9 @@ function CustomerForm({ initialData, onSubmit, onClose }) {
     if (selectedProvince && selectedProvince.RegionCode)
       setFieldValue('RegionID', selectedProvince.RegionCode);
   }, [values.ProvinceID]);
-
+  console.log('values', errors);
   return (
-    <form onSubmit={formik.handleSubmit} className="space-y-6">
+    <form onSubmit={handleSubmit} className="space-y-6">
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <FormField
           label="First Name"
@@ -115,7 +123,7 @@ function CustomerForm({ initialData, onSubmit, onClose }) {
           value={values.FirstName}
           onChange={handleChange}
           onBlur={handleBlur}
-          error={errors.FirstName}
+          error={touched.FirstName && errors.FirstName}
           touched={touched.FirstName}
           required
         />
@@ -125,7 +133,7 @@ function CustomerForm({ initialData, onSubmit, onClose }) {
           value={values.MiddleName}
           onChange={handleChange}
           onBlur={handleBlur}
-          error={errors.MiddleName}
+          error={errors.MiddleName && touched.MiddleName}
           touched={touched.MiddleName}
         />
         <FormField
@@ -134,7 +142,7 @@ function CustomerForm({ initialData, onSubmit, onClose }) {
           value={values.LastName}
           onChange={handleChange}
           onBlur={handleBlur}
-          error={errors.LastName}
+          error={touched.LastName && errors.LastName}
           touched={touched.LastName}
           required
         />
@@ -150,7 +158,7 @@ function CustomerForm({ initialData, onSubmit, onClose }) {
           value={values.Gender}
           onChange={handleChange}
           onBlur={handleBlur}
-          error={errors.Gender}
+          error={touched.Gender && errors.Gender}
           touched={touched.Gender}
           required
         />
@@ -160,7 +168,7 @@ function CustomerForm({ initialData, onSubmit, onClose }) {
           value={values.Citizenship}
           onChange={handleChange}
           onBlur={handleBlur}
-          error={errors.Citizenship}
+          error={touched.Citizenship && errors.Citizenship}
           touched={touched.Citizenship}
           required
         />
@@ -171,7 +179,7 @@ function CustomerForm({ initialData, onSubmit, onClose }) {
           value={values.DateOfBirth}
           onChange={handleChange}
           onBlur={handleBlur}
-          error={errors.DateOfBirth}
+          error={touched.DateOfBirth && errors.DateOfBirth}
           touched={touched.DateOfBirth}
           required
         />
@@ -181,7 +189,7 @@ function CustomerForm({ initialData, onSubmit, onClose }) {
           value={values.PlaceOfBirth}
           onChange={handleChange}
           onBlur={handleBlur}
-          error={errors.PlaceOfBirth}
+          error={touched.PlaceOfBirth && errors.PlaceOfBirth}
           touched={touched.PlaceOfBirth}
           required
         />
@@ -191,7 +199,7 @@ function CustomerForm({ initialData, onSubmit, onClose }) {
           value={values.Occupation}
           onChange={handleChange}
           onBlur={handleBlur}
-          error={errors.Occupation}
+          error={touched.Occupation && errors.Occupation}
           touched={touched.Occupation}
           required
         />
@@ -209,7 +217,7 @@ function CustomerForm({ initialData, onSubmit, onClose }) {
           value={values.CivilStatus}
           onChange={handleChange}
           onBlur={handleBlur}
-          error={errors.CivilStatus}
+          error={touched.CivilStatus && errors.CivilStatus}
           touched={touched.CivilStatus}
           required
         />
@@ -219,7 +227,7 @@ function CustomerForm({ initialData, onSubmit, onClose }) {
           value={values.TIN}
           onChange={handleChange}
           onBlur={handleBlur}
-          error={errors.TIN}
+          error={touched.TIN && errors.TIN}
           touched={touched.TIN}
           required
         />
@@ -230,7 +238,7 @@ function CustomerForm({ initialData, onSubmit, onClose }) {
           value={values.EmailAddress}
           onChange={handleChange}
           onBlur={handleBlur}
-          error={errors.EmailAddress}
+          error={touched.EmailAddress && errors.EmailAddress}
           touched={touched.EmailAddress}
           required
         />
@@ -242,7 +250,7 @@ function CustomerForm({ initialData, onSubmit, onClose }) {
           value={values.RegionID}
           onChange={handleChange}
           onBlur={handleBlur}
-          error={errors.RegionID}
+          error={touched.RegionID && errors.RegionID}
           touched={touched.RegionID}
           required
         />
@@ -254,7 +262,7 @@ function CustomerForm({ initialData, onSubmit, onClose }) {
           value={values.ProvinceID}
           onChange={handleChange}
           onBlur={handleBlur}
-          error={errors.ProvinceID}
+          error={touched.ProvinceID && errors.ProvinceID}
           touched={touched.ProvinceID}
           required
         />
@@ -266,7 +274,7 @@ function CustomerForm({ initialData, onSubmit, onClose }) {
           value={values.MunicipalityID}
           onChange={handleChange}
           onBlur={handleBlur}
-          error={errors.MunicipalityID}
+          error={touched.MunicipalityID && errors.MunicipalityID}
           touched={touched.MunicipalityID}
           required
         />
@@ -278,7 +286,7 @@ function CustomerForm({ initialData, onSubmit, onClose }) {
           value={values.BarangayID}
           onChange={handleChange}
           onBlur={handleBlur}
-          error={errors.BarangayID}
+          error={touched.BarangayID && errors.BarangayID}
           touched={touched.BarangayID}
           required
         />
@@ -288,7 +296,7 @@ function CustomerForm({ initialData, onSubmit, onClose }) {
           value={values.ZIPCode}
           onChange={handleChange}
           onBlur={handleBlur}
-          error={errors.ZIPCode}
+          error={touched.ZIPCode && errors.ZIPCode}
           touched={touched.ZIPCode}
           required
         />
@@ -300,7 +308,7 @@ function CustomerForm({ initialData, onSubmit, onClose }) {
           value={values.StreetAddress}
           onChange={handleChange}
           onBlur={handleBlur}
-          error={errors.StreetAddress}
+          error={touched.StreetAddress && errors.StreetAddress}
           touched={touched.StreetAddress}
           required
         />
@@ -310,7 +318,7 @@ function CustomerForm({ initialData, onSubmit, onClose }) {
           value={values.RDO}
           onChange={handleChange}
           onBlur={handleBlur}
-          error={errors.RDO}
+          error={touched.RDO && errors.RDO}
           touched={touched.RDO}
           required
         />
@@ -321,9 +329,22 @@ function CustomerForm({ initialData, onSubmit, onClose }) {
           Cancel
         </button>
         <button type="submit" className="btn btn-primary">
-          Save
+          {initialData ? 'Update' : 'Save'}
         </button>
       </div>
+      {/* Error Message */}
+      {submitCount > 0 && Object.keys(errors).length > 0 && (
+        <div className="mt-4 p-4 bg-red-50 border-l-4 border-red-500 rounded">
+          <h3 className="text-sm font-medium text-red-800">
+            Please fix the following errors:
+          </h3>
+          <ul className="mt-2 text-sm text-red-700 list-disc pl-5 space-y-1">
+            {Object.entries(errors).map(([fieldName, errorMessage]) => (
+              <li key={fieldName}>{errorMessage}</li>
+            ))}
+          </ul>
+        </div>
+      )}
     </form>
   );
 }

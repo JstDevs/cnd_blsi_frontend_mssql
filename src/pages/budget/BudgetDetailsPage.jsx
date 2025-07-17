@@ -150,60 +150,60 @@ const BudgetDetailsPage = () => {
     {
       key: 'FiscalYearID',
       header: 'Fiscal Year',
-      render: (value) => {
-        const row = fiscalYears?.find((f) => f.ID === value);
-        return <span>{row?.Name}</span>;
+      render: (_, row) => {
+        // const row = fiscalYears?.find((f) => f.ID === value);
+        return <span>{row?.FiscalYear?.Name || 'N/A'}</span>;
       },
     },
     {
       key: 'DepartmentID',
       header: 'Department',
 
-      render: (value) => {
-        const departmentName = departments?.find((d) => d.ID === value)?.Name;
-        return <span>{departmentName}</span>;
+      render: (_, row) => {
+        // const departmentName = departments?.find((d) => d.ID === value)?.Name;
+        return <span>{row?.Department?.Name || 'N/A'}</span>;
       },
     },
     {
       key: 'SubDepartmentID',
       header: 'Sub Department',
-      render: (value) => {
-        const departmentName = subdepartments?.find(
-          (d) => d.ID === value
-        )?.Name;
-        return <span>{departmentName}</span>;
+      render: (_, row) => {
+        // const departmentName = subdepartments?.find(
+        //   (d) => d.ID === value
+        // )?.Name;
+        return <span>{row?.SubDepartment?.Name || 'N/A'}</span>;
       },
     },
     {
-      key: 'ChartofAccounts.Name',
+      key: 'ChartofAccountsID',
       header: 'Chart of Accounts',
-      render: (value) => {
-        const departmentName = accounts?.find((d) => d.ID === value)?.Name;
-        return <span>{departmentName}</span>;
+      render: (_, row) => {
+        // const departmentName = accounts?.find((d) => d.ID === value)?.Name;
+        return <span>{row?.ChartofAccounts?.Name || 'N/A'}</span>;
       },
     },
     {
       key: 'FundID',
       header: 'Fund',
-      render: (value) => {
-        const departmentName = funds?.find((d) => d.ID === value)?.Name;
-        return <span>{departmentName}</span>;
+      render: (_, row) => {
+        // const departmentName = funds?.find((d) => d.ID === value)?.Name;
+        return <span>{row?.Funds?.Name || 'N/A'}</span>;
       },
     },
     {
       key: 'ProjectID',
       header: 'Project',
-      render: (value) => {
-        const departmentName = projectDetails?.find(
-          (d) => d.ID === value
-        )?.Title;
-        return <span>{departmentName}</span>;
+      render: (_, row) => {
+        // const departmentName = projectDetails?.find(
+        //   (d) => d.ID === value
+        // )?.Title;
+        return <span>{row?.Project?.Title || 'N/A'}</span>;
       },
     },
     { key: 'Appropriation', header: 'Appropriation' },
     { key: 'AppropriationBalance', header: 'Appropriation Balance' },
     { key: 'TotalAmount', header: 'Total Amount' },
-    { key: 'Allotment', header: 'Allotment' },
+    // { key: 'Allotment', header: 'Allotment' },
     { key: 'AllotmentBalance', header: 'Allotment Balance' },
     { key: 'ChargedAllotment', header: 'Charges' },
     { key: 'PreEncumbrance', header: 'Pre Encumbrance' },

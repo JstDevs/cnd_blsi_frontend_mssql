@@ -174,6 +174,7 @@ const DocumentDetailsPage = () => {
       >
         <DocumentDetailsForm
           document={selectedDocument}
+          documentList={documentDetails}
           onClose={() => setIsModalOpen(false)}
           documentTypeCategoryOptions={documentTypeCategoryOptions}
         />

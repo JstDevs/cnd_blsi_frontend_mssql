@@ -3,6 +3,7 @@ import { Formik, Form } from 'formik';
 import * as Yup from 'yup';
 import FormField from '../common/FormField';
 import Select from 'react-select';
+import SearchableDropdown from '../common/SearchableDropdown';
 
 function SubsidiaryLedgerForm({
   funds = [],
@@ -10,7 +11,7 @@ function SubsidiaryLedgerForm({
   accLoading = false,
   onView,
   onGenerateJournal,
-  onExportExcel
+  onExportExcel,
 }) {
   const submitAction = useRef(null);
 
@@ -48,32 +49,58 @@ function SubsidiaryLedgerForm({
       onSubmit={handleSubmit}
       validateOnMount={true}
     >
-      {({ values, errors, touched, handleChange, handleBlur, isSubmitting, setFieldValue }) => (
+      {({
+        values,
+        errors,
+        touched,
+        handleChange,
+        handleBlur,
+        isSubmitting,
+        setFieldValue,
+      }) => (
         <Form className="space-y-4">
           {/* Row 1 */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-1">
-            
-            <div>
-              <label className="form-label">Chart of Accounts<span className="text-red-500">*</span></label>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            {/* <div>
+              <label className="form-label">
+                Chart of Accounts<span className="text-red-500">*</span>
+              </label>
               <Select
-                  options={accountOptions}
-                  placeholder="Select a chart of account..."
-                  isSearchable={true}
-                  name="ChartofAccountsID"
-                  value={
-                      accountOptions.find(
-                          opt => String(opt.value) === String(values.ChartofAccountsID)
-                      ) || null
-                  }
-                  onChange={(selected) =>
+                options={accountOptions}
+                placeholder="Select a chart of account..."
+                isSearchable={true}
+                name="ChartofAccountsID"
+                value={
+                  accountOptions.find(
+                    (opt) =>
+                      String(opt.value) === String(values.ChartofAccountsID)
+                  ) || null
+                }
+                onChange={(selected) =>
                   setFieldValue('ChartofAccountsID', selected?.value || '')
-                  }
-                  onBlur={handleBlur}
+                }
+                onBlur={handleBlur}
               />
               {errors.ChartofAccountsID && touched.ChartofAccountsID && (
-                <p className="mt-1 text-sm text-error-600">{errors.ChartofAccountsID}</p>
+                <p className="mt-1 text-sm text-error-600">
+                  {errors.ChartofAccountsID}
+                </p>
               )}
-            </div>
+            </div> */}
+            <SearchableDropdown
+              label="Chart of Account"
+              name="ChartofAccountsID"
+              placeholder="Select a chart of account..."
+              type="select"
+              required
+              selectedValue={values.ChartofAccountsID}
+              onSelect={(selectedValue) =>
+                setFieldValue('ChartofAccountsID', selectedValue)
+              }
+              options={accountOptions}
+              error={errors.ChartofAccountsID}
+              touched={touched.ChartofAccountsID}
+            />
             <FormField
               label="Cut Off Date"
               name="CutOffDate"
@@ -89,7 +116,7 @@ function SubsidiaryLedgerForm({
               type="select"
               label="Fund"
               name="FundID"
-              options={funds.map(item => ({
+              options={funds.map((item) => ({
                 value: item.ID,
                 label: item.Name,
               }))}

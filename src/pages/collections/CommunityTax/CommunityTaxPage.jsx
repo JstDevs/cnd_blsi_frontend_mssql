@@ -217,11 +217,11 @@ function CommunityTaxPage() {
     setSelectedCustomer(selectedCustomer);
   };
   return (
-    <div className="container mx-auto p-2 sm:px-4 sm:py-8">
+    <>
       {/* // TABLE VIEW  */}
       {currentView === 'list' && (
-        <div>
-          <div className="flex justify-between items-center mb-6">
+        <>
+          <div className="flex justify-between items-center mb-6 page-header">
             <div>
               <h1 className="text-2xl font-bold text-gray-800">
                 Community Tax Certificate
@@ -238,7 +238,7 @@ function CommunityTaxPage() {
             </button>
           </div>
 
-          <div className="bg-white rounded-lg shadow-md p-6 mb-6">
+          <div className="mt-4">
             <DataTable
               columns={columns}
               data={filteredCertificates}
@@ -247,7 +247,7 @@ function CommunityTaxPage() {
               onRowClick={handleViewCertificate}
             />
           </div>
-        </div>
+        </>
       )}
       {/* // NORMAL CREATE/EDIT FORM VIEW  */}
       {currentView === 'form' && (
@@ -453,7 +453,7 @@ function CommunityTaxPage() {
           </table>
         </div>
       </Modal>
-    </div>
+    </>
   );
 }
 

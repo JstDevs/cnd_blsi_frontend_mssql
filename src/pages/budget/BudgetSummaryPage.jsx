@@ -4,6 +4,7 @@ import DataTable from '@/components/common/DataTable';
 import { fetchDepartments } from '@/features/settings/departmentSlice';
 import { fetchSubdepartments } from '@/features/settings/subdepartmentSlice';
 import { fetchAccounts } from '@/features/settings/chartOfAccountsSlice';
+import Modal from '@/components/common/Modal';
 
 const API_URL = import.meta.env.VITE_API_URL;
 
@@ -26,7 +27,8 @@ const BudgetSummaryPage = () => {
     subDepartment: '',
     chartOfAccounts: '',
   });
-
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [selectedBudget, setSelectedBudget] = useState(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -112,6 +114,9 @@ const BudgetSummaryPage = () => {
     { key: 'TotalAmount', header: 'Total Amount', sortable: true },
     { key: 'ChargedAllotment', header: 'Allotment', sortable: true },
     { key: 'AllotmentBalance', header: 'Allotment Balance', sortable: true },
+    { key: 'Change', header: 'Change', sortable: true },
+    { key: 'Supplemental', header: 'Supplemental', sortable: true },
+    { key: 'Released', header: 'Released', sortable: true },
     { key: 'Charges', header: 'Charges', sortable: true },
     { key: 'PreEncumbrance', header: 'Pre Encumbr.', sortable: true },
     { key: 'Encumbrance', header: 'Encumbrance', sortable: true },
@@ -128,7 +133,10 @@ const BudgetSummaryPage = () => {
     { key: 'November', header: 'November', sortable: true },
     { key: 'December', header: 'December', sortable: true },
   ];
-
+  const handleRowClick = (row) => {
+    setSelectedBudget(row);
+    setIsModalOpen(true);
+  };
   return (
     <div className="page-container">
       {/* Header */}
@@ -188,9 +196,109 @@ const BudgetSummaryPage = () => {
         data={filteredData}
         loading={loading || departmentsLoading || subdepartmentsLoading}
         pagination={true}
+        onRowClick={handleRowClick}
       />
+      <Modal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        title="Budget Summary Details"
+        size="5xl"
+      >
+        <BudgetSummaryDetail data={selectedBudget} />
+      </Modal>
     </div>
   );
 };
 
 export default BudgetSummaryPage;
+const BudgetSummaryDetail = ({ data }) => {
+  if (!data) return null;
+
+  const get = (val) => val || '—';
+
+  return (
+    <div className="grid grid-cols-1 md:grid-cols-3 gap-6 text-sm">
+      {/* Column 1 - Basic Info */}
+      <div className="space-y-2">
+        <div>
+          <strong>Budget Name:</strong> {get(data.Name)}
+        </div>
+        <div>
+          <strong>Fiscal Year:</strong> {get(data.FiscalYear?.Name)}
+        </div>
+        <div>
+          <strong>Department:</strong> {get(data.Department?.Name)}
+        </div>
+        <div>
+          <strong>SubDepartment:</strong> {get(data.SubDepartment?.Name)}
+        </div>
+        <div>
+          <strong>Chart of Accounts:</strong> {get(data.ChartofAccounts?.Name)}
+        </div>
+        <div>
+          <strong>Fund:</strong> {get(data.Funds?.Name)}
+        </div>
+        <div>
+          <strong>Project:</strong> {get(data.Project?.Title)}
+        </div>
+      </div>
+
+      {/* Column 2 - Appropriation and Allotment */}
+      <div className="space-y-2">
+        <div>
+          <strong>Appropriation (Original):</strong> {get(data.Appropriation)}
+        </div>
+        <div>
+          <strong>Appropriation Balance:</strong>{' '}
+          {get(data.AppropriationBalance)}
+        </div>
+        <div>
+          <strong>Appropriation (Adjusted):</strong> {get(data.RevisedAmount)}
+        </div>
+        <div>
+          <strong>Adjustments:</strong> {get(data.Change)}
+        </div>
+        <div>
+          <strong>Total Allotment:</strong> {get(data.ChargedAllotment)}
+        </div>
+        <div>
+          <strong>Allotment Balance:</strong> {get(data.AllotmentBalance)}
+        </div>
+        <div>
+          <strong>Pre Encumbrance:</strong> {get(data.PreEncumbrance)}
+        </div>
+        <div>
+          <strong>Encumbrance:</strong> {get(data.Encumbrance)}
+        </div>
+        <div>
+          <strong>Charges:</strong> {get(data.Charges)}
+        </div>
+      </div>
+
+      {/* Column 3 - Monthly Distribution */}
+      <div className="space-y-2">
+        {[
+          'January',
+          'February',
+          'March',
+          'April',
+          'May',
+          'June',
+          'July',
+          'August',
+          'September',
+          'October',
+          'November',
+          'December',
+        ].map((month) => (
+          <div key={month}>
+            <strong>{month}:</strong> {get(data[month])}
+          </div>
+        ))}
+        <div className="font-semibold pt-2 border-t">
+          <strong>Total Amount:</strong> {get(data.TotalAmount)}
+        </div>
+      </div>
+    </div>
+  );
+};
