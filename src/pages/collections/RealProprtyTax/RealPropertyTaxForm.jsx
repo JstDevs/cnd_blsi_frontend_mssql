@@ -7,10 +7,54 @@ import {
   Plus,
   Trash2,
 } from 'lucide-react';
-// import FormField from './FormField';
-// import { Button } from '@/components/ui/button';
 import FormField from '@/components/common/FormField';
 import Button from '@/components/common/Button';
+import * as Yup from 'yup';
+
+const validationSchema = Yup.object().shape({
+  CustomerName: Yup.string().required('Customer name is required'),
+  Municipality: Yup.string().required('Municipality is required'),
+  AmountinWords: Yup.string().required('Amount in words is required'),
+  AmountReceived: Yup.number().min(0).required('Amount received is required'),
+  CheckNumber: Yup.string().nullable(),
+  T_D_No: Yup.string().required('T.D. No is required'),
+  AdvancedYear: Yup.number()
+    .min(1900)
+    .max(2100)
+    .required('Advanced year is required'),
+  AdvanceFunds: Yup.number().min(0).required('Advance funds is required'),
+  FundsID: Yup.number().required('Funds ID is required'),
+  ReceivedFrom: Yup.string().required('Received from is required'),
+  Location: Yup.string().required('Location is required'),
+  Lot: Yup.string().nullable(),
+  Block: Yup.string().nullable(),
+  PreviousPaymentList: Yup.array().of(
+    Yup.object().shape({
+      LandPrice: Yup.number().min(0),
+      ImprovementPrice: Yup.number().min(0),
+      TotalAssessedValue: Yup.number().min(0),
+      TaxDue: Yup.number().min(0),
+      InstallmentPayment: Yup.number().min(0),
+      FullPayment: Yup.number().min(0),
+      Penalty: Yup.number().min(0),
+      Total: Yup.number().min(0),
+    })
+  ),
+  PresentPaymentList: Yup.array().of(
+    Yup.object().shape({
+      LandPrice: Yup.number().min(0),
+      ImprovementPrice: Yup.number().min(0),
+      TotalAssessedValue: Yup.number().min(0),
+      TaxDue: Yup.number().min(0),
+      InstallmentPayment: Yup.number().min(0),
+      FullPayment: Yup.number().min(0),
+      Penalty: Yup.number().min(0),
+      Discount: Yup.number().min(0),
+      Total: Yup.number().min(0),
+      RemainingBalance: Yup.number().min(0),
+    })
+  ),
+});
 
 const RealPropertyTaxForm = () => {
   const [formData, setFormData] = useState({
@@ -80,6 +124,50 @@ const RealPropertyTaxForm = () => {
       payment: '',
     },
   ]);
+  const initialValues = {
+    IsNew: true,
+    LinkID: '', // If editing, fill this from the record
+    CustomerName: '',
+    Municipality: '',
+    AmountinWords: '',
+    AmountReceived: 0,
+    RemainingBalance: 0,
+    CheckNumber: '',
+    T_D_No: '',
+    AdvancedYear: '',
+    AdvanceFunds: 0,
+    FundsID: '',
+    ReceivedFrom: '',
+    Location: '',
+    Lot: '',
+    Block: '',
+    PreviousPaymentList: [
+      {
+        LandPrice: 0,
+        ImprovementPrice: 0,
+        TotalAssessedValue: 0,
+        TaxDue: 0,
+        InstallmentPayment: 0,
+        FullPayment: 0,
+        Penalty: 0,
+        Total: 0,
+      },
+    ],
+    PresentPaymentList: [
+      {
+        LandPrice: 0,
+        ImprovementPrice: 0,
+        TotalAssessedValue: 0,
+        TaxDue: 0,
+        InstallmentPayment: 0,
+        FullPayment: 0,
+        Penalty: 0,
+        Discount: 0,
+        Total: 0,
+        RemainingBalance: 0,
+      },
+    ],
+  };
 
   const handleInputChange = (field, value) => {
     setFormData((prev) => ({ ...prev, [field]: value }));

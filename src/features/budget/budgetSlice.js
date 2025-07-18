@@ -1,23 +1,19 @@
+import axiosInstance from '@/utils/axiosInstance';
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
-const MockData = [
-  {
-    ID: '1',
-    Name: 'Budget 1',
-  },
-];
+// const MockData = [
+//   {
+//     ID: '10',
+//     Name: 'Budget 1',
+//   },
+// ];
 // Async thunks
 export const fetchBudgets = createAsyncThunk(
   'budget/fetchBudgets',
   async (_, thunkAPI) => {
     try {
-      // const response = await fetch(`${API_URL}/budget`, { method: 'GET' });
-      // const res = await response.json();
+      const response = await axiosInstance(`/budget`);
 
-      // if (!response.ok) {
-      //   throw new Error(res.message || 'Failed to fetch');
-      // }
-
-      return MockData;
+      return response.data.items;
     } catch (error) {
       return thunkAPI.rejectWithValue(error.message);
     }

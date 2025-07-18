@@ -100,7 +100,7 @@ function ObligationRequestForm({
     rate: '',
     amount: '',
   };
-
+  console.log(initialData);
   const initialValues = {
     obrNo: initialData?.obrNo || '',
     obrDate: initialData?.obrDate || new Date().toISOString().split('T')[0],
@@ -110,10 +110,15 @@ function ObligationRequestForm({
     payeeType: initialData?.payeeType || '',
     payeeName: initialData?.payeeName || '',
     payeeId: initialData?.payeeId || '',
+    // -------------PROJECT AND FUNDS IDs ------------
+    project: initialData?.ProjectID || '',
+    fund: initialData?.FundsID || '',
+    fiscalYear: initialData?.FiscalYearID || '',
+
     payeeAddress: initialData?.payeeAddress || '',
     officeUnitProject: initialData?.officeUnitProject || '',
     orsNumber: initialData?.orsNumber || '',
-    responsibilityCenter: initialData?.responsibilityCenter || '',
+    responsibilityCenter: initialData?.ResponsibilityCenter || '',
     requestForPayment: initialData?.requestForPayment || '',
     modeOfPayment: initialData?.modeOfPayment || '',
     items:
@@ -133,8 +138,8 @@ function ObligationRequestForm({
               normalBalance: '',
             },
           ],
-    accountingEntries: Array.isArray(initialData?.accountingEntries)
-      ? initialData.accountingEntries
+    accountingEntries: Array.isArray(initialData?.TransactionItemsAll)
+      ? initialData.TransactionItemsAll
       : [],
     Attachments: Array.isArray(initialData?.Attachments)
       ? initialData.Attachments
@@ -248,7 +253,12 @@ function ObligationRequestForm({
     const action = initialData
       ? updateObligationRequest({ formData: fd, id: initialData.ID })
       : createObligationRequest(fd);
-
+    if (initialData) {
+      fd.append('IsNew', false);
+      fd.append('LinkID', initialData.LinkID);
+    } else {
+      fd.append('IsNew', true);
+    }
     dispatch(action)
       .unwrap()
       .then(() => {

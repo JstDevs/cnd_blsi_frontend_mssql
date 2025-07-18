@@ -182,6 +182,7 @@ function FundUtilizationPage() {
             <div className="flex justify-between items-center">
               <div>
                 <h1>Fund Utilization Request & Status</h1>
+                <p>Manage and track your fund utilization requests.</p>
               </div>
               <button
                 type="button"

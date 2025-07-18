@@ -28,9 +28,10 @@ import {
   createDisbursementVoucher,
   updateDisbursementVoucher,
   fetchRequestOptions,
+  fetchDisbursementVouchers,
 } from '../../features/disbursement/disbursementVoucherSlice';
 import { ChevronDownIcon, UserIcon, UsersIcon } from 'lucide-react';
-import { current } from '@reduxjs/toolkit';
+
 import { obligationRequestItemsCalculator } from '../../utils/obligationRequestItemsCalculator';
 
 const payeeTypes = [
@@ -265,10 +266,10 @@ function DisbursementVoucherForm({
 
     /* ⬇︎ Attachments (handle files or IDs) */
     values.Attachments.forEach((att, idx) => {
-      if (att.File) {
-        fd.append(`Attachments[${idx}].File`, att.File);
-      } else if (att.ID) {
+      if (att.ID) {
         fd.append(`Attachments[${idx}].ID`, att.ID);
+      } else {
+        fd.append(`Attachments[${idx}].File`, att.File);
       }
     });
 
@@ -279,9 +280,14 @@ function DisbursementVoucherForm({
     fd.append('BankID', values.bank);
     fd.append('CheckNumber', values.checkNumber);
     fd.append('ReceivedPaymentBy', values.receivedPaymentBy);
-
+    if (initialData) {
+      fd.append('LinkID', initialData.LinkID);
+      fd.append('IsNew', false);
+    } else {
+      fd.append('IsNew', true);
+    }
     const action = initialData
-      ? updateDisbursementVoucher({ formData: fd, id: initialData.ID })
+      ? updateDisbursementVoucher({ formData: fd, id: initialData.ID }).unwrap()
       : createDisbursementVoucher(fd);
 
     dispatch(action)
@@ -289,6 +295,7 @@ function DisbursementVoucherForm({
       .then(() => {
         toast.success('Success');
         onClose();
+        dispatch(fetchDisbursementVouchers());
       })
       .catch((error) => {
         toast.error(error?.message || 'Failed to submit');
@@ -328,6 +335,7 @@ function DisbursementVoucherForm({
             handleChange,
             handleBlur,
             setFieldValue,
+            setFieldError,
             setFieldTouched,
             isValid,
           }) => {
@@ -356,13 +364,15 @@ function DisbursementVoucherForm({
               setFieldValue('orsNumber', '');
             };
 
-            const handleRequestTypeChange = (type) => {
+            const handleRequestTypeChange = async (type) => {
               setSelectedRequest(null);
               setFieldValue('requestType', type);
-              // console.log('Selected Request Type:', type);
+              console.log('Selected Request Type:', type);
               setSelectedRequestType(type);
               if (type === 'Standalone Request') {
-                setFieldValue('accountingEntries', []);
+                setFieldValue('accountingEntries', [], false);
+                // await setFieldError('accountingEntries', '');
+                return;
               }
 
               if (values.payeeType && values.payeeId && type) {
@@ -690,7 +700,7 @@ function DisbursementVoucherForm({
                         />
                         {errors.requestType && touched.requestType && (
                           <p className="mt-1 text-sm text-red-600">
-                            {errors.requestType}
+                            {errors.requestType + 'request error'}
                           </p>
                         )}
                       </div>
@@ -812,11 +822,12 @@ function DisbursementVoucherForm({
                   )}
                 </FieldArray>
                 {/* show validation error */}
-                {errors.accountingEntries && (
-                  <p className="mt-1 text-sm text-red-600">
-                    {errors.accountingEntries}
-                  </p>
-                )}
+                {errors.accountingEntries &&
+                  values.requestType !== 'Standalone Request' && (
+                    <p className="mt-1 text-sm text-red-600">
+                      {errors.accountingEntries}
+                    </p>
+                  )}
                 <hr />
                 {/* ── Tax Summary (auto‑calculated) ───────────────────────────── */}
                 {(() => {

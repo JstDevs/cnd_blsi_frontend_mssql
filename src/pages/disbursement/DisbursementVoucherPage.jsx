@@ -21,6 +21,7 @@ import { fetchItemUnits } from '@/features/settings/itemUnitsSlice';
 import { fetchTaxCodes } from '@/features/settings/taxCodeSlice';
 import { fetchBudgets } from '@/features/budget/budgetSlice';
 import { fetchAccounts } from '../../features/settings/chartOfAccountsSlice';
+import { statusLabel } from '../userProfile';
 
 function DisbursementVoucherPage() {
   const dispatch = useDispatch();
@@ -28,18 +29,20 @@ function DisbursementVoucherPage() {
     (state) => state.disbursementVouchers
   );
 
-  const { employees } = useSelector(state => state.employees);
-  const { customers } = useSelector(state => state.customers);
-  const { vendorDetails } = useSelector(state => state.vendorDetails);
-  const { departments } = useSelector(state => state.departments);
-  const { projectDetails } = useSelector(state => state.projectDetails);
-  const { funds } = useSelector(state => state.funds);
-  const { fiscalYears } = useSelector(state => state.fiscalYears);
-  const { items } = useSelector(state => state.items);
-  const { taxCodes } = useSelector(state => state.taxCodes);
-  const { itemUnits } = useSelector(state => state.itemUnits);
-  const { budgets } = useSelector(state => state.budget);
-  const chartOfAccounts = useSelector(state => state.chartOfAccounts?.accounts || []);
+  const { employees } = useSelector((state) => state.employees);
+  const { customers } = useSelector((state) => state.customers);
+  const { vendorDetails } = useSelector((state) => state.vendorDetails);
+  const { departments } = useSelector((state) => state.departments);
+  const { projectDetails } = useSelector((state) => state.projectDetails);
+  const { funds } = useSelector((state) => state.funds);
+  const { fiscalYears } = useSelector((state) => state.fiscalYears);
+  const { items } = useSelector((state) => state.items);
+  const { taxCodes } = useSelector((state) => state.taxCodes);
+  const { itemUnits } = useSelector((state) => state.itemUnits);
+  const { budgets } = useSelector((state) => state.budget);
+  const chartOfAccounts = useSelector(
+    (state) => state.chartOfAccounts?.accounts || []
+  );
 
   const [currentView, setCurrentView] = useState('list'); // 'list', 'form', 'details'
   const [currentDisbursementVoucher, setCurrentDisbursementVoucher] =
@@ -91,41 +94,41 @@ function DisbursementVoucherPage() {
 
   // Table columns definition
   const columns = [
-    
     {
       key: 'Status',
       header: 'Status',
       sortable: true,
-      render: (value) => {
-        let bgColor = 'bg-neutral-100 text-neutral-800';
+      // render: (value) => {
+      //   let bgColor = 'bg-neutral-100 text-neutral-800';
 
-        switch (value) {
-          case 'Requested':
-            bgColor = 'bg-warning-100 text-warning-800';
-            break;
-          case 'Pending Approval':
-            bgColor = 'bg-primary-100 text-primary-800';
-            break;
-          case 'Approved for Payment':
-          case 'Paid':
-            bgColor = 'bg-success-100 text-success-800';
-            break;
-          case 'Cancelled':
-          case 'Rejected':
-            bgColor = 'bg-error-100 text-error-800';
-            break;
-          default:
-            break;
-        }
+      //   switch (value) {
+      //     case 'Requested':
+      //       bgColor = 'bg-warning-100 text-warning-800';
+      //       break;
+      //     case 'Pending Approval':
+      //       bgColor = 'bg-primary-100 text-primary-800';
+      //       break;
+      //     case 'Approved for Payment':
+      //     case 'Paid':
+      //       bgColor = 'bg-success-100 text-success-800';
+      //       break;
+      //     case 'Cancelled':
+      //     case 'Rejected':
+      //       bgColor = 'bg-error-100 text-error-800';
+      //       break;
+      //     default:
+      //       break;
+      //   }
 
-        return (
-          <span
-            className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${bgColor}`}
-          >
-            {value}
-          </span>
-        );
-      },
+      //   return (
+      //     <span
+      //       className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${bgColor}`}
+      //     >
+      //       {value}
+      //     </span>
+      //   );
+      // },
+      render: (value) => statusLabel(value),
     },
     {
       key: 'InvoiceDate',
@@ -139,28 +142,24 @@ function DisbursementVoucherPage() {
       sortable: true,
     },
     {
-      key: 'ResponsibilityCenterName',
-      header: 'Responsibility Center',
+      key: 'BillingDueDate',
+      header: 'Billing Due Date ',
       sortable: true,
     },
     {
-      key: 'Total',
-      header: 'Total',
+      key: 'ObligationRequestNumber',
+      header: 'Obligation Request Number',
       sortable: true,
     },
     {
-      key: 'FiscalYearName',
-      header: 'Fiscal Year',
+      key: 'Fund',
+      header: 'Fund',
       sortable: true,
     },
-    {
-      key: 'ProjectName',
-      header: 'Project',
-      sortable: true,
-    },
+
     {
       key: 'CustomerID',
-      header: 'CustomerID',
+      header: 'Customer ID',
       sortable: true,
     },
   ];
@@ -182,7 +181,9 @@ function DisbursementVoucherPage() {
   //       'text-primary-600 hover:text-primary-900 p-1 rounded-full hover:bg-primary-50',
   //   },
   // ];
-
+  const handleEditOR = (dv) => {
+    console.log('Edit OR', dv);
+  };
   return (
     <div>
       {currentView === 'list' && (
@@ -216,7 +217,8 @@ function DisbursementVoucherPage() {
                     icon: PencilIcon,
                     title: 'Edit',
                     onClick: () => handleEditOR(row),
-                    className: 'text-primary-600 hover:text-primary-900 p-1 rounded-full hover:bg-primary-50',
+                    className:
+                      'text-primary-600 hover:text-primary-900 p-1 rounded-full hover:bg-primary-50',
                   });
                 }
 
@@ -259,58 +261,61 @@ function DisbursementVoucherPage() {
           <div className="mt-4">
             <DisbursementVoucherForm
               initialData={currentDisbursementVoucher}
-              employeeOptions={employees.map(emp => ({
+              employeeOptions={employees.map((emp) => ({
                 value: emp.ID,
-                label: emp.FirstName + ' ' + emp.MiddleName + ' ' + emp.LastName,
+                label:
+                  emp.FirstName + ' ' + emp.MiddleName + ' ' + emp.LastName,
               }))}
-              vendorOptions={vendorDetails.map(vendor => ({
+              vendorOptions={vendorDetails.map((vendor) => ({
                 value: vendor.ID,
                 label: vendor.Name,
               }))}
-              individualOptions={customers.map(customer => ({
+              individualOptions={customers.map((customer) => ({
                 value: customer.ID,
                 label: customer.Name,
               }))}
-              chartOfAccountsOptions={(chartOfAccounts || []).map(account => ({
-                value: account.ID,
-                label: account.AccountCode + ' - ' + account.Name,
-              }))}
+              chartOfAccountsOptions={(chartOfAccounts || []).map(
+                (account) => ({
+                  value: account.ID,
+                  label: account.AccountCode + ' - ' + account.Name,
+                })
+              )}
               employeeData={employees}
               vendorData={vendorDetails}
               individualData={customers}
-              departmentOptions={departments.map(dept => ({
+              departmentOptions={departments.map((dept) => ({
                 value: dept.ID,
                 label: dept.Name,
               }))}
-              fundOptions={funds.map(fund => ({
+              fundOptions={funds.map((fund) => ({
                 value: fund.ID,
                 label: fund.Name,
               }))}
-              projectOptions={projectDetails.map(project => ({
+              projectOptions={projectDetails.map((project) => ({
                 value: project.ID,
                 label: project.Title,
               }))}
-              fiscalYearOptions={fiscalYears.map(fiscalYear => ({
+              fiscalYearOptions={fiscalYears.map((fiscalYear) => ({
                 value: fiscalYear.ID,
                 label: fiscalYear.Name,
               }))}
-              particularsOptions={items.map(item => ({
+              particularsOptions={items.map((item) => ({
                 value: item.ID,
                 label: item.Name,
               }))}
-              unitOptions={itemUnits.map(unit => ({
+              unitOptions={itemUnits.map((unit) => ({
                 value: unit.ID,
                 label: unit.Name,
               }))}
-              taxCodeOptions={taxCodes.map(code => ({
+              taxCodeOptions={taxCodes.map((code) => ({
                 value: code.ID,
                 label: code.Name,
               }))}
-              budgetOptions={budgets.map(code => ({
+              budgetOptions={budgets.map((code) => ({
                 value: code.ID,
                 label: code.Name,
               }))}
-              taxCodeFull = {taxCodes}
+              taxCodeFull={taxCodes}
               onCancel={handleBackToList}
               onSubmitSuccess={handleBackToList}
               onClose={handleBackToList}

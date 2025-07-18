@@ -80,6 +80,15 @@ function PPEPage() {
 
   // DataTable columns
   const columns = FIELDS.map((field) => {
+    if (field.key === 'CategoryID') {
+      return {
+        key: field.key,
+        header: field.header,
+        sortable: true,
+        className: 'text-neutral-900',
+        render: (_, ppe) => ppe.Category.Name || 'N/A',
+      };
+    }
     if (field.key === 'SupplierID') {
       return {
         key: field.key,

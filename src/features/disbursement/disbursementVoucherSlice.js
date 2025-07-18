@@ -18,10 +18,11 @@ export const fetchRequestOptions = createAsyncThunk(
     try {
       const token = localStorage.getItem('token');
 
-      const url = `${API_URL}/disbursementVoucher/selectListForDV`
-        + `?type=${encodeURIComponent(payeeType)}`
-        + `&requestType=${encodeURIComponent(requestType)}`
-        + `&id=${payeeId}`;
+      const url =
+        `${API_URL}/disbursementVoucher/selectListForDV` +
+        `?type=${encodeURIComponent(payeeType)}` +
+        `&requestType=${encodeURIComponent(requestType)}` +
+        `&id=${payeeId}`;
 
       const response = await fetch(url, {
         headers: { Authorization: `Bearer ${token}` },
@@ -30,7 +31,9 @@ export const fetchRequestOptions = createAsyncThunk(
       const data = await response.json();
 
       if (!response.ok) {
-        throw new Error(data.error || data.message || 'Failed to fetch request options');
+        throw new Error(
+          data.error || data.message || 'Failed to fetch request options'
+        );
       }
 
       // Map once for react‑select
@@ -40,8 +43,6 @@ export const fetchRequestOptions = createAsyncThunk(
     }
   }
 );
-
-
 
 export const fetchDisbursementVouchers = createAsyncThunk(
   'disbursementVouchers/fetchDisbursementVouchers',
@@ -78,7 +79,9 @@ export const fetchDisbursementVoucherById = createAsyncThunk(
       return new Promise((resolve, reject) => {
         setTimeout(() => {
           const state = thunkAPI.getState();
-          const request = state.disbursementVouchers.disbursementVouchers.find(ors => ors.id === id);
+          const request = state.disbursementVouchers.disbursementVouchers.find(
+            (ors) => ors.id === id
+          );
           if (request) {
             resolve(request);
           } else {
@@ -92,12 +95,11 @@ export const fetchDisbursementVoucherById = createAsyncThunk(
   }
 );
 
-
 export const createDisbursementVoucher = createAsyncThunk(
   'disbursementVouchers/create',
   async (disbursementVoucher, thunkAPI) => {
     try {
-      const response = await fetch(`${API_URL}/disbursementVoucher`, {
+      const response = await fetch(`${API_URL}/disbursementVoucher/save`, {
         method: 'POST',
         headers: {
           Authorization: `Bearer ${localStorage.getItem('token')}`,
@@ -209,10 +211,10 @@ const disbursementVoucherSlice = createSlice({
       .addCase(fetchRequestOptions.rejected, (state, action) => {
         state.requestOptionsLoading = false;
         state.requestOptionsError = action.payload;
-      })
-      ;
+      });
   },
 });
 
-export const { resetDisbursementVoucherState } = disbursementVoucherSlice.actions;
+export const { resetDisbursementVoucherState } =
+  disbursementVoucherSlice.actions;
 export default disbursementVoucherSlice.reducer;

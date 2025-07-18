@@ -5,6 +5,7 @@ import { fetchDepartments } from '@/features/settings/departmentSlice';
 import { fetchSubdepartments } from '@/features/settings/subdepartmentSlice';
 import { fetchAccounts } from '@/features/settings/chartOfAccountsSlice';
 import Modal from '@/components/common/Modal';
+import axiosInstance from '@/utils/axiosInstance';
 
 const API_URL = import.meta.env.VITE_API_URL;
 
@@ -41,10 +42,10 @@ const BudgetSummaryPage = () => {
   const fetchBudgetSummaries = async () => {
     try {
       setLoading(true);
-      const response = await fetch(`${API_URL}/budgetSummary/`);
-      const res = await response.json();
+      const response = await axiosInstance(`/budgetSummary`);
+      // const res = await response.json();
 
-      setData(res || []);
+      setData(response.data || []);
     } catch (error) {
       console.error('Error fetching budget summaries:', error);
     } finally {

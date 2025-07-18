@@ -11,47 +11,59 @@ import { Link } from 'react-router-dom';
 import DataTable from '../../components/common/DataTable';
 // import { fetchUserDocumentsList } from '../../api/profileApi'; // adjust path as needed
 import { toast } from 'react-hot-toast';
-import { fetchUserDocumentsList } from './profileUtil';
+import { fetchUserDocumentsList, fetchUserProfile } from './profileUtil';
 
-const statusColors = {
-  'Disbursement Posted': 'bg-green-100 text-green-700',
-  Requested: 'bg-blue-100 text-blue-700',
-  Pending: 'bg-yellow-100 text-yellow-700',
-  'Cheque Requested': 'bg-red-100 text-red-700',
+export const statusLabel = (statusString) => {
+  const statusColors = {
+    'Disbursement Posted': 'bg-green-100 text-green-700',
+    Requested: 'bg-blue-100 text-blue-700',
+    Pending: 'bg-yellow-100 text-yellow-700',
+    'Cheque Requested': 'bg-red-100 text-red-700',
+  };
+  return (
+    <div className="flex gap-2 flex-wrap">
+      {statusString.split(',').map((status, idx) => {
+        const trimmed = status.trim();
+        return (
+          <span
+            key={idx}
+            className={`px-2 py-0.5 rounded-full text-xs font-medium ${
+              statusColors[trimmed] || 'bg-gray-100 text-gray-600'
+            }`}
+          >
+            {trimmed}
+          </span>
+        );
+      })}
+    </div>
+  );
 };
-
-const statusLabel = (statusString) => (
-  <div className="flex gap-2 flex-wrap">
-    {statusString.split(',').map((status, idx) => {
-      const trimmed = status.trim();
-      return (
-        <span
-          key={idx}
-          className={`px-2 py-0.5 rounded-full text-xs font-medium ${
-            statusColors[trimmed] || 'bg-gray-100 text-gray-600'
-          }`}
-        >
-          {trimmed}
-        </span>
-      );
-    })}
-  </div>
-);
 
 const UserProfilePage = () => {
   const [ownerFilter, setOwnerFilter] = useState('self');
   const [documents, setDocuments] = useState([]);
-
+  const [user, setUser] = useState(null);
   useEffect(() => {
     fetchUserDocumentsList(ownerFilter)
       .then((res) => {
-        setDocuments(res.data || []);
+        console.log('res', res);
+        setDocuments(res.data);
+        // setDocuments(res.data || []);
       })
       .catch(() => {
         toast.error('Failed to load documents');
       });
   }, [ownerFilter]);
-
+  useEffect(() => {
+    if (user) return;
+    fetchUserProfile()
+      .then((userData) => {
+        setUser(userData.data);
+      })
+      .catch((error) => {
+        toast.error('Failed to load user profile');
+      });
+  }, []);
   const { statusCounts, documentsList } = documents || {};
 
   const summary = {
@@ -70,7 +82,12 @@ const UserProfilePage = () => {
     { key: 'InvoiceNumber', header: 'Invoice No', sortable: true },
     { key: 'APAR', header: 'APAR Type', sortable: true },
     { key: 'InvoiceDate', header: 'Invoice Date', sortable: true },
-    { key: 'Funds', header: 'Funds', sortable: true },
+    {
+      key: 'Funds',
+      header: 'Funds',
+      sortable: true,
+      render: (value) => value?.Name || '—',
+    },
     { key: 'Total', header: 'Amount', sortable: true },
   ];
 
@@ -84,19 +101,31 @@ const UserProfilePage = () => {
   //     },
   //   },
   // ];
-
   return (
     <div className="p-6 space-y-6">
       {/* Profile Header */}
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
         <div className="flex items-center gap-4">
           <UserCircleIcon className="w-20 h-20 text-gray-400" />
-          <div>
+          <div className="space-y-1">
             <h2 className="text-2xl font-bold text-gray-800">
-              Welcome, John Doe
+              Welcome,{' '}
+              {[user?.FirstName, user?.MiddleName, user?.LastName]
+                .filter(Boolean)
+                .join(' ')}
             </h2>
-            <p className="text-sm text-gray-500">Position: Accountant</p>
-            <p className="text-sm text-gray-500">Department: Finance</p>
+
+            {user?.Position?.Name && (
+              <p className="text-sm text-gray-500">
+                Position: {user.Position.Name}
+              </p>
+            )}
+
+            {user?.Department?.Name && (
+              <p className="text-sm text-gray-500">
+                Department: {user.Department.Name}
+              </p>
+            )}
           </div>
         </div>
 

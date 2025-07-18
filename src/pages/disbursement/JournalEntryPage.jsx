@@ -66,35 +66,42 @@ function JournalEntryPage() {
   const confirmDelete = async () => {
     if (journalEntryToDelete) {
       try {
-        await dispatch(deleteJournalEntry(journalEntryToDelete.ID)).unwrap();
-        setIsDeleteModalOpen(false);
-        setJournalEntryToDelete(null);
+        await dispatch(
+          deleteJournalEntry(journalEntryToDelete.LinkID)
+        ).unwrap();
+        toast.success('Deleted');
+        dispatch(fetchJournalEntries());
       } catch (error) {
         console.error('Failed to delete journal entry:', error);
+        toast.error('Failed to delete journal entry');
+      } finally {
+        setIsDeleteModalOpen(false);
+        setJournalEntryToDelete(null);
       }
     }
   };
-  console.log(journalEntries);
+  // console.log(journalEntries);d
   const handleSubmit = async (values) => {
+    console.log({ values });
     try {
       if (currentJournalEntry) {
         await dispatch(
           updateJournalEntry({
-            ...values,
-            ID: currentJournalEntry.ID,
-            LinkID: currentJournalEntry.LinkID,
+            journalEntry: values,
+            id: currentJournalEntry.ID,
           })
         ).unwrap();
       } else {
         await dispatch(addJournalEntry(values)).unwrap();
       }
-
-      setIsModalOpen(false);
-      setCurrentJournalEntry(null);
       toast.success('Success');
+      dispatch(fetchJournalEntries());
     } catch (error) {
       toast.error(error || 'Failed');
       throw error;
+    } finally {
+      setIsModalOpen(false);
+      setCurrentJournalEntry(null);
     }
   };
   // const handleSubmit = (formData) => {
@@ -141,7 +148,7 @@ function JournalEntryPage() {
       },
     },
     {
-      key: 'RequestedByEmployee',
+      key: 'RequestedByName',
       header: 'Requested By',
       sortable: true,
     },
@@ -232,23 +239,23 @@ function JournalEntryPage() {
           data={journalEntries}
           actions={(row) => {
             const actionList = [];
-            // if (row.Status === 'Rejected') {
-            actionList.push({
-              icon: PencilIcon,
-              title: 'Edit',
-              onClick: () => handleEdit(row),
-              className:
-                'text-primary-600 hover:text-primary-900 p-1 rounded-full hover:bg-primary-50',
-            });
+            if (row.Status === 'Rejected') {
+              actionList.push({
+                icon: PencilIcon,
+                title: 'Edit',
+                onClick: () => handleEdit(row),
+                className:
+                  'text-primary-600 hover:text-primary-900 p-1 rounded-full hover:bg-primary-50',
+              });
 
-            actionList.push({
-              icon: TrashIcon,
-              title: 'Delete',
-              onClick: () => handleDelete(row),
-              className:
-                'text-error-600 hover:text-error-900 p-1 rounded-full hover:bg-error-50',
-            });
-            // }
+              actionList.push({
+                icon: TrashIcon,
+                title: 'Delete',
+                onClick: () => handleDelete(row),
+                className:
+                  'text-error-600 hover:text-error-900 p-1 rounded-full hover:bg-error-50',
+              });
+            }
 
             return actionList;
           }}

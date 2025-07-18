@@ -117,7 +117,15 @@ function GeneralServiceReceiptModal({
     Attachments: selectedReceipt?.Attachments || [],
 
     PaymentMethodID: 2,
-    TransactionItemsAll: selectedReceipt?.TransactionItemsAll || [],
+    TransactionItemsAll: selectedReceipt?.TransactionItemsAll || [
+      {
+        ItemID: '',
+        ChargeAccountID: '',
+        Quantity: 1,
+        Price: 0,
+        Vatable: false,
+      },
+    ],
   };
   console.log('initialValues', initialValues);
   // -------------FILE UPLOAD-------------
@@ -419,9 +427,6 @@ function GeneralServiceReceiptModal({
                           key={index}
                           className="grid grid-cols-1 md:grid-cols-5 gap-3 items-end"
                         >
-                          {(() => {
-                            console.log(item);
-                          })()}
                           <FormField
                             label="Item ID"
                             name={`TransactionItemsAll.${index}.ItemID`}
@@ -431,7 +436,10 @@ function GeneralServiceReceiptModal({
                             value={item.ItemID}
                             onChange={handleChange}
                             onBlur={handleBlur}
-                            error={errors.TransactionItemsAll?.[index]?.ItemID}
+                            error={
+                              touched.TransactionItemsAll?.[index]?.ItemID &&
+                              errors.TransactionItemsAll?.[index]?.ItemID
+                            }
                             touched={
                               touched.TransactionItemsAll?.[index]?.ItemID
                             }
@@ -447,6 +455,8 @@ function GeneralServiceReceiptModal({
                             onChange={handleChange}
                             onBlur={handleBlur}
                             error={
+                              touched.TransactionItemsAll?.[index]
+                                ?.ChargeAccountID &&
                               errors.TransactionItemsAll?.[index]
                                 ?.ChargeAccountID
                             }
@@ -466,6 +476,7 @@ function GeneralServiceReceiptModal({
                             onChange={handleChange}
                             onBlur={handleBlur}
                             error={
+                              touched.TransactionItemsAll?.[index]?.Quantity &&
                               errors.TransactionItemsAll?.[index]?.Quantity
                             }
                             touched={
@@ -482,27 +493,23 @@ function GeneralServiceReceiptModal({
                             value={item.Price}
                             onChange={handleChange}
                             onBlur={handleBlur}
-                            error={errors.TransactionItemsAll?.[index]?.Price}
+                            error={
+                              touched.TransactionItemsAll?.[index]?.Price &&
+                              errors.TransactionItemsAll?.[index]?.Price
+                            }
                             touched={
                               touched.TransactionItemsAll?.[index]?.Price
                             }
                           />
-                          <div className="flex items-center">
-                            <FormField
-                              label="Vatable"
-                              type="checkbox"
-                              id={`TransactionItemsAll.${index}.Vatable`}
-                              name={`TransactionItemsAll.${index}.Vatable`}
-                              checked={item.Vatable}
-                              onChange={() =>
-                                setFieldValue(
-                                  `TransactionItemsAll.${index}.Vatable`,
-                                  !item.Vatable
-                                )
-                              }
-                              className="h-4 w-4 text-primary-600 focus:ring-primary-500 border-neutral-300 rounded"
-                            />
-                          </div>
+
+                          <FormField
+                            label="Vatable"
+                            type="checkbox"
+                            id={`TransactionItemsAll.${index}.Vatable`}
+                            name={`TransactionItemsAll.${index}.Vatable`}
+                            checked={item.Vatable}
+                            onChange={handleChange}
+                          />
                           <div className="flex items-center space-x-2">
                             <div className="text-sm font-medium">
                               Subtotal:{' '}
@@ -528,9 +535,10 @@ function GeneralServiceReceiptModal({
                             ChargeAccountID: '',
                             Quantity: 1,
                             Price: 0,
+                            Vatable: false,
                           })
                         }
-                        className="text-blue-600 hover:text-blue-800 text-sm font-medium"
+                        className="btn btn-primary"
                       >
                         + Add Item
                       </button>
@@ -714,18 +722,19 @@ function GeneralServiceReceiptModal({
                   {isSubmitting ? 'Saving...' : 'Save'}
                 </button>
               </div>
-              {submitCount > 0 && Object.keys(errors).length > 0 && (
+              {/* {submitCount > 0 && Object.keys(errors).length > 0 && (
                 <div className="mt-4 p-4 bg-red-50 border-l-4 border-red-500 rounded">
                   <h3 className="text-sm font-medium text-red-800">
                     Please fix the following errors:
                   </h3>
                   <ul className="mt-2 text-sm text-red-700 list-disc pl-5 space-y-1">
-                    {Object.entries(errors).map(([fieldName, errorMessage]) => (
-                      <li key={fieldName}>{errorMessage}</li>
-                    ))}
+                    {Object.entries(errors).map(([fieldName, errorMessage]) => {
+                      console.log(fieldName, errorMessage);
+                      return <li key={fieldName}>{errorMessage}</li>;
+                    })}
                   </ul>
                 </div>
-              )}
+              )} */}
             </Form>
           );
         }}

@@ -1,6 +1,7 @@
 import { ErrorMessage } from 'formik';
 import clsx from 'clsx';
-
+import { useState } from 'react';
+import { EyeIcon, EyeSlashIcon } from '@heroicons/react/24/outline';
 function FormField({
   label,
   name,
@@ -20,7 +21,7 @@ function FormField({
   ...props
 }) {
   const isInvalid = error && touched;
-
+  const [showPassword, setShowPassword] = useState(false);
   const renderInput = () => {
     switch (type) {
       case 'textarea':
@@ -162,11 +163,45 @@ function FormField({
             ))}
           </div>
         );
+      case 'password':
+        return (
+          <div className="relative">
+            <input
+              id={name}
+              name={name}
+              type={showPassword ? 'text' : 'password'}
+              placeholder={placeholder}
+              disabled={disabled}
+              readOnly={readOnly}
+              value={value}
+              onChange={onChange}
+              onBlur={onBlur}
+              className={clsx(
+                'form-input border border-gray-300 h-[42px] px-4 py-2 pr-10 w-full',
+                isInvalid &&
+                  'border-error-300 text-error-900 placeholder-error-300 focus:ring-error-500 focus:border-error-500',
+                className
+              )}
+              {...props}
+            />
+            <button
+              type="button"
+              onClick={() => setShowPassword((prev) => !prev)}
+              className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-700"
+              tabIndex={-1}
+            >
+              {showPassword ? (
+                <EyeSlashIcon className="h-5 w-5" />
+              ) : (
+                <EyeIcon className="h-5 w-5" />
+              )}
+            </button>
+          </div>
+        );
 
       case 'date':
       case 'number':
       case 'email':
-      case 'password':
       case 'text':
       default:
         return (

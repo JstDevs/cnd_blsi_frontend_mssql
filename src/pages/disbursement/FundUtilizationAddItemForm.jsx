@@ -310,7 +310,9 @@ function FundUtilizationAddItemForm({
             type="checkbox"
             name="Vatable"
             checked={formik.values.Vatable}
-            onChange={formik.handleChange}
+            onChange={() =>
+              formik.setFieldValue('Vatable', !formik.values.Vatable ? 1 : 0)
+            }
             className="mr-2"
           />
           <span className="text-sm">Vatable</span>

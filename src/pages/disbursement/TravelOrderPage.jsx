@@ -1,6 +1,11 @@
 import { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { PlusIcon, EyeIcon, PencilIcon, TrashIcon } from '@heroicons/react/24/outline';
+import {
+  PlusIcon,
+  EyeIcon,
+  PencilIcon,
+  TrashIcon,
+} from '@heroicons/react/24/outline';
 import DataTable from '../../components/common/DataTable';
 import { toast } from 'react-hot-toast';
 import Modal from '../../components/common/Modal';
@@ -10,28 +15,30 @@ import {
   fetchTravelOrders,
   addTravelOrder,
   updateTravelOrder,
-  deleteTravelOrder
+  deleteTravelOrder,
 } from '../../features/disbursement/travelOrderSlice';
-
 
 function TravelOrderPage() {
   const dispatch = useDispatch();
-  const { travelOrders, isLoading } = useSelector(state => state.travelOrders);
+  const { travelOrders, isLoading } = useSelector(
+    (state) => state.travelOrders
+  );
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
-  
+
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [isViewModalOpen, setIsViewModalOpen] = useState(false);
   const [currentTravelOrder, setCurrentTravelOrder] = useState(null);
-  
+
   useEffect(() => {
     dispatch(fetchTravelOrders());
   }, [dispatch]);
 
-
   const handleSubmit = async (values) => {
     try {
       if (currentTravelOrder) {
-        await dispatch(updateTravelOrder({ ...values, ID: currentTravelOrder.ID })).unwrap();
+        await dispatch(
+          updateTravelOrder({ ...values, ID: currentTravelOrder.ID })
+        ).unwrap();
       } else {
         await dispatch(addTravelOrder(values)).unwrap();
       }
@@ -56,50 +63,51 @@ function TravelOrderPage() {
   //   setCurrentTravelOrder(null);
   // };
 
-
   const handleCreateTO = () => {
     setCurrentTravelOrder(null);
     setIsCreateModalOpen(true);
   };
-  
+
   const handleViewTO = (to) => {
     setCurrentTravelOrder(to);
     setIsViewModalOpen(true);
   };
-  
+
   const handleEditTO = (to) => {
     setCurrentTravelOrder(to);
     setIsCreateModalOpen(true);
   };
-  
 
   const handleDelete = (travelOrder) => {
     setCurrentTravelOrder(travelOrder);
     setIsDeleteModalOpen(true);
   };
-  
+
   const confirmDelete = async () => {
     if (currentTravelOrder) {
       try {
         await dispatch(deleteTravelOrder(currentTravelOrder.ID)).unwrap();
-        setIsDeleteModalOpen(false);
-        setCurrentTravelOrder(null);
+        toast.success('Deleted');
       } catch (error) {
         console.error('Failed to delete travel order:', error);
+        toast.error('Failed to delete travel order');
+      } finally {
+        setIsDeleteModalOpen(false);
+        setCurrentTravelOrder(null);
       }
     }
   };
-  
+
   const handleCloseCreateModal = () => {
     setIsCreateModalOpen(false);
     setCurrentTravelOrder(null);
   };
-  
+
   const handleCloseViewModal = () => {
     setIsViewModalOpen(false);
     setCurrentTravelOrder(null);
   };
-  
+
   // Format amount as Philippine Peso
   const formatCurrency = (amount) => {
     return new Intl.NumberFormat('en-PH', {
@@ -107,12 +115,12 @@ function TravelOrderPage() {
       currency: 'PHP',
     }).format(amount);
   };
-  
+
   // Format date
   const formatDate = (dateString) => {
     return new Date(dateString).toLocaleDateString();
   };
-  
+
   // Table columns definition
   const columns = [
     {
@@ -176,7 +184,7 @@ function TravelOrderPage() {
       sortable: true,
     },
   ];
-  
+
   // Actions for table rows
   // const actions = [
   //   {
@@ -211,7 +219,7 @@ function TravelOrderPage() {
           </button>
         </div>
       </div>
-      
+
       <div className="mt-4">
         <DataTable
           columns={columns}
@@ -219,42 +227,44 @@ function TravelOrderPage() {
           actions={(row) => {
             const actionList = [];
 
-            // if (row.Transaction?.Status === 'Rejected') {
-            //   actionList.push({
-            //     icon: PencilIcon,
-            //     title: 'Edit',
-            //     onClick: () => handleEditTO(row),
-            //     className: 'text-primary-600 hover:text-primary-900 p-1 rounded-full hover:bg-primary-50',
-            //   });
+            if (row.Transaction?.Status === 'Rejected') {
+              actionList.push({
+                icon: PencilIcon,
+                title: 'Edit',
+                onClick: () => handleEditTO(row),
+                className:
+                  'text-primary-600 hover:text-primary-900 p-1 rounded-full hover:bg-primary-50',
+              });
 
-            //   actionList.push({
-            //     icon: TrashIcon,
-            //     title: 'Delete',
-            //     onClick: () => handleDelete(row),
-            //     className: 'text-error-600 hover:text-error-900 p-1 rounded-full hover:bg-error-50',
-            //   });
-            // }
+              actionList.push({
+                icon: TrashIcon,
+                title: 'Delete',
+                onClick: () => handleDelete(row),
+                className:
+                  'text-error-600 hover:text-error-900 p-1 rounded-full hover:bg-error-50',
+              });
+            }
 
             return actionList;
           }}
           loading={isLoading}
         />
       </div>
-      
+
       {/* Travel Order Creation/Edit Modal */}
       <Modal
         isOpen={isCreateModalOpen}
         onClose={handleCloseCreateModal}
-        title={currentTravelOrder ? "Edit Travel Order" : "Create Travel Order"}
+        title={currentTravelOrder ? 'Edit Travel Order' : 'Create Travel Order'}
         size="xl"
       >
-        <TravelOrderForm 
-          initialData={currentTravelOrder} 
+        <TravelOrderForm
+          initialData={currentTravelOrder}
           onSubmit={handleSubmit}
-          onClose={handleCloseCreateModal} 
+          onClose={handleCloseCreateModal}
         />
       </Modal>
-      
+
       {/* Travel Order View Modal */}
       <Modal
         isOpen={isViewModalOpen}
@@ -263,9 +273,9 @@ function TravelOrderPage() {
         size="lg"
       >
         {currentTravelOrder && (
-          <TravelOrderDetails 
-            to={currentTravelOrder} 
-            onClose={handleCloseViewModal} 
+          <TravelOrderDetails
+            to={currentTravelOrder}
+            onClose={handleCloseViewModal}
             onEdit={() => {
               setIsViewModalOpen(false);
               setIsCreateModalOpen(true);
@@ -276,7 +286,6 @@ function TravelOrderPage() {
         )}
       </Modal>
 
-      
       {/* Delete Confirmation Modal */}
       <Modal
         isOpen={isDeleteModalOpen}
@@ -285,7 +294,8 @@ function TravelOrderPage() {
       >
         <div className="py-3">
           <p className="text-neutral-700">
-            Are you sure you want to delete the travel order "{currentTravelOrder?.TravelOrderNumber}"?
+            Are you sure you want to delete the travel order "
+            {currentTravelOrder?.TravelOrderNumber}"?
           </p>
           <p className="text-sm text-neutral-500 mt-2">
             This action cannot be undone.

@@ -3,8 +3,19 @@ const API_URL = import.meta.env.VITE_API_URL;
 
 // Generate mock ORS data
 const generateMockObligationRequests = () => {
-  const statuses = ['Pending', 'Certified Budget Available', 'Approved', 'Obligated', 'Cancelled'];
-  const departments = ['Office of the Mayor', 'Accounting Department', 'Treasury Department', 'IT Department'];
+  const statuses = [
+    'Pending',
+    'Certified Budget Available',
+    'Approved',
+    'Obligated',
+    'Cancelled',
+  ];
+  const departments = [
+    'Office of the Mayor',
+    'Accounting Department',
+    'Treasury Department',
+    'IT Department',
+  ];
   const descriptions = [
     'Purchase of office supplies',
     'Payment for consulting services',
@@ -16,14 +27,21 @@ const generateMockObligationRequests = () => {
   return Array.from({ length: 10 }, (_, i) => ({
     id: i + 1,
     orsNumber: `OBR-2024-01-${String(i + 1).padStart(4, '0')}`,
-    orsDate: new Date(2024, 0, Math.floor(Math.random() * 28) + 1).toISOString().split('T')[0],
+    orsDate: new Date(2024, 0, Math.floor(Math.random() * 28) + 1)
+      .toISOString()
+      .split('T')[0],
     payeeName: `Vendor ${i + 1}`,
-    requestingOffice: departments[Math.floor(Math.random() * departments.length)],
+    requestingOffice:
+      departments[Math.floor(Math.random() * departments.length)],
     particulars: descriptions[Math.floor(Math.random() * descriptions.length)],
     totalAmount: Math.floor(Math.random() * 100000) + 10000,
     status: statuses[Math.floor(Math.random() * statuses.length)],
     preparedBy: 'John Smith',
-    dateCreated: new Date(2024, 0, Math.floor(Math.random() * 28) + 1).toISOString(),
+    dateCreated: new Date(
+      2024,
+      0,
+      Math.floor(Math.random() * 28) + 1
+    ).toISOString(),
   }));
 };
 
@@ -71,7 +89,9 @@ export const fetchFundUtilizationById = createAsyncThunk(
       return new Promise((resolve, reject) => {
         setTimeout(() => {
           const state = thunkAPI.getState();
-          const request = state.obligationRequests.obligationRequests.find(ors => ors.id === id);
+          const request = state.obligationRequests.obligationRequests.find(
+            (ors) => ors.id === id
+          );
           if (request) {
             resolve(request);
           } else {
@@ -85,12 +105,11 @@ export const fetchFundUtilizationById = createAsyncThunk(
   }
 );
 
-
 export const createFundUtilization = createAsyncThunk(
   'fundUtilizations/create',
   async (fundUtilization, thunkAPI) => {
     try {
-      const response = await fetch(`${API_URL}/fundUtilizationRequest`, {
+      const response = await fetch(`${API_URL}/fundUtilizationRequest/save`, {
         method: 'POST',
         headers: {
           Authorization: `Bearer ${localStorage.getItem('token')}`,

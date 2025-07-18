@@ -21,6 +21,7 @@ import { fetchItems } from '@/features/settings/itemSlice';
 import { fetchItemUnits } from '@/features/settings/itemUnitsSlice';
 import { fetchTaxCodes } from '@/features/settings/taxCodeSlice';
 import { fetchBudgets } from '@/features/budget/budgetSlice';
+import { statusLabel } from '../userProfile';
 
 function ObligationRequestPage() {
   const dispatch = useDispatch();
@@ -93,36 +94,37 @@ function ObligationRequestPage() {
       key: 'Status',
       header: 'Status',
       sortable: true,
-      render: (value) => {
-        let bgColor = 'bg-neutral-100 text-neutral-800';
+      // render: (value) => {
+      //   let bgColor = 'bg-neutral-100 text-neutral-800';
 
-        switch (value) {
-          case 'Requested':
-            bgColor = 'bg-warning-100 text-warning-800';
-            break;
-          case 'Pending Approval':
-            bgColor = 'bg-primary-100 text-primary-800';
-            break;
-          case 'Approved for Payment':
-          case 'Paid':
-            bgColor = 'bg-success-100 text-success-800';
-            break;
-          case 'Cancelled':
-          case 'Rejected':
-            bgColor = 'bg-error-100 text-error-800';
-            break;
-          default:
-            break;
-        }
+      //   switch (value) {
+      //     case 'Requested':
+      //       bgColor = 'bg-warning-100 text-warning-800';
+      //       break;
+      //     case 'Pending Approval':
+      //       bgColor = 'bg-primary-100 text-primary-800';
+      //       break;
+      //     case 'Approved for Payment':
+      //     case 'Paid':
+      //       bgColor = 'bg-success-100 text-success-800';
+      //       break;
+      //     case 'Cancelled':
+      //     case 'Rejected':
+      //       bgColor = 'bg-error-100 text-error-800';
+      //       break;
+      //     default:
+      //       break;
+      //   }
 
-        return (
-          <span
-            className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${bgColor}`}
-          >
-            {value}
-          </span>
-        );
-      },
+      //   return (
+      //     <span
+      //       className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${bgColor}`}
+      //     >
+      //       {value}
+      //     </span>
+      //   );
+      // },
+      render: (value) => statusLabel(value),
     },
     {
       key: 'InvoiceDate',
@@ -163,22 +165,22 @@ function ObligationRequestPage() {
   ];
 
   // Actions for table rows
-  // const actions = [
-  //   {
-  //     icon: EyeIcon,
-  //     title: 'View',
-  //     onClick: handleViewOR,
-  //     className:
-  //       'text-primary-600 hover:text-primary-900 p-1 rounded-full hover:bg-primary-50',
-  //   },
-  //   {
-  //     icon: PencilIcon,
-  //     title: 'Edit',
-  //     onClick: handleEditOR,
-  //     className:
-  //       'text-primary-600 hover:text-primary-900 p-1 rounded-full hover:bg-primary-50',
-  //   },
-  // ];
+  const actions = [
+    {
+      icon: EyeIcon,
+      title: 'View',
+      onClick: handleViewOR,
+      className:
+        'text-primary-600 hover:text-primary-900 p-1 rounded-full hover:bg-primary-50',
+    },
+    {
+      icon: PencilIcon,
+      title: 'Edit',
+      onClick: handleEditOR,
+      className:
+        'text-primary-600 hover:text-primary-900 p-1 rounded-full hover:bg-primary-50',
+    },
+  ];
 
   return (
     <div>

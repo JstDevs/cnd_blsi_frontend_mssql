@@ -260,15 +260,13 @@ function RealPropertyTaxPage() {
             </button>
           </div>
 
-          <div className="bg-white rounded-lg shadow-md p-6 mb-6">
-            <DataTable
-              columns={columns}
-              data={filteredProperties}
-              actions={actions}
-              loading={isLoading}
-              onRowClick={handleViewProperty}
-            />
-          </div>
+          <DataTable
+            columns={columns}
+            data={filteredProperties}
+            actions={actions}
+            loading={isLoading}
+            onRowClick={handleViewProperty}
+          />
         </>
       )}
 

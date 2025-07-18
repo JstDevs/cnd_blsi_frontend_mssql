@@ -33,7 +33,9 @@ function TravelOrderForm({
   const validationSchema = Yup.object({
     BudgetID: Yup.string().required('Office is required'),
     DateStart: Yup.date().required('Start Date is required'),
-    DateEnd: Yup.date().required('End Date is required'),
+    DateEnd: Yup.date()
+      .required('End Date is required')
+      .min(Yup.ref('DateStart'), 'End Date must be after Start Date'),
     Place: Yup.string().required('Place/Office to be visited is required'),
     Venue: Yup.string().required('Venue/Destination is required'),
     Remarks: Yup.string(),
@@ -89,10 +91,10 @@ function TravelOrderForm({
       for (const key in values) {
         if (key === 'Attachments') {
           values.Attachments.forEach((att, idx) => {
-            if (att.File) {
-              formData.append(`Attachments[${idx}].File`, att.File);
-            } else if (att.ID) {
+            if (att.ID) {
               formData.append(`Attachments[${idx}].ID`, att.ID);
+            } else {
+              formData.append(`Attachments[${idx}].File`, att.File);
             }
           });
         } else {
@@ -341,7 +343,7 @@ function TravelOrderForm({
               {values.TravelPayments?.map((TravelPayment, index) => (
                 <div
                   key={index}
-                  className="flex flex-wrap items-center items-end gap-4 mb-2"
+                  className="flex flex-wrap items-start gap-4 !mb-4"
                 >
                   {/* Amount */}
                   <FormField
@@ -397,7 +399,7 @@ function TravelOrderForm({
                   <Button
                     type="button"
                     onClick={() => remove(index)}
-                    className="bg-red-600 hover:bg-red-700 text-white p-1 mt-2"
+                    className="bg-red-600 hover:bg-red-700 text-white p-1 my-auto"
                     disabled={values.TravelPayments.length === 1}
                   >
                     <Trash2 className="w-4 h-4" />
@@ -580,16 +582,16 @@ function TravelOrderForm({
         />
 
         <div className="flex justify-end space-x-3 pt-4 border-t border-neutral-200">
-          <Button type="button" onClick={onClose} className="btn btn-outline">
+          <button type="button" onClick={onClose} className="btn btn-outline">
             Cancel
-          </Button>
-          <Button
+          </button>
+          <button
             type="submit"
             className="btn btn-primary"
             disabled={isSubmitting}
           >
             {isSubmitting ? 'Saving...' : 'Save'}
-          </Button>
+          </button>
         </div>
       </form>
     </FormikProvider>

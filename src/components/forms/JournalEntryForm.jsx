@@ -79,7 +79,7 @@ function JournalEntryForm({
         (sum, entry) => sum + (parseFloat(entry.Credit) || 0),
         0
       );
-
+      console.log(values);
       if (totalDebit !== totalCredit) {
         setBalanceError('Total Debit must be equal to Total Credit.');
         return;
@@ -92,17 +92,21 @@ function JournalEntryForm({
       for (const key in values) {
         if (key === 'Attachments') {
           values.Attachments.forEach((att, idx) => {
-            if (att.File) {
-              formData.append(`Attachments[${idx}].File`, att.File);
-            } else if (att.ID) {
+            if (att.ID) {
               formData.append(`Attachments[${idx}].ID`, att.ID);
+            } else {
+              formData.append(`Attachments[${idx}].File`, att.File);
             }
           });
         } else {
           formData.append(key, JSON.stringify(values[key]));
         }
       }
+      initialData && formData.append('LinkID', initialData.LinkID);
 
+      values.InvoiceDate
+        ? formData.append('CheckDate', values.InvoiceDate)
+        : null;
       try {
         await onSubmit(formData);
       } catch (err) {

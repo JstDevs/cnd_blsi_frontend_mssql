@@ -7,7 +7,7 @@ import FormField from '../../components/common/FormField';
 import FundUtilizationAddItemForm from './FundUtilizationAddItemForm';
 import Modal from '../../components/common/Modal';
 import Button from '../../components/common/Button';
-import { Trash2 } from 'lucide-react';
+import { Trash2, XCircleIcon } from 'lucide-react';
 import { toast } from 'react-hot-toast';
 import {
   BuildingOfficeIcon,
@@ -17,6 +17,7 @@ import {
 } from '@heroicons/react/24/outline';
 import {
   createFundUtilization,
+  fetchFundUtilizations,
   updateFundUtilization,
 } from '../../features/disbursement/fundUtilizationSlice';
 import { ChevronDownIcon, UserIcon, UsersIcon } from 'lucide-react';
@@ -232,10 +233,10 @@ function FundUtilizationForm({
 
     /* ⬇︎ Attachments (handle files or IDs) */
     values.Attachments.forEach((att, idx) => {
-      if (att.File) {
-        fd.append(`Attachments[${idx}].File`, att.File);
-      } else if (att.ID) {
+      if (att.ID) {
         fd.append(`Attachments[${idx}].ID`, att.ID);
+      } else {
+        fd.append(`Attachments[${idx}].File`, att.File);
       }
     });
 
@@ -243,10 +244,18 @@ function FundUtilizationForm({
       ? updateFundUtilization({ formData: fd, id: initialData.ID })
       : createFundUtilization(fd);
 
+    if (initialData) {
+      fd.append('IsNew', false);
+      fd.append('LinkID', initialData.LinkID);
+    } else {
+      fd.append('IsNew', true);
+    }
+
     dispatch(action)
       .unwrap()
       .then(() => {
         toast.success('Success');
+        dispatch(fetchFundUtilizations());
         onClose();
       })
       .catch((error) => {
@@ -675,7 +684,7 @@ function FundUtilizationForm({
                             <span>RC</span>
                             <span>REMARKS</span>
                             <span>ITEM</span>
-                            <span>FPP</span>
+                            {/* <span>FPP</span> */}
                             <span>ACCOUNT CODE</span>
                             <span className="text-right">SUB-TOTAL</span>
                           </div>
@@ -687,18 +696,18 @@ function FundUtilizationForm({
                               <span>{entry.responsibilityCenterName}</span>
                               <span>{entry.Remarks}</span>
                               <span>{entry.itemName}</span>
-                              <span>{entry.FPP}</span>
+                              {/* <span>{entry.FPP}</span> */}
                               <span>{entry.chargeAccountName}</span>
                               <span className="text-right">
                                 {parseFloat(entry.subtotal).toFixed(2)}
                               </span>
-                              <div className="col-span-6 text-right">
+                              <div className="col-span-1 text-right">
                                 <button
                                   type="button"
                                   onClick={() => remove(idx)}
                                   className="text-red-600 text-xs"
                                 >
-                                  ✕
+                                  <XCircleIcon className="w-4 h-4" />
                                 </button>
                               </div>
                             </div>

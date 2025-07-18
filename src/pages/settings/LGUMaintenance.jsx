@@ -8,6 +8,7 @@ import { fetchBarangays } from '../../features/settings/barangaysSlice';
 import { fetchMunicipalities } from '../../features/settings/municipalitiesSlice';
 import { fetchProvinces } from '../../features/settings/provincesSlice';
 import { fetchRegions } from '../../features/settings/regionsSlice';
+import toast from 'react-hot-toast';
 
 const LGUMaintenance = () => {
   const dispatch = useDispatch();
@@ -163,6 +164,8 @@ const LGUMaintenance = () => {
       const success = await updateLguData(values, logoFile);
       if (success) {
         setIsEditing(false);
+        toast.success('LGU updated successfully');
+        fetchLguData();
       }
       setSubmitting(false);
     },
