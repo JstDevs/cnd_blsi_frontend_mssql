@@ -20,6 +20,7 @@ import {
 import { fetchEmployees } from '../../features/settings/employeeSlice';
 // import EmployeeForm from "./EmployeeForm";
 import { fetchUserroles } from '../../features/settings/userrolesSlice';
+import toast from 'react-hot-toast';
 
 // User Access options
 // const userAccessOptions = [
@@ -106,11 +107,18 @@ function UserPage() {
     setIsResetPasswordModalOpen(true);
   };
 
-  const confirmDelete = () => {
-    if (userToDelete) {
-      dispatch(deleteUser(userToDelete.ID));
-      setIsDeleteModalOpen(false);
-      setUserToDelete(null);
+  const confirmDelete = async () => {
+    try {
+      if (userToDelete) {
+        await dispatch(deleteUser(userToDelete.ID)).unwrap();
+        setIsDeleteModalOpen(false);
+        setUserToDelete(null);
+        toast.success('User deleted successfully');
+      }
+    } catch (error) {
+      console.error('Failed to delete user:', error);
+      // Optionally show an error message to the user
+      toast.error('Failed to delete user');
     }
   };
 
@@ -142,15 +150,18 @@ function UserPage() {
 
     try {
       if (currentUser) {
-        const result = await dispatch(
+        await dispatch(
           updateUser({ ...submissionData, ID: currentUser.ID })
         ).unwrap();
       } else {
-        const result = await dispatch(addUser(submissionData)).unwrap();
+        await dispatch(addUser(submissionData)).unwrap();
       }
+
+      toast.success('User saved successfully.');
     } catch (error) {
       console.log(error);
       setErrors({ general: 'Unexpected error occurred.' });
+      toast.error('Failed to save user. Please try again.');
     } finally {
       resetForm();
       setIsModalOpen(false);
