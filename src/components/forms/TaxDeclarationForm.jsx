@@ -69,6 +69,67 @@ function TaxDeclarationForm({ initialData, onSubmit, onClose }) {
       Memoranda: '',
       ...(initialData || {}),
     },
+    // validationSchema: Yup.object({
+    //   T_D_No: Yup.number().required('TD No. is required'),
+    //   PropertyID: Yup.number().required('Property ID is required'),
+    //   OwnerID: Yup.number().required('Owner ID is required'),
+    //   OwnerTIN: Yup.string().required('Owner TIN is required'),
+    //   OwnerTelephoneNumber: Yup.string().required(
+    //     'Owner Telephone Number is required'
+    //   ),
+    //   OwnerAddress: Yup.string().required('Owner Address is required'),
+
+    //   BeneficialorAdminUserID: Yup.number().required(
+    //     'Beneficialor Admin User ID is required'
+    //   ),
+    //   BeneficialorAdminTIN: Yup.string().required(
+    //     'Beneficialor Admin TIN is required'
+    //   ),
+    //   BeneficialorAdminAddress: Yup.string().required(
+    //     'Beneficialor Admin Address is required'
+    //   ),
+    //   BeneficialorAdminTelephoneNumber: Yup.string().required(
+    //     'Beneficialor Admin Telephone Number is required'
+    //   ),
+    //   OCT_TCT_CLOA_Number: Yup.string().required(
+    //     'OCT TCT CLOA Number is required'
+    //   ),
+    //   SurveyNumber: Yup.string().required('Survey Number is required'),
+    //   LotNumber: Yup.string().required('Lot Number is required'),
+    //   CCT: Yup.string().required('CCT is required'),
+
+    //   North: Yup.string().required('North is required'),
+    //   South: Yup.string().required('South is required'),
+    //   East: Yup.string().required('East is required'),
+    //   West: Yup.string().required('West is required'),
+
+    //   Kind: Yup.string().required('Kind is required'),
+    //   Classification: Yup.string().required('Classification is required'),
+    //   Area: Yup.string().required('Area is required'),
+    //   MarketValue: Yup.string().required('Market Value is required'),
+    //   ActualUse: Yup.string().required('Actual Use is required'),
+    //   AssessmentLevel: Yup.string().required('Assessment Level is required'),
+    //   AssessmentValue: Yup.string().required('Assessment Value is required'),
+
+    //   AmountInWords: Yup.string().required('Amount in Words is required'),
+    //   // KindofProperty: Yup.string().required('Kind of Property is required'),
+    //   // Storeys: Yup.string().required('Number of Storeys is required'),
+    //   // Description: Yup.string().required('Description is required'),
+    //   // ActualUse: Yup.string().required('Actual Use is required'),
+    //   // Classification: Yup.string().required('Classification is required'),
+    //   // AssessmentLevel: Yup.string().required('Assessment Level is required'),
+    //   // MarketValue: Yup.string().required('Market Value is required'),
+    //   // Memoranda: Yup.string().required('Memoranda is required'),
+    //   // BlockNumber: Yup.string().required('Block Number is required'),
+    //   // Dated: Yup.date().nullable().required('Dated is required'),
+    //   // Taxable: Yup.boolean().required('Taxable is required'),
+    //   CancelTDNumber: Yup.string().required('Cancel TD Number is required'),
+    //   Effectivity: Yup.date().required('Effectivity is required'),
+    //   OwnerPrevious: Yup.string().required('Owner Previous is required'),
+    //   PreviousAssessedValue: Yup.string().required(
+    //     'Previous Assessed Value is required'
+    //   ),
+    // }),
     validationSchema: Yup.object({
       T_D_No: Yup.number().required('TD No. is required'),
       PropertyID: Yup.number().required('Property ID is required'),
@@ -78,7 +139,6 @@ function TaxDeclarationForm({ initialData, onSubmit, onClose }) {
         'Owner Telephone Number is required'
       ),
       OwnerAddress: Yup.string().required('Owner Address is required'),
-
       BeneficialorAdminUserID: Yup.number().required(
         'Beneficialor Admin User ID is required'
       ),
@@ -97,39 +157,48 @@ function TaxDeclarationForm({ initialData, onSubmit, onClose }) {
       SurveyNumber: Yup.string().required('Survey Number is required'),
       LotNumber: Yup.string().required('Lot Number is required'),
       CCT: Yup.string().required('CCT is required'),
-
+      BlockNumber: Yup.string().required('Block Number is required'),
+      Dated: Yup.string().required('Dated is required'),
       North: Yup.string().required('North is required'),
       South: Yup.string().required('South is required'),
       East: Yup.string().required('East is required'),
       West: Yup.string().required('West is required'),
-
-      Kind: Yup.string().required('Kind is required'),
-      Classification: Yup.string().required('Classification is required'),
-      Area: Yup.string().required('Area is required'),
-      MarketValue: Yup.string().required('Market Value is required'),
-      ActualUse: Yup.string().required('Actual Use is required'),
-      AssessmentLevel: Yup.string().required('Assessment Level is required'),
-      AssessmentValue: Yup.string().required('Assessment Value is required'),
-
-      AmountInWords: Yup.string().required('Amount in Words is required'),
-      // KindofProperty: Yup.string().required('Kind of Property is required'),
-      // Storeys: Yup.string().required('Number of Storeys is required'),
-      // Description: Yup.string().required('Description is required'),
-      // ActualUse: Yup.string().required('Actual Use is required'),
-      // Classification: Yup.string().required('Classification is required'),
-      // AssessmentLevel: Yup.string().required('Assessment Level is required'),
-      // MarketValue: Yup.string().required('Market Value is required'),
-      // Memoranda: Yup.string().required('Memoranda is required'),
-      // BlockNumber: Yup.string().required('Block Number is required'),
-      // Dated: Yup.date().nullable().required('Dated is required'),
-      // Taxable: Yup.boolean().required('Taxable is required'),
+      Taxable: Yup.boolean().oneOf([true], 'Field is required'),
       CancelTDNumber: Yup.string().required('Cancel TD Number is required'),
-      Effectivity: Yup.date().required('Effectivity is required'),
+      Effectivity: Yup.string().required('Effectivity is required'),
       OwnerPrevious: Yup.string().required('Owner Previous is required'),
-      PreviousAssessedValue: Yup.string().required(
+      PreviousAssessedValue: Yup.number().required(
         'Previous Assessed Value is required'
       ),
+      KindofProperty: Yup.string().required('Kind of Property is required'),
+      Storeys: Yup.string().required('Number of Storeys is required'),
+      Description: Yup.string().required('Description is required'),
+      kind: Yup.string().required('Kind is required'),
+      ActualUse: Yup.string().required('Actual Use is required'),
+      Classification: Yup.string().required('Classification is required'),
+      AreaSize: Yup.string().required('Area Size is required'),
+      AssessmentLevel: Yup.string().required('Assessment Level is required'),
+      MarketValue: Yup.string().required('Market Value is required'),
+      AmountInWords: Yup.string().required('Amount in Words is required'),
+      Memoranda: Yup.string().required('Memoranda is required'),
+      // If you have an array of assessmentRows:
+      assessmentRows: Yup.array().of(
+        Yup.object().shape({
+          Kind: Yup.string().required('Kind is required'),
+          Classification: Yup.string().required('Classification is required'),
+          Area: Yup.string().required('Area is required'),
+          MarketValue: Yup.string().required('Market Value is required'),
+          ActualUse: Yup.string().required('Actual Use is required'),
+          AssessmentLevel: Yup.string().required(
+            'Assessment Level is required'
+          ),
+          AssessmentValue: Yup.string().required(
+            'Assessment Value is required'
+          ),
+        })
+      ),
     }),
+
     onSubmit: (values) => {
       onSubmit({
         ...values,
@@ -196,7 +265,7 @@ function TaxDeclarationForm({ initialData, onSubmit, onClose }) {
     updated[index][field] = value;
     setAssessmentRows(updated);
   };
-
+  // console.log(errors);
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -499,7 +568,7 @@ function TaxDeclarationForm({ initialData, onSubmit, onClose }) {
       {/* Additional Information */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 p-4 border border-gray-300">
         <div>
-          <label className="block text-sm font-medium mb-1">
+          {/* <label className="block text-sm font-medium mb-1">
             This Declaration cancels TD No.
           </label>
           <select
@@ -510,11 +579,28 @@ function TaxDeclarationForm({ initialData, onSubmit, onClose }) {
             className="w-full p-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500 focus:border-transparent"
           >
             <option value="">Select TD No.</option>
-            {/* TODO: Populate dynamically if needed */}
+            TODO: Populate dynamically if needed
             <option value="1">TD 1</option>
             <option value="2">TD 2</option>
             <option value="3">TD 3</option>
-          </select>
+          </select> */}
+          <FormField
+            type="select"
+            name="CancelTDNumber"
+            placeholder="Cancel TD No."
+            label={'This Declaration cancels TD No.'}
+            options={['1', '2', '3'].map((option) => ({
+              label: option,
+              value: option,
+            }))}
+            required
+            value={values.CancelTDNumber}
+            onChange={handleChange}
+            onBlur={handleBlur}
+            error={touched.CancelTDNumber && errors.CancelTDNumber}
+            touched={touched.CancelTDNumber}
+            className="w-full p-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+          />
         </div>
         <div>
           <FormField
@@ -525,6 +611,8 @@ function TaxDeclarationForm({ initialData, onSubmit, onClose }) {
             required
             value={values.Effectivity}
             onChange={handleChange}
+            error={touched.Effectivity && errors.Effectivity}
+            touched={touched.Effectivity}
             onBlur={handleBlur}
             className="w-full p-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500 focus:border-transparent"
           />
@@ -532,11 +620,13 @@ function TaxDeclarationForm({ initialData, onSubmit, onClose }) {
         <div>
           <FormField
             type="text"
-            name="ownerPrevious"
+            name="OwnerPrevious"
             placeholder="Previous Owner"
             label={'Previous Owner'}
             required
-            value={values.ownerPrevious}
+            value={values.OwnerPrevious}
+            error={touched.OwnerPrevious && errors.OwnerPrevious}
+            touched={touched.OwnerPrevious}
             onChange={handleChange}
             onBlur={handleBlur}
             className="w-full p-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500 focus:border-transparent"
@@ -549,6 +639,10 @@ function TaxDeclarationForm({ initialData, onSubmit, onClose }) {
             placeholder=" Previous Assessed Value:"
             label={'Previous Assessed Value:'}
             value={values.PreviousAssessedValue}
+            error={
+              touched.PreviousAssessedValue && errors.PreviousAssessedValue
+            }
+            touched={touched.PreviousAssessedValue}
             onChange={handleChange}
             required
             onBlur={handleBlur}
@@ -568,7 +662,7 @@ function TaxDeclarationForm({ initialData, onSubmit, onClose }) {
             onChange={handleChange}
             onBlur={handleBlur}
             required
-            error={errors.KindofProperty}
+            error={touched.KindofProperty && errors.KindofProperty}
             touched={touched.KindofProperty}
           />
           <FormField
@@ -579,7 +673,7 @@ function TaxDeclarationForm({ initialData, onSubmit, onClose }) {
             onChange={handleChange}
             onBlur={handleBlur}
             required
-            error={errors.Storeys}
+            error={touched.Storeys && errors.Storeys}
             touched={touched.Storeys}
           />
         </div>
@@ -591,7 +685,7 @@ function TaxDeclarationForm({ initialData, onSubmit, onClose }) {
           value={values.Description}
           onChange={handleChange}
           onBlur={handleBlur}
-          error={errors.Description}
+          error={touched.Description && errors.Description}
           required
           touched={touched.Description}
         />
@@ -599,7 +693,24 @@ function TaxDeclarationForm({ initialData, onSubmit, onClose }) {
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 p-4 border border-gray-300">
         <div>
-          <label className="block text-sm font-medium mb-1">Kind:</label>
+          <FormField
+            // className="w-full p-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            label="Kind: (LAND / BUILDING)"
+            name="kind"
+            type="select"
+            required
+            value={values.kind}
+            onChange={handleChange}
+            onBlur={handleBlur}
+            error={touched.kind && errors.kind}
+            touched={touched.kind}
+            options={['LAND', 'BUILDING'].map((option) => ({
+              label: option,
+              value: option,
+            }))}
+          />
+
+          {/* <label className="block text-sm font-medium mb-1">Kind:</label>
           <select
             name="kind"
             value={values.kind}
@@ -609,11 +720,11 @@ function TaxDeclarationForm({ initialData, onSubmit, onClose }) {
             <option value="">Select Kind</option>
             <option value="LAND">LAND</option>
             <option value="BUILDING">BUILDING</option>
-          </select>
+          </select> */}
         </div>
 
         <div>
-          <label className="block text-sm font-medium mb-1">Actual Use:</label>
+          {/* <label className="block text-sm font-medium mb-1">Actual Use:</label>
           <select
             name="ActualUse"
             value={values.ActualUse}
@@ -624,11 +735,28 @@ function TaxDeclarationForm({ initialData, onSubmit, onClose }) {
             <option value="RESIDENTIAL">RESIDENTIAL</option>
             <option value="COMMERCIAL">COMMERCIAL</option>
             <option value="INDUSTRIAL">INDUSTRIAL</option>
-          </select>
+          </select> */}
+          <FormField
+            label="Actual Use"
+            name="ActualUse"
+            type="select"
+            required
+            value={values.ActualUse}
+            onChange={handleChange}
+            onBlur={handleBlur}
+            error={touched.ActualUse && errors.ActualUse}
+            touched={touched.ActualUse}
+            options={['RESIDENTIAL', 'COMMERCIAL', 'INDUSTRIAL'].map(
+              (option) => ({
+                label: option,
+                value: option,
+              })
+            )}
+          />
         </div>
 
         <div>
-          <label className="block text-sm font-medium mb-1">
+          {/* <label className="block text-sm font-medium mb-1">
             Classification:
           </label>
           <select
@@ -641,7 +769,22 @@ function TaxDeclarationForm({ initialData, onSubmit, onClose }) {
             <option value="A">A</option>
             <option value="B">B</option>
             <option value="C">C</option>
-          </select>
+          </select> */}
+          <FormField
+            label="Classification"
+            name="Classification"
+            type="select"
+            required
+            value={values.Classification}
+            onChange={handleChange}
+            onBlur={handleBlur}
+            error={touched.Classification && errors.Classification}
+            touched={touched.Classification}
+            options={['A', 'B', 'C'].map((option) => ({
+              label: option,
+              value: option,
+            }))}
+          />
         </div>
 
         <div>
@@ -652,6 +795,9 @@ function TaxDeclarationForm({ initialData, onSubmit, onClose }) {
             label={'Area Size'}
             required
             value={values.AreaSize}
+            onBlur={handleBlur}
+            error={touched.AreaSize && errors.AreaSize}
+            touched={touched.AreaSize}
             onChange={handleChange}
             className="w-full p-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500 focus:border-transparent"
           />
@@ -665,6 +811,9 @@ function TaxDeclarationForm({ initialData, onSubmit, onClose }) {
             placeholder="Enter Assessment Level"
             required
             value={values.AssessmentLevel}
+            onBlur={handleBlur}
+            error={touched.AssessmentLevel && errors.AssessmentLevel}
+            touched={touched.AssessmentLevel}
             onChange={handleChange}
             className="w-full p-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500 focus:border-transparent"
           />
@@ -677,6 +826,9 @@ function TaxDeclarationForm({ initialData, onSubmit, onClose }) {
             name="MarketValue"
             label={'Market Value'}
             value={values.MarketValue}
+            onBlur={handleBlur}
+            error={touched.MarketValue && errors.MarketValue}
+            touched={touched.MarketValue}
             required
             onChange={handleChange}
             className="w-full p-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500 focus:border-transparent"
@@ -760,6 +912,11 @@ function TaxDeclarationForm({ initialData, onSubmit, onClose }) {
               ))}
             </tbody>
           </table>
+          {errors?.assessmentRows?.length > 0 && (
+            <p className="text-red-500 text-sm mt-2">
+              At Least One Row Required{' '}
+            </p>
+          )}
         </div>
       </div>
 
