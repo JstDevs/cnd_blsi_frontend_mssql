@@ -115,7 +115,13 @@ function BudgetFundTransferForm({
     } else {
       formData.append('Attachments', '[]');
     }
-
+    // Add LinkID IF UPDATING IT
+    if (initialData?.LinkID) {
+      formData.append('LinkID', initialData?.LinkID);
+      formData.append('IsNew', false);
+    } else {
+      formData.append('IsNew', true);
+    }
     try {
       // Submit the form data
       await onSubmit(formData);
@@ -195,6 +201,7 @@ function BudgetFundTransferForm({
                     name="fromCode"
                     type="text"
                     value={values.fromFund.Code}
+                    className="bg-gray-200 cursor-not-allowed"
                     readOnly
                   />
                   <FormField
@@ -202,6 +209,7 @@ function BudgetFundTransferForm({
                     name="fromName"
                     type="text"
                     value={values.fromFund.Name}
+                    className="bg-gray-200 cursor-not-allowed"
                     readOnly
                   />
                   <FormField
@@ -209,6 +217,7 @@ function BudgetFundTransferForm({
                     name="fromBalance"
                     type="text"
                     value={values.fromFund.Balance || '0'}
+                    className="bg-gray-200 cursor-not-allowed"
                     readOnly
                   />
                 </div>
@@ -243,6 +252,7 @@ function BudgetFundTransferForm({
                     name="toCode"
                     type="text"
                     value={values.toFund.Code}
+                    className="bg-gray-200 cursor-not-allowed"
                     readOnly
                   />
                   <FormField
@@ -250,6 +260,7 @@ function BudgetFundTransferForm({
                     name="toName"
                     type="text"
                     value={values.toFund.Name}
+                    className="bg-gray-200 cursor-not-allowed"
                     readOnly
                   />
                   <FormField
@@ -257,6 +268,7 @@ function BudgetFundTransferForm({
                     name="toBalance"
                     type="text"
                     value={values.toFund.Balance || '0'}
+                    className="bg-gray-200 cursor-not-allowed"
                     readOnly
                   />
                 </div>

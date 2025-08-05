@@ -106,14 +106,14 @@ function BudgetTransferForm({ initialData, onSubmit, onClose, budgetOptions }) {
   useEffect(() => {
     if (initialData) {
       setFormData({
-        fromBudgetId: initialData.BudgetID || '',
-        toBudgetId: initialData.TargetID || '',
-        transferAmount: parseFloat(initialData.Amount) || 0,
-        remarks: initialData.Remarks || '',
+        fromBudgetId: initialData?.BudgetID?.toString() || '',
+        toBudgetId: initialData?.TargetID?.toString() || '',
+        transferAmount: parseFloat(initialData?.Total) || 0,
+        remarks: initialData?.Remarks || '',
         fromBudget:
-          budgetOptions.find((b) => b.ID === initialData.BudgetID) || null,
+          budgetOptions.find((b) => b.ID === initialData?.BudgetID) || null,
         toBudget:
-          budgetOptions.find((b) => b.ID === initialData.TargetID) || null,
+          budgetOptions.find((b) => b.ID === initialData?.TargetID) || null,
         Attachments: initialData.Attachments || [],
       });
     } else {
@@ -169,6 +169,7 @@ function BudgetTransferForm({ initialData, onSubmit, onClose, budgetOptions }) {
                     name="fromBudgetName"
                     type="text"
                     value={values.fromBudget.Name}
+                    className="bg-gray-200 cursor-not-allowed"
                     readOnly
                   />
                   <FormField
@@ -176,6 +177,7 @@ function BudgetTransferForm({ initialData, onSubmit, onClose, budgetOptions }) {
                     name="fromFiscalYear"
                     type="text"
                     value={values.fromBudget.FiscalYear?.Name}
+                    className="bg-gray-200 cursor-not-allowed"
                     readOnly
                   />
                   <FormField
@@ -183,6 +185,7 @@ function BudgetTransferForm({ initialData, onSubmit, onClose, budgetOptions }) {
                     name="fromDepartment"
                     type="text"
                     value={values.fromBudget.Department?.Name || 'N/A'}
+                    className="bg-gray-200 cursor-not-allowed"
                     readOnly
                   />
                   <FormField
@@ -190,6 +193,74 @@ function BudgetTransferForm({ initialData, onSubmit, onClose, budgetOptions }) {
                     name="fromBalance"
                     type="text"
                     value={values.fromBudget.AppropriationBalance || '0.00'}
+                    className="bg-gray-200 cursor-not-allowed"
+                    readOnly
+                  />
+                  <FormField
+                    label="Sub Department"
+                    name="fromSubDepartment"
+                    type="text"
+                    value={
+                      values.fromBudget.SubDepartment?.Name ||
+                      'No Subdepartments'
+                    }
+                    className="bg-gray-200 cursor-not-allowed"
+                    readOnly
+                  />
+                  <FormField
+                    label="Chart of Accounts"
+                    name="fromChartOfAccounts"
+                    type="text"
+                    value={values.fromBudget.ChartofAccounts?.Name || 'N/A'}
+                    className="bg-gray-200 cursor-not-allowed"
+                    readOnly
+                  />
+                  <FormField
+                    label="Fund"
+                    name="fromFund"
+                    type="text"
+                    value={values.fromBudget.Funds?.Name || 'General Fund'}
+                    className="bg-gray-200 cursor-not-allowed"
+                    readOnly
+                  />
+                  <FormField
+                    label="Project"
+                    name="fromProject"
+                    type="text"
+                    value={values.fromBudget.Project?.Name || 'No Project'}
+                    className="bg-gray-200 cursor-not-allowed"
+                    readOnly
+                  />
+                  <FormField
+                    label="Appropriation"
+                    name="fromAppropriation"
+                    type="text"
+                    value={values.fromBudget.Appropriation || '0.00'}
+                    className="bg-gray-200 cursor-not-allowed"
+                    readOnly
+                  />
+                  <FormField
+                    label="Released Allotments"
+                    name="fromReleasedAllotments"
+                    type="text"
+                    value={values.fromBudget.Released || '0.00'}
+                    className="bg-gray-200 cursor-not-allowed"
+                    readOnly
+                  />
+                  <FormField
+                    label="Allotment Balance"
+                    name="fromAllotmentBalance"
+                    type="text"
+                    value={values.fromBudget.AllotmentBalance || '0.00'}
+                    className="bg-gray-200 cursor-not-allowed"
+                    readOnly
+                  />{' '}
+                  <FormField
+                    label="Balance"
+                    name="fromBalance"
+                    type="text"
+                    value={values.fromBudget.AppropriationBalance || '0.00'}
+                    className="bg-gray-200 cursor-not-allowed"
                     readOnly
                   />
                 </div>
@@ -226,6 +297,7 @@ function BudgetTransferForm({ initialData, onSubmit, onClose, budgetOptions }) {
                     name="toBudgetName"
                     type="text"
                     value={values.toBudget.Name}
+                    className="bg-gray-200 cursor-not-allowed"
                     readOnly
                   />
                   <FormField
@@ -233,6 +305,7 @@ function BudgetTransferForm({ initialData, onSubmit, onClose, budgetOptions }) {
                     name="toFiscalYear"
                     type="text"
                     value={values.toBudget.FiscalYear?.Name}
+                    className="bg-gray-200 cursor-not-allowed"
                     readOnly
                   />
                   <FormField
@@ -240,6 +313,7 @@ function BudgetTransferForm({ initialData, onSubmit, onClose, budgetOptions }) {
                     name="toDepartment"
                     type="text"
                     value={values.toBudget.Department?.Name || 'N/A'}
+                    className="bg-gray-200 cursor-not-allowed"
                     readOnly
                   />
                   <FormField
@@ -247,6 +321,74 @@ function BudgetTransferForm({ initialData, onSubmit, onClose, budgetOptions }) {
                     name="toBalance"
                     type="text"
                     value={values.toBudget.AppropriationBalance || '0.00'}
+                    className="bg-gray-200 cursor-not-allowed"
+                    readOnly
+                  />
+                  <FormField
+                    label="Sub Department"
+                    name="toSubDepartment"
+                    type="text"
+                    value={
+                      values.toBudget.SubDepartment?.Name || 'No Subdepartments'
+                    }
+                    className="bg-gray-200 cursor-not-allowed"
+                    readOnly
+                  />
+                  <FormField
+                    label="Chart of Accounts"
+                    name="toChartOfAccounts"
+                    type="text"
+                    value={values.toBudget.ChartofAccounts?.Name || 'N/A'}
+                    className="bg-gray-200 cursor-not-allowed"
+                    readOnly
+                  />
+                  <FormField
+                    label="Fund"
+                    name="toFund"
+                    type="text"
+                    value={values.toBudget.Funds?.Name || 'General Fund'}
+                    className="bg-gray-200 cursor-not-allowed"
+                    readOnly
+                  />
+                  <FormField
+                    label="Project"
+                    name="toProject"
+                    type="text"
+                    value={values.toBudget.Project?.Name || 'No Project'}
+                    className="bg-gray-200 cursor-not-allowed"
+                    readOnly
+                  />
+                  <FormField
+                    label="Appropriation"
+                    name="toAppropriation"
+                    type="text"
+                    value={values.toBudget.Appropriation || '0.00'}
+                    className="bg-gray-200 cursor-not-allowed"
+                    readOnly
+                  />
+
+                  <FormField
+                    label="Released Allotments"
+                    name="toReleasedAllotments"
+                    type="text"
+                    value={values.toBudget.Released || '0.00'}
+                    className="bg-gray-200 cursor-not-allowed"
+                    readOnly
+                  />
+                  <FormField
+                    label="Allotment Balance"
+                    name="toAllotmentBalance"
+                    type="text"
+                    value={values.toBudget.AllotmentBalance || '0.00'}
+                    className="bg-gray-200 cursor-not-allowed"
+                    readOnly
+                  />
+                  <FormField
+                    label="Balance"
+                    name="toBalance"
+                    type="text"
+                    value={values.toBudget.AppropriationBalance || '0.00'}
+                    className="bg-gray-200 cursor-not-allowed"
                     readOnly
                   />
                 </div>

@@ -92,7 +92,7 @@ const BudgetTransferPage = () => {
   const actions = (row) => {
     const baseActions = [];
     // Only add Edit action if status is "Rejected" , use Requested to Test it
-    if (row.Status === 'Requested') {
+    if (row.Status === 'Rejected') {
       baseActions.push({
         icon: PencilIcon,
         title: 'Edit',
