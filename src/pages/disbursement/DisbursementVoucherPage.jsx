@@ -22,6 +22,9 @@ import { fetchTaxCodes } from '@/features/settings/taxCodeSlice';
 import { fetchBudgets } from '@/features/budget/budgetSlice';
 import { fetchAccounts } from '../../features/settings/chartOfAccountsSlice';
 import { statusLabel } from '../userProfile';
+import { CheckLine, X } from 'lucide-react';
+import axiosInstance from '@/utils/axiosInstance';
+import toast from 'react-hot-toast';
 
 function DisbursementVoucherPage() {
   const dispatch = useDispatch();
@@ -47,7 +50,7 @@ function DisbursementVoucherPage() {
   const [currentView, setCurrentView] = useState('list'); // 'list', 'form', 'details'
   const [currentDisbursementVoucher, setCurrentDisbursementVoucher] =
     useState(null);
-
+  const [approvalLoading, setApprovalLoading] = useState(false);
   useEffect(() => {
     dispatch(fetchDisbursementVouchers());
     dispatch(fetchEmployees());
@@ -148,20 +151,20 @@ function DisbursementVoucherPage() {
     },
     {
       key: 'ObligationRequestNumber',
-      header: 'Obligation Request Number',
+      header: 'CAFOA Number',
       sortable: true,
     },
-    {
-      key: 'Fund',
-      header: 'Fund',
-      sortable: true,
-    },
+    // {
+    //   key: 'Fund',
+    //   header: 'Fund',
+    //   sortable: true,
+    // },
 
-    {
-      key: 'CustomerID',
-      header: 'Customer ID',
-      sortable: true,
-    },
+    // {
+    //   key: 'CustomerID',
+    //   header: 'Customer ID',
+    //   sortable: true,
+    // },
   ];
 
   // Actions for table rows
@@ -183,6 +186,26 @@ function DisbursementVoucherPage() {
   // ];
   const handleEditOR = (dv) => {
     console.log('Edit OR', dv);
+    setCurrentDisbursementVoucher(dv);
+    setCurrentView('form');
+  };
+
+  const handleDVAction = async (dv, action) => {
+    setApprovalLoading(true);
+    try {
+      const response = await axiosInstance.post(
+        `/disbursementVoucher/${action}`,
+        { ID: dv.ID }
+      );
+      console.log(`${action}d:`, response.data);
+      dispatch(fetchDisbursementVouchers());
+      toast.success(`Disbursement Voucher ${action}d successfully`);
+    } catch (error) {
+      console.error(`Error ${action}ing disbursement voucher:`, error);
+      toast.error(`Error ${action}ing disbursement voucher`);
+    } finally {
+      setApprovalLoading(false);
+    }
   };
   return (
     <div>
@@ -212,19 +235,36 @@ function DisbursementVoucherPage() {
               actions={(row) => {
                 const actionList = [];
 
-                if (row.Transaction?.Status === 'Rejected') {
-                  actionList.push({
-                    icon: PencilIcon,
-                    title: 'Edit',
-                    onClick: () => handleEditOR(row),
-                    className:
-                      'text-primary-600 hover:text-primary-900 p-1 rounded-full hover:bg-primary-50',
-                  });
+                if (row.Status.toLowerCase().includes('rejected')) {
+                  // actionList.push({
+                  //   icon: PencilIcon,
+                  //   title: 'Edit',
+                  //   onClick: () => handleEditOR(row),
+                  //   className:
+                  //     'text-primary-600 hover:text-primary-900 p-1 rounded-full hover:bg-primary-50',
+                  // });
+                } else if (row.Status === 'Requested') {
+                  actionList.push(
+                    {
+                      icon: CheckLine,
+                      title: 'Approve',
+                      onClick: () => handleDVAction(row, 'approve'),
+                      className:
+                        'text-green-600 hover:text-green-900 p-1 rounded-full hover:bg-green-50',
+                    },
+                    {
+                      icon: X,
+                      title: 'Reject',
+                      onClick: () => handleDVAction(row, 'reject'),
+                      className:
+                        'text-red-600 hover:text-red-900 p-1 rounded-full hover:bg-red-50',
+                    }
+                  );
                 }
 
                 return actionList;
               }}
-              loading={isLoading}
+              loading={isLoading || approvalLoading}
               // onRowClick={handleViewOR}
             />
           </div>

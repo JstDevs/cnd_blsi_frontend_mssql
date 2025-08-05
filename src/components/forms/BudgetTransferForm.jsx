@@ -5,7 +5,7 @@ import SearchableDropdown from '../common/SearchableDropdown';
 import { useEffect, useState } from 'react';
 import toast from 'react-hot-toast';
 import { Paperclip, Trash2, Upload } from 'lucide-react';
-
+const API_URL = import.meta.env.VITE_API_URL;
 const validationSchema = Yup.object({
   fromBudgetId: Yup.string().required('Source budget is required'),
   toBudgetId: Yup.string().required('Target budget is required'),
@@ -453,11 +453,22 @@ function BudgetTransferForm({ initialData, onSubmit, onClose, budgetOptions }) {
                     >
                       <div className="flex items-center min-w-0">
                         <Paperclip className="h-4 w-4 text-gray-500 mr-2 flex-shrink-0" />
-                        <span
-                          className="text-sm truncate"
-                          title={file.name || file.DataName}
-                        >
-                          {file.name || file.DataName}
+                        <span className="text-sm truncate">
+                          {file.ID ? (
+                            <a
+                              href={`${API_URL}/uploads/${file.DataImage}`}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="text-blue-600 hover:underline truncate"
+                              title={file.name || file.DataName}
+                            >
+                              {file.name || file.DataName}
+                            </a>
+                          ) : (
+                            <span title={file.name || file.DataName}>
+                              {file.name || file.DataName}
+                            </span>
+                          )}
                         </span>
                       </div>
                       <button
