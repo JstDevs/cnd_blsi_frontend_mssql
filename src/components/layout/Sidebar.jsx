@@ -26,7 +26,7 @@ const navigation = [
     submenu: [
       { name: 'Departments', href: '/settings/departments' },
       { name: 'Subdepartments', href: '/settings/subdepartments' },
-      { name: 'Modules', href: '/settings/modules' },
+      // { name: 'Modules', href: '/settings/modules' },
       {
         name: 'Users',
         submenu: [

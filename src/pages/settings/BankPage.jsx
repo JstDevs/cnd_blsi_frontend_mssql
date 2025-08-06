@@ -169,7 +169,7 @@ const BankPage = () => {
         <div className="py-3">
           <p className="text-neutral-700">
             Are you sure you want to delete the bank{' '}
-            <span className="font-medium">{bankToDelete?.name}</span>?
+            <span className="font-medium">{bankToDelete?.Name}</span>?
           </p>
           <p className="text-sm text-neutral-500 mt-2">
             This action cannot be undone.

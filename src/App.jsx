@@ -248,6 +248,7 @@ function App() {
             path="/settings/subdepartments"
             element={<SubdepartmentPage />}
           />
+          {/* // TODO REMOVE THIS ......  */}
           <Route path="/settings/modules" element={<ModulesPage />} />
           <Route path="/settings/users" element={<UserPage />} />
           <Route path="/settings/user-roles" element={<UserrolesPage />} />

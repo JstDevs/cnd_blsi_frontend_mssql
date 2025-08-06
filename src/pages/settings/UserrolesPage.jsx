@@ -54,19 +54,33 @@ function UserrolesPage() {
         await dispatch(deleteUserrole(userroleToDelete.ID)).unwrap();
         setIsDeleteModalOpen(false);
         setUserroleToDelete(null);
+        toast.success('User role deleted successfully');
       } catch (error) {
         console.error('Failed to delete user role:', error);
+        toast.error('Failed to delete user role. Please try again.');
       }
     }
   };
 
-  const handleSubmit = (values) => {
-    if (currentUserrole) {
-      dispatch(updateUserrole({ ...values, ID: currentUserrole.ID }));
-    } else {
-      dispatch(addUserrole(values));
+  const handleSubmit = async (values) => {
+    try {
+      if (currentUserrole) {
+        await dispatch(
+          updateUserrole({ ...values, ID: currentUserrole.ID })
+        ).unwrap();
+        dispatch(fetchUserroles());
+        toast.success('User role updated successfully');
+      } else {
+        await dispatch(addUserrole(values)).unwrap();
+        dispatch(fetchUserroles());
+        toast.success('User role saved successfully');
+      }
+    } catch (error) {
+      console.error('Failed to save user role:', error);
+      toast.error('Failed to save user role. Please try again.');
+    } finally {
+      setIsModalOpen(false);
     }
-    setIsModalOpen(false);
   };
 
   const columns = [
@@ -145,7 +159,7 @@ function UserrolesPage() {
         <div className="py-3">
           <p className="text-neutral-700">
             Are you sure you want to delete the user role "
-            {userroleToDelete?.name}"?
+            {userroleToDelete?.Name}"?
           </p>
           <p className="text-sm text-neutral-500 mt-2">
             This action cannot be undone.

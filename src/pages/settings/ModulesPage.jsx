@@ -10,6 +10,7 @@ import {
   updateModule,
   deleteModule,
 } from '../../features/settings/modulesSlice';
+import toast from 'react-hot-toast';
 
 function ModulesPage() {
   const dispatch = useDispatch();
@@ -31,6 +32,7 @@ function ModulesPage() {
 
   const handleEdit = (module) => {
     setCurrentModule(module);
+    console.log('Edit module:', module);
     setIsModalOpen(true);
   };
 
@@ -45,19 +47,33 @@ function ModulesPage() {
         await dispatch(deleteModule(moduleToDelete.ID)).unwrap();
         setIsDeleteModalOpen(false);
         setModuleToDelete(null);
+        toast.success('Module deleted successfully');
       } catch (error) {
         console.error('Failed to delete module:', error);
+        toast.error('Failed to delete module. Please try again.');
       }
     }
   };
 
-  const handleSubmit = (values) => {
-    if (currentModule) {
-      dispatch(updateModule({ ...values, ID: currentModule.ID }));
-    } else {
-      dispatch(addModule(values));
+  const handleSubmit = async (values) => {
+    try {
+      if (currentModule) {
+        await dispatch(
+          updateModule({ ...values, ID: currentModule.ID })
+        ).unwrap();
+        dispatch(fetchModules());
+        toast.success('Module updated successfully');
+      } else {
+        await dispatch(addModule(values)).unwrap();
+        dispatch(fetchModules());
+        toast.success('Module saved successfully');
+      }
+    } catch (error) {
+      console.error('Failed to save module:', error);
+      toast.error('Failed to save module. Please try again.');
+    } finally {
+      setIsModalOpen(false);
     }
-    setIsModalOpen(false);
   };
 
   const columns = [
@@ -135,7 +151,8 @@ function ModulesPage() {
       >
         <div className="py-3">
           <p className="text-neutral-700">
-            Are you sure you want to delete the module "{moduleToDelete?.name}"?
+            Are you sure you want to delete the module "
+            {moduleToDelete?.Description}"?
           </p>
           <p className="text-sm text-neutral-500 mt-2">
             This action cannot be undone.

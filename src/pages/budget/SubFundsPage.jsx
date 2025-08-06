@@ -8,12 +8,12 @@ import {
   fetchSubFunds,
   addSubFund,
   updateSubFund,
-  deleteSubFund
+  deleteSubFund,
 } from '../../features/budget/subFundsSlice';
 
 function SubFundsPage() {
   const dispatch = useDispatch();
-  const { subFunds, isLoading } = useSelector(state => state.subFunds);
+  const { subFunds, isLoading } = useSelector((state) => state.subFunds);
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [currentSubFund, setCurrentSubFund] = useState(null);
@@ -64,8 +64,8 @@ function SubFundsPage() {
     {
       key: 'Name',
       header: 'Name',
-      sortable: true
-    }
+      sortable: true,
+    },
   ];
 
   const actions = [
@@ -73,14 +73,16 @@ function SubFundsPage() {
       icon: PencilIcon,
       title: 'Edit',
       onClick: handleEdit,
-      className: 'text-primary-600 hover:text-primary-900 p-1 rounded-full hover:bg-primary-50'
+      className:
+        'text-primary-600 hover:text-primary-900 p-1 rounded-full hover:bg-primary-50',
     },
     {
       icon: TrashIcon,
       title: 'Delete',
       onClick: handleDelete,
-      className: 'text-error-600 hover:text-error-900 p-1 rounded-full hover:bg-error-50'
-    }
+      className:
+        'text-error-600 hover:text-error-900 p-1 rounded-full hover:bg-error-50',
+    },
   ];
 
   return (
@@ -116,7 +118,7 @@ function SubFundsPage() {
       <Modal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
-        title={currentSubFund ? "Edit Sub Fund" : "Add Sub Fund"}
+        title={currentSubFund ? 'Edit Sub Fund' : 'Add Sub Fund'}
       >
         <SubFundsForm
           initialData={currentSubFund}
@@ -133,7 +135,8 @@ function SubFundsPage() {
       >
         <div className="py-3">
           <p className="text-neutral-700">
-            Are you sure you want to delete the sub fund "{subFundToDelete?.name}"?
+            Are you sure you want to delete the sub fund "
+            {subFundToDelete?.Name}"?
           </p>
           <p className="text-sm text-neutral-500 mt-2">
             This action cannot be undone.

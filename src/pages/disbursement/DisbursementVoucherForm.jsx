@@ -141,9 +141,22 @@ function DisbursementVoucherForm({
     dvDate: initialData?.dvDate || new Date().toISOString().split('T')[0],
     paymentDate:
       initialData?.paymentDate || new Date().toISOString().split('T')[0],
-    payeeType: initialData?.payeeType || '',
+    payeeType:
+      initialData?.payeeType ||
+      (initialData?.VendorID
+        ? 'Vendor'
+        : initialData?.CustomerID
+        ? 'Individual'
+        : initialData?.EmployeeID
+        ? 'Employee'
+        : ''),
     payeeName: initialData?.payeeName || '',
-    payeeId: initialData?.payeeId || '',
+    payeeId:
+      initialData?.payeeId ||
+      initialData?.VendorID ||
+      initialData?.CustomerID ||
+      initialData?.EmployeeID ||
+      '',
     payeeAddress: initialData?.payeeAddress || '',
     officeUnitProject: initialData?.officeUnitProject || '',
     orsNumber: initialData?.orsNumber || '',
