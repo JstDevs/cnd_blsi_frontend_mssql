@@ -8,6 +8,7 @@ function BeginningBalanceForm({
   onSubmit,
   onAddClick,
   onTransferClick,
+  Add,
 }) {
   const validationSchema = Yup.object({
     FiscalYearID: Yup.string().required('Fiscal Year is required'),
@@ -61,13 +62,15 @@ function BeginningBalanceForm({
               >
                 Search
               </button>
-              <button
-                type="button"
-                className="btn btn-secondary w-full sm:w-auto"
-                onClick={onAddClick}
-              >
-                Add
-              </button>
+              {Add && (
+                <button
+                  type="button"
+                  className="btn btn-secondary w-full sm:w-auto"
+                  onClick={onAddClick}
+                >
+                  Add
+                </button>
+              )}
               <button
                 type="button"
                 className="btn btn-outline w-full sm:w-auto"

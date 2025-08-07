@@ -14,6 +14,7 @@ import axiosInstance from '@/utils/axiosInstance';
 import { fetchFiscalYears } from '@/features/settings/fiscalYearSlice';
 import { fetchFunds } from '@/features/budget/fundsSlice';
 import { fetchProjectDetails } from '@/features/settings/projectDetailsSlice';
+import { useModulePermissions } from '@/utils/useModulePremission';
 
 const BudgetSupplementalPage = () => {
   const dispatch = useDispatch();
@@ -28,7 +29,8 @@ const BudgetSupplementalPage = () => {
   const { projectDetails } = useSelector((state) => state.projectDetails);
   const [data, setData] = useState([]);
   const [budgetList, setBudgetList] = useState([]);
-
+  // ---------------------USE MODULE PERMISSIONS------------------START (BudgetSupplementalPage - MODULE ID =  26 )
+  const { Add, Edit, Delete, Print } = useModulePermissions(26);
   useEffect(() => {
     dispatch(fetchFiscalYears());
     dispatch(fetchFunds());
@@ -168,14 +170,14 @@ const BudgetSupplementalPage = () => {
   ];
 
   const actions = [
-    {
+    Edit && {
       icon: PencilIcon,
       title: 'Edit',
       onClick: handleEdit,
       className:
         'text-primary-600 hover:text-primary-900 p-1 rounded-full hover:bg-primary-50',
     },
-    {
+    Delete && {
       icon: TrashIcon,
       title: 'Delete',
       onClick: handleDelete,
@@ -206,21 +208,25 @@ const BudgetSupplementalPage = () => {
           <p>Manage your supplemental budgets here</p>
         </div>
         <div className="flex gap-4">
-          <button
-            onClick={() => handleEdit(null)}
-            className="btn btn-primary flex items-center"
-          >
-            <PlusIcon className="h-5 w-5 mr-2" />
-            Add Supplemental
-          </button>
-          <button
-            // TODO : Add print functionality
-            onClick={() => {}}
-            className="btn btn-outline flex items-center"
-          >
-            <PrinterIcon className="h-5 w-5 mr-2" />
-            Print
-          </button>
+          {Add && (
+            <button
+              onClick={() => handleEdit(null)}
+              className="btn btn-primary flex items-center"
+            >
+              <PlusIcon className="h-5 w-5 mr-2" />
+              Add Supplemental
+            </button>
+          )}
+          {Print && (
+            <button
+              // TODO : Add print functionality
+              onClick={() => {}}
+              className="btn btn-outline flex items-center"
+            >
+              <PrinterIcon className="h-5 w-5 mr-2" />
+              Print
+            </button>
+          )}
         </div>
       </div>
 

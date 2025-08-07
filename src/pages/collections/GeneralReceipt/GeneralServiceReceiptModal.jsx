@@ -55,6 +55,7 @@ function GeneralServiceReceiptModal({
   onClose,
   selectedReceipt,
   onSubmit,
+  Print,
 }) {
   const [payorType, setPayorType] = useState('Individual');
   const [showAttachmentModal, setShowAttachmentModal] = useState(false);
@@ -215,7 +216,9 @@ function GeneralServiceReceiptModal({
         >
           Add Attachments
         </button>
-        <button className="btn btn-outline max-sm:w-full">Print</button>
+        {Print && (
+          <button className="btn btn-outline max-sm:w-full">Print</button>
+        )}
       </div>
 
       <Formik

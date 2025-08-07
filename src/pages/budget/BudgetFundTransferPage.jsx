@@ -12,11 +12,14 @@ import {
   createFundTransfer,
 } from '@/features/budget/fundTransferSlice';
 import toast from 'react-hot-toast';
+import { useModulePermissions } from '@/utils/useModulePremission';
 
 const BudgetFundTransferPage = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [activeRow, setActiveRow] = useState(null);
   const dispatch = useDispatch();
+  // ---------------------USE MODULE PERMISSIONS------------------START (BudgetFundTransferPage - MODULE ID =  46 )
+  const { Add, Edit } = useModulePermissions(46);
   const {
     transfers: data,
     fundOptions,
@@ -115,7 +118,7 @@ const BudgetFundTransferPage = () => {
     const baseActions = [];
 
     // Only add Edit action if status is "Rejected" , use Requested to Test it
-    if (row.Status === 'Rejected') {
+    if (row.Status === 'Rejected' && Edit) {
       baseActions.push({
         icon: PencilIcon,
         title: 'Edit',
@@ -180,14 +183,16 @@ const BudgetFundTransferPage = () => {
             <p>Manage fund transfers between accounts</p>
           </div>
           <div className="flex space-x-2 max-sm:w-full">
-            <button
-              type="button"
-              onClick={() => handleEdit(null)}
-              className="btn btn-primary max-sm:w-full"
-            >
-              <PlusIcon className="h-5 w-5 mr-2" aria-hidden="true" />
-              Add Transfer
-            </button>
+            {Add && (
+              <button
+                type="button"
+                onClick={() => handleEdit(null)}
+                className="btn btn-primary max-sm:w-full"
+              >
+                <PlusIcon className="h-5 w-5 mr-2" aria-hidden="true" />
+                Add Transfer
+              </button>
+            )}
           </div>
         </div>
       </div>

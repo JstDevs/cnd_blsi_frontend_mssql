@@ -12,13 +12,15 @@ import { fetchDepartments } from '@/features/settings/departmentSlice';
 import { fetchSubdepartments } from '@/features/settings/subdepartmentSlice';
 import { fetchAccounts } from '@/features/settings/chartOfAccountsSlice';
 import axiosInstance from '@/utils/axiosInstance';
+import { useModulePermissions } from '@/utils/useModulePremission';
 
 const API_URL = import.meta.env.VITE_API_URL;
 
 const BudgetAllotmentPage = () => {
   const dispatch = useDispatch();
   const { user } = useSelector((state) => state.auth);
-
+  // ---------------------USE MODULE PERMISSIONS------------------START (BudgetAllotmentPage - MODULE ID =  23 )
+  const { Add, Edit, Print } = useModulePermissions(23);
   const { departments } = useSelector((state) => state.departments);
   const { subdepartments } = useSelector((state) => state.subdepartments);
   const chartOfAccounts = useSelector(
@@ -149,7 +151,7 @@ const BudgetAllotmentPage = () => {
   ];
 
   const actions = [
-    {
+    Edit && {
       icon: PencilIcon,
       title: 'Edit',
       onClick: handleEdit,
@@ -179,21 +181,25 @@ const BudgetAllotmentPage = () => {
           <p>Manage budget allotments here</p>
         </div>
         <div className="flex gap-4">
-          <button
-            onClick={() => handleEdit(null)}
-            className="btn btn-primary flex items-center"
-          >
-            <PlusIcon className="h-5 w-5 mr-2" />
-            Add Allotment
-          </button>
-          <button
-            // TODO : Add print functionality
-            onClick={() => {}}
-            className="btn btn-outline flex items-center"
-          >
-            <PrinterIcon className="h-5 w-5 mr-2" />
-            Print
-          </button>
+          {Add && (
+            <button
+              onClick={() => handleEdit(null)}
+              className="btn btn-primary flex items-center"
+            >
+              <PlusIcon className="h-5 w-5 mr-2" />
+              Add Allotment
+            </button>
+          )}
+          {Print && (
+            <button
+              // TODO : Add print functionality
+              onClick={() => {}}
+              className="btn btn-outline flex items-center"
+            >
+              <PrinterIcon className="h-5 w-5 mr-2" />
+              Print
+            </button>
+          )}
         </div>
       </div>
 

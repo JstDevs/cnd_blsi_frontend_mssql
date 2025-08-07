@@ -21,6 +21,7 @@ import { fetchEmployees } from '../../features/settings/employeeSlice';
 // import EmployeeForm from "./EmployeeForm";
 import { fetchUserroles } from '../../features/settings/userrolesSlice';
 import toast from 'react-hot-toast';
+import { useModulePermissions } from '@/utils/useModulePremission';
 
 // User Access options
 // const userAccessOptions = [
@@ -55,7 +56,8 @@ function UserPage() {
   const dispatch = useDispatch();
   const { users, isLoading } = useSelector((state) => state.users);
   // const { departments } = useSelector((state) => state.departments);
-
+  // ---------------------USE MODULE PERMISSIONS------------------START ( User  Page  - MODULE ID =82 )
+  const { Add, Edit, Delete } = useModulePermissions(82);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [currentUser, setCurrentUser] = useState(null);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
@@ -146,15 +148,23 @@ function UserPage() {
     values,
     { resetForm, setErrors, setSubmitting }
   ) => {
-    const submissionData = { ...values };
-
+    // const submissionData = { ...values };
+    // console.log('Submission data:', submissionData);
+    // TODO FOR NOW AS WE CAN ONLY SELECT ONE USER ACCESS ID THIS NEEDS TO BE FIXED LATER
+    const payloadAddUser = {
+      EmployeeID: values.EmployeeID,
+      UserName: values.UserName,
+      Password: values.Password,
+      UserAccessArray: [values.UserAccessID],
+    };
+    console.log('Payload:', payloadAddUser);
     try {
       if (currentUser) {
         await dispatch(
-          updateUser({ ...submissionData, ID: currentUser.ID })
+          updateUser({ ...payloadAddUser, ID: currentUser.ID })
         ).unwrap();
       } else {
-        await dispatch(addUser(submissionData)).unwrap();
+        await dispatch(addUser(payloadAddUser)).unwrap();
       }
       dispatch(fetchUsers());
       toast.success('User saved successfully.');
@@ -178,20 +188,31 @@ function UserPage() {
   // Table columns definition
   const columns = [
     { key: 'UserName', header: 'User Name', sortable: true },
-    { key: 'UserAccessValue', header: 'User Access', sortable: true },
+    {
+      key: 'UserAccessValue',
+      header: 'User Access',
+      sortable: true,
+      render: (value, row) => (
+        <span>
+          {value ||
+            row?.accessList?.map((role) => role.Description).join(', ') ||
+            'N/A'}
+        </span>
+      ),
+    },
     // { key: 'Employee', header: 'Employee', sortable: true },
   ];
 
   // Actions for table rows
   const actions = [
-    {
+    Edit && {
       icon: PencilIcon,
       title: 'Edit',
       onClick: handleEditUser,
       className:
         'text-primary-600 hover:text-primary-900 p-1 rounded-full hover:bg-primary-50',
     },
-    {
+    Delete && {
       icon: TrashIcon,
       title: 'Delete',
       onClick: handleDeleteUser,
@@ -199,12 +220,14 @@ function UserPage() {
         'text-error-600 hover:text-error-900 p-1 rounded-full hover:bg-error-50',
     },
   ];
+
   // Modify users to include UserAccessValue
   const modifiedUsers = users.map((user) => ({
     ...user,
     UserAccessValue: userroles.find((role) => role.ID === user.UserAccessID)
       ?.Description,
   }));
+
   return (
     <div>
       <div className="page-header">
@@ -213,14 +236,16 @@ function UserPage() {
             <h1>Users</h1>
             <p>Manage system users and their access rights</p>
           </div>
-          <button
-            type="button"
-            onClick={handleAddUser}
-            className="btn btn-primary max-sm:w-full"
-          >
-            <PlusIcon className="h-5 w-5 mr-2" aria-hidden="true" />
-            Add User
-          </button>
+          {Add && (
+            <button
+              type="button"
+              onClick={handleAddUser}
+              className="btn btn-primary max-sm:w-full"
+            >
+              <PlusIcon className="h-5 w-5 mr-2" aria-hidden="true" />
+              Add User
+            </button>
+          )}
         </div>
       </div>
 

@@ -13,8 +13,11 @@ import {
 import { PencilIcon, TrashIcon } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { fetchCustomers } from '@/features/settings/customersSlice';
+import { useModulePermissions } from '@/utils/useModulePremission';
 function BurialServiceReceiptPage() {
   const dispatch = useDispatch();
+  // ---------------------USE MODULE PERMISSIONS------------------START (BurialServiceReceiptPage - MODULE ID =  28 )
+  const { Add, Edit, Delete } = useModulePermissions(28);
   // -----------FETCH INDIVIDUALS--------------
   const { customers, isLoading: customerLoading } = useSelector(
     (state) => state.customers
@@ -182,14 +185,14 @@ function BurialServiceReceiptPage() {
     }
   };
   const actions = [
-    {
+    Edit && {
       icon: PencilIcon,
       title: 'Edit',
       onClick: handleEdit,
       className:
         'text-primary-600 hover:text-primary-900 p-1 rounded-full hover:bg-primary-50',
     },
-    {
+    Delete && {
       icon: TrashIcon,
       title: 'Delete',
       onClick: handleDeleteTicket,
@@ -207,10 +210,15 @@ function BurialServiceReceiptPage() {
           </h1>
           <p className="text-gray-600">Manage Burial Service Receipts</p>
         </div>
-        <button onClick={handleAdd} className="btn btn-primary max-sm:w-full ">
-          <PlusIcon className="h-5 w-5 mr-2" />
-          Add New Receipt
-        </button>
+        {Add && (
+          <button
+            onClick={handleAdd}
+            className="btn btn-primary max-sm:w-full "
+          >
+            <PlusIcon className="h-5 w-5 mr-2" />
+            Add New Receipt
+          </button>
+        )}
       </div>
 
       <div className="mt-6">

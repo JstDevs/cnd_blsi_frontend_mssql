@@ -25,12 +25,15 @@ import { statusLabel } from '../userProfile';
 import { CheckLine, X } from 'lucide-react';
 import axiosInstance from '@/utils/axiosInstance';
 import toast from 'react-hot-toast';
+import { useModulePermissions } from '@/utils/useModulePremission';
 
 function DisbursementVoucherPage() {
   const dispatch = useDispatch();
   const { disbursementVouchers, isLoading } = useSelector(
     (state) => state.disbursementVouchers
   );
+  // ---------------------USE MODULE PERMISSIONS------------------START (DisbursementVoucherPage - MODULE ID = 40 )
+  const { Add, Edit, Delete } = useModulePermissions(40);
 
   const { employees } = useSelector((state) => state.employees);
   const { customers } = useSelector((state) => state.customers);
@@ -217,14 +220,16 @@ function DisbursementVoucherPage() {
                 <h1>Disbursement Vouchers</h1>
                 <p>Manage disbursement vouchers</p>
               </div>
-              <button
-                type="button"
-                onClick={handleCreateDV}
-                className="btn btn-primary max-sm:w-full"
-              >
-                <PlusIcon className="h-5 w-5 mr-2" aria-hidden="true" />
-                Create DV
-              </button>
+              {Add && (
+                <button
+                  type="button"
+                  onClick={handleCreateDV}
+                  className="btn btn-primary max-sm:w-full"
+                >
+                  <PlusIcon className="h-5 w-5 mr-2" aria-hidden="true" />
+                  Create DV
+                </button>
+              )}
             </div>
           </div>
 
@@ -235,7 +240,7 @@ function DisbursementVoucherPage() {
               actions={(row) => {
                 const actionList = [];
 
-                if (row.Status.toLowerCase().includes('rejected')) {
+                if (row.Status.toLowerCase().includes('rejected') && Edit) {
                   actionList.push({
                     icon: PencilIcon,
                     title: 'Edit',

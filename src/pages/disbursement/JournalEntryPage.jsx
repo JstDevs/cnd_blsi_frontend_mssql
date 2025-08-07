@@ -13,11 +13,13 @@ import {
 } from '../../features/disbursement/journalEntrySlice';
 import { fetchDepartments } from '../../features/settings/departmentSlice';
 import { fetchAccounts } from '../../features/settings/chartOfAccountsSlice';
+import { useModulePermissions } from '@/utils/useModulePremission';
 
 function JournalEntryPage() {
   const { departments } = useSelector((state) => state.departments);
   const { accounts } = useSelector((state) => state.chartOfAccounts);
-
+  // ---------------------USE MODULE PERMISSIONS------------------START (JournalEntryPage - MODULE ID =  57 )
+  const { Add, Edit, Delete } = useModulePermissions(57);
   // hardcoded in old software
   const typeOptions = [
     { label: 'Cash Disbursement', value: 'Cash Disbursement' },
@@ -222,14 +224,16 @@ function JournalEntryPage() {
             <h1>Journal Entries Voucher </h1>
             <p>Manage your Journal Entry Vouchers</p>
           </div>
-          <button
-            type="button"
-            onClick={handleAdd}
-            className="btn btn-primary max-sm:w-full"
-          >
-            <PlusIcon className="h-5 w-5 mr-2" aria-hidden="true" />
-            Add JEV
-          </button>
+          {Add && (
+            <button
+              type="button"
+              onClick={handleAdd}
+              className="btn btn-primary max-sm:w-full"
+            >
+              <PlusIcon className="h-5 w-5 mr-2" aria-hidden="true" />
+              Add JEV
+            </button>
+          )}
         </div>
       </div>
 

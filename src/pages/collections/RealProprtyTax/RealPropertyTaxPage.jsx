@@ -9,6 +9,7 @@ import {
 } from '@heroicons/react/24/outline';
 import DataTable from '@/components/common/DataTable';
 import RealPropertyTaxForm from './RealPropertyTaxForm';
+import { useModulePermissions } from '@/utils/useModulePremission';
 
 // Add sample data (will be used if Redux state is empty)
 const sampleProperties = [
@@ -109,7 +110,8 @@ function RealPropertyTaxPage() {
   const { realPropertyTaxes: reduxProperties, isLoading } = useSelector(
     (state) => state.realPropertyTax
   );
-
+  // ---------------------USE MODULE PERMISSIONS------------------START (RealPropertyTaxPage - MODULE ID =  70 )
+  const { Add, Edit } = useModulePermissions(70);
   const [currentView, setCurrentView] = useState('list'); // 'list', 'form', 'details'
   const [currentProperty, setCurrentProperty] = useState(null);
   const [searchTerm, setSearchTerm] = useState('');
@@ -228,7 +230,7 @@ function RealPropertyTaxPage() {
       className:
         'text-primary-600 hover:text-primary-900 p-1 rounded-full hover:bg-primary-50',
     },
-    {
+    Edit && {
       icon: PencilIcon,
       title: 'Edit',
       onClick: handleEditProperty,
@@ -250,14 +252,16 @@ function RealPropertyTaxPage() {
                 Manage real property tax assessments
               </p>
             </div>
-            <button
-              type="button"
-              onClick={handleCreateProperty}
-              className="btn btn-primary max-sm:w-full"
-            >
-              <PlusIcon className="h-5 w-5 mr-2" aria-hidden="true" />
-              New Property
-            </button>
+            {Add && (
+              <button
+                type="button"
+                onClick={handleCreateProperty}
+                className="btn btn-primary max-sm:w-full"
+              >
+                <PlusIcon className="h-5 w-5 mr-2" aria-hidden="true" />
+                New Property
+              </button>
+            )}
           </div>
 
           <DataTable

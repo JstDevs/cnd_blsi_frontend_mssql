@@ -196,7 +196,7 @@ function DataTable({
               {actions.length > 0 && (
                 <th
                   scope="col"
-                  className="px-6 py-3 text-center text-xs font-medium text-neutral-500 uppercase tracking-wider cursor-pointer whitespace-nowrap"
+                  className="px-6 py-3 text-right text-xs font-medium text-neutral-500 uppercase tracking-wider cursor-pointer whitespace-nowrap"
                 >
                   <span>Actions</span>
                 </th>
@@ -268,18 +268,18 @@ function DataTable({
                               action.onClick(row);
                             }}
                             className={
-                              action.className ||
+                              action?.className ||
                               'text-primary-600 hover:text-primary-900'
                             }
-                            title={action.title}
+                            title={action?.title}
                           >
-                            {action.icon ? (
+                            {action?.icon ? (
                               <action.icon
                                 className="h-5 w-5"
                                 aria-hidden="true"
                               />
                             ) : (
-                              action.label
+                              action?.label
                             )}
                           </button>
                         ))}

@@ -10,12 +10,16 @@ import DocumentDetailsForm from '../../components/forms/DocumentDetailsForm';
 import { PlusIcon, PencilIcon, TrashIcon } from '@heroicons/react/24/outline';
 import { fetchDocumentTypeCategories } from '../../features/settings/documentTypeCategoriesSlice';
 import toast from 'react-hot-toast';
+import { useModulePermissions } from '@/utils/useModulePremission';
 
 const DocumentDetailsPage = () => {
   const dispatch = useDispatch();
   const { documentDetails, isLoading } = useSelector(
     (state) => state.documentDetails
   );
+  // ---------------------USE MODULE PERMISSIONS------------------START (Document Details Page  - MODULE ID = 41 )
+  const { Add, Edit, Delete } = useModulePermissions(41);
+
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedDocument, setSelectedDocument] = useState(null);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
@@ -116,7 +120,7 @@ const DocumentDetailsPage = () => {
   // ];
   const getActions = (document) => {
     const baseActions = [
-      {
+      Edit && {
         icon: PencilIcon,
         title: 'Edit',
         onClick: handleEdit,
@@ -126,7 +130,7 @@ const DocumentDetailsPage = () => {
     ];
 
     // Only add delete action if ID is greater than 32
-    if (document.ID > 32) {
+    if (document.ID > 32 && Delete) {
       baseActions.push({
         icon: TrashIcon,
         title: 'Delete',
@@ -150,10 +154,12 @@ const DocumentDetailsPage = () => {
             Manage document details and their numbering
           </p>
         </div>
-        <button onClick={handleAdd} className="btn btn-primary max-sm:w-full">
-          <PlusIcon className="h-5 w-5 mr-2" />
-          Add Document Detail
-        </button>
+        {Add && (
+          <button onClick={handleAdd} className="btn btn-primary max-sm:w-full">
+            <PlusIcon className="h-5 w-5 mr-2" />
+            Add Document Detail
+          </button>
+        )}
       </div>
 
       <DataTable

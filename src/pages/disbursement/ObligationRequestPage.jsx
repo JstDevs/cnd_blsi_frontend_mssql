@@ -22,6 +22,7 @@ import { fetchItemUnits } from '@/features/settings/itemUnitsSlice';
 import { fetchTaxCodes } from '@/features/settings/taxCodeSlice';
 import { fetchBudgets } from '@/features/budget/budgetSlice';
 import { statusLabel } from '../userProfile';
+import { useModulePermissions } from '@/utils/useModulePremission';
 
 function ObligationRequestPage() {
   const dispatch = useDispatch();
@@ -44,7 +45,8 @@ function ObligationRequestPage() {
   const [currentView, setCurrentView] = useState('list'); // 'list', 'form', 'details'
   const [currentObligationRequest, setCurrentObligationRequest] =
     useState(null);
-
+  // ---------------------USE MODULE PERMISSIONS------------------START (DisbursementVoucherPage - MODULE ID = 40 )
+  const { Add, Edit, Delete } = useModulePermissions(62);
   useEffect(() => {
     dispatch(fetchObligationRequests());
     dispatch(fetchEmployees());
@@ -165,22 +167,22 @@ function ObligationRequestPage() {
   ];
 
   // Actions for table rows
-  const actions = [
-    {
-      icon: EyeIcon,
-      title: 'View',
-      onClick: handleViewOR,
-      className:
-        'text-primary-600 hover:text-primary-900 p-1 rounded-full hover:bg-primary-50',
-    },
-    {
-      icon: PencilIcon,
-      title: 'Edit',
-      onClick: handleEditOR,
-      className:
-        'text-primary-600 hover:text-primary-900 p-1 rounded-full hover:bg-primary-50',
-    },
-  ];
+  // const actions = [
+  //   {
+  //     icon: EyeIcon,
+  //     title: 'View',
+  //     onClick: handleViewOR,
+  //     className:
+  //       'text-primary-600 hover:text-primary-900 p-1 rounded-full hover:bg-primary-50',
+  //   },
+  //   {
+  //     icon: PencilIcon,
+  //     title: 'Edit',
+  //     onClick: handleEditOR,
+  //     className:
+  //       'text-primary-600 hover:text-primary-900 p-1 rounded-full hover:bg-primary-50',
+  //   },
+  // ];
 
   return (
     <div>
@@ -192,14 +194,16 @@ function ObligationRequestPage() {
                 <h1>Obligation Requests</h1>
                 <p>Manage obligation requests</p>
               </div>
-              <button
-                type="button"
-                onClick={handleCreateOR}
-                className="btn btn-primary max-sm:w-full"
-              >
-                <PlusIcon className="h-5 w-5 mr-2" aria-hidden="true" />
-                Create
-              </button>
+              {Add && (
+                <button
+                  type="button"
+                  onClick={handleCreateOR}
+                  className="btn btn-primary max-sm:w-full"
+                >
+                  <PlusIcon className="h-5 w-5 mr-2" aria-hidden="true" />
+                  Create
+                </button>
+              )}
             </div>
           </div>
 
@@ -209,7 +213,7 @@ function ObligationRequestPage() {
               data={obligationRequests}
               actions={(row) => {
                 const actionList = [];
-                if (row.Transaction?.Status === 'Rejected') {
+                if (row.Transaction?.Status === 'Rejected' && Edit) {
                   actionList.push({
                     icon: PencilIcon,
                     title: 'Edit',

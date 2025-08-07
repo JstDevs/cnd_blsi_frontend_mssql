@@ -37,7 +37,14 @@ import {
   deleteBarangay,
 } from '../../features/settings/barangaysSlice';
 import toast from 'react-hot-toast';
-
+import { useModulePermissions } from '@/utils/useModulePremission';
+// Define module IDs for each location type
+const locationModuleIds = {
+  region: 71,
+  province: 67,
+  municipality: 61,
+  barangay: 19,
+};
 function LocationPage() {
   const [activeTab, setActiveTab] = useState('region');
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -78,6 +85,29 @@ function LocationPage() {
         return barangaySchema;
       default:
         return regionSchema;
+    }
+  };
+  // Get permissions for each location type
+  const regionPermissions = useModulePermissions(locationModuleIds.region);
+  const provincePermissions = useModulePermissions(locationModuleIds.province);
+  const municipalityPermissions = useModulePermissions(
+    locationModuleIds.municipality
+  );
+  const barangayPermissions = useModulePermissions(locationModuleIds.barangay);
+
+  // Helper to get current permissions
+  const getPermissions = () => {
+    switch (activeTab) {
+      case 'region':
+        return regionPermissions;
+      case 'province':
+        return provincePermissions;
+      case 'municipality':
+        return municipalityPermissions;
+      case 'barangay':
+        return barangayPermissions;
+      default:
+        return { Add: false, Edit: false, Delete: false };
     }
   };
 
@@ -184,14 +214,14 @@ function LocationPage() {
   };
 
   const actions = [
-    {
+    getPermissions().Edit && {
       icon: PencilIcon,
       title: 'Edit',
       onClick: (location) => handleEditLocation(location),
       className:
         'text-primary-600 hover:text-primary-900 p-1 rounded-full hover:bg-primary-50',
     },
-    {
+    getPermissions().Delete && {
       icon: TrashIcon,
       title: 'Delete',
       onClick: (location) => handleDeleteLocation(location),
@@ -445,14 +475,16 @@ function LocationPage() {
             <h1>Locations</h1>
             <p>Manage regions, provinces, municipalities, and barangays</p>
           </div>
-          <button
-            type="button"
-            onClick={handleCreateLocation}
-            className="btn btn-primary max-sm:w-full"
-          >
-            <PlusIcon className="h-5 w-5 mr-2" />
-            Add {activeTab.charAt(0).toUpperCase() + activeTab.slice(1)}
-          </button>
+          {getPermissions().Add && (
+            <button
+              type="button"
+              onClick={handleCreateLocation}
+              className="btn btn-primary max-sm:w-full"
+            >
+              <PlusIcon className="h-5 w-5 mr-2" />
+              Add {activeTab.charAt(0).toUpperCase() + activeTab.slice(1)}
+            </button>
+          )}
         </div>
       </div>
 

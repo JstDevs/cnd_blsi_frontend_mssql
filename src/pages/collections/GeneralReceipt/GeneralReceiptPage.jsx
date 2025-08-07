@@ -17,13 +17,15 @@ import GeneralServiceReceiptModal from './GeneralServiceReceiptModal';
 
 import toast from 'react-hot-toast';
 import { TrashIcon } from 'lucide-react';
+import { useModulePermissions } from '@/utils/useModulePremission';
 
 function GeneralReceiptPage() {
   const dispatch = useDispatch();
   const { receipts: generalReceipts, isLoading } = useSelector(
     (state) => state.generalReceipts
   );
-
+  // ---------------------USE MODULE PERMISSIONS------------------START (GeneralReceiptPage - MODULE ID =  52 )
+  const { Add, Edit, Delete, Print } = useModulePermissions(52);
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [isViewModalOpen, setIsViewModalOpen] = useState(false);
   const [isServiceReceiptModalOpen, setIsServiceReceiptModalOpen] =
@@ -187,14 +189,14 @@ function GeneralReceiptPage() {
     //   className:
     //     'text-primary-600 hover:text-primary-900 p-1 rounded-full hover:bg-primary-50',
     // },
-    {
+    Edit && {
       icon: PencilIcon,
       title: 'Edit',
       onClick: handleEditReceipt,
       className:
         'text-primary-600 hover:text-primary-900 p-1 rounded-full hover:bg-primary-50',
     },
-    {
+    Delete && {
       icon: TrashIcon,
       title: 'Delete',
       onClick: handleDeleteReceipt,
@@ -232,14 +234,16 @@ function GeneralReceiptPage() {
             <p>Manage official receipts and collections</p>
           </div>
           <div className="flex space-x-2 max-sm:w-full">
-            <button
-              type="button"
-              onClick={handleCreateServiceReceipt}
-              className="btn btn-primary max-sm:w-full"
-            >
-              <PlusIcon className="h-5 w-5 mr-2" aria-hidden="true" />
-              Service Receipt
-            </button>
+            {Add && (
+              <button
+                type="button"
+                onClick={handleCreateServiceReceipt}
+                className="btn btn-primary max-sm:w-full"
+              >
+                <PlusIcon className="h-5 w-5 mr-2" aria-hidden="true" />
+                Service Receipt
+              </button>
+            )}
           </div>
         </div>
       </div>
@@ -260,6 +264,7 @@ function GeneralReceiptPage() {
         onClose={handleCloseServiceReceiptModal}
         selectedReceipt={currentReceipt}
         onSubmit={handleGeneralServiceReceiptSubmit}
+        Print={Print}
       />
 
       {/* Receipt View Modal */}
@@ -358,13 +363,15 @@ function GeneralReceiptPage() {
               >
                 Close
               </button>
-              <button
-                type="button"
-                onClick={() => handleEditReceipt(currentReceipt)}
-                className="btn btn-primary"
-              >
-                Edit
-              </button>
+              {Edit && (
+                <button
+                  type="button"
+                  onClick={() => handleEditReceipt(currentReceipt)}
+                  className="btn btn-primary"
+                >
+                  Edit
+                </button>
+              )}
             </div>
           </div>
         )}

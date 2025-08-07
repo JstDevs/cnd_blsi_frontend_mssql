@@ -4,12 +4,14 @@ import { PlusIcon, EyeIcon, PencilIcon, TrashIcon } from 'lucide-react';
 import DataTable from '../../components/common/DataTable';
 import Modal from '../../components/common/Modal';
 import BusinessPermitFormFields from './BusinessPermitFormFields';
+import { useModulePermissions } from '@/utils/useModulePremission';
 
 function BusinessPermitPage() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [currentPermit, setCurrentPermit] = useState(null);
   const [searchTerm, setSearchTerm] = useState('');
-
+  // ---------------------USE MODULE PERMISSIONS------------------START (BusinessPermitPage - MODULE ID = 29 )
+  const { Add, Edit, Delete } = useModulePermissions(29);
   const permits = [
     {
       id: 1,
@@ -112,12 +114,12 @@ function BusinessPermitPage() {
       title: 'View',
       onClick: (permit) => handleViewPermit(permit),
     },
-    {
+    Edit && {
       icon: PencilIcon,
       title: 'Edit',
       onClick: (permit) => handleEditPermit(permit),
     },
-    {
+    Delete && {
       icon: TrashIcon,
       title: 'Delete',
       onClick: (permit) => handleDeletePermit(permit),
@@ -199,14 +201,16 @@ function BusinessPermitPage() {
             <h1>Business Permit Applications</h1>
             <p>Manage business permit applications and registrations</p>
           </div>
-          <button
-            type="button"
-            onClick={handleCreatePermit}
-            className="btn btn-primary max-sm:w-full "
-          >
-            <PlusIcon className="h-5 w-5 mr-2" />
-            New Application
-          </button>
+          {Add && (
+            <button
+              type="button"
+              onClick={handleCreatePermit}
+              className="btn btn-primary max-sm:w-full "
+            >
+              <PlusIcon className="h-5 w-5 mr-2" />
+              New Application
+            </button>
+          )}
         </div>
       </div>
 

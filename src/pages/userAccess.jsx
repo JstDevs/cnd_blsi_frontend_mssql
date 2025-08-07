@@ -4,6 +4,7 @@ import { fetchUserroles } from '../features/settings/userrolesSlice';
 import { fetchModules } from '../features/settings/modulesSlice';
 import { PlusIcon } from 'lucide-react';
 import toast from 'react-hot-toast';
+import { useModulePermissions } from '@/utils/useModulePremission';
 
 const API_URL = import.meta.env.VITE_API_URL;
 
@@ -22,6 +23,8 @@ export default function UserAccessPage() {
   const { userroles, isLoading, error } = useSelector(
     (state) => state.userroles
   );
+  // ---------------------USE MODULE PERMISSIONS------------------START ( User Access Page  - MODULE ID = 83 )
+  const { Add } = useModulePermissions(83);
   const modules = useSelector((state) => state.modules.modules);
 
   const [selectedRole, setSelectedRole] = useState(null); // role object
@@ -179,12 +182,14 @@ export default function UserAccessPage() {
             placeholder="Search role..."
             className="border px-3 py-2 rounded-md w-full sm:w-60"
           />
-          <button
-            className="btn btn-primary flex items-center"
-            onClick={handleSave}
-          >
-            Save
-          </button>
+          {Add && (
+            <button
+              className="btn btn-primary flex items-center"
+              onClick={handleSave}
+            >
+              Save
+            </button>
+          )}
         </div>
       </header>
 

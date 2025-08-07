@@ -19,6 +19,7 @@ import {
 import { Trash } from 'lucide-react';
 import { fetchCustomers } from '@/features/settings/customersSlice';
 import toast from 'react-hot-toast';
+import { useModulePermissions } from '@/utils/useModulePremission';
 function CommunityTaxPage() {
   const dispatch = useDispatch();
   const { records: certificates, isLoading } = useSelector(
@@ -27,6 +28,8 @@ function CommunityTaxPage() {
   const { customers, isLoading: customersLoading } = useSelector(
     (state) => state.customers
   );
+  // ---------------------USE MODULE PERMISSIONS------------------START (CommunityTaxPage - MODULE ID =  34 )
+  const { Add, Edit, Delete, Print } = useModulePermissions(34);
   // console.log({ certificates, customers });
   const [currentView, setCurrentView] = useState('list'); // 'list', 'form', 'details'
   const [currentCertificate, setCurrentCertificate] = useState(null);
@@ -175,14 +178,14 @@ function CommunityTaxPage() {
       className:
         'text-primary-600 hover:text-primary-900 p-1 rounded-full hover:bg-primary-50',
     },
-    {
+    Edit && {
       icon: PencilIcon,
       title: 'Edit',
       onClick: handleEditCertificate,
       className:
         'text-primary-600 hover:text-primary-900 p-1 rounded-full hover:bg-primary-50',
     },
-    {
+    Delete && {
       icon: Trash,
       title: 'Delete',
       onClick: handleDeleteCertificate,
@@ -228,14 +231,16 @@ function CommunityTaxPage() {
               </h1>
               <p className="text-gray-600">Manage community tax certificates</p>
             </div>
-            <button
-              type="button"
-              onClick={handleCreateCertificate}
-              className="btn btn-primary max-sm:w-full"
-            >
-              <PlusIcon className="h-5 w-5 mr-2" aria-hidden="true" />
-              New Certificate
-            </button>
+            {Add && (
+              <button
+                type="button"
+                onClick={handleCreateCertificate}
+                className="btn btn-primary max-sm:w-full"
+              >
+                <PlusIcon className="h-5 w-5 mr-2" aria-hidden="true" />
+                New Certificate
+              </button>
+            )}
           </div>
 
           <div className="mt-4">
@@ -299,9 +304,11 @@ function CommunityTaxPage() {
                 <button className="btn btn-primary w-full sm:w-auto">
                   Add Attachments
                 </button>
-                <button className="btn btn-outline w-full sm:w-auto">
-                  Print
-                </button>
+                {Print && (
+                  <button className="btn btn-outline w-full sm:w-auto">
+                    Print
+                  </button>
+                )}
               </div>
             </div>
           </div>
@@ -344,22 +351,26 @@ function CommunityTaxPage() {
               </div>
             </div>
             <div className="flex gap-2">
-              <button
-                type="button"
-                onClick={() => handleEditCertificate(currentCertificate)}
-                className="btn btn-primary flex items-center"
-              >
-                <PencilIcon className="h-5 w-5 mr-2" aria-hidden="true" />
-                Edit
-              </button>
-              <button
-                type="button"
-                onClick={() => handlePrintCertificate(currentCertificate)}
-                className="btn btn-outline flex items-center"
-              >
-                <PrinterIcon className="h-5 w-5 mr-2" aria-hidden="true" />
-                Print
-              </button>
+              {Edit && (
+                <button
+                  type="button"
+                  onClick={() => handleEditCertificate(currentCertificate)}
+                  className="btn btn-primary flex items-center"
+                >
+                  <PencilIcon className="h-5 w-5 mr-2" aria-hidden="true" />
+                  Edit
+                </button>
+              )}
+              {Print && (
+                <button
+                  type="button"
+                  onClick={() => handlePrintCertificate(currentCertificate)}
+                  className="btn btn-outline flex items-center"
+                >
+                  <PrinterIcon className="h-5 w-5 mr-2" aria-hidden="true" />
+                  Print
+                </button>
+              )}
             </div>
           </div>
 

@@ -11,13 +11,15 @@ import {
   deletePpeSupplier,
 } from '../../features/settings/ppeSuppliersSlice';
 import toast from 'react-hot-toast';
+import { useModulePermissions } from '@/utils/useModulePremission';
 
 function PpeSuppliersPage() {
   const dispatch = useDispatch();
   const { ppeSuppliers, isLoading } = useSelector(
     (state) => state.ppeSuppliers
   );
-
+  // ---------------------USE MODULE PERMISSIONS------------------START (PpeSuppliersPage - MODULE ID = 96 )
+  const { Add, Edit, Delete } = useModulePermissions(96);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [currentPpeSupplier, setCurrentPpeSupplier] = useState(null);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
@@ -85,14 +87,14 @@ function PpeSuppliersPage() {
   ];
 
   const actions = [
-    {
+    Edit && {
       icon: PencilIcon,
       title: 'Edit',
       onClick: handleEdit,
       className:
         'text-primary-600 hover:text-primary-900 p-1 rounded-full hover:bg-primary-50',
     },
-    {
+    Delete && {
       icon: TrashIcon,
       title: 'Delete',
       onClick: handleDelete,
@@ -109,14 +111,16 @@ function PpeSuppliersPage() {
             <h1>PPE Suppliers</h1>
             <p>Manage PPE Suppliers</p>
           </div>
-          <button
-            type="button"
-            onClick={handleAdd}
-            className="btn btn-primary max-sm:w-full"
-          >
-            <PlusIcon className="h-5 w-5 mr-2" aria-hidden="true" />
-            Add PPE Supplier
-          </button>
+          {Add && (
+            <button
+              type="button"
+              onClick={handleAdd}
+              className="btn btn-primary max-sm:w-full"
+            >
+              <PlusIcon className="h-5 w-5 mr-2" aria-hidden="true" />
+              Add PPE Supplier
+            </button>
+          )}
         </div>
       </div>
 

@@ -37,6 +37,7 @@ function Header({ toggleSidebar, isSidebarOpen }) {
 
   const handleLogout = () => {
     dispatch(logout());
+    navigate('/login');
   };
   // Handle role change
   const handleRoleChange = (e) => {

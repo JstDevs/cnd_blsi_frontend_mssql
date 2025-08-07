@@ -11,6 +11,7 @@ import {
 import { useDispatch, useSelector } from 'react-redux';
 import toast from 'react-hot-toast';
 import { fetchCustomers } from '@/features/settings/customersSlice';
+import { useModulePermissions } from '@/utils/useModulePremission';
 
 function MarriageServiceReceiptPage() {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -22,6 +23,8 @@ function MarriageServiceReceiptPage() {
   const { customers, isLoading: customerLoading } = useSelector(
     (state) => state.customers
   );
+  // ---------------------USE MODULE PERMISSIONS------------------START (MarriageServiceReceiptPage - MODULE ID =  59 )
+  const { Add, Edit, Delete } = useModulePermissions(59);
   useEffect(() => {
     dispatch(fetchMarriageRecords());
     dispatch(fetchCustomers());
@@ -208,14 +211,14 @@ function MarriageServiceReceiptPage() {
     //   className:
     //     'text-primary-600 hover:text-primary-900 p-1 rounded-full hover:bg-primary-50',
     // },
-    {
+    Edit && {
       icon: PencilIcon,
       title: 'Edit',
       onClick: handleEdit,
       className:
         'text-primary-600 hover:text-primary-900 p-1 rounded-full hover:bg-primary-50',
     },
-    {
+    Delete && {
       icon: TrashIcon,
       title: 'Delete',
       onClick: handleDeleteReceipt,
@@ -234,13 +237,15 @@ function MarriageServiceReceiptPage() {
           <p className="text-gray-600">Manage Marriage Service Receipts</p>
         </div>
 
-        <button
-          onClick={() => setIsModalOpen(true)}
-          className="btn btn-primary max-sm:w-full"
-        >
-          <PlusIcon className="h-5 w-5 mr-2" />
-          Add Receipt
-        </button>
+        {Add && (
+          <button
+            onClick={() => setIsModalOpen(true)}
+            className="btn btn-primary max-sm:w-full"
+          >
+            <PlusIcon className="h-5 w-5 mr-2" />
+            Add Receipt
+          </button>
+        )}
       </div>
 
       <DataTable

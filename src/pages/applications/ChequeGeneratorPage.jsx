@@ -24,6 +24,7 @@ import { fetchEmployees } from '@/features/settings/employeeSlice';
 import toast from 'react-hot-toast';
 import { convertAmountToWords } from '@/utils/amountToWords';
 import axiosInstance from '@/utils/axiosInstance';
+import { useModulePermissions } from '@/utils/useModulePremission';
 const API_URL = import.meta.env.VITE_API_URL;
 // Validation schema
 const chequeSchema = Yup.object().shape({
@@ -56,7 +57,8 @@ function ChequeGeneratorPage() {
   const { employees, isLoading: employeeLoading } = useSelector(
     (state) => state.employees
   );
-
+  // ---------------------USE MODULE PERMISSIONS------------------START (ChequeGeneratorPage - MODULE ID = 16 )
+  const { Add, Edit, Delete } = useModulePermissions(33);
   // Formik initialization
   const formik = useFormik({
     initialValues: {
@@ -264,7 +266,7 @@ function ChequeGeneratorPage() {
   ];
 
   const actions = [
-    {
+    Edit && {
       icon: PencilIcon,
       title: 'Edit',
       onClick: (item) => handleEditCheque(item),
@@ -280,24 +282,30 @@ function ChequeGeneratorPage() {
             <p>Generate and print cheques</p>
           </div>
           <div className="flex gap-2 max-sm:w-full">
-            <button
-              type="submit"
-              onClick={formik.handleSubmit}
-              className="btn btn-primary max-sm:w-full"
-              disabled={formik.isSubmitting}
-            >
-              {currentCheck ? (
-                <>
-                  <EditIcon className="h-5 w-5 mr-2" />
-                  Edit
-                </>
-              ) : (
-                <>
-                  <SaveIcon className="h-5 w-5 mr-2" />
-                  Save
-                </>
-              )}
-            </button>
+            {/* // SAVE BUTTON  */}
+            {!currentCheck && Add && (
+              <button
+                type="submit"
+                onClick={formik.handleSubmit}
+                className="btn btn-primary max-sm:w-full"
+                disabled={formik.isSubmitting}
+              >
+                <SaveIcon className="h-5 w-5 mr-2" />
+                Save
+              </button>
+            )}
+            {/* ?? EDIT BUTTON  */}
+            {currentCheck && Edit && (
+              <button
+                type="submit"
+                onClick={formik.handleSubmit}
+                className="btn btn-primary max-sm:w-full"
+                disabled={formik.isSubmitting}
+              >
+                <EditIcon className="h-5 w-5 mr-2" />
+                Edit
+              </button>
+            )}
             {currentCheck && (
               <button
                 type="button"

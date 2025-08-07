@@ -17,6 +17,7 @@ import {
   updateTravelOrder,
   deleteTravelOrder,
 } from '../../features/disbursement/travelOrderSlice';
+import { useModulePermissions } from '@/utils/useModulePremission';
 
 function TravelOrderPage() {
   const dispatch = useDispatch();
@@ -28,7 +29,8 @@ function TravelOrderPage() {
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [isViewModalOpen, setIsViewModalOpen] = useState(false);
   const [currentTravelOrder, setCurrentTravelOrder] = useState(null);
-
+  // ---------------------USE MODULE PERMISSIONS------------------START (TravelOrderPage - MODULE ID = 80 )
+  const { Add, Edit, Delete } = useModulePermissions(80);
   useEffect(() => {
     dispatch(fetchTravelOrders());
   }, [dispatch]);
@@ -209,14 +211,16 @@ function TravelOrderPage() {
             <h1>Travel Orders</h1>
             <p>Manage travel orders and authorizations</p>
           </div>
-          <button
-            type="button"
-            onClick={handleCreateTO}
-            className="btn btn-primary max-sm:w-full"
-          >
-            <PlusIcon className="h-5 w-5 mr-2" aria-hidden="true" />
-            Create Travel Order
-          </button>
+          {Add && (
+            <button
+              type="button"
+              onClick={handleCreateTO}
+              className="btn btn-primary max-sm:w-full"
+            >
+              <PlusIcon className="h-5 w-5 mr-2" aria-hidden="true" />
+              Create Travel Order
+            </button>
+          )}
         </div>
       </div>
 

@@ -144,18 +144,6 @@ function App() {
     if (token) {
       dispatch(fetchUserProfile(token));
     }
-    // // Add event listener for tab closing
-    // const handleTabClosing = () => {
-    //   // Perform logout when tab is closing
-    //   dispatch(logout());
-    // };
-
-    // window.addEventListener('beforeunload', handleTabClosing);
-
-    // // Cleanup function
-    // return () => {
-    //   window.removeEventListener('beforeunload', handleTabClosing);
-    // };
   }, [dispatch]);
 
   useEffect(() => {

@@ -20,13 +20,15 @@ import { fetchItems } from '@/features/settings/itemSlice';
 import { fetchItemUnits } from '@/features/settings/itemUnitsSlice';
 import { fetchTaxCodes } from '@/features/settings/taxCodeSlice';
 import { fetchBudgets } from '@/features/budget/budgetSlice';
+import { useModulePermissions } from '@/utils/useModulePremission';
 
 function FundUtilizationPage() {
   const dispatch = useDispatch();
   const { fundUtilizations, isLoading } = useSelector(
     (state) => state.fundUtilizations
   );
-
+  // ---------------------USE MODULE PERMISSIONS------------------START (FundUtilizationPage - MODULE ID =  47 )
+  const { Add, Edit } = useModulePermissions(47);
   const { employees } = useSelector((state) => state.employees);
   const { customers } = useSelector((state) => state.customers);
   const { vendorDetails } = useSelector((state) => state.vendorDetails);
@@ -184,14 +186,16 @@ function FundUtilizationPage() {
                 <h1>Fund Utilization Request & Status</h1>
                 <p>Manage and track your fund utilization requests.</p>
               </div>
-              <button
-                type="button"
-                onClick={handleCreateOR}
-                className="btn btn-primary max-sm:w-full"
-              >
-                <PlusIcon className="h-5 w-5 mr-2" aria-hidden="true" />
-                Create
-              </button>
+              {Add && (
+                <button
+                  type="button"
+                  onClick={handleCreateOR}
+                  className="btn btn-primary max-sm:w-full"
+                >
+                  <PlusIcon className="h-5 w-5 mr-2" aria-hidden="true" />
+                  Create
+                </button>
+              )}
             </div>
           </div>
 
@@ -202,7 +206,7 @@ function FundUtilizationPage() {
               actions={(row) => {
                 const actionList = [];
 
-                if (row.Transaction?.Status === 'Rejected') {
+                if (row.Transaction?.Status === 'Rejected' && Edit) {
                   actionList.push({
                     icon: PencilIcon,
                     title: 'Edit',

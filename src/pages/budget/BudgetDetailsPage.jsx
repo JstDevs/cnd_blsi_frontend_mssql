@@ -13,6 +13,7 @@ import { fetchAccounts } from '@/features/settings/chartOfAccountsSlice';
 import { fetchFiscalYears } from '@/features/settings/fiscalYearSlice';
 import { fetchFunds } from '@/features/budget/fundsSlice';
 import { fetchProjectDetails } from '@/features/settings/projectDetailsSlice';
+import { useModulePermissions } from '@/utils/useModulePremission';
 
 const API_URL = import.meta.env.VITE_API_URL;
 const mapFormToPayload = (values) => {
@@ -62,7 +63,8 @@ const BudgetDetailsPage = () => {
     subDepartment: '',
     chartOfAccounts: '',
   });
-
+  // ---------------------USE MODULE PERMISSIONS------------------START (BudgetDetailsPage - MODULE ID =  22 )
+  const { Add, Edit, Delete } = useModulePermissions(22);
   useEffect(() => {
     dispatch(fetchDepartments());
     dispatch(fetchSubdepartments());
@@ -229,7 +231,7 @@ const BudgetDetailsPage = () => {
   ];
 
   const actions = [
-    {
+    Edit && {
       icon: PencilIcon,
       title: 'Edit',
       onClick: (row) => {
@@ -238,7 +240,7 @@ const BudgetDetailsPage = () => {
       },
       className: 'text-primary-600 hover:text-primary-900 p-1',
     },
-    {
+    Delete && {
       icon: TrashIcon,
       title: 'Delete',
       onClick: (row) => handleDelete(row?.ID),
@@ -263,16 +265,18 @@ const BudgetDetailsPage = () => {
           <h1>Budget Details</h1>
           <p>View and manage detailed budget entries</p>
         </div>
-        <button
-          onClick={() => {
-            setActiveRow(null);
-            setIsModalOpen(true);
-          }}
-          className="btn btn-primary max-sm:w-full "
-        >
-          <PlusIcon className="h-5 w-5 mr-2" />
-          Add Budget
-        </button>
+        {Add && (
+          <button
+            onClick={() => {
+              setActiveRow(null);
+              setIsModalOpen(true);
+            }}
+            className="btn btn-primary max-sm:w-full "
+          >
+            <PlusIcon className="h-5 w-5 mr-2" />
+            Add Budget
+          </button>
+        )}
       </div>
 
       {/* Filters */}

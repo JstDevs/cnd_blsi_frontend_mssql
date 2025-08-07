@@ -11,11 +11,13 @@ import {
   deleteBaseUnit,
 } from '../../../features/settings/baseUnitSlice';
 import toast from 'react-hot-toast';
+import { useModulePermissions } from '@/utils/useModulePremission';
 
 function BaseUnitValue() {
   const dispatch = useDispatch();
   const { baseUnits, isLoading } = useSelector((state) => state.baseUnits);
-
+  // ---------------------USE MODULE PERMISSIONS------------------START ( Base Unit Value Page  - MODULE ID = 20 )
+  const { Add, Edit, Delete } = useModulePermissions(20);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [currentBaseUnit, setCurrentBaseUnit] = useState(null);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
@@ -113,14 +115,14 @@ function BaseUnitValue() {
   ];
 
   const actions = [
-    {
+    Edit && {
       icon: PencilIcon,
       title: 'Edit',
       onClick: handleEdit,
       className:
         'text-primary-600 hover:text-primary-900 p-1 rounded-full hover:bg-primary-50',
     },
-    {
+    Delete && {
       icon: TrashIcon,
       title: 'Delete',
       onClick: handleDelete,
@@ -137,14 +139,16 @@ function BaseUnitValue() {
             <h1>Base Units</h1>
             <p>Manage Base Units</p>
           </div>
-          <button
-            type="button"
-            onClick={handleAdd}
-            className="btn btn-primary max-sm:w-full"
-          >
-            <PlusIcon className="h-5 w-5 mr-2" aria-hidden="true" />
-            Add Base Unit
-          </button>
+          {Add && (
+            <button
+              type="button"
+              onClick={handleAdd}
+              className="btn btn-primary max-sm:w-full"
+            >
+              <PlusIcon className="h-5 w-5 mr-2" aria-hidden="true" />
+              Add Base Unit
+            </button>
+          )}
         </div>
       </div>
 

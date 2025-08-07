@@ -11,12 +11,15 @@ import {
   deleteApprovalMatrix,
 } from '../../features/settings/approvalMatrixSlice';
 import toast from 'react-hot-toast';
+import { useModulePermissions } from '@/utils/useModulePremission';
 
 function ApprovalMatrixPage() {
   const dispatch = useDispatch();
   const { approvalMatrix, isLoading, error } = useSelector(
     (state) => state.approvalMatrix
   );
+  // ---------------------USE MODULE PERMISSIONS------------------START ( Approval Matrix  - MODULE ID = 17 )
+  const { Add, Edit, Delete } = useModulePermissions(17);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [currentMatrix, setCurrentMatrix] = useState(null);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
@@ -98,14 +101,14 @@ function ApprovalMatrixPage() {
   ];
 
   const actions = [
-    {
+    Edit && {
       icon: PencilIcon,
       title: 'Edit',
       onClick: handleEdit,
       className:
         'text-primary-600 hover:text-primary-900 p-1 rounded-full hover:bg-primary-50',
     },
-    {
+    Delete && {
       icon: TrashIcon,
       title: 'Delete',
       onClick: handleDelete,
@@ -122,14 +125,16 @@ function ApprovalMatrixPage() {
             <h1>Approval Matrix</h1>
             <p>Manage approval matrix for document types</p>
           </div>
-          <button
-            type="button"
-            onClick={handleAdd}
-            className="btn btn-primary max-sm:w-full"
-          >
-            <PlusIcon className="h-5 w-5 mr-2" aria-hidden="true" />
-            Add Approval Matrix
-          </button>
+          {Add && (
+            <button
+              type="button"
+              onClick={handleAdd}
+              className="btn btn-primary max-sm:w-full"
+            >
+              <PlusIcon className="h-5 w-5 mr-2" aria-hidden="true" />
+              Add Approval Matrix
+            </button>
+          )}
         </div>
       </div>
       <div className="mt-4">

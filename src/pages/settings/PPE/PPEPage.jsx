@@ -8,6 +8,7 @@ import { fetchPPEs, deletePPE } from '../../../features/settings/ppeSlice';
 import { Printer } from 'lucide-react';
 import FormField from '@/components/common/FormField';
 import toast from 'react-hot-toast';
+import { useModulePermissions } from '@/utils/useModulePremission';
 // import { render } from '@headlessui/react/dist/utils/render';
 
 const FIELDS = [
@@ -38,6 +39,8 @@ const FIELDS = [
 function PPEPage() {
   const dispatch = useDispatch();
   const { ppes, isLoading } = useSelector((state) => state.ppes);
+  // ---------------------USE MODULE PERMISSIONS------------------START (PPEPage - MODULE ID = 64 )
+  const { Add, Edit, Delete, Print } = useModulePermissions(64);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isAcknowledgementModalOpen, setIsAcknowledgementModalOpen] =
     useState(false);
@@ -117,14 +120,14 @@ function PPEPage() {
 
   // Actions for table rows
   const actions = [
-    {
+    Edit && {
       icon: PencilIcon,
       title: 'Edit',
       onClick: handleEditPPE,
       className:
         'text-primary-600 hover:text-primary-900 p-1 rounded-full hover:bg-primary-50',
     },
-    {
+    Delete && {
       icon: TrashIcon,
       title: 'Delete',
       onClick: handleDeletePPE,
@@ -149,31 +152,37 @@ function PPEPage() {
             <p>Manage Property, Plant, and Equipment records</p>
           </div>
           <div className="flex gap-2 ml-auto max-sm:flex-col max-sm:w-full">
-            <button
-              type="button"
-              onClick={handleAddPPE}
-              className="btn btn-primary flex items-center justify-center max-sm:w-full"
-            >
-              <PlusIcon className="h-5 w-5 mr-2" aria-hidden="true" />
-              Add PPE
-            </button>
-            <button
-              type="button"
-              onClick={handlePrintAcknowledgement}
-              className="btn btn-primary flex items-center justify-center max-sm:w-full"
-            >
-              <Printer className="h-5 w-5 mr-2" aria-hidden="true" />
-              Print Acknowledgement
-            </button>
-            <button
-              type="button"
-              // TODO CHANGE THIS
-              // onClick={() => window.print()}
-              className="btn btn-primary flex items-center justify-center max-sm:w-full"
-            >
-              <Printer className="h-5 w-5 mr-2" aria-hidden="true" />
-              Print
-            </button>
+            {Add && (
+              <button
+                type="button"
+                onClick={handleAddPPE}
+                className="btn btn-primary flex items-center justify-center max-sm:w-full"
+              >
+                <PlusIcon className="h-5 w-5 mr-2" aria-hidden="true" />
+                Add PPE
+              </button>
+            )}
+            {Print && (
+              <button
+                type="button"
+                onClick={handlePrintAcknowledgement}
+                className="btn btn-primary flex items-center justify-center max-sm:w-full"
+              >
+                <Printer className="h-5 w-5 mr-2" aria-hidden="true" />
+                Print Acknowledgement
+              </button>
+            )}
+            {Print && (
+              <button
+                type="button"
+                // TODO CHANGE THIS
+                // onClick={() => window.print()}
+                className="btn btn-primary flex items-center justify-center max-sm:w-full"
+              >
+                <Printer className="h-5 w-5 mr-2" aria-hidden="true" />
+                Print
+              </button>
+            )}
           </div>
         </div>
       </div>

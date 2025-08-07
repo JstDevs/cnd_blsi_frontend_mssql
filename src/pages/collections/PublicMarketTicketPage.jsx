@@ -12,9 +12,12 @@ import {
 } from '@/features/collections/PublicMarketTicketingSlice';
 import { useDispatch, useSelector } from 'react-redux';
 import { PencilIcon, Trash } from 'lucide-react';
+import { useModulePermissions } from '@/utils/useModulePremission';
 
 const PublicMarketTicketPage = () => {
   const dispatch = useDispatch();
+  // ---------------------USE MODULE PERMISSIONS------------------START (PublicMarketTicketPage - MODULE ID =  68 )
+  const { Add, Edit, Delete } = useModulePermissions(68);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedTicket, setSelectedTicket] = useState(null);
 
@@ -107,14 +110,14 @@ const PublicMarketTicketPage = () => {
   };
   // Actions for table rows
   const actions = [
-    {
+    Edit && {
       icon: PencilIcon,
       title: 'Edit',
       onClick: handleEditTicket,
       className:
         'text-primary-600 hover:text-primary-900 p-1 rounded-full hover:bg-primary-50',
     },
-    {
+    Delete && {
       icon: Trash,
       title: 'Delete',
       onClick: handleDeleteTicket,
@@ -128,14 +131,16 @@ const PublicMarketTicketPage = () => {
         <h1 className="text-2xl font-semibold text-gray-900">
           Public Market Tickets
         </h1>
-        <Button
-          onClick={handleAdd}
-          disabled={isLoading}
-          className="max-sm:w-full"
-        >
-          <FiPlus className="w-5 h-5 mr-2" />
-          Add Ticket
-        </Button>
+        {Add && (
+          <Button
+            onClick={handleAdd}
+            disabled={isLoading}
+            className="max-sm:w-full"
+          >
+            <FiPlus className="w-5 h-5 mr-2" />
+            Add Ticket
+          </Button>
+        )}
       </div>
 
       <div className="bg-white rounded-lg shadow">

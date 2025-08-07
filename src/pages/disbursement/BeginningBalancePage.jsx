@@ -18,6 +18,7 @@ import Modal from '../../components/common/Modal';
 import { fetchFunds } from '../../features/budget/fundsSlice';
 import { fetchAccounts } from '../../features/settings/chartOfAccountsSlice';
 import { PlusIcon, PencilIcon, TrashIcon } from '@heroicons/react/24/outline';
+import { useModulePermissions } from '@/utils/useModulePremission';
 
 function truncate(str, maxLength) {
   if (!str) return '';
@@ -43,7 +44,8 @@ function BeginningBalancePage() {
   const [beginningBalanceToDelete, setBeginningBalanceToDelete] =
     useState(null);
   const [searchFilters, setSearchFilters] = useState(null);
-
+  // ---------------------USE MODULE PERMISSIONS------------------START (BeginningBalancePage - MODULE ID =  21 )
+  const { Add, Edit, Delete } = useModulePermissions(21);
   useEffect(() => {
     dispatch(resetBeginningBalanceState());
     dispatch(fetchFiscalYears());
@@ -147,14 +149,14 @@ function BeginningBalancePage() {
     },
   ];
   const actions = [
-    {
+    Edit && {
       icon: PencilIcon,
       title: 'Edit',
       onClick: handleEdit,
       className:
         'text-primary-600 hover:text-primary-900 p-1 rounded-full hover:bg-primary-50',
     },
-    {
+    Delete && {
       icon: TrashIcon,
       title: 'Delete',
       onClick: handleDelete,
@@ -191,6 +193,7 @@ function BeginningBalancePage() {
           onAddClick={handleAdd}
           onTransferClick={() => setShowTransferModal(true)}
           onClose={() => {}}
+          Add={Add}
         />
       </div>
 

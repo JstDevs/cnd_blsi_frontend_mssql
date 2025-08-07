@@ -12,13 +12,15 @@ import {
 } from '../../features/settings/taxDeclarationSlice';
 import FormField from '@/components/common/FormField';
 import toast from 'react-hot-toast';
+import { useModulePermissions } from '@/utils/useModulePremission';
 
 function TaxDeclarationPage() {
   const dispatch = useDispatch();
   const { taxDeclarations, isLoading } = useSelector(
     (state) => state.taxDeclarations
   );
-
+  // ---------------------USE MODULE PERMISSIONS------------------START ( Tax Declaration Page  - MODULE ID = 79 )
+  const { Add, Edit, Delete } = useModulePermissions(79);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [currentTaxDeclaration, setCurrentTaxDeclaration] = useState(null);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
@@ -69,11 +71,10 @@ function TaxDeclarationPage() {
         toast.success('Tax declaration saved successfully');
       }
       dispatch(fetchTaxDeclarations());
+      setIsModalOpen(false);
     } catch (error) {
       console.error('Failed to save tax declaration:', error);
       toast.error('Failed to save tax declaration. Please try again.');
-    } finally {
-      // setIsModalOpen(false);
     }
   };
 
@@ -131,14 +132,14 @@ function TaxDeclarationPage() {
   ];
 
   const actions = [
-    {
+    Edit && {
       icon: PencilIcon,
       title: 'Edit',
       onClick: handleEdit,
       className:
         'text-primary-600 hover:text-primary-900 p-1 rounded-full hover:bg-primary-50',
     },
-    {
+    Delete && {
       icon: TrashIcon,
       title: 'Delete',
       onClick: handleDelete,
@@ -156,14 +157,16 @@ function TaxDeclarationPage() {
             <p>Manage Tax Declarations</p>
           </div>
           <div className="flex gap-4 items-center max-sm:flex-col max-sm:w-full">
-            <button
-              type="button"
-              onClick={handleAdd}
-              className="btn btn-primary max-sm:w-full"
-            >
-              <PlusIcon className="h-5 w-5 mr-2" aria-hidden="true" />
-              Add Tax Declaration
-            </button>
+            {Add && (
+              <button
+                type="button"
+                onClick={handleAdd}
+                className="btn btn-primary max-sm:w-full"
+              >
+                <PlusIcon className="h-5 w-5 mr-2" aria-hidden="true" />
+                Add Tax Declaration
+              </button>
+            )}
             <div className="max-sm:w-full">
               <FormField
                 type="select"

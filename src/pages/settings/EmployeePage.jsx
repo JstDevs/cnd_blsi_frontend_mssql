@@ -9,11 +9,13 @@ import {
 } from '../../features/settings/employeeSlice';
 import EmployeeForm from './EmployeeForm';
 import toast from 'react-hot-toast';
+import { useModulePermissions } from '@/utils/useModulePremission';
 
 function EmployeePage() {
   const dispatch = useDispatch();
   const { employees, isLoading } = useSelector((state) => state.employees);
-
+  // ---------------------USE MODULE PERMISSIONS------------------START (EmployeePage - MODULE ID = 43 )
+  const { Add, Edit, Delete } = useModulePermissions(43);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [currentEmployee, setCurrentEmployee] = useState(null);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
@@ -139,14 +141,14 @@ function EmployeePage() {
 
   // Actions for table rows
   const actions = [
-    {
+    Edit && {
       icon: PencilIcon,
       title: 'Edit',
       onClick: handleEditEmployee,
       className:
         'text-primary-600 hover:text-primary-900 p-1 rounded-full hover:bg-primary-50',
     },
-    {
+    Delete && {
       icon: TrashIcon,
       title: 'Delete',
       onClick: handleDeleteEmployee,
@@ -163,14 +165,16 @@ function EmployeePage() {
             <h1>Employees</h1>
             <p>Manage employee information and records</p>
           </div>
-          <button
-            type="button"
-            onClick={handleAddEmployee}
-            className="btn btn-primary max-sm:w-full"
-          >
-            <PlusIcon className="h-5 w-5 mr-2" aria-hidden="true" />
-            Add Employee
-          </button>
+          {Add && (
+            <button
+              type="button"
+              onClick={handleAddEmployee}
+              className="btn btn-primary max-sm:w-full"
+            >
+              <PlusIcon className="h-5 w-5 mr-2" aria-hidden="true" />
+              Add Employee
+            </button>
+          )}
         </div>
       </div>
 

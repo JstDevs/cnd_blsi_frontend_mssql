@@ -32,6 +32,7 @@ const login = async (userName, password) => {
 const logout = async () => {
   localStorage.removeItem('token');
   localStorage.removeItem('user');
+  localStorage.removeItem('selectedRole');
   return null;
 };
 

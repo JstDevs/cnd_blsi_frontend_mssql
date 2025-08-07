@@ -12,13 +12,16 @@ import {
   updateDepartment,
   deleteDepartment,
 } from '../../features/settings/departmentSlice';
+import { useModulePermissions } from '@/utils/useModulePremission';
 
 function DepartmentPage() {
   const dispatch = useDispatch();
   const { departments, isLoading, error } = useSelector(
     (state) => state.departments
   );
-
+  // ---------------------USE MODULE PERMISSIONS------------------START ( DEPARTMENT - MODULE ID = 39 )
+  const { Add, Edit, Delete } = useModulePermissions(39);
+  // console.log('View:', View, 'Add:', Add, 'Edit:', Edit, 'Delete:', Delete);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [currentDepartment, setCurrentDepartment] = useState(null);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
@@ -106,14 +109,14 @@ function DepartmentPage() {
 
   // Actions for table rows
   const actions = [
-    {
+    Edit && {
       icon: PencilIcon,
       title: 'Edit',
       onClick: handleEditDepartment,
       className:
         'text-primary-600 hover:text-primary-900 p-1 rounded-full hover:bg-primary-50',
     },
-    {
+    Delete && {
       icon: TrashIcon,
       title: 'Delete',
       onClick: handleDeleteDepartment,
@@ -130,14 +133,17 @@ function DepartmentPage() {
             <h1>Departments</h1>
             <p>Manage LGU departments and their details</p>
           </div>
-          <button
-            type="button"
-            onClick={handleAddDepartment}
-            className="btn btn-primary max-sm:w-full"
-          >
-            <PlusIcon className="h-5 w-5 mr-2" aria-hidden="true" />
-            Add Department
-          </button>
+          {/* // SHOW ONLY IF USER HAS VIEW PERMISSION  */}
+          {Add && (
+            <button
+              type="button"
+              onClick={handleAddDepartment}
+              className="btn btn-primary max-sm:w-full"
+            >
+              <PlusIcon className="h-5 w-5 mr-2" aria-hidden="true" />
+              Add Department
+            </button>
+          )}
         </div>
       </div>
 

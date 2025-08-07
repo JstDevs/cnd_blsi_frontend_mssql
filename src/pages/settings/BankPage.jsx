@@ -8,6 +8,7 @@ import Modal from '../../components/common/Modal';
 import BankForm from '../../components/forms/BankForm';
 import { fetchBanks, deleteBank } from '../../features/settings/bankSlice';
 import toast from 'react-hot-toast';
+import { useModulePermissions } from '@/utils/useModulePremission';
 
 const BankPage = () => {
   const dispatch = useDispatch();
@@ -16,7 +17,8 @@ const BankPage = () => {
   const [currentBank, setCurrentBank] = useState(null);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [bankToDelete, setBankToDelete] = useState(null);
-
+  // ---------------------USE MODULE PERMISSIONS------------------START ( Bank  Page  - MODULE ID = 18 )
+  const { Add, Edit, Delete } = useModulePermissions(18);
   useEffect(() => {
     dispatch(fetchBanks());
   }, []);
@@ -109,14 +111,14 @@ const BankPage = () => {
 
   // Actions for table rows
   const actions = [
-    {
+    Edit && {
       icon: PencilIcon,
       title: 'Edit',
       onClick: handleEditBank,
       className:
         'text-primary-600 hover:text-primary-900 p-1 rounded-full hover:bg-primary-50',
     },
-    {
+    Delete && {
       icon: TrashIcon,
       title: 'Delete',
       onClick: handleDelete,
@@ -134,13 +136,15 @@ const BankPage = () => {
             Manage bank accounts and their details
           </p>
         </div>
-        <button
-          onClick={handleAddBank}
-          className="btn btn-primary max-sm:w-full"
-        >
-          <PlusIcon className="h-5 w-5 mr-2" />
-          Add Bank
-        </button>
+        {Add && (
+          <button
+            onClick={handleAddBank}
+            className="btn btn-primary max-sm:w-full"
+          >
+            <PlusIcon className="h-5 w-5 mr-2" />
+            Add Bank
+          </button>
+        )}
       </div>
 
       <DataTable

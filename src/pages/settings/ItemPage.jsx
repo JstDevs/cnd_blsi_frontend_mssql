@@ -8,6 +8,7 @@ import { PlusIcon, PencilIcon, TrashIcon } from '@heroicons/react/24/outline';
 import { fetchItemUnits } from '@/features/settings/itemUnitsSlice';
 import { fetchTaxCodes } from '@/features/settings/taxCodeSlice';
 import toast from 'react-hot-toast';
+import { useModulePermissions } from '@/utils/useModulePremission';
 
 const ItemPage = () => {
   const dispatch = useDispatch();
@@ -18,6 +19,8 @@ const ItemPage = () => {
   const { taxCodes, isLoading: taxCodesLoading } = useSelector(
     (state) => state.taxCodes
   );
+  // ---------------------USE MODULE PERMISSIONS------------------START (Item Page  - MODULE ID = 55 )
+  const { Add, Edit, Delete } = useModulePermissions(55);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedItem, setSelectedItem] = useState(null);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
@@ -114,14 +117,14 @@ const ItemPage = () => {
       taxCodes?.find((tax) => tax.ID === item.TAXCodeID)?.Code || 'N/A',
   }));
   const actions = [
-    {
+    Edit && {
       icon: PencilIcon,
       title: 'Edit',
       onClick: handleEdit,
       className:
         'text-primary-600 hover:text-primary-900 p-1 rounded-full hover:bg-primary-50',
     },
-    {
+    Delete && {
       icon: TrashIcon,
       title: 'Delete',
       onClick: handleDelete,
@@ -139,10 +142,12 @@ const ItemPage = () => {
             Manage inventory items, assets, and services
           </p>
         </div>
-        <button onClick={handleAdd} className="btn btn-primary max-sm:w-full">
-          <PlusIcon className="h-5 w-5 mr-2" />
-          Add Item
-        </button>
+        {Add && (
+          <button onClick={handleAdd} className="btn btn-primary max-sm:w-full">
+            <PlusIcon className="h-5 w-5 mr-2" />
+            Add Item
+          </button>
+        )}
       </div>
 
       <DataTable

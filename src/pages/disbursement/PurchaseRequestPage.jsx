@@ -15,6 +15,7 @@ import {
   deletePurchaseRequest,
   updatePurchaseRequest,
 } from '../../features/disbursement/purchaseRequestSlice';
+import { useModulePermissions } from '@/utils/useModulePremission';
 
 function PurchaseRequestPage() {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -30,7 +31,8 @@ function PurchaseRequestPage() {
   );
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [requestToDelete, setRequestToDelete] = useState(null);
-
+  // ---------------------USE MODULE PERMISSIONS------------------START (FundUtilizationPage - MODULE ID =  69 )
+  const { Add, Edit, Delete } = useModulePermissions(69);
   const dispatch = useDispatch();
   useEffect(() => {
     dispatch(fetchDepartments());
@@ -204,14 +206,16 @@ function PurchaseRequestPage() {
             <h1>Purchase Requests</h1>
             <p>Manage purchase requests and authorizations</p>
           </div>
-          <button
-            type="button"
-            onClick={handleAddRequest}
-            className="btn btn-primary max-sm:w-full"
-          >
-            <PlusIcon className="h-5 w-5 mr-2" aria-hidden="true" />
-            Add Purchase Request
-          </button>
+          {Add && (
+            <button
+              type="button"
+              onClick={handleAddRequest}
+              className="btn btn-primary max-sm:w-full"
+            >
+              <PlusIcon className="h-5 w-5 mr-2" aria-hidden="true" />
+              Add Purchase Request
+            </button>
+          )}
         </div>
       </div>
 

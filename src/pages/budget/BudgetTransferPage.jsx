@@ -11,11 +11,14 @@ import {
   fetchBudgetOptions,
   fetchBudgetTransfers,
 } from '@/features/budget/budgetTransferSlice';
+import { useModulePermissions } from '@/utils/useModulePremission';
 
 const BudgetTransferPage = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [activeRow, setActiveRow] = useState(null);
   const dispatch = useDispatch();
+  // ---------------------USE MODULE PERMISSIONS------------------START (BudgetTransferPage - MODULE ID =  27 )
+  const { Add, Edit } = useModulePermissions(27);
   const {
     transfers: data,
     budgetOptions,
@@ -92,7 +95,7 @@ const BudgetTransferPage = () => {
   const actions = (row) => {
     const baseActions = [];
     // Only add Edit action if status is "Rejected" , use Requested to Test it
-    if (row.Status === 'Rejected') {
+    if (row.Status === 'Rejected' && Edit) {
       baseActions.push({
         icon: PencilIcon,
         title: 'Edit',
@@ -111,13 +114,15 @@ const BudgetTransferPage = () => {
           <h1>Budget Transfer</h1>
           <p>Manage your budget transfers here</p>
         </div>
-        <button
-          onClick={() => handleEdit(null)}
-          className="btn btn-primary max-sm:w-full"
-        >
-          <PlusIcon className="h-5 w-5 mr-2" />
-          Add Transfer
-        </button>
+        {Add && (
+          <button
+            onClick={() => handleEdit(null)}
+            className="btn btn-primary max-sm:w-full"
+          >
+            <PlusIcon className="h-5 w-5 mr-2" />
+            Add Transfer
+          </button>
+        )}
       </div>
       {/* Table */}
       <DataTable

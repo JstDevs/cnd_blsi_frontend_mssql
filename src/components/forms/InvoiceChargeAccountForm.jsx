@@ -4,6 +4,7 @@ import FormField from '../common/FormField';
 import { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchAccounts } from '../../features/settings/chartOfAccountsSlice';
+import { useModulePermissions } from '@/utils/useModulePremission';
 
 // Validation schema
 const invoiceChargeAccountSchema = Yup.object().shape({
@@ -27,7 +28,7 @@ const invoiceChargeAccountSchema = Yup.object().shape({
 
 const InvoiceChargeAccountForm = ({
   initialData,
-  onClose,
+  // onClose,
   onSubmit,
   invoiceChargeAccounts = [],
 }) => {
@@ -35,6 +36,8 @@ const InvoiceChargeAccountForm = ({
   const chartOfAccounts = useSelector(
     (state) => state.chartOfAccounts?.accounts || []
   );
+  // ---------------------USE MODULE PERMISSIONS------------------START (Invoice Charge Account Form  - MODULE ID = 54 )
+  const { Add } = useModulePermissions(54);
 
   useEffect(() => {
     dispatch(fetchAccounts());
@@ -92,6 +95,7 @@ const InvoiceChargeAccountForm = ({
         handleChange,
         handleBlur,
         isSubmitting,
+        resetForm,
       }) => (
         <Form className="space-y-6">
           {/* Service Invoice Section */}
@@ -244,16 +248,25 @@ const InvoiceChargeAccountForm = ({
 
           {/* Form Actions */}
           <div className="flex justify-end space-x-3 pt-4 border-t border-neutral-200">
-            {/* <button type="button" onClick={onClose} className="btn btn-outline">
-              Cancel
-            </button> */}
             <button
-              type="submit"
-              disabled={isSubmitting}
-              className="btn btn-primary disabled:cursor-not-allowed disabled:opacity-50"
+              type="button"
+              onClick={() => {
+                resetForm();
+                // onClose();
+              }}
+              className="btn btn-outline"
             >
-              {isSubmitting ? 'Saving...' : 'Save'}
+              Cancel
             </button>
+            {Add && (
+              <button
+                type="submit"
+                disabled={isSubmitting}
+                className="btn btn-primary disabled:cursor-not-allowed disabled:opacity-50"
+              >
+                {isSubmitting ? 'Saving...' : 'Save'}
+              </button>
+            )}
           </div>
         </Form>
       )}

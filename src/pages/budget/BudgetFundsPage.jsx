@@ -11,13 +11,15 @@ import {
   fetchFunds,
   updateBudgetFund,
 } from '@/features/budget/fundsSlice';
+import { useModulePermissions } from '@/utils/useModulePremission';
 
 const BudgetFundsPage = () => {
   const dispatch = useDispatch();
   const { funds, loading } = useSelector((state) => state.funds);
   const [isOpen, setIsOpen] = useState(false);
   const [activeRow, setActiveRow] = useState(null);
-
+  // ---------------------USE MODULE PERMISSIONS------------------START (BudgetSubFundsPage - MODULE ID =  48 )
+  const { Add, Edit, Delete } = useModulePermissions(48);
   const columns = [
     {
       key: 'Code',
@@ -71,14 +73,14 @@ const BudgetFundsPage = () => {
   };
 
   const actions = [
-    {
+    Edit && {
       icon: PencilIcon,
       title: 'Edit',
       onClick: handleEdit,
       className:
         'text-primary-600 hover:text-primary-900 p-1 rounded-full hover:bg-primary-50',
     },
-    {
+    Delete && {
       icon: TrashIcon,
       title: 'Delete',
       onClick: handleDelete,
@@ -115,17 +117,19 @@ const BudgetFundsPage = () => {
             <p>Manage budget funds and allocations</p>
           </div>
           <div className="flex space-x-2  max-sm:w-full ">
-            <button
-              type="button"
-              onClick={() => {
-                setActiveRow(null);
-                setIsOpen(true);
-              }}
-              className="btn btn-primary max-sm:w-full "
-            >
-              <PlusIcon className="h-5 w-5 mr-2" aria-hidden="true" />
-              Add Fund
-            </button>
+            {Add && (
+              <button
+                type="button"
+                onClick={() => {
+                  setActiveRow(null);
+                  setIsOpen(true);
+                }}
+                className="btn btn-primary max-sm:w-full "
+              >
+                <PlusIcon className="h-5 w-5 mr-2" aria-hidden="true" />
+                Add Fund
+              </button>
+            )}
           </div>
         </div>
       </div>

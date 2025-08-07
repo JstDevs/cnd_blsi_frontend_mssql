@@ -9,11 +9,13 @@ import { fetchMunicipalities } from '../../features/settings/municipalitiesSlice
 import { fetchProvinces } from '../../features/settings/provincesSlice';
 import { fetchRegions } from '../../features/settings/regionsSlice';
 import toast from 'react-hot-toast';
+import { useModulePermissions } from '@/utils/useModulePremission';
 
 const LGUMaintenance = () => {
   const dispatch = useDispatch();
   const [logoFile, setLogoFile] = useState(null);
-
+  // ---------------------USE MODULE PERMISSIONS------------------START (PpeSuppliersPage - MODULE ID = 96 )
+  const { Edit } = useModulePermissions(58);
   useEffect(() => {
     dispatch(fetchBarangays());
     dispatch(fetchMunicipalities());
@@ -36,13 +38,32 @@ const LGUMaintenance = () => {
         throw new Error('Failed to fetch LGU data');
       }
       const data = await response.json();
-      setLgu(data);
+      const extratedData = extraData(data);
+
+      setLgu(extratedData);
       setImage(data.Logo || 'https://placehold.co/150x150?text=LGU+Logo');
     } catch (error) {
       console.error('Error loading LGU data:', error);
     }
   };
-
+  const extraData = (data) => {
+    const { BarangayID, MunicipalityID, ProvinceID, RegionID } = data;
+    const BarangayName = barangays.find(
+      (barangay) => barangay.ID === BarangayID
+    )?.Name;
+    const MunicipalityName = municipalities.find(
+      (municipality) => municipality.ID === MunicipalityID
+    )?.Name;
+    const ProvinceName = provinces.find(
+      (province) => province.ID === ProvinceID
+    )?.Name;
+    const RegionName = regions.find((region) => region.ID === RegionID)?.Name;
+    data.BarangayName = BarangayName;
+    data.MunicipalityName = MunicipalityName;
+    data.ProvinceName = ProvinceName;
+    data.RegionName = RegionName;
+    return data;
+  };
   // const updateLguData = async (values) => {
   //   try {
   //     const token = localStorage.getItem("token");
@@ -339,7 +360,7 @@ const LGUMaintenance = () => {
             <Building className="h-5 w-5 mr-2 text-blue-600" />
             <h2 className="text-lg font-semibold">LGU Information</h2>
           </div>
-          {!isEditing && (
+          {Edit && !isEditing && (
             <button
               onClick={() => setIsEditing(true)}
               className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md transition-colors w-full sm:w-auto text-center"

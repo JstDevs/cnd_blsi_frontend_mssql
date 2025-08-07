@@ -10,6 +10,7 @@ import {
 import ChartOfAccountsForm from './ChartOfAccountsForm';
 import { Settings } from 'lucide-react';
 import toast from 'react-hot-toast';
+import { useModulePermissions } from '@/utils/useModulePremission';
 
 function ChartOfAccountsPage() {
   const dispatch = useDispatch();
@@ -19,7 +20,8 @@ function ChartOfAccountsPage() {
   const [currentAccount, setCurrentAccount] = useState(null);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [accountToDelete, setAccountToDelete] = useState(null);
-
+  // ---------------------USE MODULE PERMISSIONS------------------START (Chart Of Accounts Page  - MODULE ID = 31 )
+  const { Add, Edit, Delete } = useModulePermissions(31);
   useEffect(() => {
     dispatch(fetchAccounts());
   }, [dispatch]);
@@ -93,14 +95,14 @@ function ChartOfAccountsPage() {
 
   // Actions for table rows
   const actions = [
-    {
+    Edit && {
       icon: PencilIcon,
       title: 'Edit',
       onClick: handleEditAccount,
       className:
         'text-primary-600 hover:text-primary-900 p-1 rounded-full hover:bg-primary-50',
     },
-    {
+    Delete && {
       icon: TrashIcon,
       title: 'Delete',
       onClick: handleDelete,
@@ -118,14 +120,16 @@ function ChartOfAccountsPage() {
             <p>Manage account codes and their settings</p>
           </div>
           <div className="flex gap-4 items-center ">
-            <button
-              type="button"
-              onClick={handleAddAccount}
-              className="btn btn-primary max-sm:w-full"
-            >
-              <PlusIcon className="h-5 w-5 mr-2" aria-hidden="true" />
-              Add Account
-            </button>
+            {Add && (
+              <button
+                type="button"
+                onClick={handleAddAccount}
+                className="btn btn-primary max-sm:w-full"
+              >
+                <PlusIcon className="h-5 w-5 mr-2" aria-hidden="true" />
+                Add Account
+              </button>
+            )}
             {/* <button
               type="button"
               onClick={() => {}}

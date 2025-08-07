@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { PrinterIcon, ArrowDownTrayIcon } from '@heroicons/react/24/outline';
 import DataTable from '../../components/common/DataTable';
 import FormField from '../../components/common/FormField';
+import { useModulePermissions } from '@/utils/useModulePremission';
 
 function BirReportPage() {
   const [filters, setFilters] = useState({
@@ -13,24 +14,8 @@ function BirReportPage() {
     payeeType: 'vendor',
     vendor: '1',
   });
-
-  // Mock data for dropdowns
-  const formTypes = [
-    {
-      value: '2307',
-      label: 'Form 2307 - Certificate of Creditable Tax Withheld',
-    },
-    {
-      value: '1601E',
-      label:
-        'Form 1601-E - Monthly Remittance Return of Creditable Income Taxes Withheld',
-    },
-    {
-      value: '1601C',
-      label:
-        'Form 1601-C - Monthly Remittance Return of Income Taxes Withheld on Compensation',
-    },
-  ];
+  // ---------------------USE MODULE PERMISSIONS------------------START (BirReportPage - MODULE ID = 16 )
+  const { Print } = useModulePermissions(16);
 
   const vendors = [
     { value: '1', label: 'ABC Office Supplies' },
@@ -193,13 +178,15 @@ function BirReportPage() {
               <ArrowDownTrayIcon className="h-5 w-5 mr-2" />
               Export
             </button>
-            <button
-              type="button"
-              className="btn btn-outline flex items-center justify-center flex-1 sm:flex-initial"
-            >
-              <PrinterIcon className="h-5 w-5 mr-2" />
-              Print
-            </button>
+            {Print && (
+              <button
+                type="button"
+                className="btn btn-outline flex items-center justify-center flex-1 sm:flex-initial"
+              >
+                <PrinterIcon className="h-5 w-5 mr-2" />
+                Print
+              </button>
+            )}
           </div>
         </div>
       </div>

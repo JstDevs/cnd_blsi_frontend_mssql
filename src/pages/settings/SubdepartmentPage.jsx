@@ -15,6 +15,7 @@ import {
 import { fetchDepartments } from '../../features/settings/departmentSlice';
 import SearchableDropdown from '@/components/common/SearchableDropdown';
 import toast from 'react-hot-toast';
+import { useModulePermissions } from '@/utils/useModulePremission';
 
 function SubdepartmentPage() {
   const dispatch = useDispatch();
@@ -22,7 +23,8 @@ function SubdepartmentPage() {
     (state) => state.subdepartments || {}
   );
   const { departments } = useSelector((state) => state.departments);
-
+  // ---------------------USE MODULE PERMISSIONS------------------START ( DEPARTMENT - MODULE ID = 76 )
+  const { Add, Edit, Delete } = useModulePermissions(76);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [currentSubdepartment, setCurrentSubdepartment] = useState(null);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
@@ -162,14 +164,14 @@ function SubdepartmentPage() {
 
   // Actions for table rows
   const actions = [
-    {
+    Edit && {
       icon: PencilIcon,
       title: 'Edit',
       onClick: handleEditSubdepartment,
       className:
         'text-primary-600 hover:text-primary-900 p-1 rounded-full hover:bg-primary-50',
     },
-    {
+    Delete && {
       icon: TrashIcon,
       title: 'Delete',
       onClick: handleDeleteSubdepartment,
@@ -186,14 +188,16 @@ function SubdepartmentPage() {
             <h1>Subdepartments</h1>
             <p>Manage LGU subdepartments and their details</p>
           </div>
-          <button
-            type="button"
-            onClick={handleAddSubdepartment}
-            className="btn btn-primary max-sm:w-full"
-          >
-            <PlusIcon className="h-5 w-5 mr-2" aria-hidden="true" />
-            Add Subdepartment
-          </button>
+          {Add && (
+            <button
+              type="button"
+              onClick={handleAddSubdepartment}
+              className="btn btn-primary max-sm:w-full"
+            >
+              <PlusIcon className="h-5 w-5 mr-2" aria-hidden="true" />
+              Add Subdepartment
+            </button>
+          )}
         </div>
       </div>
 
