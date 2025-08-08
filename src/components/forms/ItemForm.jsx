@@ -49,7 +49,7 @@ const ItemForm = ({ item, onClose }) => {
       .min(0, 'EWT cannot be negative'),
     Vatable: Yup.boolean().required('Vatable is required'),
   });
-
+  console.log({ item });
   const initialValues = {
     Code: item?.Code || '',
     Name: item?.Name || '',
@@ -57,7 +57,7 @@ const ItemForm = ({ item, onClose }) => {
     UnitID: item?.UnitID || '',
     TAXCodeID: item?.TAXCodeID || '',
     PurchaseOrSales: item?.PurchaseOrSales || '',
-    TaxRate: item?.TaxRate || 0,
+    TaxRate: item?.TaxCode?.Rate || 0,
     EWT: item?.EWT || 0,
     Vatable: item?.Vatable || false,
   };
@@ -197,6 +197,8 @@ const ItemForm = ({ item, onClose }) => {
               onBlur={handleBlur}
               error={errors.TaxRate}
               touched={touched.TaxRate}
+              readOnly
+              className="bg-gray-200 cursor-not-allowed"
             />
           </div>
 

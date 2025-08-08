@@ -757,7 +757,7 @@ function Sidebar() {
         : item.children && isSubMenuActive(item.children)
     );
   };
-  console.log('selectedRole', selectedRole);
+  // console.log('selectedRole', selectedRole);
   // Check if the user is an admin
   const isAdmin = selectedRole?.Description === 'Administrator';
 
