@@ -130,7 +130,7 @@ const DocumentDetailsPage = () => {
     ];
 
     // Only add delete action if ID is greater than 32
-    if (document.ID > 32 && Delete) {
+    if (document.ID >= 32 && Delete) {
       baseActions.push({
         icon: TrashIcon,
         title: 'Delete',

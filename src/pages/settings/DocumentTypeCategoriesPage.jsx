@@ -96,23 +96,45 @@ function DocumentTypeCategoriesPage() {
     },
   ];
 
-  const actions = [
-    Edit && {
-      icon: PencilIcon,
-      title: 'Edit',
-      onClick: handleEdit,
-      className:
-        'text-primary-600 hover:text-primary-900 p-1 rounded-full hover:bg-primary-50',
-    },
-    Delete && {
-      icon: TrashIcon,
-      title: 'Delete',
-      onClick: handleDelete,
-      className:
-        'text-error-600 hover:text-error-900 p-1 rounded-full hover:bg-error-50',
-    },
-  ];
+  // const actions = [
+  //   Edit && {
+  //     icon: PencilIcon,
+  //     title: 'Edit',
+  //     onClick: handleEdit,
+  //     className:
+  //       'text-primary-600 hover:text-primary-900 p-1 rounded-full hover:bg-primary-50',
+  //   },
+  //   Delete && {
+  //     icon: TrashIcon,
+  //     title: 'Delete',
+  //     onClick: handleDelete,
+  //     className:
+  //       'text-error-600 hover:text-error-900 p-1 rounded-full hover:bg-error-50',
+  //   },
+  // ];
 
+  const actions = (row) => {
+    const baseActions = [];
+    if (Edit) {
+      baseActions.push({
+        icon: PencilIcon,
+        title: 'Edit',
+        onClick: () => handleEdit(row),
+        className:
+          'text-primary-600 hover:text-primary-900 p-1 rounded-full hover:bg-primary-50',
+      });
+    }
+    if (Delete && row.ID > 1) {
+      baseActions.push({
+        icon: TrashIcon,
+        title: 'Delete',
+        onClick: () => handleDelete(row),
+        className:
+          'text-error-600 hover:text-error-900 p-1 rounded-full hover:bg-error-50',
+      });
+    }
+    return baseActions;
+  };
   return (
     <div>
       <div className="page-header">

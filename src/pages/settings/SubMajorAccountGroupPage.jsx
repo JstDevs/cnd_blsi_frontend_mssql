@@ -164,6 +164,7 @@ function SubMajorAccountGroupPage() {
         'text-error-600 hover:text-error-900 p-1 rounded-full hover:bg-error-50',
     },
   ];
+  console.log({ currentSubMajorAccountGroup, majorAccountGroups });
 
   return (
     <div>
@@ -209,7 +210,8 @@ function SubMajorAccountGroupPage() {
           initialValues={{
             Code: currentSubMajorAccountGroup?.Code || '',
             Name: currentSubMajorAccountGroup?.Name || '',
-            AccountTypeID: currentSubMajorAccountGroup?.AccountTypeID || '',
+            AccountSubTypeID:
+              currentSubMajorAccountGroup?.AccountSubTypeID.toString() || '',
           }}
           validationSchema={subMajorAccountGroupSchema}
           onSubmit={handleSubmit}

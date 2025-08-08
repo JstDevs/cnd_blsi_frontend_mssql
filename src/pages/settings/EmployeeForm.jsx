@@ -380,30 +380,26 @@ function EmployeeForm({ initialData, onClose }) {
 
                 <div className="space-y-4">
                   <h3 className="font-medium">Contact Information</h3>
-                  <div className="grid grid-cols-1 gap-4">
-                    <SearchableDropdown
-                      label="Nationality"
-                      name="NationalityID"
-                      type="select"
-                      options={nationalitiesOptions}
-                      required
-                      placeholder="Select Nationality"
-                      onSelect={(value) => {
-                        const selectedOption = nationalitiesOptions.find(
-                          (option) => option.value === value
-                        );
-                        setFieldValue('NationalityID', value || '');
-                        setFieldValue(
-                          'Nationality',
-                          selectedOption?.label || ''
-                        );
-                      }}
-                      className="w-full"
-                      selectedValue={values.NationalityID}
-                      error={errors.Nationality}
-                      touched={touched.Nationality}
-                    />
-                  </div>
+
+                  <SearchableDropdown
+                    label="Nationality"
+                    name="NationalityID"
+                    type="select"
+                    options={nationalitiesOptions}
+                    required
+                    placeholder="Select Nationality"
+                    onSelect={(value) => {
+                      const selectedOption = nationalitiesOptions.find(
+                        (option) => option.value === value
+                      );
+                      setFieldValue('NationalityID', value || '');
+                      setFieldValue('Nationality', selectedOption?.label || '');
+                    }}
+                    className="w-full"
+                    selectedValue={values.NationalityID}
+                    error={errors.Nationality}
+                    touched={touched.Nationality}
+                  />
                   <FormField
                     label="Zip Code"
                     name="ZIPCode"
