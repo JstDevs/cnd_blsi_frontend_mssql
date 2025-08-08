@@ -205,7 +205,7 @@ const DocumentDetailsPage = () => {
           <button
             type="button"
             onClick={() => setIsDeleteModalOpen(false)}
-            className="btn btn-outline"
+            className="btn btn-outline cursor-pointer"
           >
             Cancel
           </button>
