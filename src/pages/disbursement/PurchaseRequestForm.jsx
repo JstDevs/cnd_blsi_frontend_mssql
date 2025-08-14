@@ -298,11 +298,33 @@ function PurchaseRequestForm({
                       />
                       <FormField
                         className="flex-1 w-full sm:max-w-[200px]"
-                        type="number"
+                        type="text" // change to text so we can control formatting
                         label="Cost"
                         name={`Items[${index}].Cost`}
-                        value={entry.Cost}
-                        onChange={handleChange}
+                        value={
+                          entry.Cost !== '' && !isNaN(entry.Cost)
+                            ? Number(entry.Cost).toLocaleString(undefined, {
+                                minimumFractionDigits: 2,
+                                maximumFractionDigits: 2,
+                              })
+                            : ''
+                        }
+                        onChange={(e) => {
+                          // Strip all non-digit characters
+                          const rawValue = e.target.value.replace(/\D/g, '');
+
+                          // Format into cents
+                          const formattedValue = rawValue
+                            ? (parseInt(rawValue, 10) / 100).toFixed(2)
+                            : '';
+
+                          handleChange({
+                            target: {
+                              name: `Items[${index}].Cost`,
+                              value: formattedValue,
+                            },
+                          });
+                        }}
                         onBlur={handleBlur}
                         error={errors.Items?.[index]?.Cost}
                         touched={touched.Items?.[index]?.Cost}

@@ -14,6 +14,7 @@ import { fetchFiscalYears } from '@/features/settings/fiscalYearSlice';
 import { fetchFunds } from '@/features/budget/fundsSlice';
 import { fetchProjectDetails } from '@/features/settings/projectDetailsSlice';
 import { useModulePermissions } from '@/utils/useModulePremission';
+import { formatCurrency } from '@/utils/currencyFormater';
 
 const API_URL = import.meta.env.VITE_API_URL;
 const mapFormToPayload = (values) => {
@@ -208,26 +209,38 @@ const BudgetDetailsPage = () => {
         return <span>{row?.Project?.Title || 'N/A'}</span>;
       },
     },
-    { key: 'Appropriation', header: 'Appropriation' },
-    { key: 'AppropriationBalance', header: 'Appropriation Balance' },
-    { key: 'TotalAmount', header: 'Total Amount' },
+    { key: 'Appropriation', header: 'Appropriation', render: formatCurrency },
+    {
+      key: 'AppropriationBalance',
+      header: 'Appropriation Balance',
+      render: formatCurrency,
+    },
+    { key: 'TotalAmount', header: 'Total Amount', render: formatCurrency },
     // { key: 'Allotment', header: 'Allotment' },
-    { key: 'AllotmentBalance', header: 'Allotment Balance' },
-    { key: 'ChargedAllotment', header: 'Charges' },
-    { key: 'PreEncumbrance', header: 'Pre Encumbrance' },
-    { key: 'Encumbrance', header: 'Encumbrance' },
-    { key: 'January', header: 'January' },
-    { key: 'February', header: 'February' },
-    { key: 'March', header: 'March' },
-    { key: 'April', header: 'April' },
-    { key: 'May', header: 'May' },
-    { key: 'June', header: 'June' },
-    { key: 'July', header: 'July' },
-    { key: 'August', header: 'August' },
-    { key: 'September', header: 'September' },
-    { key: 'October', header: 'October' },
-    { key: 'November', header: 'November' },
-    { key: 'December', header: 'December' },
+    {
+      key: 'AllotmentBalance',
+      header: 'Allotment Balance',
+      render: formatCurrency,
+    },
+    { key: 'ChargedAllotment', header: 'Charges', render: formatCurrency },
+    {
+      key: 'PreEncumbrance',
+      header: 'Pre Encumbrance',
+      render: formatCurrency,
+    },
+    { key: 'Encumbrance', header: 'Encumbrance', render: formatCurrency },
+    { key: 'January', header: 'January', render: formatCurrency },
+    { key: 'February', header: 'February', render: formatCurrency },
+    { key: 'March', header: 'March', render: formatCurrency },
+    { key: 'April', header: 'April', render: formatCurrency },
+    { key: 'May', header: 'May', render: formatCurrency },
+    { key: 'June', header: 'June', render: formatCurrency },
+    { key: 'July', header: 'July', render: formatCurrency },
+    { key: 'August', header: 'August', render: formatCurrency },
+    { key: 'September', header: 'September', render: formatCurrency },
+    { key: 'October', header: 'October', render: formatCurrency },
+    { key: 'November', header: 'November', render: formatCurrency },
+    { key: 'December', header: 'December', render: formatCurrency },
   ];
 
   const actions = [

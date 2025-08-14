@@ -292,15 +292,36 @@ function BudgetFundTransferForm({
             <FormField
               label="Transfer Amount"
               name="transferAmount"
-              type="number"
-              onChange={handleChange}
+              type="text" // change to text so we can format freely
+              onChange={(e) => {
+                // Remove all non-digit characters
+                const rawValue = e.target.value.replace(/\D/g, '');
+
+                // Format as cents (two decimal places)
+                const formattedValue = rawValue
+                  ? (parseInt(rawValue, 10) / 100).toFixed(2)
+                  : '';
+
+                // Pass to Formik
+                handleChange({
+                  target: {
+                    name: 'transferAmount',
+                    value: formattedValue,
+                  },
+                });
+              }}
               onBlur={handleBlur}
-              value={values.transferAmount}
+              value={
+                values.transferAmount !== '' && !isNaN(values.transferAmount)
+                  ? Number(values.transferAmount).toLocaleString(undefined, {
+                      minimumFractionDigits: 2,
+                      maximumFractionDigits: 2,
+                    })
+                  : ''
+              }
               error={errors.transferAmount}
               touched={touched.transferAmount}
               required
-              min="0.01"
-              step="0.01"
             />
           </div>
           {/* Attachments Section */}

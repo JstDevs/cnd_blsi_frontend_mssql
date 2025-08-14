@@ -88,7 +88,17 @@ const BudgetFundTransferPage = () => {
       key: 'Total',
       header: 'Total',
       sortable: true,
-      render: (value) => <span className="font-medium">{value || '—'}</span>,
+      render: (value) => (
+        <span className="font-medium">
+          {' '}
+          {value
+            ? Number(value).toLocaleString(undefined, {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2,
+              })
+            : '—'}
+        </span>
+      ),
     },
     {
       key: 'Remarks',

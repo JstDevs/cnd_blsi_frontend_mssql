@@ -252,6 +252,17 @@ function ChequeGeneratorPage() {
       key: 'Amount',
       header: 'Amount',
       sortable: true,
+      render: (value) => (
+        <span className="font-medium">
+          {' '}
+          {value
+            ? Number(value).toLocaleString(undefined, {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2,
+              })
+            : '—'}
+        </span>
+      ),
     },
     {
       key: 'ApprovalProgress',
@@ -549,11 +560,28 @@ function ChequeGeneratorPage() {
 
               <div>
                 <FormField
-                  type="number"
-                  label={'Amount'}
+                  type="text" // so we can control formatting
+                  label="Amount"
                   name="amount"
-                  value={formik.values.amount}
-                  onChange={formik.handleChange}
+                  value={
+                    formik.values.amount !== '' && !isNaN(formik.values.amount)
+                      ? Number(formik.values.amount).toLocaleString(undefined, {
+                          minimumFractionDigits: 2,
+                          maximumFractionDigits: 2,
+                        })
+                      : ''
+                  }
+                  onChange={(e) => {
+                    // Remove all non-digit characters
+                    const rawValue = e.target.value.replace(/\D/g, '');
+
+                    // Format as cents (two decimal places)
+                    const formattedValue = rawValue
+                      ? (parseInt(rawValue, 10) / 100).toFixed(2)
+                      : '';
+
+                    formik.setFieldValue('amount', formattedValue);
+                  }}
                   step="0.01"
                   error={formik.touched.amount && formik.errors.amount}
                   touched={formik.touched.amount}

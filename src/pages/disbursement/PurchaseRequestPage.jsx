@@ -174,11 +174,25 @@ function PurchaseRequestPage() {
       key: 'Total',
       header: 'Total',
       sortable: true,
+      render: (value) =>
+        value
+          ? Number(value).toLocaleString(undefined, {
+              minimumFractionDigits: 2,
+              maximumFractionDigits: 2,
+            })
+          : '—',
     },
     {
       key: 'AmountReceived',
       header: 'Estimated Total',
       sortable: true,
+      render: (value) =>
+        value
+          ? Number(value).toLocaleString(undefined, {
+              minimumFractionDigits: 2,
+              maximumFractionDigits: 2,
+            })
+          : '—',
     },
   ];
 

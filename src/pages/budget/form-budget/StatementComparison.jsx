@@ -8,6 +8,7 @@ import {
 } from '@/features/budget/statementComparisonSlice';
 import { fetchFiscalYears } from '@/features/settings/fiscalYearSlice';
 import toast from 'react-hot-toast';
+import { formatCurrency } from '@/utils/currencyFormater';
 
 function StatementComparison() {
   const API_URL = import.meta.env.VITE_API_URL;
@@ -34,9 +35,16 @@ function StatementComparison() {
       key: 'Original',
       header: 'Original',
       sortable: true,
+      render: formatCurrency,
       className: 'text-right',
     },
-    { key: 'Final', header: 'Final', sortable: true, className: 'text-right' },
+    {
+      key: 'Final',
+      header: 'Final',
+      sortable: true,
+      className: 'text-right',
+      render: formatCurrency,
+    },
     {
       key: 'Difference',
       header: 'Difference',
@@ -56,11 +64,36 @@ function StatementComparison() {
       className: 'text-right',
     },
     { key: 'Period', header: 'Period', sortable: true },
-    { key: 'Original_Sum', header: 'Original_Sum', sortable: true },
-    { key: 'Final_Sum', header: 'Final_Sum', sortable: true },
-    { key: 'Difference_Sum', header: 'Difference_Sum', sortable: true },
-    { key: 'Actual_Sum', header: 'Actual_Sum', sortable: true },
-    { key: 'Difference2_Sum', header: 'Difference2_Sum', sortable: true },
+    {
+      key: 'Original_Sum',
+      header: 'Original_Sum',
+      sortable: true,
+      render: formatCurrency,
+    },
+    {
+      key: 'Final_Sum',
+      header: 'Final_Sum',
+      sortable: true,
+      render: formatCurrency,
+    },
+    {
+      key: 'Difference_Sum',
+      header: 'Difference_Sum',
+      sortable: true,
+      render: formatCurrency,
+    },
+    {
+      key: 'Actual_Sum',
+      header: 'Actual_Sum',
+      sortable: true,
+      render: formatCurrency,
+    },
+    {
+      key: 'Difference2_Sum',
+      header: 'Difference2_Sum',
+      sortable: true,
+      render: formatCurrency,
+    },
 
     { key: 'Municipality', header: 'Municipality', sortable: true },
     { key: 'Province', header: 'Province', sortable: true },

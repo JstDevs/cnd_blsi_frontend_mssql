@@ -147,8 +147,8 @@ const PublicMarketTicketForm = ({ ticket, onClose }) => {
               label="Posting Period:"
               name="postingPeriod"
               type="date"
-              min={values.dateIssued}
-              max={new Date().toISOString().split('T')[0]}
+              // min={values.dateIssued}
+              // max={new Date().toISOString().split('T')[0]}
               required
               error={touched.postingPeriod && errors.postingPeriod}
               touched={touched.postingPeriod}
@@ -202,15 +202,36 @@ const PublicMarketTicketForm = ({ ticket, onClose }) => {
           <FormField
             label="Amount Issued:"
             name="amountIssued"
-            type="number"
+            type="text"
             placeholder="0.00"
-            min="0"
-            step="0.01"
             required
             error={touched.amountIssued && errors.amountIssued}
             touched={touched.amountIssued}
-            value={values.amountIssued}
-            onChange={handleChange}
+            value={
+              values.amountIssued !== '' && !isNaN(values.amountIssued)
+                ? Number(values.amountIssued).toLocaleString(undefined, {
+                    minimumFractionDigits: 2,
+                    maximumFractionDigits: 2,
+                  })
+                : ''
+            }
+            onChange={(e) => {
+              // Remove all non-digit characters
+              const rawValue = e.target.value.replace(/\D/g, '');
+
+              // Parse to number and divide by 100 to get 2 decimal places
+              const formattedValue = rawValue
+                ? (parseInt(rawValue, 10) / 100).toFixed(2)
+                : '';
+
+              // Store in Formik as a plain number
+              handleChange({
+                target: {
+                  name: 'amountIssued',
+                  value: formattedValue,
+                },
+              });
+            }}
             onBlur={handleBlur}
           />
 

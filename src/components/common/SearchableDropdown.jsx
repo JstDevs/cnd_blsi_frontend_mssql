@@ -45,7 +45,7 @@ const SearchableDropdown = ({
                 }`}
               >
                 <Combobox.Input
-                  className="w-full py-2.5 pl-3 pr-10 text-sm leading-5 focus-visible:outline-none text-gray-900"
+                  className="w-full py-2.5 pl-3 pr-12 text-sm leading-5 focus-visible:outline-none text-gray-900"
                   placeholder={placeholder}
                   displayValue={(option) =>
                     options.find((opt) => opt.value === option)?.label || ''
