@@ -1,1 +1,1 @@
-Community Tax Certificates
+Community
