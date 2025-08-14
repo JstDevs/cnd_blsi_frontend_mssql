@@ -281,7 +281,9 @@ function CommunityTaxPage() {
                 <SearchableDropdown
                   options={
                     customers?.map((customer) => ({
-                      label: customer.Name,
+                      label:
+                        customer.Name ||
+                        `${customer.FirstName} ${customer.MiddleName} ${customer.LastName}`,
                       value: customer.ID,
                     })) || []
                   }

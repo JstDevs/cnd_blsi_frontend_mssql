@@ -110,7 +110,9 @@ function BurialServiceReceiptForm({
   };
   const individualOptions = customers?.map((customer) => ({
     value: customer.ID,
-    label: customer.Name,
+    label:
+      customer.Name ||
+      `${customer.FirstName} ${customer.MiddleName} ${customer.LastName}`,
   }));
   const nationalitiesOptions = nationalities?.map((Nationality) => ({
     value: Nationality.ID,

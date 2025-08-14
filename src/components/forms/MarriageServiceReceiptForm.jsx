@@ -118,7 +118,9 @@ function MarriageServiceReceiptForm({
   };
   const individualOptions = customers?.map((customer) => ({
     value: customer.ID,
-    label: customer.Name,
+    label:
+      customer.Name ||
+      `${customer.FirstName} ${customer.MiddleName} ${customer.LastName}`,
   }));
   return (
     <div className="space-y-4">

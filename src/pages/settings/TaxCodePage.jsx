@@ -92,7 +92,7 @@ function TaxCodePage() {
     },
     {
       key: 'Name',
-      header: 'Nature of Payment',
+      header: 'Name',
       sortable: true,
     },
     {

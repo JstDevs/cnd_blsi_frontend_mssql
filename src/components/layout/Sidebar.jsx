@@ -303,11 +303,11 @@ const navigation = [
                 href: '/settings/items/units',
                 moduleId: 56,
               },
-              {
-                name: 'Invoice Charge Accounts',
-                href: '/settings/items/invoice-charge-accounts',
-                moduleId: 54,
-              },
+              // {
+              //   name: 'Invoice Charge Accounts',
+              //   href: '/settings/items/invoice-charge-accounts',
+              //   moduleId: 54,
+              // },
             ],
           },
           {

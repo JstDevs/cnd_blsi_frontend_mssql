@@ -55,12 +55,12 @@ function CollectionReportForm({
     toDate: '',
     notedBy: '',
     documentTypes: {
-      communityTax: false,
-      marriageCert: false,
-      burialCert: false,
-      generalService: false,
-      propertyTax: false,
-      marketTicketing: false,
+      communityTax: true,
+      marriageCert: true,
+      burialCert: true,
+      generalService: true,
+      propertyTax: true,
+      marketTicketing: true,
     },
   };
 

@@ -103,7 +103,10 @@ function Customer() {
       key: 'Name',
       header: 'Name',
       sortable: true,
-      render: (value) => value || 'N/A',
+      render: (value, row) =>
+        value ||
+        row.FirstName + ' ' + row.MiddleName + ' ' + row.LastName ||
+        'N/A',
     },
     {
       key: 'TIN',

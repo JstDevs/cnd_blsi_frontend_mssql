@@ -81,7 +81,9 @@ function GeneralServiceReceiptModal({
   }));
   const individualOptions = customers?.map((customer) => ({
     value: customer.ID,
-    label: customer.Name,
+    label:
+      customer.Name ||
+      `${customer.FirstName} ${customer.MiddleName} ${customer.LastName}`,
   }));
   const fundsOptions = funds?.map((item) => ({
     value: item.ID,

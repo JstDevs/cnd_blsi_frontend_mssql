@@ -102,7 +102,13 @@ function BudgetReportPage() {
       setLoading(true);
       const res = await axios.post(
         `${API_URL}/budgetReport/view`,
-        buildPayload()
+        buildPayload(),
+        {
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${localStorage.getItem('token')}`,
+          },
+        }
       );
       setEntries(res.data || []);
     } catch (err) {
@@ -125,6 +131,10 @@ function BudgetReportPage() {
         buildPayload(),
         {
           responseType: 'blob',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${localStorage.getItem('token')}`,
+          },
         }
       );
       const blob = new Blob([res.data], {

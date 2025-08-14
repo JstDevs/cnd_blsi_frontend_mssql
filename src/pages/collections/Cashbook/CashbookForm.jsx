@@ -29,15 +29,18 @@ function CashbookForm({ onSubmit }) {
     dispatch(fetchFunds());
   }, [dispatch]);
 
-  const fundsOptions = funds?.map((item) => ({
-    value: item.ID,
-    label: item.Name,
-  }));
+  const fundsOptions = [
+    { value: 'all', label: 'All Funds' },
+    ...(funds?.map((item) => ({
+      value: item.ID,
+      label: item.Name,
+    })) || []),
+  ];
 
   const handleFormSubmit = (values, { setSubmitting }) => {
     const payload = {
       ...values,
-      FundID: values.fund,
+      FundID: values.fund === 'all' ? '%' : values.fund,
     };
     delete payload.fund;
     onSubmit(payload);

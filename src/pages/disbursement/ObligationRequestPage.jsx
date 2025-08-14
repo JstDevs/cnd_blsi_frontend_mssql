@@ -269,7 +269,9 @@ function ObligationRequestPage() {
               }))}
               vendorOptions={vendorDetails.map((vendor) => ({
                 value: vendor.ID,
-                label: vendor.Name,
+                label:
+                  vendor.Name ||
+                  `${vendor.FirstName} ${vendor.MiddleName} ${vendor.LastName}`,
               }))}
               individualOptions={customers.map((customer) => ({
                 value: customer.ID,

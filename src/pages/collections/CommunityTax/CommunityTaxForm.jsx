@@ -107,9 +107,9 @@ const validationSchema = Yup.object({
 
   // Tax Information
   BasicTax: Yup.number()
+    .typeError('Must be a number')
     .required('Basic tax is required')
-    .min(0, 'Basic tax cannot be negative')
-    .max(10000, 'Basic tax cannot exceed ₱10,000'),
+    .oneOf([1, 5], 'Basic tax can only be 1 or 5'),
   BusinessEarnings: Yup.number()
     .typeError('Must be a number')
     .min(0, 'Gross receipts cannot be negative')
@@ -138,6 +138,7 @@ const validationSchema = Yup.object({
     .min(0, 'Interest cannot be negative')
     .max(100, 'Interest cannot exceed 100%')
     .nullable(),
+  InterestAmount: Yup.number(),
   AmountReceived: Yup.number()
     .required('Total amount paid is required')
     .min(0, 'Total amount paid cannot be negative'),
@@ -231,6 +232,7 @@ const CommunityTaxForm = ({
       // OVERALL TAX INFORMATION
       Total: initialData?.Total || '',
       Interest: initialData?.Interest || '',
+      InterestAmount: initialData?.InterestAmount || '',
       AmountReceived: initialData?.AmountReceived || '',
       Remarks: initialData?.Remarks || '',
 
@@ -305,11 +307,29 @@ const CommunityTaxForm = ({
   const getFieldProps = (fieldName) => ({
     name: fieldName,
     value: formik.values[fieldName] || '',
-    onChange: formik.handleChange,
+    onChange: (e) => {
+      const { name, value } = e.target;
+      formik.setFieldValue(name, value);
+
+      // Auto-calculate tax for related fields (₱1 per full ₱1,000)
+      if (name === 'BusinessEarnings') {
+        const tax = Math.floor(Number(value) / 1000);
+        formik.setFieldValue('BusinessTaxDue', tax);
+      }
+      if (name === 'OccupationEarnings') {
+        const tax = Math.floor(Number(value) / 1000);
+        formik.setFieldValue('OccupationTaxDue', tax);
+      }
+      if (name === 'IncomeProperty') {
+        const tax = Math.floor(Number(value) / 1000);
+        formik.setFieldValue('PropertyTaxDue', tax);
+      }
+    },
     onBlur: formik.handleBlur,
     error: formik.touched[fieldName] && formik.errors[fieldName],
     disabled: isReadOnly,
   });
+
   // Calculate amount in words whenever AmountReceived changes
   // useEffect(() => {
   //   calculateAmountsInWords();
@@ -604,8 +624,6 @@ const CommunityTaxForm = ({
                       label="Taxable Amount:"
                       {...getFieldProps('BasicTax')}
                       type="text"
-                      min="0"
-                      step="0.01"
                       className="w-32 text-right font-mono border-blue-200 focus:border-blue-500"
                       error={formik.touched.BasicTax && formik.errors.BasicTax}
                       touched={formik.touched.BasicTax}
@@ -665,15 +683,14 @@ const CommunityTaxForm = ({
                           label="Community Due Amount:"
                           {...getFieldProps('BusinessTaxDue')}
                           type="text"
-                          min="0"
-                          step="0.01"
-                          className="w-24 text-right font-mono border-blue-200 focus:border-blue-500"
+                          className="w-24 text-right font-mono border-blue-200 bg-gray-100 cursor-not-allowed"
                           placeholder="Tax"
                           error={
                             formik.touched.BusinessTaxDue &&
                             formik.errors.BusinessTaxDue
                           }
                           touched={formik.touched.BusinessTaxDue}
+                          readOnly
                         />
                       </div>
                     </div>
@@ -709,15 +726,14 @@ const CommunityTaxForm = ({
                           label="Community Due Amount:"
                           {...getFieldProps('OccupationTaxDue')}
                           type="text"
-                          min="0"
-                          step="0.01"
-                          className="w-24 text-right font-mono border-blue-200 focus:border-blue-500"
+                          className="w-24 text-right font-mono border-blue-200 bg-gray-100 cursor-not-allowed"
                           placeholder="Tax"
                           error={
                             formik.touched.OccupationTaxDue &&
                             formik.errors.OccupationTaxDue
                           }
                           touched={formik.touched.OccupationTaxDue}
+                          readOnly
                         />
                       </div>
                     </div>
@@ -751,15 +767,14 @@ const CommunityTaxForm = ({
                           label="Community Due Amount:"
                           {...getFieldProps('PropertyTaxDue')}
                           type="text"
-                          min="0"
-                          step="0.01"
-                          className="w-24 text-right font-mono border-blue-200 focus:border-blue-500"
+                          className="w-24 text-right font-mono border-blue-200 bg-gray-100 cursor-not-allowed"
                           placeholder="Tax"
                           error={
                             formik.touched.PropertyTaxDue &&
                             formik.errors.PropertyTaxDue
                           }
                           touched={formik.touched.PropertyTaxDue}
+                          readOnly
                         />
                       </div>
                     </div>
@@ -802,24 +817,42 @@ const CommunityTaxForm = ({
                   </div>
 
                   {/* Middle Section - Total Amount Paid */}
-                  <div className="space-y-2">
-                    <label className="font-bold text-lg block">
-                      Total Amount Paid
-                    </label>
-                    <FormField
-                      {...getFieldProps('AmountReceived')}
-                      type="text"
-                      min="0"
-                      step="0.01"
-                      className="w-full text-right font-mono bg-white/20 border-white/30 text-white placeholder-white/70 font-bold text-lg px-3 py-2 rounded focus:outline-none focus:ring-2 focus:ring-white/50"
-                      error={
-                        formik.touched.AmountReceived &&
-                        formik.errors.AmountReceived
-                      }
-                      touched={formik.touched.AmountReceived}
-                    />
-                  </div>
 
+                  <div className="space-y-4">
+                    <div className="space-y-2">
+                      <label className="font-bold text-lg block">
+                        Total Amount Paid
+                      </label>
+                      <FormField
+                        {...getFieldProps('AmountReceived')}
+                        type="text"
+                        min="0"
+                        step="0.01"
+                        className="w-full text-right font-mono bg-white/20 border-white/30 text-white placeholder-white/70 font-bold text-lg px-3 py-2 rounded focus:outline-none focus:ring-2 focus:ring-white/50"
+                        error={
+                          formik.touched.AmountReceived &&
+                          formik.errors.AmountReceived
+                        }
+                        touched={formik.touched.AmountReceived}
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <label className="font-medium block">
+                        Interest Amount
+                      </label>
+                      <FormField
+                        {...getFieldProps('InterestAmount')}
+                        type="text"
+                        className="w-full text-right font-mono bg-white/20 border-white/30 text-white placeholder-white/70 px-3 py-2 rounded focus:outline-none focus:ring-2 focus:ring-white/50"
+                        error={
+                          formik.touched.InterestAmount &&
+                          formik.errors.InterestAmount
+                        }
+                        touched={formik.touched.InterestAmount}
+                        readOnly
+                      />
+                    </div>
+                  </div>
                   {/* Right Section - In Words */}
                   <div className="flex items-end md:items-center justify-center md:justify-end">
                     <div className="text-center md:text-right">

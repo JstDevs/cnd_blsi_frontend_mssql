@@ -305,6 +305,7 @@ function JournalEntryForm({
                         <Select
                           label="Accounts and Explanation"
                           options={accountOptions}
+                          className="focus:!ring-none focus:!border-none focus:bg-red-600"
                           placeholder="Select an account..."
                           isSearchable={true}
                           onChange={(selected) =>

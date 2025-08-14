@@ -121,6 +121,7 @@ function BudgetForm({
         handleBlur,
         isSubmitting,
         submitCount,
+        setFieldValue,
       }) => (
         <Form className="space-y-4">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -219,6 +220,8 @@ function BudgetForm({
               touched={touched.Appropriation}
               type="number"
               required
+              readOnly
+              className="bg-gray-100"
             />
             <FormField
               label="Charges"
@@ -230,6 +233,8 @@ function BudgetForm({
               error={errors.Charges}
               touched={touched.Charges}
               required
+              readOnly
+              className="bg-gray-100"
             />
             <FormField
               label="Total Amount"
@@ -277,7 +282,38 @@ function BudgetForm({
                 label={month}
                 name={month}
                 type="number"
-                onChange={handleChange}
+                onChange={(e) => {
+                  handleChange(e); // update the month value in Formik
+
+                  // Get all month values including the updated one
+                  const updatedMonths = {
+                    ...values,
+                    [month]: e.target.value,
+                  };
+
+                  // Calculate sum of January to December
+                  const monthsList = [
+                    'January',
+                    'February',
+                    'March',
+                    'April',
+                    'May',
+                    'June',
+                    'July',
+                    'August',
+                    'September',
+                    'October',
+                    'November',
+                    'December',
+                  ];
+
+                  const sum = monthsList.reduce((total, m) => {
+                    return total + (Number(updatedMonths[m]) || 0);
+                  }, 0);
+
+                  // Set Appropriation in Formik
+                  setFieldValue('Appropriation', sum);
+                }}
                 onBlur={handleBlur}
                 value={values[month]}
                 error={errors[month]}

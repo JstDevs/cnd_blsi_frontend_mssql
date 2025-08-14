@@ -34,10 +34,8 @@ function CustomerForm({ initialData, onSubmit, onClose }) {
     PlaceOfBirth: Yup.string().required('Place of Birth is required'),
     Occupation: Yup.string().required('Occupation is required'),
     CivilStatus: Yup.string().required('Civil Status is required'),
-    TIN: Yup.string()
-      .required('TIN is required')
-      .matches(/^\d{14}$/, 'TIN must be exactly 14 digits'),
-    EmailAddress: Yup.string().email().required('Email is required'),
+    TIN: Yup.string().matches(/^\d{14}$/, 'TIN must be exactly 14 digits'),
+    EmailAddress: Yup.string().email(),
     RegionID: Yup.string().required('Region is required'),
     ProvinceID: Yup.string().required('Province is required'),
     MunicipalityID: Yup.string().required('Municipality is required'),
@@ -231,7 +229,7 @@ function CustomerForm({ initialData, onSubmit, onClose }) {
           onBlur={handleBlur}
           error={touched.TIN && errors.TIN}
           touched={touched.TIN}
-          required
+          // required
         />
         <FormField
           label="Email"
@@ -242,7 +240,7 @@ function CustomerForm({ initialData, onSubmit, onClose }) {
           onBlur={handleBlur}
           error={touched.EmailAddress && errors.EmailAddress}
           touched={touched.EmailAddress}
-          required
+          // required
         />
         <FormField
           label="Region"

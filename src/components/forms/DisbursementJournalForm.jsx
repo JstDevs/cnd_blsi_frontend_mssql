@@ -43,7 +43,20 @@ function DisbursementJournalForm({
     setSubmitting(false);
     submitAction.current = null; // clear after use
   };
-
+  const fundsOptions = [
+    { value: '%', label: 'All Funds' },
+    ...(funds?.map((item) => ({
+      value: item.ID,
+      label: item.Name,
+    })) || []),
+  ];
+  const chartOfAccountsOptions = [
+    { value: '%', label: 'All Chart of Accounts' },
+    ...(chartOfAccounts?.map((item) => ({
+      value: item.ID,
+      label: item.Name,
+    })) || []),
+  ];
   return (
     <Formik
       initialValues={initialValues}
@@ -92,10 +105,7 @@ function DisbursementJournalForm({
               type="select"
               label="Chart of Accounts"
               name="ChartOfAccountID"
-              options={chartOfAccounts.map((item) => ({
-                value: item.ID,
-                label: item.Name,
-              }))}
+              options={chartOfAccountsOptions}
               value={values.ChartOfAccountID}
               onChange={handleChange}
               onBlur={handleBlur}
@@ -107,10 +117,7 @@ function DisbursementJournalForm({
               type="select"
               label="Fund"
               name="FundID"
-              options={funds.map((item) => ({
-                value: item.ID,
-                label: item.Name,
-              }))}
+              options={fundsOptions}
               value={values.FundID}
               onChange={handleChange}
               onBlur={handleBlur}

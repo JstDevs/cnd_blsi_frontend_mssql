@@ -453,7 +453,7 @@ function BudgetTransferForm({ initialData, onSubmit, onClose, budgetOptions }) {
                     >
                       <div className="flex items-center min-w-0">
                         <Paperclip className="h-4 w-4 text-gray-500 mr-2 flex-shrink-0" />
-                        <span className="text-sm truncate">
+                        {/* <span className="text-sm truncate">
                           {file.ID ? (
                             <a
                               href={`${API_URL}/uploads/${file.DataImage}`}
@@ -469,7 +469,24 @@ function BudgetTransferForm({ initialData, onSubmit, onClose, budgetOptions }) {
                               {file.name || file.DataName}
                             </span>
                           )}
+                        </span> */}
+                        <span className="text-xs text-gray-500 ml-2">
+                          <a
+                            href={
+                              file?.ID
+                                ? `${API_URL}/uploads/${file?.DataImage}`
+                                : URL.createObjectURL(file)
+                            }
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="text-blue-600 hover:underline"
+                          >
+                            {file?.name || file?.DataName}
+                          </a>
                         </span>
+                        {/* <span className="text-xs text-gray-500 ml-2">
+                          {file?.type}
+                        </span> */}
                       </div>
                       <button
                         type="button"

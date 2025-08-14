@@ -12,7 +12,6 @@ import {
 } from '../../features/settings/projectDetailsSlice';
 import toast from 'react-hot-toast';
 import { useModulePermissions } from '@/utils/useModulePremission';
-
 function ProjectDetailsPage() {
   const dispatch = useDispatch();
   const { projectDetails, isLoading } = useSelector(
@@ -100,7 +99,10 @@ function ProjectDetailsPage() {
       key: 'ProjectTypeID',
       header: 'Project Type',
       sortable: true,
-      // Optional: Add render function to display label instead of value if needed
+      render: (value, row) => {
+        const projectType = row?.ProjectType?.Type;
+        return <span>{projectType || value || 'N/A'}</span>;
+      },
     },
     {
       key: 'Description',

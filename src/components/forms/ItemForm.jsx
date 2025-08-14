@@ -94,6 +94,7 @@ const ItemForm = ({ item, onClose }) => {
         handleChange,
         handleBlur,
         isSubmitting,
+        setFieldValue,
       }) => (
         <Form className="space-y-4">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -177,7 +178,20 @@ const ItemForm = ({ item, onClose }) => {
               type="select"
               required
               value={values.TAXCodeID}
-              onChange={handleChange}
+              onChange={(e) => {
+                const selectedId = e.target.value;
+                handleChange(e); // keep Formik in sync
+
+                // Find selected code and update rate
+                const selectedCode = taxCodes.find(
+                  (code) => code.ID === Number(selectedId)
+                );
+                if (selectedCode) {
+                  setFieldValue('TaxRate', selectedCode.Rate); // auto-set tax rate
+                } else {
+                  setFieldValue('TaxRate', ''); // clear if nothing selected
+                }
+              }}
               onBlur={handleBlur}
               error={errors.TAXCodeID}
               touched={touched.TAXCodeID}

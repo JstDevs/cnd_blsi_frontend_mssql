@@ -978,7 +978,8 @@ function DisbursementVoucherForm({
                           (p) => p.value === values.contraAccount
                         ) || null
                       }
-                      classNamePrefix="react-select"
+                      className="basic-single"
+                      classNamePrefix="select"
                     />
                     {errors.contraAccount && touched.contraAccount && (
                       <p className="mt-1 text-sm text-red-600">

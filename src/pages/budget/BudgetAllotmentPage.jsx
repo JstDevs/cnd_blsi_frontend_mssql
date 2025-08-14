@@ -140,11 +140,14 @@ const BudgetAllotmentPage = () => {
     {
       key: 'Total',
       header: 'Total',
-      render: (_, row) => (
+      render: (value, row) => (
         <span>
-          {parseFloat(row.Total).toLocaleString('en-US', {
-            minimumFractionDigits: 2,
-          })}
+          {parseFloat(row?.Budget?.TotalAmount || value || 0).toLocaleString(
+            'en-US',
+            {
+              minimumFractionDigits: 2,
+            }
+          )}
         </span>
       ),
     },

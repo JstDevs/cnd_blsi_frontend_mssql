@@ -299,10 +299,10 @@ function App() {
             element={<DocumentTypeCategoriesPage />}
           />
           <Route path="/settings/items" element={<ItemPage />} />
-          <Route
+          {/* <Route
             path="/settings/items/invoice-charge-accounts"
             element={<InvoiceChargeAccountsPage />}
-          />
+          /> */}
           <Route path="/settings/items/units" element={<ItemUnitPage />} />
           <Route path="/settings/project-type" element={<ProjectTypePage />} />
           <Route
