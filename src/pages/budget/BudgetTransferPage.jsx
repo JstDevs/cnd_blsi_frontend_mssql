@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { PencilIcon, TrashIcon } from 'lucide-react';
+import { CheckLine, PencilIcon, TrashIcon, X } from 'lucide-react';
 import { PlusIcon } from '@heroicons/react/24/outline';
 import Modal from '@/components/common/Modal';
 import BudgetTransferForm from '@/components/forms/BudgetTransferForm';
@@ -12,10 +12,12 @@ import {
   fetchBudgetTransfers,
 } from '@/features/budget/budgetTransferSlice';
 import { useModulePermissions } from '@/utils/useModulePremission';
+import axiosInstance from '@/utils/axiosInstance';
 
 const BudgetTransferPage = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [activeRow, setActiveRow] = useState(null);
+  const [isLoading, setIsLoading] = useState(false);
   const dispatch = useDispatch();
   // ---------------------USE MODULE PERMISSIONS------------------START (BudgetTransferPage - MODULE ID =  27 )
   const { Add, Edit } = useModulePermissions(27);
@@ -57,7 +59,7 @@ const BudgetTransferPage = () => {
       setIsModalOpen(false);
     } catch (error) {
       console.error('Error:', error);
-      toast.error('An error occurred');
+      toast.error('Error: ' + error?.error);
     }
   };
 
@@ -92,19 +94,77 @@ const BudgetTransferPage = () => {
     { key: 'Remarks', header: 'Remarks', sortable: false },
   ];
 
+  // const actions = (row) => {
+  //   const baseActions = [];
+  //   // Only add Edit action if status is "Rejected" , use Requested to Test it
+  //   if (row.Status === 'Rejected' && Edit) {
+  //     baseActions.push({
+  //       icon: PencilIcon,
+  //       title: 'Edit',
+  //       onClick: () => handleEdit(row),
+  //       className:
+  //         'text-primary-600 hover:text-primary-900 p-1 rounded-full hover:bg-primary-50',
+  //     });
+  //   }
+  //   return baseActions;
+  // };
+  const handleBTPAction = async (info, action) => {
+    setIsLoading(true);
+    try {
+      const response = await axiosInstance.post(`/budgetTransfer/${action}`, {
+        ID: info.ID,
+        LinkID: info.LinkID,
+        Reason: 'This is the reason',
+      });
+      console.log(`${action}d:`, response.data);
+      dispatch(fetchBudgetTransfers());
+      toast.success(`Budget Transfer ${action}d successfully`);
+    } catch (error) {
+      console.error(`Error ${action}ing Budget Transfer:`, error);
+      toast.error(`Error ${action}ing Budget Transfer`);
+    } finally {
+      setIsLoading(false);
+    }
+  };
   const actions = (row) => {
-    const baseActions = [];
-    // Only add Edit action if status is "Rejected" , use Requested to Test it
-    if (row.Status === 'Rejected' && Edit) {
-      baseActions.push({
+    const actionList = [];
+
+    if (row?.Status?.toLowerCase().includes('rejected') && Edit) {
+      actionList.push({
         icon: PencilIcon,
         title: 'Edit',
-        onClick: () => handleEdit(row),
+        onClick: handleEdit,
         className:
           'text-primary-600 hover:text-primary-900 p-1 rounded-full hover:bg-primary-50',
       });
+
+      // actionList.push({
+      //   icon: TrashIcon,
+      //   title: 'Delete',
+      //   onClick: handleDelete,
+      //   className:
+      //     'text-error-600 hover:text-error-900 p-1 rounded-full hover:bg-error-50',
+      // });
+    } else if (row.Status === 'Requested') {
+      actionList.push(
+        {
+          icon: CheckLine,
+          title: 'Approve',
+          onClick: () => handleBTPAction(row, 'approve'),
+          className:
+            'text-green-600 hover:text-green-900 p-1 rounded-full hover:bg-green-50',
+        },
+        {
+          icon: X,
+          title: 'Reject',
+          onClick: () => handleBTPAction(row, 'reject'),
+          className:
+            'text-red-600 hover:text-red-900 p-1 rounded-full hover:bg-red-50',
+        }
+      );
     }
-    return baseActions;
+
+    return actionList;
   };
   return (
     <div className="page-container">
@@ -130,6 +190,7 @@ const BudgetTransferPage = () => {
         data={data}
         actions={actions}
         pagination={true}
+        loading={isLoading}
       />
 
       {/* Modal */}

@@ -41,6 +41,7 @@ const initialValues = {
   releasedAllotments: 0,
   releasedBalance: 0,
   Attachments: [],
+  Status: 'Requested',
 };
 
 function BudgetAllotmentForm({
@@ -78,6 +79,7 @@ function BudgetAllotmentForm({
         releasedAllotments: Budget?.ReleasedAllotments || 0,
         releasedBalance: Budget?.ReleasedBalance || 0,
         Attachments: Budget?.Attachments || [],
+        Status: initialData?.Status || 'Requested',
       });
     } else {
       setFormData(initialValues);
@@ -273,7 +275,14 @@ function BudgetAllotmentForm({
                 </p>
               )}
             </div>
-
+            <div>
+              <label className="block text-sm font-medium text-gray-700">
+                Status
+              </label>
+              <div className="mt-1 px-3 py-2 bg-gray-100 font-semibold text-blue-500 rounded-md">
+                {values?.Status?.toUpperCase() || 'Requested'}
+              </div>
+            </div>
             <FormField
               label="Budget Name"
               name="budgetName"

@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { PlusIcon } from '@heroicons/react/24/outline';
-import { PencilIcon, TrashIcon } from 'lucide-react';
+import { CheckLine, PencilIcon, TrashIcon, X } from 'lucide-react';
 import Modal from '../../components/common/Modal';
 import BudgetFundTransferForm from '../../components/forms/BudgetFundTransferForm';
 import DataTable from '../../components/common/DataTable';
@@ -18,6 +18,8 @@ const BudgetFundTransferPage = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [activeRow, setActiveRow] = useState(null);
   const dispatch = useDispatch();
+  const [isLoading, setIsLoading] = useState(false);
+
   // ---------------------USE MODULE PERMISSIONS------------------START (BudgetFundTransferPage - MODULE ID =  46 )
   const { Add, Edit } = useModulePermissions(46);
   const {
@@ -108,47 +110,62 @@ const BudgetFundTransferPage = () => {
     },
   ];
 
-  // const actions = [
-  // {
-  //   icon: PencilIcon,
-  //   title: 'Edit',
-  //   onClick: (row) => handleEdit(row),
-  //   className:
-  //     'text-primary-600 hover:text-primary-900 p-1 rounded-full hover:bg-primary-50',
-  // },
-  // {
-  //   icon: TrashIcon,
-  //   title: 'Delete',
-  //   onClick: (row) => handleDelete(row.id),
-  //   className:
-  //     'text-error-600 hover:text-error-900 p-1 rounded-full hover:bg-error-50',
-  // },
-  // ];
+  const handleBFTAction = async (info, action) => {
+    setIsLoading(true);
+    try {
+      // const response = await axiosInstance.post(
+      //   `/budgetSupplemental/${action}`,
+      //   { ID: info.ID, LinkID: info.LinkID, Reason: 'This is the reason' }
+      // );
+      console.log(`${action}d:`, response.data);
+      fetchFundTransfers();
+      toast.success(`Budget Fund Transfer ${action}d successfully`);
+    } catch (error) {
+      console.error(`Error ${action}ing Budget Fund Transfer:`, error);
+      toast.error(`Error ${action}ing Budget Fund Transfer`);
+    } finally {
+      setIsLoading(false);
+    }
+  };
   const actions = (row) => {
-    const baseActions = [];
+    const actionList = [];
 
-    // Only add Edit action if status is "Rejected" , use Requested to Test it
-    if (row.Status === 'Rejected' && Edit) {
-      baseActions.push({
+    if (row.Status.toLowerCase().includes('rejected') && Edit) {
+      actionList.push({
         icon: PencilIcon,
         title: 'Edit',
-        onClick: () => handleEdit(row),
+        onClick: handleEdit,
         className:
           'text-primary-600 hover:text-primary-900 p-1 rounded-full hover:bg-primary-50',
       });
+
+      // actionList.push({
+      //   icon: TrashIcon,
+      //   title: 'Delete',
+      //   onClick: handleDelete,
+      //   className:
+      //     'text-error-600 hover:text-error-900 p-1 rounded-full hover:bg-error-50',
+      // });
+    } else if (row.Status === 'Requested') {
+      actionList.push(
+        {
+          icon: CheckLine,
+          title: 'Approve',
+          onClick: () => handleBFTAction(row, 'approve'),
+          className:
+            'text-green-600 hover:text-green-900 p-1 rounded-full hover:bg-green-50',
+        },
+        {
+          icon: X,
+          title: 'Reject',
+          onClick: () => handleBFTAction(row, 'reject'),
+          className:
+            'text-red-600 hover:text-red-900 p-1 rounded-full hover:bg-red-50',
+        }
+      );
     }
 
-    // Uncomment if you want to add Delete action for all statuses
-    /*
-  baseActions.push({
-    icon: TrashIcon,
-    title: 'Delete',
-    onClick: () => handleDelete(row.id),
-    className: 'text-error-600 hover:text-error-900 p-1 rounded-full hover:bg-error-50',
-  });
-  */
-
-    return baseActions;
+    return actionList;
   };
   const handleSubmit = async (values) => {
     try {
@@ -212,7 +229,7 @@ const BudgetFundTransferPage = () => {
           columns={columns}
           data={data}
           actions={actions}
-          loading={loading}
+          loading={isLoading}
           onRowClick={handleViewTransfer}
         />
       </div>

@@ -56,6 +56,7 @@ function GeneralServiceReceiptModal({
   selectedReceipt,
   onSubmit,
   Print,
+  currentNumber,
 }) {
   const [payorType, setPayorType] = useState('Individual');
   const [showAttachmentModal, setShowAttachmentModal] = useState(false);
@@ -98,10 +99,11 @@ function GeneralServiceReceiptModal({
     value: code.ID,
     label: code.Name,
   }));
-
+  // console.log('selectedReceipt', currentNumber);
   const initialValues = {
     Status: selectedReceipt?.Status || 'Requested',
-    InvoiceNumber: selectedReceipt?.InvoiceNumber || '',
+    InvoiceNumber:
+      selectedReceipt?.InvoiceNumber || currentNumber?.CurrentNumber || '',
     InvoiceDate:
       selectedReceipt?.InvoiceDate || new Date().toISOString().split('T')[0],
 
@@ -296,7 +298,7 @@ function GeneralServiceReceiptModal({
                     <label className="block text-sm font-medium text-gray-700">
                       Status
                     </label>
-                    <div className="mt-1 px-3 py-2 bg-gray-100 rounded-md">
+                    <div className="mt-1 px-3 py-2 bg-gray-100 font-semibold text-blue-500 rounded-md">
                       {values?.Status.toUpperCase()}
                     </div>
                   </div>
@@ -309,6 +311,8 @@ function GeneralServiceReceiptModal({
                     value={values.InvoiceNumber}
                     error={errors.InvoiceNumber}
                     touched={touched.InvoiceNumber}
+                    readOnly
+                    className="bg-gray-100 text-blue-600 cursor-not-allowed font-semibold"
                   />
                 </div>
 

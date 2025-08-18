@@ -21,14 +21,23 @@ export const fetchBudgetTransfers = createAsyncThunk(
 
 export const createBudgetTransfer = createAsyncThunk(
   'budgetTransfer/createBudgetTransfer',
-  async (values) => {
-    const response = await axiosInstance.post('/budgetTransfer/save', values, {
-      headers: {
-        'Content-Type': 'multipart/form-data', // Required for FormData
-      },
-    });
-    toast.success('Budget transfer created successfully');
-    return response.data;
+  async (values, { rejectWithValue }) => {
+    try {
+      const response = await axiosInstance.post(
+        '/budgetTransfer/save',
+        values,
+        {
+          headers: {
+            'Content-Type': 'multipart/form-data', // Required for FormData
+          },
+        }
+      );
+      return response.data;
+    } catch (error) {
+      console.error('Error creating budget transfer:', error.response?.data);
+      // Use rejectWithValue here ⬇️
+      return rejectWithValue(error.response?.data || 'Something went wrong');
+    }
   }
 );
 

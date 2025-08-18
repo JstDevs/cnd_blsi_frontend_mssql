@@ -3,7 +3,35 @@ const API_URL = import.meta.env.VITE_API_URL;
 
 // Mock Data
 const mockCommunityTaxes = [];
+export const communityTaxGetCurrentNumber = createAsyncThunk(
+  'communityTax/communityTaxGetCurrentNumber',
+  async (_, thunkAPI) => {
+    try {
+      const token = localStorage.getItem('token');
 
+      const response = await fetch(
+        `${API_URL}/community-tax/getCurrentNumber`,
+        {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      const res = await response.json();
+
+      if (!response.ok) {
+        throw new Error(res.message || 'Failed to fetch current number');
+      }
+
+      return res;
+    } catch (error) {
+      return thunkAPI.rejectWithValue(error.message);
+    }
+  }
+);
 export const fetchCommunityTaxes = createAsyncThunk(
   'communityTax/fetchCommunityTaxes',
   async (_, thunkAPI) => {
@@ -147,6 +175,7 @@ const communityTaxSlice = createSlice({
   initialState: {
     records: [],
     currentRecord: null,
+    currentNumber: null, // ✅ new state for current number
     isLoading: false,
     error: null,
   },
@@ -157,6 +186,25 @@ const communityTaxSlice = createSlice({
   },
   extraReducers: (builder) => {
     builder
+      // =======================
+      // ✅ Get Current Number
+      // =======================
+      .addCase(communityTaxGetCurrentNumber.pending, (state) => {
+        state.isLoading = true;
+        state.error = null;
+      })
+      .addCase(communityTaxGetCurrentNumber.fulfilled, (state, action) => {
+        state.isLoading = false;
+        state.currentNumber = action.payload;
+      })
+      .addCase(communityTaxGetCurrentNumber.rejected, (state, action) => {
+        state.isLoading = false;
+        state.error =
+          action.payload || 'Failed to fetch community tax current number';
+      })
+      // =======================
+      // ✅ Fetch All
+      // =======================
       .addCase(fetchCommunityTaxes.pending, (state) => {
         state.isLoading = true;
         state.error = null;

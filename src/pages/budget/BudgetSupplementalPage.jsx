@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { PencilIcon, PrinterIcon, TrashIcon } from 'lucide-react';
+import { CheckLine, PencilIcon, PrinterIcon, TrashIcon, X } from 'lucide-react';
 import { PlusIcon } from '@heroicons/react/24/outline';
 import Modal from '@/components/common/Modal';
 import BudgetSupplementalForm from '@/components/forms/BudgetSupplementalForm';
@@ -29,6 +29,7 @@ const BudgetSupplementalPage = () => {
   const { projectDetails } = useSelector((state) => state.projectDetails);
   const [data, setData] = useState([]);
   const [budgetList, setBudgetList] = useState([]);
+  const [isLoading, setIsLoading] = useState('');
   // ---------------------USE MODULE PERMISSIONS------------------START (BudgetSupplementalPage - MODULE ID =  26 )
   const { Add, Edit, Delete, Print } = useModulePermissions(26);
   useEffect(() => {
@@ -128,7 +129,19 @@ const BudgetSupplementalPage = () => {
     {
       key: 'Status',
       header: 'Status',
-      render: (_, row) => <span>{row.Status}</span>,
+      render: (value) => (
+        <span
+          className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
+            value === 'Requested'
+              ? 'bg-warning-100 text-warning-800'
+              : value === 'Approved'
+              ? 'bg-success-100 text-success-800'
+              : 'bg-error-100 text-error-800'
+          }`}
+        >
+          {value}
+        </span>
+      ),
     },
     {
       key: 'InvoiceNumber',
@@ -169,23 +182,78 @@ const BudgetSupplementalPage = () => {
     },
   ];
 
-  const actions = [
-    Edit && {
-      icon: PencilIcon,
-      title: 'Edit',
-      onClick: handleEdit,
-      className:
-        'text-primary-600 hover:text-primary-900 p-1 rounded-full hover:bg-primary-50',
-    },
-    Delete && {
-      icon: TrashIcon,
-      title: 'Delete',
-      onClick: handleDelete,
-      className:
-        'text-error-600 hover:text-error-900 p-1 rounded-full hover:bg-error-50',
-    },
-  ];
+  // const actions = [
+  //   Edit && {
+  //     icon: PencilIcon,
+  //     title: 'Edit',
+  //     onClick: handleEdit,
+  //     className:
+  //       'text-primary-600 hover:text-primary-900 p-1 rounded-full hover:bg-primary-50',
+  //   },
+  //   Delete && {
+  //     icon: TrashIcon,
+  //     title: 'Delete',
+  //     onClick: handleDelete,
+  //     className:
+  //       'text-error-600 hover:text-error-900 p-1 rounded-full hover:bg-error-50',
+  //   },
+  // ];
+  const handleBSPAction = async (info, action) => {
+    setIsLoading(true);
+    try {
+      const response = await axiosInstance.post(
+        `/budgetSupplemental/${action}`,
+        { ID: info.ID, LinkID: info.LinkID, Reason: 'This is the reason' }
+      );
+      console.log(`${action}d:`, response.data);
+      fetchBudgetSupplementals();
+      toast.success(`Budget Supplemental ${action}d successfully`);
+    } catch (error) {
+      console.error(`Error ${action}ing Budget Supplemental:`, error);
+      toast.error(`Error ${action}ing Budget Supplemental`);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+  const actions = (row) => {
+    const actionList = [];
 
+    if (row.Status.toLowerCase().includes('rejected') && Edit) {
+      actionList.push({
+        icon: PencilIcon,
+        title: 'Edit',
+        onClick: handleEdit,
+        className:
+          'text-primary-600 hover:text-primary-900 p-1 rounded-full hover:bg-primary-50',
+      });
+      actionList.push({
+        icon: TrashIcon,
+        title: 'Delete',
+        onClick: handleDelete,
+        className:
+          'text-error-600 hover:text-error-900 p-1 rounded-full hover:bg-error-50',
+      });
+    } else if (row.Status === 'Requested') {
+      actionList.push(
+        {
+          icon: CheckLine,
+          title: 'Approve',
+          onClick: () => handleBSPAction(row, 'approve'),
+          className:
+            'text-green-600 hover:text-green-900 p-1 rounded-full hover:bg-green-50',
+        },
+        {
+          icon: X,
+          title: 'Reject',
+          onClick: () => handleBSPAction(row, 'reject'),
+          className:
+            'text-red-600 hover:text-red-900 p-1 rounded-full hover:bg-red-50',
+        }
+      );
+    }
+
+    return actionList;
+  };
   // Apply filters to data
   const filteredData = data.filter((item) => {
     console.log(filters, item);
@@ -279,7 +347,7 @@ const BudgetSupplementalPage = () => {
       <DataTable
         columns={columns}
         data={filteredData}
-        // loading={isLoading }
+        loading={isLoading}
         actions={actions}
         pagination={true}
       />

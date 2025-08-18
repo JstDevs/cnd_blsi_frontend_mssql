@@ -215,7 +215,10 @@ function BudgetReportPage() {
               value={fundsID}
               required
               onChange={(e) => setFundsID(e.target.value)}
-              options={funds.map((f) => ({ label: f.Name, value: f.ID }))}
+              options={[
+                { label: 'All Funds', value: '%' },
+                ...funds.map((f) => ({ label: f.Name, value: f.ID })),
+              ]}
             />
           </div>
           <div className="w-full sm:w-44">
@@ -226,7 +229,10 @@ function BudgetReportPage() {
               value={departmentID}
               required
               onChange={(e) => setDepartmentID(e.target.value)}
-              options={departments.map((d) => ({ label: d.Name, value: d.ID }))}
+              options={[
+                { label: 'All Departments', value: '%' },
+                ...departments.map((d) => ({ label: d.Name, value: d.ID })),
+              ]}
             />
           </div>
         </div>

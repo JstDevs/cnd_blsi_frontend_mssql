@@ -12,18 +12,21 @@ import {
   createGeneralServiceReceipt,
   deleteGeneralServiceReceipt,
   fetchGeneralServiceReceipts,
+  getGeneralServiceReceiptCurrentNumber,
 } from '@/features/collections/generalReceiptSlice';
 import GeneralServiceReceiptModal from './GeneralServiceReceiptModal';
 
 import toast from 'react-hot-toast';
-import { TrashIcon } from 'lucide-react';
+import { CheckLine, TrashIcon, X } from 'lucide-react';
 import { useModulePermissions } from '@/utils/useModulePremission';
 
 function GeneralReceiptPage() {
   const dispatch = useDispatch();
-  const { receipts: generalReceipts, isLoading } = useSelector(
-    (state) => state.generalReceipts
-  );
+  const {
+    receipts: generalReceipts,
+    isLoading,
+    currentNumber,
+  } = useSelector((state) => state.generalReceipts);
   // ---------------------USE MODULE PERMISSIONS------------------START (GeneralReceiptPage - MODULE ID =  52 )
   const { Add, Edit, Delete, Print } = useModulePermissions(52);
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
@@ -44,6 +47,7 @@ function GeneralReceiptPage() {
   const handleCreateServiceReceipt = () => {
     setCurrentReceipt(null);
     setIsServiceReceiptModalOpen(true);
+    dispatch(getGeneralServiceReceiptCurrentNumber());
   };
 
   const handleViewReceipt = (receipt) => {
@@ -181,30 +185,79 @@ function GeneralReceiptPage() {
   ];
 
   // Actions for table rows
-  const actions = [
-    // {
-    //   icon: EyeIcon,
-    //   title: 'View',
-    //   onClick: handleViewReceipt,
-    //   className:
-    //     'text-primary-600 hover:text-primary-900 p-1 rounded-full hover:bg-primary-50',
-    // },
-    Edit && {
-      icon: PencilIcon,
-      title: 'Edit',
-      onClick: handleEditReceipt,
-      className:
-        'text-primary-600 hover:text-primary-900 p-1 rounded-full hover:bg-primary-50',
-    },
-    Delete && {
-      icon: TrashIcon,
-      title: 'Delete',
-      onClick: handleDeleteReceipt,
-      className:
-        'text-error-600 hover:text-error-900 p-1 rounded-full hover:bg-error-50',
-    },
-  ];
+  // const actions = [
+  //   Edit && {
+  //     icon: PencilIcon,
+  //     title: 'Edit',
+  //     onClick: handleEditReceipt,
+  //     className:
+  //       'text-primary-600 hover:text-primary-900 p-1 rounded-full hover:bg-primary-50',
+  //   },
+  //   Delete && {
+  //     icon: TrashIcon,
+  //     title: 'Delete',
+  //     onClick: handleDeleteReceipt,
+  //     className:
+  //       'text-error-600 hover:text-error-900 p-1 rounded-full hover:bg-error-50',
+  //   },
+  // ];
+  const handleGRPAction = async (dv, action) => {
+    setApprovalLoading(true);
+    try {
+      // TODO CHANGE THIS ENDPOINT
+      // const response = await axiosInstance.post(
+      //   `/disbursementVoucher/${action}`,
+      //   { ID: dv.ID }
+      // );
+      console.log(`${action}d:`, response.data);
+      dispatch(fetchGeneralServiceReceipts());
+      toast.success(`General Receipt ${action}d successfully`);
+    } catch (error) {
+      console.error(`Error ${action}ing General Receipt:`, error);
+      toast.error(`Error ${action}ing General Receipt`);
+    } finally {
+      setApprovalLoading(false);
+    }
+  };
+  const actions = (row) => {
+    const actionList = [];
 
+    if (row.Status.toLowerCase().includes('rejected') && Edit) {
+      actionList.push({
+        icon: PencilIcon,
+        title: 'Edit',
+        onClick: () => handleEditOR(row),
+        className:
+          'text-primary-600 hover:text-primary-900 p-1 rounded-full hover:bg-primary-50',
+      });
+      actionList.push({
+        icon: TrashIcon,
+        title: 'Delete',
+        onClick: () => handleDeleteReceipt(row),
+        className:
+          'text-error-600 hover:text-error-900 p-1 rounded-full hover:bg-error-50',
+      });
+    } else if (row.Status === 'Requested') {
+      actionList.push(
+        {
+          icon: CheckLine,
+          title: 'Approve',
+          onClick: () => handleGRPAction(row, 'approve'),
+          className:
+            'text-green-600 hover:text-green-900 p-1 rounded-full hover:bg-green-50',
+        },
+        {
+          icon: X,
+          title: 'Reject',
+          onClick: () => handleGRPAction(row, 'reject'),
+          className:
+            'text-red-600 hover:text-red-900 p-1 rounded-full hover:bg-red-50',
+        }
+      );
+    }
+
+    return actionList;
+  };
   const handleGeneralServiceReceiptSubmit = async (values) => {
     if (!values) return; // Early return if no values
 
@@ -265,6 +318,7 @@ function GeneralReceiptPage() {
         selectedReceipt={currentReceipt}
         onSubmit={handleGeneralServiceReceiptSubmit}
         Print={Print}
+        currentNumber={currentNumber}
       />
 
       {/* Receipt View Modal */}

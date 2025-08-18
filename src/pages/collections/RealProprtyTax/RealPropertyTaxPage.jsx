@@ -276,7 +276,7 @@ function RealPropertyTaxPage() {
 
       {currentView === 'form' && (
         <div>
-          <div className="flex justify-between items-center mb-6">
+          <div className="flex justify-between max-sm:flex-col gap-4 sm:items-center mb-6">
             <div className="flex sm:items-center gap-4 max-sm:flex-col">
               <button
                 onClick={handleBackToList}
@@ -297,6 +297,14 @@ function RealPropertyTaxPage() {
                 </p>
               </div>
             </div>
+            <button
+              onClick={() => {
+                console.log('Print');
+              }}
+              className="btn btn-primary"
+            >
+              <PrinterIcon className="h-5 w-5 mr-2" aria-hidden="true" /> Print
+            </button>
           </div>
 
           <div className="bg-white rounded-lg shadow-md p-2 sm:p-6">

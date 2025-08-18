@@ -15,6 +15,7 @@ import {
   fetchCommunityTaxes,
   deleteCommunityTax,
   addCommunityTax,
+  communityTaxGetCurrentNumber,
 } from '@/features/collections/CommunityTaxSlice';
 import { Trash } from 'lucide-react';
 import { fetchCustomers } from '@/features/settings/customersSlice';
@@ -22,9 +23,11 @@ import toast from 'react-hot-toast';
 import { useModulePermissions } from '@/utils/useModulePremission';
 function CommunityTaxPage() {
   const dispatch = useDispatch();
-  const { records: certificates, isLoading } = useSelector(
-    (state) => state.communityTax
-  );
+  const {
+    records: certificates,
+    currentNumber,
+    isLoading,
+  } = useSelector((state) => state.communityTax);
   const { customers, isLoading: customersLoading } = useSelector(
     (state) => state.customers
   );
@@ -36,6 +39,7 @@ function CommunityTaxPage() {
   const [searchTerm, setSearchTerm] = useState('');
   const [showListModal, setShowListModal] = useState(false);
   const [selectedCustomer, setSelectedCustomer] = useState({});
+
   useEffect(() => {
     dispatch(fetchCommunityTaxes());
     dispatch(fetchCustomers());
@@ -44,6 +48,7 @@ function CommunityTaxPage() {
   const handleCreateCertificate = () => {
     setCurrentCertificate(null);
     setCurrentView('form');
+    dispatch(communityTaxGetCurrentNumber());
   };
 
   const handleViewCertificate = (certificate) => {
@@ -323,6 +328,7 @@ function CommunityTaxPage() {
                 initialData={currentCertificate}
                 onCancel={handleBackToList}
                 onSubmitForm={handleFormSubmit}
+                currentCertificateNumber={currentNumber}
               />
             ) : (
               <h2 className="text-2xl font-bold text-gray-800 text-center h-[50vh]">

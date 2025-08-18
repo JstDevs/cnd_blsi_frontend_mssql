@@ -24,8 +24,9 @@ const initialValues = {
   fromBudget: null,
   toBudget: null,
   Attachments: [],
+  currentStatus: 'Requested',
 };
-
+console.log('Initial Values:', initialValues);
 function BudgetTransferForm({ initialData, onSubmit, onClose, budgetOptions }) {
   const [formData, setFormData] = useState({ ...initialValues });
 
@@ -86,7 +87,7 @@ function BudgetTransferForm({ initialData, onSubmit, onClose, budgetOptions }) {
     try {
       await onSubmit(formData);
     } catch (error) {
-      toast.error('Submission failed: ' + error.message);
+      console.error(error);
     } finally {
       setSubmitting(false);
     }
@@ -115,6 +116,7 @@ function BudgetTransferForm({ initialData, onSubmit, onClose, budgetOptions }) {
         toBudget:
           budgetOptions.find((b) => b.ID === initialData?.TargetID) || null,
         Attachments: initialData.Attachments || [],
+        currentStatus: initialData?.Status || '',
       });
     } else {
       setFormData(initialValues);
@@ -138,6 +140,15 @@ function BudgetTransferForm({ initialData, onSubmit, onClose, budgetOptions }) {
         isSubmitting,
       }) => (
         <Form className="space-y-4">
+          {/* // STATUS SECTION */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700">
+              Status
+            </label>
+            <div className="mt-1 w-fit px-3 py-2 bg-gray-100 font-semibold text-blue-500 rounded-md">
+              {values?.currentStatus?.toUpperCase()}
+            </div>
+          </div>
           <div className="flex flex-col md:flex-row gap-6">
             {/* From Budget Section */}
             <div className="flex-1 space-y-4 p-4 border rounded-lg">

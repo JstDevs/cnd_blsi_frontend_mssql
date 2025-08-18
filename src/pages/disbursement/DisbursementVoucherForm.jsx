@@ -99,6 +99,7 @@ function DisbursementVoucherForm({
       receivedPaymentBy: Yup.string().required(
         'Received Payment By is required'
       ),
+      Amount: Yup.string().required('Amount By is required'),
     });
   };
   const handleAddEntry = (entry) => {
@@ -190,6 +191,7 @@ function DisbursementVoucherForm({
     bank: initialData?.bank || '',
     checkNumber: initialData?.checkNumber || '',
     receivedPaymentBy: initialData?.ReceivedPaymentBy || '',
+    Amount: initialData?.Amount || '',
   };
 
   const handleSubmit = (values) => {
@@ -296,15 +298,14 @@ function DisbursementVoucherForm({
     fd.append('BankID', values.bank);
     fd.append('CheckNumber', values.checkNumber);
     fd.append('ReceivedPaymentBy', values.receivedPaymentBy);
+    fd.append('Amount', values.Amount);
     if (initialData) {
       fd.append('LinkID', initialData.LinkID);
       fd.append('IsNew', false);
     } else {
       fd.append('IsNew', true);
     }
-    // const action = initialData
-    //   ? updateDisbursementVoucher({ formData: fd, id: initialData.ID }).unwrap()
-    //   : createDisbursementVoucher(fd);
+
     const action = createDisbursementVoucher(fd);
 
     dispatch(action)
@@ -1015,51 +1016,57 @@ function DisbursementVoucherForm({
                   {selectedModeOfPayment === 'Check' && (
                     <>
                       {/* Bank */}
-                      <div>
-                        <FormField
-                          type="text"
-                          label="Bank"
-                          name="bank"
-                          value={values.bank}
-                          onChange={handleChange}
-                          onBlur={handleBlur}
-                          error={errors.bank}
-                          touched={touched.bank}
-                          required={selectedModeOfPayment === 'Check'}
-                        />
-                      </div>
+
+                      <FormField
+                        type="text"
+                        label="Bank"
+                        name="bank"
+                        value={values.bank}
+                        onChange={handleChange}
+                        onBlur={handleBlur}
+                        error={errors.bank}
+                        touched={touched.bank}
+                        required={selectedModeOfPayment === 'Check'}
+                      />
 
                       {/* Check Number */}
-                      <div>
-                        <FormField
-                          type="text"
-                          label="Check No."
-                          name="checkNumber"
-                          value={values.checkNumber}
-                          onChange={handleChange}
-                          onBlur={handleBlur}
-                          error={errors.checkNumber}
-                          touched={touched.checkNumber}
-                          required={selectedModeOfPayment === 'Check'}
-                        />
-                      </div>
+
+                      <FormField
+                        type="text"
+                        label="Check No."
+                        name="checkNumber"
+                        value={values.checkNumber}
+                        onChange={handleChange}
+                        onBlur={handleBlur}
+                        error={errors.checkNumber}
+                        touched={touched.checkNumber}
+                        required={selectedModeOfPayment === 'Check'}
+                      />
                     </>
                   )}
 
-                  {/* Received Payment By */}
-                  <div>
-                    <FormField
-                      type="text"
-                      label="Received Payment By"
-                      name="receivedPaymentBy"
-                      value={values.receivedPaymentBy}
-                      onChange={handleChange}
-                      onBlur={handleBlur}
-                      error={errors.receivedPaymentBy}
-                      touched={touched.receivedPaymentBy}
-                      required
-                    />
-                  </div>
+                  <FormField
+                    type="text"
+                    label="Received Payment By"
+                    name="receivedPaymentBy"
+                    value={values.receivedPaymentBy}
+                    onChange={handleChange}
+                    onBlur={handleBlur}
+                    error={errors.receivedPaymentBy}
+                    touched={touched.receivedPaymentBy}
+                    required
+                  />
+                  <FormField
+                    type="text"
+                    label="Amount"
+                    name="Amount"
+                    value={values.Amount}
+                    onChange={handleChange}
+                    onBlur={handleBlur}
+                    error={errors.Amount}
+                    touched={touched.Amount}
+                    required
+                  />
                 </div>
               </div>
               <hr />

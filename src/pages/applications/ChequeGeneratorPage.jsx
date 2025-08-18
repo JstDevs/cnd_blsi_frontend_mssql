@@ -13,6 +13,7 @@ import {
   SaveIcon,
   EditIcon,
   Paperclip,
+  PrinterIcon,
 } from 'lucide-react';
 import DataTable from '@/components/common/DataTable';
 import { useDispatch, useSelector } from 'react-redux';
@@ -58,7 +59,7 @@ function ChequeGeneratorPage() {
     (state) => state.employees
   );
   // ---------------------USE MODULE PERMISSIONS------------------START (ChequeGeneratorPage - MODULE ID = 16 )
-  const { Add, Edit, Delete } = useModulePermissions(33);
+  const { Add, Edit, Delete, Print } = useModulePermissions(33);
   // Formik initialization
   const formik = useFormik({
     initialValues: {
@@ -315,6 +316,33 @@ function ChequeGeneratorPage() {
               >
                 <EditIcon className="h-5 w-5 mr-2" />
                 Edit
+              </button>
+            )}
+            {currentCheck && Print && (
+              <button
+                type="button"
+                onClick={() => {
+                  console.log('Print');
+                }}
+                // onClick={formik.handleSubmit}
+                className="btn btn-primary max-sm:w-full"
+                disabled={formik.isSubmitting}
+              >
+                <PrinterIcon className="h-5 w-5 mr-2" />
+                Print
+              </button>
+            )}
+            {currentCheck && (
+              <button
+                type="button"
+                onClick={() => {
+                  console.log('Attachment');
+                }}
+                // onClick={formik.handleSubmit}
+                className="btn btn-primary max-sm:w-full"
+                disabled={formik.isSubmitting}
+              >
+                Attachment
               </button>
             )}
             {currentCheck && (

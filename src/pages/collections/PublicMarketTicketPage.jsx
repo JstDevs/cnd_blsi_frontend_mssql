@@ -13,6 +13,7 @@ import {
 import { useDispatch, useSelector } from 'react-redux';
 import { PencilIcon, Trash } from 'lucide-react';
 import { useModulePermissions } from '@/utils/useModulePremission';
+import { formatCurrency } from '@/utils/currencyFormater';
 
 const PublicMarketTicketPage = () => {
   const dispatch = useDispatch();
@@ -99,7 +100,7 @@ const PublicMarketTicketPage = () => {
       key: 'AmountIssued',
       header: 'Amount Issued',
       accessorKey: 'amountIssued',
-      render: (value) => `₱${value?.toLocaleString()}`,
+      render: formatCurrency,
     },
     { key: 'Remarks', header: 'Remarks', accessorKey: 'remarks' },
   ];

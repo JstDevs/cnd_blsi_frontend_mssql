@@ -116,12 +116,36 @@ export const deleteGeneralServiceReceipt = createAsyncThunk(
   }
 );
 
+// ✅ Get Current Number
+export const getGeneralServiceReceiptCurrentNumber = createAsyncThunk(
+  'generalServiceReceipts/getGeneralServiceReceiptCurrentNumber',
+  async (_, thunkAPI) => {
+    try {
+      const token = localStorage.getItem('token');
+      const response = await axios.get(
+        `${API_URL}/generalservicerecipt/getCurrentNumber`,
+        {
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+      return response.data;
+    } catch (error) {
+      return thunkAPI.rejectWithValue(
+        error.response?.data?.message || error.message
+      );
+    }
+  }
+);
 const generalServiceReceiptsSlice = createSlice({
   name: 'generalServiceReceipts',
   initialState: {
     receipts: [],
     currentReceipt: null,
     isLoading: false,
+    currentNumber: null, // ✅ store current number
     error: null,
   },
   reducers: {
@@ -243,7 +267,28 @@ const generalServiceReceiptsSlice = createSlice({
         state.error =
           action.payload || 'Failed to delete general service receipt';
         console.error('Failed to delete general service receipt:', state.error);
-      });
+      })
+      // ✅ Get Current Number
+      .addCase(getGeneralServiceReceiptCurrentNumber.pending, (state) => {
+        state.isLoading = true;
+        state.error = null;
+      })
+      .addCase(
+        getGeneralServiceReceiptCurrentNumber.fulfilled,
+        (state, action) => {
+          state.isLoading = false;
+          state.currentNumber = action.payload;
+        }
+      )
+      .addCase(
+        getGeneralServiceReceiptCurrentNumber.rejected,
+        (state, action) => {
+          state.isLoading = false;
+          state.error =
+            action.payload ||
+            'Failed to fetch general service receipt current number';
+        }
+      );
   },
 });
 

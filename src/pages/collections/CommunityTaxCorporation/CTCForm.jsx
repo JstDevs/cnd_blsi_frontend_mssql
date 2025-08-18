@@ -7,6 +7,7 @@ import { useEffect } from 'react';
 // import numToWords from '@/components/helper/numToWords';
 import { ExclamationCircleIcon } from '@heroicons/react/24/outline';
 import { convertAmountToWords } from '@/utils/amountToWords';
+import { calculateInterestRate } from '@/utils/calculateInterest';
 
 const validationSchema = Yup.object().shape({
   Year: Yup.string()
@@ -132,8 +133,8 @@ const CTCForm = ({
       DateIssued: initialData?.InvoiceDate || '',
       CCNumber: initialData?.InvoiceNumber || '',
       // COMPANY INFO
-      Name: initialData?.CustomerName || '', // COMPANY FULL NAME
-      TIN: initialData?.TIN || '',
+      Name: selectedVendor?.Name || initialData?.CustomerName || '', // COMPANY FULL NAME
+      TIN: selectedVendor?.TIN || initialData?.TIN || '',
       Address: customerSource?.StreetAddress || '',
       dateOfRegistration: customerSource?.DateofRegistration || '',
       KindofOrganization: customerSource?.KindofOrganization || 'Corporation',
@@ -151,7 +152,7 @@ const CTCForm = ({
       grossReceiptsTax: initialData?.OccupationTaxDue || '',
       // TOTAL TAX DUE: ++++ ALL CHANGED
       Total: initialData?.Total || '',
-      Interest: initialData?.Interest || '',
+      Interest: initialData?.Interest || calculateInterestRate(),
       AmountPaid: initialData?.AmountReceived || '',
 
       Remarks: initialData?.Remarks || '',
