@@ -215,10 +215,14 @@ function BudgetForm({
               name="Appropriation"
               onChange={handleChange}
               onBlur={handleBlur}
-              value={values.Appropriation}
+              value={
+                values.Appropriation !== '' && !isNaN(values.Appropriation)
+                  ? Number(values.Appropriation).toLocaleString()
+                  : ''
+              }
               error={errors.Appropriation}
               touched={touched.Appropriation}
-              type="number"
+              type="text" // 👈 change to text so commas display properly
               required
               readOnly
               className="bg-gray-100"
@@ -281,17 +285,21 @@ function BudgetForm({
                 key={month}
                 label={month}
                 name={month}
-                type="number"
+                type="text" // keep as text to allow formatting with commas
                 onChange={(e) => {
-                  handleChange(e); // update the month value in Formik
+                  // Remove commas and parse as number
+                  const rawValue = e.target.value.replace(/,/g, '');
+                  const numericValue = rawValue === '' ? '' : Number(rawValue);
 
-                  // Get all month values including the updated one
-                  const updatedMonths = {
-                    ...values,
-                    [month]: e.target.value,
-                  };
+                  // Save clean numeric value in Formik
+                  handleChange({
+                    target: { name: month, value: numericValue },
+                  });
 
-                  // Calculate sum of January to December
+                  // Get all month values including updated one
+                  const updatedMonths = { ...values, [month]: numericValue };
+
+                  // Calculate sum of Jan-Dec
                   const monthsList = [
                     'January',
                     'February',
@@ -307,15 +315,19 @@ function BudgetForm({
                     'December',
                   ];
 
-                  const sum = monthsList.reduce((total, m) => {
-                    return total + (Number(updatedMonths[m]) || 0);
-                  }, 0);
+                  const sum = monthsList.reduce(
+                    (total, m) => total + (Number(updatedMonths[m]) || 0),
+                    0
+                  );
 
-                  // Set Appropriation in Formik
                   setFieldValue('Appropriation', sum);
                 }}
                 onBlur={handleBlur}
-                value={values[month]}
+                value={
+                  values[month] !== '' && !isNaN(values[month])
+                    ? Number(values[month]).toLocaleString() // 👈 no decimals
+                    : ''
+                }
                 error={errors[month]}
                 touched={touched[month]}
               />

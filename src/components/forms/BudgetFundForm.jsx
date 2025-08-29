@@ -68,7 +68,7 @@ function BudgetFundForm({ initialData, onSubmit, onClose }) {
               value={values.Code}
               error={errors.Code}
               touched={touched.Code}
-              placeholder="e.g., 1-01-01-010"
+              placeholder="e.g., 100,200,300"
               required
             />
             <FormField

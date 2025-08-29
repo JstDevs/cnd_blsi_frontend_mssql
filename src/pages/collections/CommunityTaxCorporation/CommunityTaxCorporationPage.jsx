@@ -12,7 +12,7 @@ import CTCForm from './CTCForm';
 import SearchableDropdown from '@/components/common/SearchableDropdown';
 import Modal from '@/components/common/Modal';
 import { fetchVendorDetails } from '@/features/settings/vendorDetailsSlice';
-import { Trash } from 'lucide-react';
+import { CheckLine, Trash, X } from 'lucide-react';
 import {
   fetchCorporateCommunityTaxes,
   deleteCorporateCommunityTax,
@@ -27,6 +27,7 @@ function CommunityTaxCorporationPage() {
   // const [searchTerm, setSearchTerm] = useState('');
   const [showListModal, setShowListModal] = useState(false);
   const [selectedVendor, setSelectedVendor] = useState(null);
+  const [isLoadingCTCActions, setIsLoadingCTCActions] = useState(false);
   // ---------------------USE MODULE PERMISSIONS------------------START (CommunityTaxCorporationPage - MODULE ID =  35 )
   const { Add, Edit, Delete, Print } = useModulePermissions(35);
   const { records: certificates, isLoading: certificatesLoading } = useSelector(
@@ -187,30 +188,92 @@ function CommunityTaxCorporationPage() {
     }
   };
   // Actions for table rows
-  const actions = [
-    {
+  // const actions = [
+  //   {
+  //     icon: EyeIcon,
+  //     title: 'View',
+  //     onClick: handleViewCertificate,
+  //     className:
+  //       'text-primary-600 hover:text-primary-900 p-1 rounded-full hover:bg-primary-50',
+  //   },
+  //   Edit && {
+  //     icon: PencilIcon,
+  //     title: 'Edit',
+  //     onClick: handleEditCertificate,
+  //     className:
+  //       'text-primary-600 hover:text-primary-900 p-1 rounded-full hover:bg-primary-50',
+  //   },
+  //   Delete && {
+  //     icon: Trash,
+  //     title: 'Delete',
+  //     onClick: handleDeleteCertificate,
+  //     className:
+  //       'text-red-600 hover:text-red-900 p-1 rounded-full hover:bg-red-50',
+  //   },
+  // ];
+  const handleCTCAction = async (dv, action) => {
+    setIsLoadingCTCActions(true);
+    try {
+      // TODO : add action
+      // const response = await axiosInstance.post(
+      //   `/disbursementVoucher/${action}`,
+      //   { ID: dv.ID }
+      // );
+      console.log(`${action}d:`, response.data);
+      // dispatch(fetchGeneralServiceReceipts());
+      toast.success(`Community Tax Corporation ${action}d successfully`);
+    } catch (error) {
+      console.error(`Error ${action}ing Community Tax Corporation:`, error);
+      toast.error(`Error ${action}ing Community Tax Corporation`);
+    } finally {
+      setIsLoadingCTCActions(false);
+    }
+  };
+  const actions = (row) => {
+    const actionList = [];
+
+    if (row.Status.toLowerCase().includes('rejected') && Edit) {
+      actionList.push({
+        icon: PencilIcon,
+        title: 'Edit',
+        onClick: handleEditCertificate,
+        className:
+          'text-primary-600 hover:text-primary-900 p-1 rounded-full hover:bg-primary-50',
+      });
+      actionList.push({
+        icon: TrashIcon,
+        title: 'Delete',
+        onClick: handleDeleteCertificate,
+        className:
+          'text-error-600 hover:text-error-900 p-1 rounded-full hover:bg-error-50',
+      });
+    } else if (row.Status.toLowerCase().includes('requested')) {
+      actionList.push(
+        {
+          icon: CheckLine,
+          title: 'Approve',
+          onClick: () => handleCTCAction(row, 'approve'),
+          className:
+            'text-green-600 hover:text-green-900 p-1 rounded-full hover:bg-green-50',
+        },
+        {
+          icon: X,
+          title: 'Reject',
+          onClick: () => handleCTCAction(row, 'reject'),
+          className:
+            'text-red-600 hover:text-red-900 p-1 rounded-full hover:bg-red-50',
+        }
+      );
+    }
+    actionList.push({
       icon: EyeIcon,
       title: 'View',
       onClick: handleViewCertificate,
       className:
         'text-primary-600 hover:text-primary-900 p-1 rounded-full hover:bg-primary-50',
-    },
-    Edit && {
-      icon: PencilIcon,
-      title: 'Edit',
-      onClick: handleEditCertificate,
-      className:
-        'text-primary-600 hover:text-primary-900 p-1 rounded-full hover:bg-primary-50',
-    },
-    Delete && {
-      icon: Trash,
-      title: 'Delete',
-      onClick: handleDeleteCertificate,
-      className:
-        'text-red-600 hover:text-red-900 p-1 rounded-full hover:bg-red-50',
-    },
-  ];
-
+    });
+    return actionList;
+  };
   const handleShowList = () => {
     setShowListModal(true);
   };
@@ -267,7 +330,7 @@ function CommunityTaxCorporationPage() {
               columns={columns}
               data={certificates}
               actions={actions}
-              loading={isLoading || certificatesLoading}
+              loading={isLoading || certificatesLoading || isLoadingCTCActions}
               onRowClick={handleViewCertificate}
             />
           </div>

@@ -23,9 +23,10 @@ const validationSchema = Yup.object({
   DateIssued: Yup.date()
     .required('Date issued is required')
     .max(new Date(), 'Date issued cannot be in the future'),
-  CCNumber: Yup.string()
+  CCNumber: Yup.number()
     .required('Certificate number is required')
-    .min(3, 'Certificate number must be at least 3 characters'),
+    .typeError('Year must be a number')
+    .min(3, 'Certificate number must be at least 3 Numbers'),
   TIN: Yup.string()
     .matches(/^\d{14}$/, 'TIN must be exactly 14 digits')
     .nullable(),
@@ -443,11 +444,10 @@ const CommunityTaxForm = ({
                 <FormField
                   label="OR No."
                   {...getFieldProps('CCNumber')}
-                  className="border-blue-200 bg-gray-100 focus:border-blue-500 focus:ring-blue-500 font-bold text-blue-600"
+                  className="border-blue-200 focus:border-blue-500 focus:ring-blue-500"
                   error={formik.touched.CCNumber && formik.errors.CCNumber}
                   touched={formik.touched.CCNumber}
                   required
-                  readOnly
                 />
               </div>
             </div>

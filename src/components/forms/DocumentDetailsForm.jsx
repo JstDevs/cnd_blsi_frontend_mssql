@@ -42,8 +42,8 @@ export const getValidationSchema = (
 
         return !duplicate;
       }),
-
-    Prefix: Yup.string().required('Prefix is required'),
+    // The Suffix is indeed mandatory but the prefix is not
+    Prefix: Yup.string(),
     Suffix: Yup.string().required('Suffix is required'),
 
     StartNumber: Yup.number()
@@ -150,7 +150,6 @@ const DocumentDetailsForm = ({
               label="Prefix"
               name="Prefix"
               type="text"
-              required
               value={values.Prefix}
               onChange={handleChange}
               onBlur={handleBlur}

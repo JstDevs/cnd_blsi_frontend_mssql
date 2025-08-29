@@ -93,12 +93,12 @@ function Customer() {
   };
 
   const columns = [
-    {
-      key: 'Code',
-      header: 'Code',
-      sortable: true,
-      render: (value) => value || 'N/A',
-    },
+    // {
+    //   key: 'Code',
+    //   header: 'Code',
+    //   sortable: true,
+    //   render: (value) => value || 'N/A',
+    // },
     {
       key: 'Name',
       header: 'Name',
@@ -114,42 +114,42 @@ function Customer() {
       sortable: true,
       render: (value) => value || 'N/A',
     },
-    {
-      key: 'PaymentTermsID',
-      header: 'Payment Terms',
-      sortable: true,
-      render: (value) => {
-        const terms = paymentTerms.find((t) => t.ID == value);
-        return terms?.Name || 'N/A';
-      },
-    },
-    {
-      key: 'PaymentMethodID',
-      header: 'Payment Method',
-      sortable: true,
-      render: (value) => {
-        const method = modeOfPayments.find((m) => m.ID == value);
-        return method?.Name || 'N/A';
-      },
-    },
-    {
-      key: 'TaxCodeID',
-      header: 'Tax Code',
-      sortable: true,
-      render: (value) => {
-        const tax = taxCodes.find((t) => t.ID == value);
-        return tax?.Code || 'N/A';
-      },
-    },
-    {
-      key: 'IndustryTypeID',
-      header: 'Industry Type',
-      sortable: true,
-      render: (value) => {
-        const industry = industries.find((i) => i.ID == value);
-        return industry?.Name || 'N/A';
-      },
-    },
+    // {
+    //   key: 'PaymentTermsID',
+    //   header: 'Payment Terms',
+    //   sortable: true,
+    //   render: (value) => {
+    //     const terms = paymentTerms.find((t) => t.ID == value);
+    //     return terms?.Name || 'N/A';
+    //   },
+    // },
+    // {
+    //   key: 'PaymentMethodID',
+    //   header: 'Payment Method',
+    //   sortable: true,
+    //   render: (value) => {
+    //     const method = modeOfPayments.find((m) => m.ID == value);
+    //     return method?.Name || 'N/A';
+    //   },
+    // },
+    // {
+    //   key: 'TaxCodeID',
+    //   header: 'Tax Code',
+    //   sortable: true,
+    //   render: (value) => {
+    //     const tax = taxCodes.find((t) => t.ID == value);
+    //     return tax?.Code || 'N/A';
+    //   },
+    // },
+    // {
+    //   key: 'IndustryTypeID',
+    //   header: 'Industry Type',
+    //   sortable: true,
+    //   render: (value) => {
+    //     const industry = industries.find((i) => i.ID == value);
+    //     return industry?.Name || 'N/A';
+    //   },
+    // },
     {
       key: 'ZIPCode',
       header: 'ZIP Code',
@@ -169,11 +169,35 @@ function Customer() {
       render: (value) => value || 'N/A',
     },
     {
-      key: 'DateofRegistration',
-      header: 'Date of Registration',
+      key: 'Gender',
+      header: 'Gender',
       sortable: true,
       render: (value) => value || 'N/A',
     },
+    {
+      key: 'StreetAddress',
+      header: 'Address',
+      sortable: true,
+      render: (value) => value || 'N/A',
+    },
+    {
+      key: 'Citizenship',
+      header: 'Citizenship',
+      sortable: true,
+      render: (value) => value || 'N/A',
+    },
+    {
+      key: 'Occupation',
+      header: 'Occupation',
+      sortable: true,
+      render: (value) => value || 'N/A',
+    },
+    // {
+    //   key: 'DateofRegistration',
+    //   header: 'Date of Registration',
+    //   sortable: true,
+    //   render: (value) => value || 'N/A',
+    // },
   ];
 
   const actions = [

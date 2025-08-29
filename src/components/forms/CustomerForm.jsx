@@ -44,29 +44,29 @@ function CustomerForm({ initialData, onSubmit, onClose }) {
     BarangayID: Yup.string().required('Barangay is required'),
     ZIPCode: Yup.string().required('ZIP Code is required'),
     StreetAddress: Yup.string().required('Street Address is required'),
-    RDO: Yup.string().required('RDO is required'),
+    // RDO: Yup.string().required('RDO is required'),
   });
 
   const formik = useFormik({
-    initialValues: initialData || {
-      FirstName: '',
-      MiddleName: '',
-      LastName: '',
-      Gender: '',
-      Citizenship: '',
-      DateOfBirth: '',
-      PlaceOfBirth: '',
-      Occupation: '',
-      CivilStatus: '',
-      TIN: '',
-      EmailAddress: '',
-      RegionID: '',
-      ProvinceID: '',
-      MunicipalityID: '',
-      BarangayID: '',
-      ZIPCode: '',
-      StreetAddress: '',
-      RDO: '',
+    initialValues: {
+      FirstName: initialData?.FirstName || '',
+      MiddleName: initialData?.MiddleName || '',
+      LastName: initialData?.LastName || '',
+      Gender: initialData?.Gender || '',
+      Citizenship: initialData?.Citizenship || '',
+      DateOfBirth: initialData?.Birthdate || '',
+      PlaceOfBirth: initialData?.PlaceofBirth || '',
+      Occupation: initialData?.Occupation || '',
+      CivilStatus: initialData?.CivilStatus || '',
+      TIN: initialData?.TIN || '',
+      EmailAddress: initialData?.EmailAddress || '',
+      RegionID: initialData?.RegionID || '',
+      ProvinceID: initialData?.ProvinceID || '',
+      MunicipalityID: initialData?.MunicipalityID || '',
+      BarangayID: initialData?.BarangayID || '',
+      ZIPCode: initialData?.ZIPCode || '',
+      StreetAddress: initialData?.StreetAddress || '',
+      // RDO: initialData?.RDO || '',
     },
     validationSchema,
     onSubmit: (values) => onSubmit(values),
@@ -327,7 +327,7 @@ function CustomerForm({ initialData, onSubmit, onClose }) {
           touched={touched.StreetAddress}
           required
         />
-        <FormField
+        {/* <FormField
           label="Revenue District Office"
           name="RDO"
           value={values.RDO}
@@ -336,7 +336,7 @@ function CustomerForm({ initialData, onSubmit, onClose }) {
           error={touched.RDO && errors.RDO}
           touched={touched.RDO}
           required
-        />
+        /> */}
       </div>
 
       <div className="flex justify-end gap-3 pt-4 border-t">

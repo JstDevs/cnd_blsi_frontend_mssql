@@ -1,7 +1,14 @@
 import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { PlusIcon } from '@heroicons/react/24/solid';
-import { PencilIcon, PrinterIcon } from 'lucide-react';
+import {
+  CheckLine,
+  EyeIcon,
+  PencilIcon,
+  PrinterIcon,
+  TrashIcon,
+  X,
+} from 'lucide-react';
 import { toast } from 'react-hot-toast';
 
 import Modal from '@/components/common/Modal';
@@ -33,8 +40,9 @@ const BudgetAllotmentPage = () => {
   const [data, setData] = useState([]);
   const [allotmentList, setAllotmentList] = useState([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isView, setIsView] = useState(false);
   const [activeRow, setActiveRow] = useState(null);
-
+  const [isLoadingBAPAction, setIsLoadingBAPAction] = useState(false);
   const [filters, setFilters] = useState({
     department: '',
     subDepartment: '',
@@ -104,6 +112,11 @@ const BudgetAllotmentPage = () => {
     setActiveRow(row);
     setIsModalOpen(true);
   };
+  const handleView = (row) => {
+    setActiveRow(row);
+    setIsModalOpen(true);
+    setIsView(true);
+  };
 
   const columns = [
     {
@@ -153,16 +166,83 @@ const BudgetAllotmentPage = () => {
     },
   ];
 
-  const actions = [
-    Edit && {
-      icon: PencilIcon,
-      title: 'Edit',
-      onClick: handleEdit,
+  // const actions = [
+  //   Edit && {
+  //     icon: PencilIcon,
+  //     title: 'Edit',
+  //     onClick: handleEdit,
+  //     className:
+  //       'text-primary-600 hover:text-primary-900 p-1 rounded-full hover:bg-primary-50',
+  //   },
+  // ];
+  const handleBAPAction = async (dv, action) => {
+    setIsLoadingBAPAction(true);
+    try {
+      // TODO : add action
+      // const response = await axiosInstance.post(
+      //   `/disbursementVoucher/${action}`,
+      //   { ID: dv.ID }
+      // );
+      console.log(`${action}d:`, response.data);
+      // dispatch(fetchGeneralServiceReceipts());
+      toast.success(`Budget Allotment ${action}d successfully`);
+    } catch (error) {
+      console.error(`Error ${action}ing Budget Allotment:`, error);
+      toast.error(`Error ${action}ing Budget Allotment`);
+    } finally {
+      setIsLoadingBAPAction(false);
+    }
+  };
+  const actions = (row) => {
+    const actionList = [];
+
+    if (row.Status.toLowerCase().includes('rejected') && Edit) {
+      actionList.push({
+        icon: PencilIcon,
+        title: 'Edit',
+        onClick: handleEdit,
+        className:
+          'text-primary-600 hover:text-primary-900 p-1 rounded-full hover:bg-primary-50',
+      });
+      actionList.push({
+        icon: TrashIcon,
+        title: 'Delete',
+        onClick: () => handleDelete(row),
+        className:
+          'text-error-600 hover:text-error-900 p-1 rounded-full hover:bg-error-50',
+      });
+    } else if (row.Status.toLowerCase().includes('requested')) {
+      actionList.push(
+        {
+          icon: CheckLine,
+          title: 'Approve',
+          onClick: () => handleBAPAction(row, 'approve'),
+          className:
+            'text-green-600 hover:text-green-900 p-1 rounded-full hover:bg-green-50',
+        },
+        {
+          icon: X,
+          title: 'Reject',
+          onClick: () => handleBAPAction(row, 'reject'),
+          className:
+            'text-red-600 hover:text-red-900 p-1 rounded-full hover:bg-red-50',
+        }
+      );
+    }
+    actionList.push({
+      icon: EyeIcon,
+      title: 'View',
+      onClick: handleView,
       className:
         'text-primary-600 hover:text-primary-900 p-1 rounded-full hover:bg-primary-50',
-    },
-  ];
-
+    });
+    return actionList;
+  };
+  const handleDelete = async (row) => {
+    console.log('Delete row', row);
+    // await dispatch(deleteBudgetAllotment(row.ID)).unwrap();
+    // dispatch(fetchBudgetAllotments());
+  };
   const filteredData = data?.filter((item) => {
     // console.log('item', item, filters);
     const { Budget } = item;
@@ -256,7 +336,11 @@ const BudgetAllotmentPage = () => {
         columns={columns}
         data={filteredData}
         actions={actions}
-        loading={false}
+        loading={isLoadingBAPAction}
+        onRowClick={(row) => {
+          setActiveRow(row);
+        }}
+        selectedRow={activeRow}
         pagination
       />
 
@@ -264,10 +348,21 @@ const BudgetAllotmentPage = () => {
       <Modal
         size="md"
         isOpen={isModalOpen}
-        onClose={() => setIsModalOpen(false)}
-        title={activeRow ? 'Edit Allotment' : 'Add Allotment'}
+        onClose={() => {
+          setIsModalOpen(false);
+          setActiveRow(null);
+          setIsView(false);
+        }}
+        title={
+          isView
+            ? 'View Allotment'
+            : activeRow
+            ? 'Edit Allotment'
+            : 'Add Allotment'
+        }
       >
         <BudgetAllotmentForm
+          isView={isView}
           allotmentList={allotmentList}
           departmentOptions={departments.map((dept) => ({
             value: dept.ID,

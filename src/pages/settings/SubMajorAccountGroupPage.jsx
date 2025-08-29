@@ -142,7 +142,7 @@ function SubMajorAccountGroupPage() {
     },
     {
       key: 'accountSubTypeName',
-      header: 'Account Type',
+      header: 'Account Sub Type',
       sortable: true,
     },
   ];

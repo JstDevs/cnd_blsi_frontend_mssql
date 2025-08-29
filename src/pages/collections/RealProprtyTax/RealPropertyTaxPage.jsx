@@ -269,7 +269,8 @@ function RealPropertyTaxPage() {
             data={filteredProperties}
             actions={actions}
             loading={isLoading}
-            onRowClick={handleViewProperty}
+            // onRowClick={() => handleViewProperty(null)}
+            selectedRow={currentProperty}
           />
         </>
       )}

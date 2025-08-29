@@ -8,6 +8,7 @@ import Button from '../common/Button';
 import { fetchDepartments } from '../../features/settings/departmentSlice';
 import { fetchEmployees } from '../../features/settings/employeeSlice';
 import { fetchBudgets } from '../../features/budget/budgetSlice';
+const API_URL = import.meta.env.VITE_API_URL;
 
 function TravelOrderForm({
   initialData,
@@ -16,8 +17,6 @@ function TravelOrderForm({
   officeOptions,
   employeeOptions,
 }) {
-  const API_URL = import.meta.env.VITE_API_URL;
-
   const { departments } = useSelector((state) => state.departments);
   const { employees } = useSelector((state) => state.employees);
   const { budgets } = useSelector((state) => state.budget);
@@ -414,10 +413,41 @@ function TravelOrderForm({
               <div className="flex justify-end text-right mt-4">
                 <label className="font-semibold mr-2">Total:</label>
                 <span className="">
-                  {values.TravelPayments?.reduce((sum, exp) => {
+                  {/* {values.TravelPayments?.reduce((sum, exp) => {
                     const amt = parseFloat(exp.Amount);
                     return sum + (isNaN(amt) ? 0 : amt);
-                  }, 0).toFixed(2)}
+                  }, 0).toFixed(2)} */}
+                  {(() => {
+                    // Calculate number of days between start and end date
+                    const startDate = new Date(values.DateStart);
+                    const endDate = new Date(values.DateEnd);
+                    const daysDiff =
+                      values.DateStart && values.DateEnd
+                        ? Math.ceil(
+                            (endDate - startDate) / (1000 * 60 * 60 * 24)
+                          ) + 1 // +1 to include both start and end days
+                        : 1;
+
+                    // Calculate total based on payment type
+                    const total = values.TravelPayments?.reduce(
+                      (sum, payment) => {
+                        const amount = parseFloat(payment.Amount);
+                        if (isNaN(amount)) return sum;
+
+                        // Type '1' = One Time Payment, Type '2' = Per Day
+                        if (payment.Type === '2') {
+                          // Per Day: multiply by number of days
+                          return sum + amount * daysDiff;
+                        } else {
+                          // One Time Payment: use amount as is
+                          return sum + amount;
+                        }
+                      },
+                      0
+                    );
+
+                    return total.toFixed(2);
+                  })()}
                 </span>
               </div>
             </div>

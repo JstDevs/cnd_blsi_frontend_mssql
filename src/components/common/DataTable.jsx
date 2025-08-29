@@ -13,8 +13,10 @@ function DataTable({
   actions = [],
   loading = false,
   onRowClick = null,
+  selectedRow = null,
   emptyMessage = 'No data available',
 }) {
+  console.log(selectedRow);
   const [currentPage, setCurrentPage] = useState(1);
   const [rowsPerPage, setRowsPerPage] = useState(10);
   const [searchTerm, setSearchTerm] = useState('');
@@ -207,9 +209,14 @@ function DataTable({
             {paginatedData.map((row, rowIndex) => (
               <tr
                 key={row.id || rowIndex}
-                className={
+                // className={
+                //   onRowClick ? 'hover:bg-neutral-50 cursor-pointer' : ''
+                // }
+                className={`${
                   onRowClick ? 'hover:bg-neutral-50 cursor-pointer' : ''
-                }
+                } ${
+                  selectedRow && selectedRow?.ID === row.ID ? 'bg-blue-100' : ''
+                }`}
                 onClick={onRowClick ? () => onRowClick(row) : undefined}
               >
                 {columns.map((column) => (

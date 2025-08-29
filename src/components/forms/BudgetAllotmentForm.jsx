@@ -45,6 +45,7 @@ const initialValues = {
 };
 
 function BudgetAllotmentForm({
+  isView,
   initialData,
   onSubmit,
   onClose,
@@ -469,18 +470,24 @@ function BudgetAllotmentForm({
             />
           </div>
 
-          <div className="flex justify-end space-x-3">
-            <button type="button" onClick={onClose} className="btn btn-outline">
-              Cancel
-            </button>
-            <button
-              type="submit"
-              disabled={isSubmitting}
-              className="btn btn-primary"
-            >
-              {initialData ? 'Update' : 'Save'}
-            </button>
-          </div>
+          {!isView && (
+            <div className="flex justify-end space-x-3">
+              <button
+                type="button"
+                onClick={onClose}
+                className="btn btn-outline"
+              >
+                Cancel
+              </button>
+              <button
+                type="submit"
+                disabled={isSubmitting}
+                className="btn btn-primary"
+              >
+                {initialData ? 'Update' : 'Save'}
+              </button>
+            </div>
+          )}
         </Form>
       )}
     </Formik>

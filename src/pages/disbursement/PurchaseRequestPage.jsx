@@ -16,6 +16,7 @@ import {
   updatePurchaseRequest,
 } from '../../features/disbursement/purchaseRequestSlice';
 import { useModulePermissions } from '@/utils/useModulePremission';
+import { CheckLine, EyeIcon, X } from 'lucide-react';
 
 function PurchaseRequestPage() {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -30,7 +31,9 @@ function PurchaseRequestPage() {
     (state) => state.purchaseRequests
   );
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [isLoadingPRPAction, setIsLoadingPRPAction] = useState(false);
   const [requestToDelete, setRequestToDelete] = useState(null);
+
   // ---------------------USE MODULE PERMISSIONS------------------START (FundUtilizationPage - MODULE ID =  69 )
   const { Add, Edit, Delete } = useModulePermissions(69);
   const dispatch = useDispatch();
@@ -197,21 +200,87 @@ function PurchaseRequestPage() {
   ];
 
   // Actions for table rows
-  const actions = [
-    // {
-    //   icon: PencilIcon,
-    //   title: 'Edit',
-    //   onClick: handleEditRequest,
-    //   className: 'text-primary-600 hover:text-primary-900 p-1 rounded-full hover:bg-primary-50'
-    // },
-    // {
-    //   icon: TrashIcon,
-    //   title: 'Delete',
-    //   onClick: handleDelete,
-    //   className: 'text-danger-600 hover:text-danger-900 p-1 rounded-full hover:bg-danger-50'
-    // },
-  ];
+  // const actions = [
+  // {
+  //   icon: PencilIcon,
+  //   title: 'Edit',
+  //   onClick: handleEditRequest,
+  //   className: 'text-primary-600 hover:text-primary-900 p-1 rounded-full hover:bg-primary-50'
+  // },
+  // {
+  //   icon: TrashIcon,
+  //   title: 'Delete',
+  //   onClick: handleDelete,
+  //   className: 'text-danger-600 hover:text-danger-900 p-1 rounded-full hover:bg-danger-50'
+  // },
+  // ];
+  const handleView = (values) => {
+    console.log(values);
+  };
+  const handleTOPAction = async (dv, action) => {
+    setIsLoadingPRPAction(true);
+    try {
+      // TODO : add action
+      // const response = await axiosInstance.post(
+      //   `/disbursementVoucher/${action}`,
+      //   { ID: dv.ID }
+      // );
+      console.log(`${action}d:`, response.data);
+      // dispatch(fetchGeneralServiceReceipts());
+      toast.success(`Purchase Request ${action}d successfully`);
+    } catch (error) {
+      console.error(`Error ${action}ing Purchase Request:`, error);
+      toast.error(`Error ${action}ing Purchase Request`);
+    } finally {
+      setIsLoadingPRPAction(false);
+    }
+  };
 
+  const actions = (row) => {
+    const actionList = [];
+
+    if (row?.Status?.toLowerCase().includes('rejected') && Edit) {
+      actionList.push({
+        icon: PencilIcon,
+        title: 'Edit',
+        onClick: handleEditRequest,
+        className:
+          'text-primary-600 hover:text-primary-900 p-1 rounded-full hover:bg-primary-50',
+      });
+      actionList.push({
+        icon: TrashIcon,
+        title: 'Delete',
+        onClick: () => handleDelete(row),
+        className:
+          'text-error-600 hover:text-error-900 p-1 rounded-full hover:bg-error-50',
+      });
+    } else if (row?.Status?.toLowerCase().includes('requested')) {
+      actionList.push(
+        {
+          icon: CheckLine,
+          title: 'Approve',
+          onClick: () => handleTOPAction(row, 'approve'),
+          className:
+            'text-green-600 hover:text-green-900 p-1 rounded-full hover:bg-green-50',
+        },
+        {
+          icon: X,
+          title: 'Reject',
+          onClick: () => handleTOPAction(row, 'reject'),
+          className:
+            'text-red-600 hover:text-red-900 p-1 rounded-full hover:bg-red-50',
+        }
+      );
+    }
+    actionList.push({
+      icon: EyeIcon,
+      title: 'View',
+      onClick: handleView,
+      className:
+        'text-primary-600 hover:text-primary-900 p-1 rounded-full hover:bg-primary-50',
+    });
+    return actionList;
+  };
   return (
     <div>
       <div className="page-header">
@@ -238,7 +307,7 @@ function PurchaseRequestPage() {
           columns={columns}
           actions={actions}
           data={purchaseRequests}
-          loading={isLoading}
+          loading={isLoading || isLoadingPRPAction}
         />
       </div>
 
