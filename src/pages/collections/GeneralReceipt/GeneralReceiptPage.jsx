@@ -19,6 +19,7 @@ import GeneralServiceReceiptModal from './GeneralServiceReceiptModal';
 import toast from 'react-hot-toast';
 import { CheckLine, TrashIcon, X } from 'lucide-react';
 import { useModulePermissions } from '@/utils/useModulePremission';
+import axiosInstance from '@/utils/axiosInstance';
 
 function GeneralReceiptPage() {
   const dispatch = useDispatch();

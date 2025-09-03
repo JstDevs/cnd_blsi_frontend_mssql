@@ -83,10 +83,10 @@ function StatementComparisonForm({
               View
             </button>
             <button
-              type="button"
+              type="submit"
               className="btn btn-secondary"
               disabled={isSubmitting}
-              // onClick={() => (submitAction.current = 'generate')}
+              onClick={() => (submitAction.current = 'generate')}
             >
               Generate Journal
             </button>

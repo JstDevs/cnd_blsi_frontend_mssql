@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import {
   PlusIcon,
@@ -20,6 +20,8 @@ import {
 } from '@/features/collections/CoorporateCommunityTax';
 import toast from 'react-hot-toast';
 import { useModulePermissions } from '@/utils/useModulePremission';
+import { useReactToPrint } from 'react-to-print';
+import CTCCorporatePrintPreview from './CTCCorporatePrintPreview';
 
 function CommunityTaxCorporationPage() {
   const [currentView, setCurrentView] = useState('list'); // 'list', 'form', 'details'
@@ -37,6 +39,11 @@ function CommunityTaxCorporationPage() {
     (state) => state.vendorDetails
   );
   const dispatch = useDispatch();
+  const printRef = useRef();
+  const handlePrint = useReactToPrint({
+    contentRef: printRef,
+    documentTitle: 'Corporation Community Tax Certificate',
+  });
 
   useEffect(() => {
     dispatch(fetchVendorDetails());
@@ -62,6 +69,7 @@ function CommunityTaxCorporationPage() {
 
   const handlePrintCertificate = (certificate) => {
     console.log('Print certificate:', certificate);
+    handlePrint();
   };
 
   const handleBackToList = () => {
@@ -388,8 +396,11 @@ function CommunityTaxCorporationPage() {
                 <button className="btn btn-primary w-full sm:w-auto">
                   Add Attachments
                 </button>
-                {Print && (
-                  <button className="btn btn-outline w-full sm:w-auto">
+                {currentCertificate?.Status === 'Posted' && Print && (
+                  <button
+                    className="btn btn-outline w-full sm:w-auto"
+                    onClick={handlePrint}
+                  >
                     Print
                   </button>
                 )}
@@ -446,7 +457,7 @@ function CommunityTaxCorporationPage() {
                   Edit
                 </button>
               )}
-              {Print && (
+              {currentCertificate?.Status === 'Posted' && Print && (
                 <button
                   type="button"
                   onClick={() => handlePrintCertificate(currentCertificate)}
@@ -554,6 +565,14 @@ function CommunityTaxCorporationPage() {
           </table>
         </div>
       </Modal>
+
+      <div style={{ display: 'none' }}>
+        <CTCCorporatePrintPreview
+          ref={printRef}
+          certificate={currentCertificate}
+          vendor={selectedVendor}
+        />
+      </div>
     </>
   );
 }

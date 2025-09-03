@@ -11,6 +11,7 @@ import {
   getTdNumber,
 } from '@/features/collections/realPropertyTaxSlice';
 import { convertAmountToWords } from '@/utils/amountToWords';
+import toast from 'react-hot-toast';
 
 const validationSchema = Yup.object().shape({
   ownerId: Yup.number().required('Owner ID is required'),
@@ -81,12 +82,47 @@ const validationSchema = Yup.object().shape({
     )
     .min(0, 'At least one present payment entry is required'),
 });
+// Helper function to transform properties data for form use
+const transformPropertiesData = (properties) => {
+  if (!properties || !Array.isArray(properties))
+    return { previous: [], present: [] };
 
+  const previous = properties
+    .filter((prop) => !prop.Present)
+    .map((prop) => ({
+      LandPrice: parseFloat(prop.LandPrice || 0),
+      ImprovementPrice: parseFloat(prop.ImprovementPrice || 0),
+      TotalAssessedValue: parseFloat(prop.TotalAssessedValue || 0),
+      TaxDue: parseFloat(prop.TaxDue || 0),
+      InstallmentPayment: parseFloat(prop.InstallmentPayment || 0),
+      FullPayment: parseFloat(prop.FullPayment || 0),
+      Penalty: parseFloat(prop.Penalty || 0),
+      Total: parseFloat(prop.Total || 0),
+    }));
+
+  const present = properties
+    .filter((prop) => prop.Present)
+    .map((prop) => ({
+      LandPrice: parseFloat(prop.LandPrice || 0),
+      ImprovementPrice: parseFloat(prop.ImprovementPrice || 0),
+      TotalAssessedValue: parseFloat(prop.TotalAssessedValue || 0),
+      TaxDue: parseFloat(prop.TaxDue || 0),
+      InstallmentPayment: parseFloat(prop.InstallmentPayment || 0),
+      FullPayment: parseFloat(prop.FullPayment || 0),
+      Penalty: parseFloat(prop.Penalty || 0),
+      Discount: parseFloat(prop.Discount || 0),
+      Total: parseFloat(prop.Total || 0),
+      RemainingBalance: parseFloat(prop.RemainingBalance || 0),
+    }));
+
+  return { previous, present };
+};
 const RealPropertyTaxForm = ({
   onCreateOrEdit,
   onBack,
   individualOptions,
   generalRevisionsOptions,
+  initialData = null, // Add this prop for edit mode
 }) => {
   const dispatch = useDispatch();
   const {
@@ -124,9 +160,49 @@ const RealPropertyTaxForm = ({
     dueDateYear: '',
     payment: '',
   });
+  // Get initial values based on whether it's edit mode or create mode
+  const getInitialValues = () => {
+    if (initialData) {
+      const { previous, present } = transformPropertiesData(
+        initialData.properties
+      );
 
-  const formik = useFormik({
-    initialValues: {
+      // Find the matching owner ID from individualOptions
+      const matchingOwner = individualOptions?.find(
+        (option) => option.label === initialData.CustomerName
+      );
+
+      // Find the matching general revision ID
+      const matchingRevision = generalRevisionsOptions?.find(
+        (option) => option.label === initialData.GeneralRevision?.toString()
+      );
+
+      return {
+        IsNew: false, // Edit mode
+        LinkID: initialData.LinkID,
+        ownerId: matchingOwner?.value || '',
+        CustomerName: initialData.CustomerName || '',
+        basicGeneralYearID: matchingRevision?.value || '',
+        T_D_No: initialData.T_D_No || '',
+        Municipality: initialData.Municipality || 'MAKATI',
+        AmountinWords: initialData.AmountinWords || '',
+        AmountReceived: parseFloat(initialData.AmountReceived || 0),
+        RemainingBalance: parseFloat(initialData.RemainingBalance || 0),
+        CheckNumber: initialData.CheckNumber || 0,
+        AdvancedYear: initialData.AdvancedYear || '',
+        AdvanceFunds: parseFloat(initialData.AdvanceFunds || 0),
+        FundsID: initialData.FundsID || 0,
+        ReceivedFrom: initialData.ReceivedFrom || 'CEDRIC',
+        Location: initialData.properties?.[0]?.Location || '',
+        Lot: initialData.properties?.[0]?.Lot || '',
+        Block: initialData.properties?.[0]?.Block || '',
+        PreviousPaymentList: previous,
+        PresentPaymentList: present,
+      };
+    }
+
+    // Default values for create mode
+    return {
       IsNew: true,
       LinkID: null,
       ownerId: '',
@@ -147,7 +223,11 @@ const RealPropertyTaxForm = ({
       Block: '',
       PreviousPaymentList: [],
       PresentPaymentList: [],
-    },
+    };
+  };
+
+  const formik = useFormik({
+    initialValues: getInitialValues(),
     validationSchema,
     onSubmit: (values) => {
       onCreateOrEdit(values);
@@ -205,6 +285,7 @@ const RealPropertyTaxForm = ({
       await dispatch(addButtonTDNumber(values.T_D_No)).unwrap();
     } catch (error) {
       console.error('Failed to add tax declaration:', error);
+      toast.error('Failed to add tax declaration. ' + error.message);
     }
   };
 

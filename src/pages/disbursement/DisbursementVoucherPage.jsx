@@ -104,36 +104,6 @@ function DisbursementVoucherPage() {
       key: 'Status',
       header: 'Status',
       sortable: true,
-      // render: (value) => {
-      //   let bgColor = 'bg-neutral-100 text-neutral-800';
-
-      //   switch (value) {
-      //     case 'Requested':
-      //       bgColor = 'bg-warning-100 text-warning-800';
-      //       break;
-      //     case 'Pending Approval':
-      //       bgColor = 'bg-primary-100 text-primary-800';
-      //       break;
-      //     case 'Approved for Payment':
-      //     case 'Paid':
-      //       bgColor = 'bg-success-100 text-success-800';
-      //       break;
-      //     case 'Cancelled':
-      //     case 'Rejected':
-      //       bgColor = 'bg-error-100 text-error-800';
-      //       break;
-      //     default:
-      //       break;
-      //   }
-
-      //   return (
-      //     <span
-      //       className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${bgColor}`}
-      //     >
-      //       {value}
-      //     </span>
-      //   );
-      // },
       render: (value) => statusLabel(value),
     },
     {

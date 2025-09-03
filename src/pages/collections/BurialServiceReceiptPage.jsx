@@ -1,4 +1,6 @@
-import { useEffect, useState } from 'react';
+import { forwardRef, useEffect, useRef, useState } from 'react';
+import React from 'react';
+import { useReactToPrint } from 'react-to-print';
 import { PlusIcon } from '@heroicons/react/24/outline';
 import BurialServiceReceiptForm from '../../components/forms/BurialServiceReceiptForm';
 import Modal from '../../components/common/Modal';
@@ -10,14 +12,14 @@ import {
   deleteBurialRecord,
   addBurialRecord,
 } from '@/features/collections/burialServiceSlice';
-import { PencilIcon, TrashIcon } from 'lucide-react';
+import { PencilIcon, PrinterIcon, TrashIcon } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { fetchCustomers } from '@/features/settings/customersSlice';
 import { useModulePermissions } from '@/utils/useModulePremission';
 function BurialServiceReceiptPage() {
   const dispatch = useDispatch();
   // ---------------------USE MODULE PERMISSIONS------------------START (BurialServiceReceiptPage - MODULE ID =  28 )
-  const { Add, Edit, Delete } = useModulePermissions(28);
+  const { Add, Edit, Delete, Print } = useModulePermissions(28);
   // -----------FETCH INDIVIDUALS--------------
   const { customers, isLoading: customerLoading } = useSelector(
     (state) => state.customers
@@ -38,7 +40,11 @@ function BurialServiceReceiptPage() {
     dispatch(fetchBurialRecords());
     dispatch(fetchCustomers());
   }, [dispatch]);
-
+  const printRef = useRef();
+  const handlePrint = useReactToPrint({
+    contentRef: printRef,
+    documentTitle: 'Burial Service Receipt',
+  });
   const columns = [
     {
       key: 'InvoiceNumber',
@@ -210,15 +216,27 @@ function BurialServiceReceiptPage() {
           </h1>
           <p className="text-gray-600">Manage Burial Service Receipts</p>
         </div>
-        {Add && (
-          <button
-            onClick={handleAdd}
-            className="btn btn-primary max-sm:w-full "
-          >
-            <PlusIcon className="h-5 w-5 mr-2" />
-            Add New Receipt
-          </button>
-        )}
+        <div className="flex gap-2">
+          {Add && (
+            <button
+              onClick={handleAdd}
+              className="btn btn-primary max-sm:w-full "
+            >
+              <PlusIcon className="h-5 w-5 mr-2" />
+              Add New Receipt
+            </button>
+          )}
+          {Print && (
+            <button
+              onClick={handlePrint}
+              className="btn btn-primary disabled:opacity-50"
+              disabled={!selectedReceipt?.Status.includes('Posted')}
+            >
+              <PrinterIcon className="h-5 w-5 mr-2" />
+              Print
+            </button>
+          )}
+        </div>
       </div>
 
       <div className="mt-6">
@@ -227,6 +245,8 @@ function BurialServiceReceiptPage() {
           data={burialRecord}
           className="min-w-full divide-y divide-gray-200"
           actions={actions}
+          onRowClick={(row) => setSelectedReceipt(row)}
+          selectedRow={selectedReceipt}
           isLoading={isLoading || nationalityLoading || customerLoading}
         />
       </div>
@@ -248,8 +268,77 @@ function BurialServiceReceiptPage() {
           customers={customers}
         />
       </Modal>
+      <div style={{ display: 'none' }}>
+        <BurialServiceReceiptPrint ref={printRef} receipt={selectedReceipt} />
+      </div>
     </>
   );
 }
 
 export default BurialServiceReceiptPage;
+
+const BurialServiceReceiptPrint = forwardRef(({ receipt }, ref) => {
+  if (!receipt) return null;
+
+  // Map fields to display - fallback/defaults to match image
+  return (
+    <div
+      ref={ref}
+      style={{
+        width: 400,
+        margin: '0 auto',
+        background: '#fff',
+        color: '#111',
+        fontFamily: 'monospace',
+        padding: '32px',
+      }}
+    >
+      <div
+        style={{
+          display: 'flex',
+          justifyContent: 'space-between',
+          marginBottom: 8,
+        }}
+      >
+        <div>
+          {receipt.InvoiceDate
+            ? new Date(receipt.InvoiceDate).toLocaleDateString('en-US')
+            : '08/22/2025'}
+        </div>
+        <div>{receipt.InvoiceNumber || '528'}</div>
+      </div>
+      <div style={{ textAlign: 'right', marginBottom: 12 }}>
+        {receipt.FundsID ? 'Fund' : 'Fund'}
+      </div>
+      <div style={{ marginBottom: 24 }}>
+        {receipt.CustomerName || 'Leivan Jake Baguio'}
+      </div>
+      <div style={{ marginBottom: 12 }}>
+        <span>
+          {receipt.Items ? receipt.Items[0]?.Description : 'Big Item'}
+        </span>
+        <span style={{ marginLeft: '5em' }}>
+          {receipt.Items
+            ? Number(receipt.Items[0]?.UnitPrice || 0).toFixed(2)
+            : '175.00'}
+        </span>
+        <span style={{ marginLeft: '3em' }}>
+          {receipt.Total ? Number(receipt.Total).toFixed(2) : '1,350.00'}
+        </span>
+      </div>
+      <div
+        style={{
+          textAlign: 'right',
+          marginTop: '4em',
+          fontWeight: 'bold',
+          fontSize: '1.1em',
+        }}
+      >
+        {receipt.Total ? Number(receipt.Total).toFixed(2) : '1,350.00'}
+      </div>
+      <div style={{ marginTop: '1.5em', fontWeight: 'bold' }}>
+        {receipt.AmountInWords || 'TWO THOUSAND SEVEN'}
+      </div>
+    </div>
+  );
+});

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { PlusIcon } from '@heroicons/react/24/solid';
 import {
@@ -20,6 +20,7 @@ import { fetchSubdepartments } from '@/features/settings/subdepartmentSlice';
 import { fetchAccounts } from '@/features/settings/chartOfAccountsSlice';
 import axiosInstance from '@/utils/axiosInstance';
 import { useModulePermissions } from '@/utils/useModulePremission';
+import { useReactToPrint } from 'react-to-print';
 
 const API_URL = import.meta.env.VITE_API_URL;
 
@@ -56,7 +57,11 @@ const BudgetAllotmentPage = () => {
     fetchBudgetAllotments();
     fetchAllotmentList();
   }, []);
-
+  const printRef = useRef();
+  const handlePrint = useReactToPrint({
+    contentRef: printRef,
+    documentTitle: 'Allotment Release Order',
+  });
   const fetchBudgetAllotments = async () => {
     try {
       const res = await axiosInstance(`/budgetAllotment/list`);
@@ -273,10 +278,9 @@ const BudgetAllotmentPage = () => {
               Add Allotment
             </button>
           )}
-          {Print && (
+          {Print && activeRow && (
             <button
-              // TODO : Add print functionality
-              onClick={() => {}}
+              onClick={handlePrint}
               className="btn btn-outline flex items-center"
             >
               <PrinterIcon className="h-5 w-5 mr-2" />
@@ -393,8 +397,106 @@ const BudgetAllotmentPage = () => {
           onClose={() => setIsModalOpen(false)}
         />
       </Modal>
+      {/* Hidden print area */}
+      <div style={{ display: 'none' }}>
+        <BudgetAllotmentPrint ref={printRef} row={activeRow} />
+      </div>
     </div>
   );
 };
 
 export default BudgetAllotmentPage;
+
+const BudgetAllotmentPrint = React.forwardRef(({ row }, ref) => {
+  if (!row) return null;
+
+  // Example fields, adapt these to real data structure:
+  const allotment = row.Budget || {};
+
+  return (
+    <div ref={ref} className="p-8 bg-white">
+      <h2 className="text-xl font-bold text-center mb-2">
+        MUNICIPALITY OF DUEÑAS
+      </h2>
+      <h3 className="text-center mb-2">
+        ALLOTMENT RELEASE ORDER FOR MAINTENANCE AND OTHER OPERATING EXPENSES
+      </h3>
+
+      <table className="w-full mb-4 text-sm border">
+        <tbody>
+          <tr>
+            <td className="font-semibold">Department/Office:</td>
+            <td>Budget</td>
+          </tr>
+          <tr>
+            <td className="font-semibold">Purpose:</td>
+            <td>{allotment.Purpose || 'Representation Expenses'}</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <table className="w-full mb-4 text-xs border">
+        <thead>
+          <tr>
+            <th className="border px-2">PPA Code</th>
+            <th className="border px-2">PPA Description</th>
+            <th className="border px-2">Object Class Code</th>
+            <th className="border px-2">Authorized Appropriation</th>
+            <th className="border px-2">For Later Release</th>
+            <th className="border px-2">Previously Released</th>
+            <th className="border px-2">This Release</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td className="border px-2">{allotment.PPACode || '12345-ABC'}</td>
+            <td className="border px-2">
+              {allotment.Description || 'Representation Expenses'}
+            </td>
+            <td className="border px-2">
+              {allotment.ObjectClassCode || '50299030'}
+            </td>
+            <td className="border px-2">
+              {allotment.AuthorizedAppropriation || '200,000.00'}
+            </td>
+            <td className="border px-2">
+              {allotment.ForLaterRelease || '168,000.00'}
+            </td>
+            <td className="border px-2">
+              {allotment.PreviouslyReleasedAmount || '0.00'}
+            </td>
+            <td className="border px-2">
+              {allotment.ThisRelease || '81,000.00'}
+            </td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div className="mb-2">
+        <span className="font-semibold">TOTAL (in words): </span>
+        {allotment.TotalInWords || 'eighty-one thousand pesos'}
+      </div>
+
+      <div className="border-t mt-6 pt-2 text-xs">
+        <p>
+          The allotments herein released shall be used solely for the purpose
+          indicated and disbursements thereto shall be made in accordance with
+          accounting and auditing rules and regulations. It is the primary
+          responsibility of the head of the Department/Office or Unit concerned
+          to keep expenditures within the limits of the amount allotted.
+        </p>
+      </div>
+
+      <div className="flex justify-between items-center mt-8">
+        <div>
+          <div className="mb-1 font-bold">Budget S. Head</div>
+          <div className="text-xs">Budget Head</div>
+        </div>
+        <div>
+          <div className="mb-1 font-bold">Juan S. Dela Cruz</div>
+          <div className="text-xs">Mayor</div>
+        </div>
+      </div>
+    </div>
+  );
+});

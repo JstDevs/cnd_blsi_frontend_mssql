@@ -1,16 +1,12 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { toast } from 'react-hot-toast';
 import axios from '@/utils/axiosInstance';
-// import {
-//   fetchFiscalYears,
-//   fetchFunds,
-//   fetchDepartments,
-// } from '@/features/budget';
 import DataTable from '@/components/common/DataTable';
 import { fetchFiscalYears } from '@/features/settings/fiscalYearSlice';
 import { fetchFunds } from '@/features/budget/fundsSlice';
 import { fetchDepartments } from '@/features/settings/departmentSlice';
+import { useReactToPrint } from 'react-to-print';
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
 
 const BudgetStatementOfAppropriation = () => {
@@ -30,7 +26,8 @@ const BudgetStatementOfAppropriation = () => {
   const [fiscalYearID, setFiscalYearID] = useState('');
   const [fundsID, setFundsID] = useState('');
   const [departmentID, setDepartmentID] = useState('');
-
+  const saaobRef = useRef();
+  const saoRef = useRef();
   useEffect(() => {
     dispatch(fetchFiscalYears());
     dispatch(fetchFunds());
@@ -156,6 +153,25 @@ const BudgetStatementOfAppropriation = () => {
     }
   };
 
+  const handlePrintSAAOB = useReactToPrint({
+    contentRef: saaobRef,
+    documentTitle:
+      'Statement of Appropriations, Allotment, Obligations and Balances',
+  });
+
+  const handlePrintSAO = useReactToPrint({
+    contentRef: saoRef,
+    documentTitle: 'Statement of Appropriations and Obligations.',
+  });
+
+  const handleGenerate = (type) => {
+    if (!validateFilters() || tableData.length === 0) {
+      toast.error('Please fetch data first before generating report');
+      return;
+    }
+    if (type === 'saaob') handlePrintSAAOB();
+    if (type === 'sao') handlePrintSAO();
+  };
   return (
     <div className="page-container">
       <div className="page-header mb-4">
@@ -248,8 +264,18 @@ const BudgetStatementOfAppropriation = () => {
         >
           View SAO
         </button>
-        <button className="btn btn-secondary">Generate SAAOB</button>
-        <button className="btn btn-secondary">Generate SAO</button>
+        <button
+          className="btn btn-secondary"
+          onClick={() => handleGenerate('saaob')}
+        >
+          Generate SAAOB
+        </button>
+        <button
+          className="btn btn-secondary"
+          onClick={() => handleGenerate('sao')}
+        >
+          Generate SAO
+        </button>
         <button className="btn btn-outline" onClick={handleExport}>
           Export to Excel
         </button>
@@ -263,8 +289,82 @@ const BudgetStatementOfAppropriation = () => {
         data={tableData}
         loading={loading}
       />
+      {/* hidden print components */}
+      <div className="hidden">
+        <SAAOBPrint ref={saaobRef} data={tableData} />
+        <SAOPrint ref={saoRef} data={tableData} />
+      </div>
     </div>
   );
 };
 
 export default BudgetStatementOfAppropriation;
+
+// --------------Print components------- SAAOBPrint--------
+const SAAOBPrint = React.forwardRef(({ data }, ref) => (
+  <div ref={ref} className="p-4">
+    <h2 className="text-center font-bold">MUNICIPALITY OF ______</h2>
+    <h3 className="text-center">(CURRENT APPROPRIATION)</h3>
+    <h4 className="text-center">
+      STATUS OF APPROPRIATIONS, ALLOTMENTS, OBLIGATIONS AND BALANCES
+    </h4>
+    <table className="w-full border text-xs mt-4">
+      <thead>
+        <tr>
+          <th>CODE</th>
+          <th>FUNCTION / PPA / CLASS</th>
+          <th>APPROPRIATIONS</th>
+          <th>ALLOTMENTS</th>
+          <th>OBLIGATIONS</th>
+          <th>UNOBLIGATED APPROPRIATIONS</th>
+          <th>UNOBLIGATED ALLOTMENTS</th>
+        </tr>
+      </thead>
+      <tbody>
+        {data.map((row, idx) => (
+          <tr key={idx}>
+            <td>{row.Code}</td>
+            <td>{row.Name}</td>
+            <td>{row.Appropriation}</td>
+            <td>{row.Allotment}</td>
+            <td>{row.Obligation}</td>
+            <td>{row.UnobligatedAppropriation}</td>
+            <td>{row.UnobligatedAllotment}</td>
+          </tr>
+        ))}
+      </tbody>
+    </table>
+  </div>
+));
+// --------------Print components------- SAAOBPrint--------
+const SAOPrint = React.forwardRef(({ data }, ref) => (
+  <div ref={ref} className="p-4">
+    <h2 className="text-center font-bold">
+      STATUS OF APPROPRIATION & OBLIGATION
+    </h2>
+    <table className="w-full border text-xs mt-4">
+      <thead>
+        <tr>
+          <th>DATE</th>
+          <th>OBR NO.</th>
+          <th>PARTICULARS</th>
+          <th>APPROPRIATION / ALLOTMENT</th>
+          <th>EXPENSES</th>
+          <th>BALANCE</th>
+        </tr>
+      </thead>
+      <tbody>
+        {data.map((row, idx) => (
+          <tr key={idx}>
+            <td>{row.Date}</td>
+            <td>{row.OBRNo}</td>
+            <td>{row.Particulars}</td>
+            <td>{row.Appropriation}</td>
+            <td>{row.Expenses}</td>
+            <td>{row.Balance}</td>
+          </tr>
+        ))}
+      </tbody>
+    </table>
+  </div>
+));

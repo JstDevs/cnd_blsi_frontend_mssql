@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import DataTable from '@/components/common/DataTable';
 import { EyeIcon, PencilIcon } from 'lucide-react';
 import CollectionReportForm from './CollectionReportForm';
@@ -7,6 +7,8 @@ import {
   fetchCollectionReport,
 } from './CollectionHelperAPIs';
 import toast from 'react-hot-toast';
+import CollectionReportPrintView from './CollectionReportPrintView';
+import { useReactToPrint } from 'react-to-print';
 
 function CollectionReportPage() {
   const [reportData, setReportData] = useState({
@@ -17,10 +19,16 @@ function CollectionReportPage() {
   });
   const [activeReportType, setActiveReportType] = useState('daily');
   const [isLoading, setIsLoading] = useState(false);
+  // for printing
+  const printRef = useRef();
+  const handlePrint = useReactToPrint({
+    contentRef: printRef,
+    documentTitle: `CollectionReport-${activeReportType}`,
+  });
 
   const handleSubmit = async (values) => {
     setIsLoading(true);
-    console.log('Form data:', values);
+    // console.log('Form data:', values);
     try {
       switch (values.action) {
         case 'view':
@@ -34,11 +42,22 @@ function CollectionReportPage() {
           }));
 
           setActiveReportType(values.reportType);
-          console.log(data);
+          // console.log(data);
 
           break;
         case 'generate':
-          setCollectionData([]);
+          // Instead of just clearing, trigger print
+          setActiveReportType(values.reportType);
+          // Check if data exists for this report type
+          if (
+            !reportData[values.reportType] ||
+            reportData[values.reportType].length === 0
+          ) {
+            toast.error('Please view the report before generating.');
+            break;
+          }
+          handlePrint();
+          break;
         case 'export':
           await exportCollectionReportToExcel(values.reportType, values.params);
 
@@ -53,23 +72,7 @@ function CollectionReportPage() {
       setIsLoading(false);
     }
   };
-  // Actions for table rows
-  // const actions = [
-  //   {
-  //     icon: EyeIcon,
-  //     title: 'View',
-  //     onClick: () => {},
-  //     className:
-  //       'text-primary-600 hover:text-primary-900 p-1 rounded-full hover:bg-primary-50',
-  //   },
-  //   {
-  //     icon: PencilIcon,
-  //     title: 'Edit',
-  //     onClick: () => {},
-  //     className:
-  //       'text-primary-600 hover:text-primary-900 p-1 rounded-full hover:bg-primary-50',
-  //   },
-  // ];
+
   const reportColumns = {
     daily: [
       {
@@ -295,8 +298,15 @@ function CollectionReportPage() {
           columns={reportColumns[activeReportType]}
           data={reportData[activeReportType]}
           loading={isLoading}
-          // actions={actions}
           emptyMessage="No collection entries found for the selected date."
+        />
+      </div>
+      {/* Hidden printable section */}
+      <div style={{ display: 'none' }}>
+        <CollectionReportPrintView
+          ref={printRef}
+          type={activeReportType}
+          data={reportData[activeReportType]}
         />
       </div>
     </>

@@ -78,7 +78,7 @@ function BudgetSupplementalForm({
         appropriation: Budget?.Appropriation || 0,
         releasedAllotments: Budget?.ReleasedAllotments || 0,
         releasedBalance: Budget?.ReleasedBalance || 0,
-        Attachments: Budget?.Attachments || [],
+        Attachments: initialData?.Attachments || [],
       });
     } else {
       setFormData(initialValues);

@@ -1,11 +1,24 @@
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import DataTable from '@/components/common/DataTable';
 import CashbookForm from './CashbookForm';
 import { exportCashbookToExcel, fetchCashbook } from './CashbookHelperAPIs';
+import { useReactToPrint } from 'react-to-print';
+import CashbookPrintView from './CashbookPrintView';
+import toast from 'react-hot-toast';
 
 function CashbookPage() {
   const [cashbookData, setCashbookData] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
+
+  // for printing
+
+  const printRef = useRef();
+  const handlePrint = useReactToPrint({
+    contentRef: printRef,
+    documentTitle: 'Cashbook Report',
+  });
+
+  // handle submit form
 
   const handleSubmit = async (values) => {
     setIsLoading(true);
@@ -18,7 +31,12 @@ function CashbookPage() {
 
           break;
         case 'generate':
-          // For demo, we'll just show the mock data
+          // setCashbookData(generated);
+          if (cashbookData.length === 0) {
+            toast.error('Please view the report before generating.');
+            break;
+          }
+          handlePrint(); // auto print
           break;
         case 'export':
           await exportCashbookToExcel(payload);
@@ -116,6 +134,10 @@ function CashbookPage() {
           loading={isLoading}
           emptyMessage="No cashbook entries found for the selected date range."
         />
+      </div>
+      {/* hidden printable view */}
+      <div style={{ display: 'none' }}>
+        <CashbookPrintView ref={printRef} data={cashbookData} />
       </div>
     </>
   );

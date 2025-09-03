@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import {
   PlusIcon,
@@ -21,6 +21,8 @@ import { CheckLine, Trash, X } from 'lucide-react';
 import { fetchCustomers } from '@/features/settings/customersSlice';
 import toast from 'react-hot-toast';
 import { useModulePermissions } from '@/utils/useModulePremission';
+import CommunityTaxCertificatePrint from './CommunityTaxCertificatePrint';
+import { useReactToPrint } from 'react-to-print';
 function CommunityTaxPage() {
   const dispatch = useDispatch();
   const {
@@ -39,7 +41,7 @@ function CommunityTaxPage() {
   const [searchTerm, setSearchTerm] = useState('');
   const [showListModal, setShowListModal] = useState(false);
   const [selectedCustomer, setSelectedCustomer] = useState({});
-
+  const printRef = useRef();
   useEffect(() => {
     dispatch(fetchCommunityTaxes());
     dispatch(fetchCustomers());
@@ -63,9 +65,16 @@ function CommunityTaxPage() {
     handleCustomerChange(certificate.CustomerID);
   };
 
+  // HANDLE PRINT
+  const handlePrint = useReactToPrint({
+    contentRef: printRef,
+    documentTitle: 'Community Tax Certificate',
+  });
+
   const handlePrintCertificate = (certificate) => {
     // Implement print functionality
     console.log('Print certificate:', certificate);
+    handlePrint();
   };
 
   const handleBackToList = () => {
@@ -199,7 +208,7 @@ function CommunityTaxPage() {
   //   },
   // ];
   const handleCTIAction = async (dv, action) => {
-    setIsLoadingCTCActions(true);
+    // setIsLoadingCTCActions(true);
     try {
       // TODO : add action
       // const response = await axiosInstance.post(
@@ -213,7 +222,7 @@ function CommunityTaxPage() {
       console.error(`Error ${action}ing Community Tax Individual:`, error);
       toast.error(`Error ${action}ing Community Tax Individual`);
     } finally {
-      setIsLoadingCTCActions(false);
+      // setIsLoadingCTCActions(false);
     }
   };
   const actions = (row) => {
@@ -374,7 +383,7 @@ function CommunityTaxPage() {
                 <button className="btn btn-primary w-full sm:w-auto">
                   Add Attachments
                 </button>
-                {Print && (
+                {currentCertificate?.Status === 'Posted' && Print && (
                   <button className="btn btn-outline w-full sm:w-auto">
                     Print
                   </button>
@@ -432,7 +441,7 @@ function CommunityTaxPage() {
                   Edit
                 </button>
               )}
-              {Print && (
+              {currentCertificate?.Status === 'Posted' && Print && (
                 <button
                   type="button"
                   onClick={() => handlePrintCertificate(currentCertificate)}
@@ -539,6 +548,13 @@ function CommunityTaxPage() {
           </table>
         </div>
       </Modal>
+
+      <div style={{ display: 'none' }}>
+        <CommunityTaxCertificatePrint
+          ref={printRef}
+          certificate={currentCertificate}
+        />
+      </div>
     </>
   );
 }

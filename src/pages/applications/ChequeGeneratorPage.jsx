@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { forwardRef, useRef, useState } from 'react';
 import { useFormik } from 'formik';
 import * as Yup from 'yup';
 import {
@@ -28,6 +28,7 @@ import toast from 'react-hot-toast';
 import { convertAmountToWords } from '@/utils/amountToWords';
 import axiosInstance from '@/utils/axiosInstance';
 import { useModulePermissions } from '@/utils/useModulePremission';
+import { useReactToPrint } from 'react-to-print';
 const API_URL = import.meta.env.VITE_API_URL;
 // Validation schema
 const chequeSchema = Yup.object().shape({
@@ -87,6 +88,11 @@ function ChequeGeneratorPage() {
     onSubmit: async (values) => {
       await handleChequeSave(values);
     },
+  });
+  const printRef = useRef();
+  const handlePrint = useReactToPrint({
+    contentRef: printRef,
+    documentTitle: 'Check Print',
   });
 
   useEffect(() => {
@@ -378,53 +384,56 @@ function ChequeGeneratorPage() {
               </button>
             )}
             {/* ?? EDIT BUTTON  */}
-            {currentCheck && Edit && (
-              <button
-                type="submit"
-                onClick={formik.handleSubmit}
-                className="btn btn-primary max-sm:w-full"
-                disabled={formik.isSubmitting}
-              >
-                <EditIcon className="h-5 w-5 mr-2" />
-                Edit
-              </button>
-            )}
-            {currentCheck && Print && (
-              <button
-                type="button"
-                onClick={() => {
-                  console.log('Print');
-                }}
-                // onClick={formik.handleSubmit}
-                className="btn btn-primary max-sm:w-full"
-                disabled={formik.isSubmitting}
-              >
-                <PrinterIcon className="h-5 w-5 mr-2" />
-                Print
-              </button>
-            )}
-            {currentCheck && (
-              <button
-                type="button"
-                onClick={() => {
-                  console.log('Attachment');
-                }}
-                // onClick={formik.handleSubmit}
-                className="btn btn-primary max-sm:w-full"
-                disabled={formik.isSubmitting}
-              >
-                Attachment
-              </button>
-            )}
-            {currentCheck && (
-              <button
-                type="button"
-                onClick={resetForm}
-                className="btn btn-outline mr-2"
-              >
-                Cancel Edit
-              </button>
-            )}
+            {currentCheck &&
+              !currentCheck?.Status?.toLowerCase().includes('requested') &&
+              Edit && (
+                <button
+                  type="submit"
+                  onClick={formik.handleSubmit}
+                  className="btn btn-primary max-sm:w-full"
+                  disabled={formik.isSubmitting}
+                >
+                  <EditIcon className="h-5 w-5 mr-2" />
+                  Edit
+                </button>
+              )}
+            {currentCheck &&
+              !currentCheck?.Status?.toLowerCase().includes('requested') &&
+              Print && (
+                <button
+                  type="button"
+                  onClick={handlePrint}
+                  className="btn btn-primary max-sm:w-full"
+                  disabled={formik.isSubmitting}
+                >
+                  <PrinterIcon className="h-5 w-5 mr-2" />
+                  Print
+                </button>
+              )}
+            {currentCheck &&
+              !currentCheck?.Status?.toLowerCase().includes('requested') && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    console.log('Attachment');
+                  }}
+                  // onClick={formik.handleSubmit}
+                  className="btn btn-primary max-sm:w-full"
+                  disabled={formik.isSubmitting}
+                >
+                  Attachment
+                </button>
+              )}
+            {currentCheck &&
+              !currentCheck?.Status?.toLowerCase().includes('requested') && (
+                <button
+                  type="button"
+                  onClick={resetForm}
+                  className="btn btn-outline mr-2"
+                >
+                  Cancel Edit
+                </button>
+              )}
           </div>
         </div>
       </div>
@@ -786,6 +795,8 @@ function ChequeGeneratorPage() {
           columns={columns}
           data={chequeList}
           actions={actions}
+          onRowClick={(row) => setCurrentCheck(row)}
+          selectedRow={currentCheck}
           loading={isLoading || employeeLoading || isLoadingBAPAction}
           pagination
         />
@@ -851,8 +862,85 @@ function ChequeGeneratorPage() {
           </div>
         </div>
       </div>
+      <div style={{ display: 'none' }}>
+        <CheckPrintPreview
+          ref={printRef}
+          cheque={{
+            ...formik.values,
+            words: convertAmountToWords(formik.values.amount),
+          }}
+          banks={banks}
+          employees={employees}
+        />
+      </div>
     </div>
   );
 }
 
 export default ChequeGeneratorPage;
+
+// Assumes signatories are employee names. Fix mappings as in your context.
+const CheckPrintPreview = forwardRef(({ cheque, banks, employees }, ref) => {
+  // if (!cheque) return null;
+  const emp1 = employees.find((e) => e.ID.toString() === cheque.signatory1);
+  const signatory1 = emp1
+    ? `${emp1.FirstName} ${emp1.LastName}`
+    : cheque?.signatory1 || 'Treasury Head';
+
+  const emp2 = employees.find((e) => e.ID.toString() === cheque.signatory2);
+  const signatory2 = emp2
+    ? `${emp2.FirstName} ${emp2.LastName}`
+    : cheque?.signatory2 || 'Mayor';
+
+  return (
+    <div
+      ref={ref}
+      className="bg-white p-12  text-black text-lg"
+      style={{ width: 600, margin: '0 auto' }}
+    >
+      <div className="flex justify-end">
+        <div className="text-right font-mono">
+          <div style={{ letterSpacing: 5, fontWeight: 600 }}>
+            {(cheque.date &&
+              new Date(cheque.date)
+                .toLocaleDateString('en-US', {
+                  year: 'numeric',
+                  month: '2-digit',
+                  day: '2-digit',
+                })
+                .replace(/\//g, ' ')) ||
+              ''}
+          </div>
+          <div className="text-right font-semibold mt-2">
+            {Number(cheque.amount || 0).toLocaleString(undefined, {
+              minimumFractionDigits: 2,
+            })}
+          </div>
+        </div>
+      </div>
+
+      <div className="mt-10 mb-2 font-bold tracking-wide">
+        {cheque.payee || 'Payee Name'}
+      </div>
+      <div className="font-bold tracking-wide mb-10">
+        {cheque.amount
+          ? cheque.words || cheque.amount_in_words || 'AMOUNT IN WORDS'
+          : 'AMOUNT IN WORDS'}
+        {/* You can use your convertAmountToWords logic here */}
+      </div>
+
+      <div className="flex justify-between mt-20">
+        <div>
+          <div className="font-semibold">{signatory1}</div>
+          <div className="text-xs">Treasury Head</div>
+        </div>
+        <div>
+          <div className="font-semibold">{signatory2}</div>
+          <div className="text-xs">Mayor</div>
+        </div>
+      </div>
+
+      <div className="mt-10 text-xs text-gray-400">98765</div>
+    </div>
+  );
+});

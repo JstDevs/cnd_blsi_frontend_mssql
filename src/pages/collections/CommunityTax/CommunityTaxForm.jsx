@@ -82,26 +82,10 @@ const validationSchema = Yup.object({
   CivilStatus: Yup.string(),
   Occupation: Yup.string().min(2, 'Profession must be at least 2 characters'),
   Gender: Yup.string().required('Sex is required'),
-  HeightFeet: Yup.number()
-    .typeError('Feet must be a number')
-    .min(3, 'Minimum height is 3 feet')
-    .max(8, 'Maximum height is 8 feet')
-    .integer('Feet must be a whole number'),
-
-  HeightInches: Yup.number()
-    .typeError('Inches must be a number')
-    .min(0, 'Inches cannot be negative')
-    .max(11, 'Inches must be between 0 and 11')
-    .test(
-      'total-height',
-      'Total height must be between 3\'0" and 8\'11"',
-      function (inches) {
-        const feet = this.parent.HeightFeet;
-        if (!feet || inches === undefined) return true; // Let required handle this
-        const totalInches = feet * 12 + inches;
-        return totalInches >= 36 && totalInches <= 107; // 3ft = 36in, 8'11" = 107in
-      }
-    ),
+  Height: Yup.number()
+    .typeError('Height must be a number')
+    .min(90, 'Minimum height is 90 cm')
+    .max(243, 'Maximum height is 243 cm'),
 
   Weight: Yup.number()
     .typeError('Weight must be a number')
@@ -191,15 +175,10 @@ const CommunityTaxForm = ({
     const totalInches = parseFloat(inches);
     return Math.round(totalInches % 12).toString();
   };
-  console.log('initialData', currentCertificateNumber);
+  console.log('initialData', initialData);
   const getInitialValues = () => {
     // Determine the source of customer data (priority: initialData > selectedCustomer)
     const customerSource = initialData?.Customer || selectedCustomer;
-
-    // Extract height components if available
-    const heightInInches = customerSource?.Height || '';
-    const heightFeet = heightInInches ? convertToFeet(heightInInches) : '';
-    const heightInches = heightInInches ? convertToInches(heightInInches) : '';
 
     const initialValues = {
       // BASIC INFO
@@ -223,8 +202,8 @@ const CommunityTaxForm = ({
       CivilStatus: customerSource?.CivilStatus || '',
       Occupation: customerSource?.Occupation || '',
       Gender: customerSource?.Gender || '',
-      HeightFeet: heightFeet,
-      HeightInches: heightInches,
+      // Extract height components if available
+      Height: customerSource?.Height || '',
       Weight: customerSource?.Weight || '',
       BirthDate: customerSource?.Birthdate || '',
 
@@ -602,37 +581,17 @@ const CommunityTaxForm = ({
                   />
                 </div>
                 <div className="grid grid-cols-2 gap-3">
-                  <div>
-                    <FormField
-                      label="Height (feet)"
-                      {...getFieldProps('HeightFeet')}
-                      type="text"
-                      min="3"
-                      max="8"
-                      step="1"
-                      className="border-blue-200 focus:border-blue-500 focus:ring-blue-500"
-                      error={
-                        formik.touched.HeightFeet && formik.errors.HeightFeet
-                      }
-                      touched={formik.touched.HeightFeet}
-                    />
-                  </div>
-                  <div>
-                    <FormField
-                      label="Height (inches)"
-                      {...getFieldProps('HeightInches')}
-                      type="text"
-                      min="0"
-                      max="11"
-                      step="1"
-                      className="border-blue-200 focus:border-blue-500 focus:ring-blue-500"
-                      error={
-                        formik.touched.HeightInches &&
-                        formik.errors.HeightInches
-                      }
-                      touched={formik.touched.HeightInches}
-                    />
-                  </div>
+                  <FormField
+                    label="Height (cm)"
+                    {...getFieldProps('Height')}
+                    type="number"
+                    min="90"
+                    max="243"
+                    step="1"
+                    className="border-blue-200 focus:border-blue-500 focus:ring-blue-500"
+                    error={formik.touched.Height && formik.errors.Height}
+                    touched={formik.touched.Height}
+                  />
                   <div>
                     <FormField
                       label="Weight (kg)"

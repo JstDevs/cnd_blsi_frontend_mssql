@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useRef } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import StatementComparisonForm from '../../../components/forms/StatementComparisonForm';
 import DataTable from '@/components/common/DataTable';
@@ -9,6 +9,8 @@ import {
 import { fetchFiscalYears } from '@/features/settings/fiscalYearSlice';
 import toast from 'react-hot-toast';
 import { formatCurrency } from '@/utils/currencyFormater';
+import StatementComparisonPrintView from './StatementComparisonPrintView';
+import { useReactToPrint } from 'react-to-print';
 
 function StatementComparison() {
   const API_URL = import.meta.env.VITE_API_URL;
@@ -23,7 +25,12 @@ function StatementComparison() {
     dispatch(resetStatementComparisonState());
     dispatch(fetchFiscalYears());
   }, [dispatch]);
-
+  // inside StatementComparison()
+  const printRef = useRef();
+  const handlePrint = useReactToPrint({
+    contentRef: printRef,
+    documentTitle: 'Statement Comparison Report',
+  });
   const columns = [
     { key: 'Type', header: 'Type', sortable: true },
     { key: 'SubID', header: 'Sub ID', sortable: true },
@@ -139,7 +146,13 @@ function StatementComparison() {
   const handleView = (values) => {
     dispatch(fetchStatementComparisons(values));
   };
-
+  const handleGenerateJournal = () => {
+    if (statementComparisons.length === 0) {
+      toast.error('No data to generate journal');
+      return;
+    }
+    handlePrint();
+  };
   return (
     <div className="page-container">
       {/* Unified Page Header */}
@@ -155,6 +168,7 @@ function StatementComparison() {
       <div className="mt-4 p-3 sm:p-6 bg-white rounded-md shadow">
         <StatementComparisonForm
           fiscalYears={fiscalYears}
+          onGenerateJournal={handleGenerateJournal}
           onExportExcel={handleExport}
           onView={handleView}
           onClose={() => {}}
@@ -173,6 +187,13 @@ function StatementComparison() {
           data={statementComparisons}
           loading={isLoading}
           pagination
+        />
+      </div>
+      {/* Hidden print layout */}
+      <div className="hidden">
+        <StatementComparisonPrintView
+          ref={printRef}
+          data={statementComparisons}
         />
       </div>
     </div>

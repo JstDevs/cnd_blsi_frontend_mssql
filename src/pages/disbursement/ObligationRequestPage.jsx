@@ -25,6 +25,7 @@ import { statusLabel } from '../userProfile';
 import { useModulePermissions } from '@/utils/useModulePremission';
 import { CheckLine, TrashIcon, X } from 'lucide-react';
 import toast from 'react-hot-toast';
+import axiosInstance from '@/utils/axiosInstance';
 
 function ObligationRequestPage() {
   const dispatch = useDispatch();
@@ -99,36 +100,7 @@ function ObligationRequestPage() {
       key: 'Status',
       header: 'Status',
       sortable: true,
-      // render: (value) => {
-      //   let bgColor = 'bg-neutral-100 text-neutral-800';
 
-      //   switch (value) {
-      //     case 'Requested':
-      //       bgColor = 'bg-warning-100 text-warning-800';
-      //       break;
-      //     case 'Pending Approval':
-      //       bgColor = 'bg-primary-100 text-primary-800';
-      //       break;
-      //     case 'Approved for Payment':
-      //     case 'Paid':
-      //       bgColor = 'bg-success-100 text-success-800';
-      //       break;
-      //     case 'Cancelled':
-      //     case 'Rejected':
-      //       bgColor = 'bg-error-100 text-error-800';
-      //       break;
-      //     default:
-      //       break;
-      //   }
-
-      //   return (
-      //     <span
-      //       className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${bgColor}`}
-      //     >
-      //       {value}
-      //     </span>
-      //   );
-      // },
       render: (value) => statusLabel(value),
     },
     {
@@ -200,19 +172,55 @@ function ObligationRequestPage() {
     console.log(values);
   };
   const handleORPAction = async (dv, action) => {
+    // Config for each action
+    const actionConfig = {
+      approve: {
+        endpoint: 'postTransaction',
+        payload: {
+          ID: dv.ID,
+          LinkID: dv.LinkID,
+          ApprovalLinkID: dv.LinkID,
+          ApprovalProgress: dv.ApprovalProgress || '1',
+          ApprovalOrder: dv.ApprovalOrder || '1',
+          NumberOfApproverPerSequence: dv.NumberOfApproverPerSequence || '1',
+          FundsID: dv.FundsID || '2',
+          ApprovalVersion: dv.ApprovalVersion || '1',
+        },
+        successMsg: 'Obligation Request approved successfully',
+        errorMsg: 'Error approving Obligation Request',
+      },
+      reject: {
+        endpoint: 'rejectTransaction',
+        payload: {
+          ID: dv.ID,
+          ApprovalLinkID: dv.LinkID,
+          reasonForRejection: dv.reasonForRejection || 'ANY REASON',
+        },
+        successMsg: 'Obligation Request rejected successfully',
+        errorMsg: 'Error rejecting Obligation Request',
+      },
+    };
+
+    const config = actionConfig[action];
+    if (!config) {
+      console.error('Invalid action:', action);
+      return;
+    }
+
     setIsLoadingORPAction(true);
     try {
-      // TODO : add action
-      // const response = await axiosInstance.post(
-      //   `/disbursementVoucher/${action}`,
-      //   { ID: dv.ID }
-      // );
-      console.log(`${action}d:`, response.data);
-      // dispatch(fetchGeneralServiceReceipts());
-      toast.success(`Obligation Request ${action}d successfully`);
+      const { data } = await axiosInstance.post(
+        `/obligationRequest/${config.endpoint}`,
+        config.payload
+      );
+
+      console.log(`${action} response:`, data);
+      dispatch(fetchObligationRequests()); // update list if needed
+      toast.success(config.successMsg);
     } catch (error) {
-      console.error(`Error ${action}ing Obligation Request:`, error);
-      toast.error(`Error ${action}ing Obligation Request`);
+      const errMsg = error.response?.data?.message || config.errorMsg;
+      console.error(errMsg, error);
+      toast.error(errMsg);
     } finally {
       setIsLoadingORPAction(false);
     }

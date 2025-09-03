@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { forwardRef, useEffect, useRef, useState } from 'react';
 import { PlusIcon, PencilIcon, TrashIcon } from '@heroicons/react/24/outline';
 import DataTable from '../../components/common/DataTable';
 import Modal from '../../components/common/Modal';
@@ -12,6 +12,8 @@ import { useDispatch, useSelector } from 'react-redux';
 import toast from 'react-hot-toast';
 import { fetchCustomers } from '@/features/settings/customersSlice';
 import { useModulePermissions } from '@/utils/useModulePremission';
+import { useReactToPrint } from 'react-to-print';
+import { PrinterIcon } from 'lucide-react';
 
 function MarriageServiceReceiptPage() {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -24,12 +26,17 @@ function MarriageServiceReceiptPage() {
     (state) => state.customers
   );
   // ---------------------USE MODULE PERMISSIONS------------------START (MarriageServiceReceiptPage - MODULE ID =  59 )
-  const { Add, Edit, Delete } = useModulePermissions(59);
+  const { Add, Edit, Delete, Print } = useModulePermissions(59);
   useEffect(() => {
     dispatch(fetchMarriageRecords());
     dispatch(fetchCustomers());
   }, [dispatch]);
 
+  const printRef = useRef();
+  const handlePrint = useReactToPrint({
+    contentRef: printRef,
+    documentTitle: 'Marriage Service Receipt',
+  });
   const handleAddReceipt = async (values) => {
     console.log('Form data to save:', values);
     const formData = new FormData();
@@ -237,15 +244,27 @@ function MarriageServiceReceiptPage() {
           <p className="text-gray-600">Manage Marriage Service Receipts</p>
         </div>
 
-        {Add && (
-          <button
-            onClick={() => setIsModalOpen(true)}
-            className="btn btn-primary max-sm:w-full"
-          >
-            <PlusIcon className="h-5 w-5 mr-2" />
-            Add Receipt
-          </button>
-        )}
+        <div className="flex gap-2">
+          {Add && (
+            <button
+              onClick={() => setIsModalOpen(true)}
+              className="btn btn-primary max-sm:w-full "
+            >
+              <PlusIcon className="h-5 w-5 mr-2" />
+              Add New Receipt
+            </button>
+          )}
+          {/* {Print && (
+            <button
+              onClick={handlePrint}
+              className="btn btn-primary disabled:opacity-50"
+              // disabled={!selectedReceipt?.Status.includes('Posted')}
+            >
+              <PrinterIcon className="h-5 w-5 mr-2" />
+              Print
+            </button>
+          )} */}
+        </div>
       </div>
 
       <DataTable
@@ -253,6 +272,8 @@ function MarriageServiceReceiptPage() {
         data={marriageRecords}
         actions={actions}
         className="bg-white rounded-lg shadow"
+        // onRowClick={(row) => setSelectedReceipt(row)}
+        // selectedRow={selectedReceipt}
         isLoading={isLoading || customerLoading}
       />
 
@@ -268,8 +289,79 @@ function MarriageServiceReceiptPage() {
           onSubmit={handleAddReceipt}
         />
       </Modal>
+
+      {/* // PRINT THE BELOW SHIT  */}
+      <div style={{ display: 'none' }}>
+        <MarriageServiceReceiptPrint ref={printRef} receipt={selectedReceipt} />
+      </div>
     </>
   );
 }
 
 export default MarriageServiceReceiptPage;
+
+const MarriageServiceReceiptPrint = forwardRef(({ receipt }, ref) => {
+  if (!receipt) return null;
+
+  // Map fields to display - fallback/defaults to match image
+  return (
+    <div
+      ref={ref}
+      style={{
+        width: 400,
+        margin: '0 auto',
+        background: '#fff',
+        color: '#111',
+        fontFamily: 'monospace',
+        padding: '32px',
+      }}
+    >
+      <div
+        style={{
+          display: 'flex',
+          justifyContent: 'space-between',
+          marginBottom: 8,
+        }}
+      >
+        <div>
+          {receipt.InvoiceDate
+            ? new Date(receipt.InvoiceDate).toLocaleDateString('en-US')
+            : '08/22/2025'}
+        </div>
+        <div>{receipt.InvoiceNumber || '528'}</div>
+      </div>
+      <div style={{ textAlign: 'right', marginBottom: 12 }}>
+        {receipt.FundsID ? 'Fund' : 'Fund'}
+      </div>
+      <div style={{ marginBottom: 24 }}>
+        {receipt.CustomerName || 'Leivan Jake Baguio'}
+      </div>
+      <div style={{ marginBottom: 12 }}>
+        <span>
+          {receipt.Items ? receipt.Items[0]?.Description : 'Big Item'}
+        </span>
+        <span style={{ marginLeft: '5em' }}>
+          {receipt.Items
+            ? Number(receipt.Items[0]?.UnitPrice || 0).toFixed(2)
+            : '175.00'}
+        </span>
+        <span style={{ marginLeft: '3em' }}>
+          {receipt.Total ? Number(receipt.Total).toFixed(2) : '1,350.00'}
+        </span>
+      </div>
+      <div
+        style={{
+          textAlign: 'right',
+          marginTop: '4em',
+          fontWeight: 'bold',
+          fontSize: '1.1em',
+        }}
+      >
+        {receipt.Total ? Number(receipt.Total).toFixed(2) : '1,350.00'}
+      </div>
+      <div style={{ marginTop: '1.5em', fontWeight: 'bold' }}>
+        {receipt.AmountInWords || 'TWO THOUSAND SEVEN'}
+      </div>
+    </div>
+  );
+});

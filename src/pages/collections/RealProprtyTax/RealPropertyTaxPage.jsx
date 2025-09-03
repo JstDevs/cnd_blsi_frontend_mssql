@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import {
   PlusIcon,
@@ -18,6 +18,10 @@ import { fetchGeneralRevisions } from '@/features/settings/generalRevisionSlice'
 import { fetchCustomers } from '@/features/settings/customersSlice';
 import toast from 'react-hot-toast';
 import { CheckLine, TrashIcon, X } from 'lucide-react';
+import axiosInstance from '@/utils/axiosInstance';
+import RealPropertyTaxViewModal from './RealPropertyTaxViewModal';
+import { useReactToPrint } from 'react-to-print';
+import PrintPageRealPropertyTax from './PrintPageRealPropertyTax';
 
 function RealPropertyTaxPage() {
   const dispatch = useDispatch();
@@ -34,7 +38,8 @@ function RealPropertyTaxPage() {
   const [currentView, setCurrentView] = useState('list'); // 'list', 'form', 'details'
   const [currentProperty, setCurrentProperty] = useState(null);
   const [isLoadingReceipt, setIsLoadingReceipt] = useState(false);
-
+  const [isViewModalOpen, setIsViewModalOpen] = useState(false);
+  const printRef = useRef();
   useEffect(() => {
     dispatch(fetchRealPropertyTaxes());
     dispatch(fetchGeneralRevisions());
@@ -48,18 +53,18 @@ function RealPropertyTaxPage() {
 
   const handleViewProperty = (property) => {
     setCurrentProperty(property);
-    setCurrentView('details');
+    setIsViewModalOpen(true);
   };
 
   const handleEditProperty = (property) => {
     setCurrentProperty(property);
     setCurrentView('form');
   };
-
-  const handlePrintProperty = (property) => {
-    // Implement print functionality
-    console.log('Print property:', property);
-  };
+  // --------PRINT FUNCTIONALITY-------------
+  const handlePrint = useReactToPrint({
+    contentRef: printRef,
+    documentTitle: `RealPropertyTax-${currentProperty?.T_D_No || 'Record'}`,
+  });
 
   const handleBackToList = () => {
     setCurrentView('list');
@@ -97,7 +102,7 @@ function RealPropertyTaxPage() {
     let bgColor = 'bg-neutral-100 text-neutral-800';
 
     switch (value) {
-      case 'Active':
+      case 'Posted':
         bgColor = 'bg-success-100 text-success-800';
         break;
       case 'Requested':
@@ -120,17 +125,19 @@ function RealPropertyTaxPage() {
   };
 
   const handleRPTAction = async (dv, action) => {
+    // console.log('handleRPTAction', dv, action);
+    // TODO : CHANGE THE PAYLOAD
     const actionConfig = {
       approve: {
         endpoint: 'postTransaction',
         payload: {
-          id: dv.id,
+          id: dv.ID,
           linkID: dv.LinkID,
-          approvalLinkID: dv.approvalLinkID,
-          approvalProgress: dv.approvalProgress,
-          amountReceived: dv.amountReceived,
-          ApprovalOrder: dv.ApprovalOrder,
-          transactionApprovalVersion: dv.transactionApprovalVersion,
+          approvalLinkID: dv.LinkID,
+          approvalProgress: dv.approvalProgress || 1,
+          amountReceived: dv.PreviousPayment || 0,
+          ApprovalOrder: dv.ApprovalOrder || 1,
+          transactionApprovalVersion: dv.transactionApprovalVersion || 1,
         },
         successMsg: 'Real Property approved successfully',
         errorMsg: 'Error approving Real Property',
@@ -138,9 +145,9 @@ function RealPropertyTaxPage() {
       reject: {
         endpoint: 'rejectTransaction',
         payload: {
-          id: dv.id,
-          approvalLinkID: dv.approvalLinkID,
-          reasonForRejection: dv.reasonForRejection,
+          id: dv.ID,
+          approvalLinkID: dv.LinkID,
+          reasonForRejection: dv.reasonForRejection || 'ANY REASON',
         },
         successMsg: 'Real Property rejected successfully',
         errorMsg: 'Error rejecting Real Property',
@@ -183,13 +190,6 @@ function RealPropertyTaxPage() {
         className:
           'text-primary-600 hover:text-primary-900 p-1 rounded-full hover:bg-primary-50',
       });
-      // actionList.push({
-      //   icon: TrashIcon,
-      //   title: 'Delete',
-      //   onClick: () => {},
-      //   className:
-      //     'text-error-600 hover:text-error-900 p-1 rounded-full hover:bg-error-50',
-      // });
     } else if (row.Status === 'Requested') {
       actionList.push(
         {
@@ -211,7 +211,7 @@ function RealPropertyTaxPage() {
     actionList.push({
       icon: EyeIcon,
       title: 'View',
-      onClick: () => {},
+      onClick: () => handleViewProperty(row),
       className:
         'text-primary-600 hover:text-primary-900 p-1 rounded-full hover:bg-primary-50',
     });
@@ -240,13 +240,15 @@ function RealPropertyTaxPage() {
     value: revision.ID,
     label: revision.General_Revision_Date_Year,
   }));
-  // console.log('individualOptions', generalRevisionsOptions);
+  // console.log('individualOptions', isViewModalOpen);
+
+  console.log('currentProperty', currentProperty);
   return (
     <>
       {currentView === 'list' && (
         <>
           <div className="flex justify-between items-center max-sm:flex-wrap gap-4 mb-6 page-header">
-            <div>
+            <div ref={printRef}>
               <h1 className="text-2xl font-bold text-gray-800">
                 Real Property Tax Records
               </h1>
@@ -254,16 +256,29 @@ function RealPropertyTaxPage() {
                 Manage real property tax assessments
               </p>
             </div>
-            {Add && (
-              <button
-                type="button"
-                onClick={handleCreateProperty}
-                className="btn btn-primary max-sm:w-full"
-              >
-                <PlusIcon className="h-5 w-5 mr-2" aria-hidden="true" />
-                New Property
-              </button>
-            )}
+            <div className="flex gap-2">
+              {' '}
+              {Add && (
+                <button
+                  type="button"
+                  onClick={handleCreateProperty}
+                  className="btn btn-primary max-sm:w-full"
+                >
+                  <PlusIcon className="h-5 w-5 mr-2" aria-hidden="true" />
+                  New Property
+                </button>
+              )}
+              {Print && (
+                <button
+                  onClick={handlePrint}
+                  className="btn btn-primary disabled:opacity-50  "
+                  disabled={currentProperty?.Status !== 'Posted'}
+                >
+                  <PrinterIcon className="h-5 w-5 mr-2" aria-hidden="true" />{' '}
+                  Print
+                </button>
+              )}
+            </div>
           </div>
 
           <DataTable
@@ -276,7 +291,7 @@ function RealPropertyTaxPage() {
               isLoadingCustomers ||
               isLoadingReceipt
             }
-            // onRowClick={() => handleViewProperty(null)}
+            onRowClick={(row) => setCurrentProperty(row)}
             selectedRow={currentProperty}
           />
         </>
@@ -305,17 +320,6 @@ function RealPropertyTaxPage() {
                 </p>
               </div>
             </div>
-            {Print && (
-              <button
-                onClick={() => {
-                  console.log('Print');
-                }}
-                className="btn btn-primary"
-              >
-                <PrinterIcon className="h-5 w-5 mr-2" aria-hidden="true" />{' '}
-                Print
-              </button>
-            )}
           </div>
 
           <div className="bg-white rounded-lg shadow-md p-2 sm:p-6">
@@ -330,54 +334,21 @@ function RealPropertyTaxPage() {
         </div>
       )}
 
-      {currentView === 'details' && currentProperty && (
-        <div>
-          <div className="flex justify-between items-center mb-6 gap-4 flex-wrap">
-            <div className="flex items-center">
-              <button
-                onClick={handleBackToList}
-                className="mr-4 p-1 rounded-full hover:bg-neutral-100"
-              >
-                <ArrowLeftIcon className="h-5 w-5 text-neutral-600" />
-              </button>
-              <div>
-                <h1 className="text-2xl font-bold text-gray-800">
-                  Property Details
-                </h1>
-                <p className="text-gray-600">
-                  View and manage property tax details
-                </p>
-              </div>
-            </div>
-            <div className="flex gap-2">
-              <button
-                type="button"
-                onClick={() => handleEditProperty(currentProperty)}
-                className="btn btn-primary flex items-center"
-              >
-                <PencilIcon className="h-5 w-5 mr-2" aria-hidden="true" />
-                Edit
-              </button>
-              <button
-                type="button"
-                onClick={() => handlePrintProperty(currentProperty)}
-                className="btn btn-outline flex items-center"
-              >
-                <PrinterIcon className="h-5 w-5 mr-2" aria-hidden="true" />
-                Print
-              </button>
-            </div>
-          </div>
-
-          <div className="bg-white rounded-lg shadow-md p-2 sm:p-6">
-            <RealPropertyTaxForm
-              initialData={currentProperty}
-              readOnly={true}
-              onBack={handleBackToList}
-            />
-          </div>
-        </div>
+      {/* View Modal */}
+      {isViewModalOpen && (
+        <RealPropertyTaxViewModal
+          isOpen={isViewModalOpen}
+          onClose={() => setIsViewModalOpen(false)}
+          property={currentProperty}
+          onEdit={handleEditProperty}
+          Edit={Edit}
+        />
       )}
+      {/* // PRINT THIS  //   */}
+      {/* Hidden printable receipt */}
+      <div style={{ display: 'none' }}>
+        <PrintPageRealPropertyTax ref={printRef} property={currentProperty} />
+      </div>
     </>
   );
 }

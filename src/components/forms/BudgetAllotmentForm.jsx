@@ -79,7 +79,7 @@ function BudgetAllotmentForm({
         appropriation: Budget?.Appropriation || 0,
         releasedAllotments: Budget?.ReleasedAllotments || 0,
         releasedBalance: Budget?.ReleasedBalance || 0,
-        Attachments: Budget?.Attachments || [],
+        Attachments: initialData?.Attachments || [],
         Status: initialData?.Status || 'Requested',
       });
     } else {
@@ -199,7 +199,7 @@ function BudgetAllotmentForm({
                 touched={touched.BudgetID}
               />
             </div>
-
+            {console.log('values', values)}
             {/* Attachments Section */}
             <div className="mb-4 md:col-span-2 py-4 border-b border-gray-300">
               <div className="space-y-2">
@@ -225,21 +225,6 @@ function BudgetAllotmentForm({
                     >
                       <div className="flex items-center">
                         <Paperclip className="h-4 w-4 text-gray-500 mr-2" />
-                        {/* <span className="text-sm">
-                         {file.ID ? (
-                            <a
-                              href={`${API_URL}/uploads/${file.DataImage}`}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              className="text-blue-600 hover:underline"
-                            >
-                              {file.name || file.DataName}
-                            </a>
-                          ) : (
-                            file.name || file.DataName
-                          )}
-                        </span> */}
-
                         <span className="text-xs text-gray-500 ml-2">
                           <a
                             href={
