@@ -184,6 +184,10 @@ function GeneralReceiptPage() {
       render: (value) => value || '—',
     },
   ];
+  const handleEditOR = (receipt) => {
+    setCurrentReceipt(receipt);
+    setIsCreateModalOpen(true);
+  };
   const handleGRPAction = async (dv, action) => {
     setIsLoadingReceipt(true);
     try {
@@ -204,11 +208,11 @@ function GeneralReceiptPage() {
   const actions = (row) => {
     const actionList = [];
 
-    if (row.Status.toLowerCase().includes('rejected') && Edit) {
+    if (row?.Status?.toLowerCase().includes('rejected') && Edit) {
       actionList.push({
         icon: PencilIcon,
         title: 'Edit',
-        onClick: () => handleEditOR(row),
+        onClick: () => handleEditReceipt(row),
         className:
           'text-primary-600 hover:text-primary-900 p-1 rounded-full hover:bg-primary-50',
       });
@@ -219,7 +223,7 @@ function GeneralReceiptPage() {
         className:
           'text-error-600 hover:text-error-900 p-1 rounded-full hover:bg-error-50',
       });
-    } else if (row.Status === 'Requested') {
+    } else if (row?.Status?.toLowerCase().includes('requested')) {
       actionList.push(
         {
           icon: CheckLine,

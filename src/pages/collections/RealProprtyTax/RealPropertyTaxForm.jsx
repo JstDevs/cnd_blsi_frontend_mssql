@@ -281,8 +281,17 @@ const RealPropertyTaxForm = ({
     : [];
 
   const handleAddTaxDeclaration = async () => {
+    const selectedYear = generalRevisionsOptions?.find(
+      (item) => item.value === Number(values.basicGeneralYearID)
+    )?.label;
+    dispatch(
+      getTdNumber({
+        ownerId: values.ownerId,
+        generalRevision: selectedYear,
+      })
+    );
     try {
-      await dispatch(addButtonTDNumber(values.T_D_No)).unwrap();
+      await dispatch(addButtonTDNumber(values.T_D_No, selectedYear)).unwrap();
     } catch (error) {
       console.error('Failed to add tax declaration:', error);
       toast.error('Failed to add tax declaration. ' + error.message);

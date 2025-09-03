@@ -45,10 +45,10 @@ export const getTdNumber = createAsyncThunk(
 // Add Button
 export const addButtonTDNumber = createAsyncThunk(
   'realPropertyTax/addButtonTDNumber',
-  async (tdNumber, { rejectWithValue }) => {
+  async (tdNumber, selectedYear, { rejectWithValue }) => {
     try {
       const res = await axios.get(
-        `/real-property-tax/addButton?tdNumber=${tdNumber}`
+        `/real-property-tax/addButton?tdNumber=${tdNumber}&generalRevisionYear=${selectedYear}`
       );
       return res.data;
     } catch (err) {

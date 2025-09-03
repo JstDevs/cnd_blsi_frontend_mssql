@@ -164,6 +164,12 @@ function GeneralServiceReceiptModal({
         // Rename TransactionItemsAll to Items
         if (key === 'TransactionItemsAll') {
           formData.append('Items', value);
+        } else if (key === 'Total') {
+          const Total = values.TransactionItemsAll.reduce(
+            (total, item) => total + item.Quantity * item.Price,
+            0
+          );
+          formData.append('Total', Total);
         } else {
           formData.append(key, value);
         }
@@ -178,6 +184,7 @@ function GeneralServiceReceiptModal({
         formData.append(`Attachments[${idx}].File`, att);
       }
     });
+
     // Add ID if editing existing receipt
     if (selectedReceipt) {
       formData.append('IsNew', 'false');
