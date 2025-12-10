@@ -1,39 +1,109 @@
+// ChartOfAccountsForm.jsx
 import { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { Formik, Form } from 'formik';
+import { Formik, Form, useFormikContext } from 'formik';
 import * as Yup from 'yup';
 import FormField from '../../components/common/FormField';
-import { addAccount, updateAccount } from '../../features/settings/chartOfAccountsSlice';
+import {
+  addAccount,
+  fetchAccounts,
+  updateAccount,
+} from '../../features/settings/chartOfAccountsSlice';
 import { fetchAccountGroups } from '../../features/settings/accountGroupSlice';
 import { fetchMajorAccountGroups } from '../../features/settings/majorAccountGroupSlice';
 import { fetchSubMajorAccountGroups } from '../../features/settings/subMajorAccountGroupSlice';
+import SearchableDropdown from '@/components/common/SearchableDropdown';
+import toast from 'react-hot-toast';
+
+// Auto-generate account code component
+const AutoGenerateAccountCode = ({
+  accountGroups,
+  majorAccountGroups,
+  subMajorAccountGroups,
+}) => {
+  const { values, setFieldValue, errors, touched } = useFormikContext();
+
+  // Get code by ID from different groups
+  const getCodeById = (id, group) => {
+    const item = group.find((item) => item.ID === id);
+    return item ? item.Code : '';
+  };
+
+  useEffect(() => {
+    if (
+      values.AccountTypeID ||
+      values.AccountSubTypeID ||
+      values.AccountCategoryID ||
+      values.Code
+    ) {
+      const accountGroupCode = getCodeById(values.AccountTypeID, accountGroups);
+      const majorAccountGroupCode = getCodeById(
+        values.AccountSubTypeID,
+        majorAccountGroups
+      );
+      const subMajorAccountGroupCode = getCodeById(
+        values.AccountCategoryID,
+        subMajorAccountGroups
+      );
+
+      const newAccountCode = `${accountGroupCode}-${majorAccountGroupCode}-${subMajorAccountGroupCode}-${values.Code}`;
+      setFieldValue('AccountCode', newAccountCode);
+    }
+  }, [
+    values.AccountTypeID,
+    values.AccountSubTypeID,
+    values.AccountCategoryID,
+    values.Code,
+  ]);
+
+  return (
+    <FormField
+      className="p-3 focus:outline-none bg-gray-200 cursor-not-allowed"
+      label="Account No"
+      name="AccountCode"
+      type="text"
+      required
+      placeholder="e.g., 03-02-02-65465"
+      value={values.AccountCode}
+      readOnly
+      error={touched.AccountCode && errors.AccountCode}
+      touched={touched.AccountCode}
+    />
+  );
+};
 
 // Validation schema
 const accountSchema = Yup.object().shape({
   AccountCode: Yup.string()
-    .required('Account no is required'),
+    .required('Account no is required')
+    .max(30, 'Account no must be at most 30 characters'),
   Code: Yup.string()
-    .required('General Ledger Code is required'),
+    .required('General Ledger Code is required')
+    .max(10, 'General Ledger Code must be at most 10 characters'),
   Name: Yup.string()
     .required('Account title is required')
     .max(100, 'Account title must be at most 100 characters'),
-  Description: Yup.string()
-    .max(250, 'Description must be at most 250 characters'),
-  AccountTypeID: Yup.string()
-    .required('Account group is required'),
-  AccountSubTypeID: Yup.string()
-    .required('Major account group is required'),
-  AccountCategoryID: Yup.string()
-    .required('Sub Major account group is required'),
-  NormalBalance: Yup.string()
-    .required('Normal balance is required'),
+  Description: Yup.string().max(
+    250,
+    'Description must be at most 250 characters'
+  ),
+  AccountTypeID: Yup.string().required('Account group is required'),
+  AccountSubTypeID: Yup.string().required('Major account group is required'),
+  AccountCategoryID: Yup.string().required(
+    'Sub Major account group is required'
+  ),
+  NormalBalance: Yup.string().required('Normal balance is required'),
 });
 
 function ChartOfAccountsForm({ initialData, onClose }) {
   const dispatch = useDispatch();
-  const { accountGroups } = useSelector(state => state.accountGroups);
-  const { majorAccountGroups } = useSelector(state => state.majorAccountGroups);
-  const { subMajorAccountGroups } = useSelector(state => state.subMajorAccountGroups);
+  const { accountGroups } = useSelector((state) => state.accountGroups);
+  const { majorAccountGroups } = useSelector(
+    (state) => state.majorAccountGroups
+  );
+  const { subMajorAccountGroups } = useSelector(
+    (state) => state.subMajorAccountGroups
+  );
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {
@@ -42,31 +112,36 @@ function ChartOfAccountsForm({ initialData, onClose }) {
     dispatch(fetchSubMajorAccountGroups());
   }, [dispatch]);
 
-  const initialValues = initialData ? { ...initialData } : {
-    AccountCode: '',
-    Code: '',
-    Name: '',
-    Description: '',
-    AccountTypeID: '',
-    AccountSubTypeID: '',
-    AccountCategoryID: '',
-    NormalBalance: '',
-  };
+  const initialValues = initialData
+    ? { ...initialData }
+    : {
+        AccountCode: '',
+        Code: '',
+        Name: '',
+        Description: '',
+        AccountTypeID: '',
+        AccountSubTypeID: '',
+        AccountCategoryID: '',
+        NormalBalance: '',
+      };
 
-  const handleSubmit = (values) => {
+  const handleSubmit = async (values) => {
     setIsSubmitting(true);
-    
-    const action = initialData 
+
+    const action = initialData
       ? updateAccount({ ...values, ID: initialData.ID })
       : addAccount(values);
-    
+
     dispatch(action)
       .unwrap()
       .then(() => {
+        toast.success('Account updated successfully');
+        dispatch(fetchAccounts());
         onClose();
       })
       .catch((error) => {
         console.error('Error submitting account:', error);
+        toast.error('Failed to submit account. Please try again.');
       })
       .finally(() => {
         setIsSubmitting(false);
@@ -80,40 +155,41 @@ function ChartOfAccountsForm({ initialData, onClose }) {
       onSubmit={handleSubmit}
       enableReinitialize
     >
-      {({ values, errors, touched, handleChange, handleBlur, isValid }) => (
+      {({
+        values,
+        errors,
+        touched,
+        handleChange,
+        handleBlur,
+        isValid,
+        setFieldValue,
+      }) => (
         <Form className="space-y-4">
           <div className="">
-            <FormField
-              className='p-3 focus:outline-none'
-              label="Account No"
-              name="AccountCode"
-              type="text"
-              required
-              placeholder="e.g., 1-01-01-010"
-              value={values.AccountCode}
-              onChange={handleChange}
-              onBlur={handleBlur}
-              error={errors.AccountCode}
-              touched={touched.AccountCode}
+            <AutoGenerateAccountCode
+              accountGroups={accountGroups}
+              majorAccountGroups={majorAccountGroups}
+              subMajorAccountGroups={subMajorAccountGroups}
             />
-            </div>
+          </div>
+          {console.log('values', values, errors)}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <FormField
-              className='p-3 focus:outline-none'
+              className="p-3 focus:outline-none"
               label="General Ledger Code"
               name="Code"
               type="text"
               required
-              placeholder="e.g., 1-01-01-010"
+              placeholder="e.g., 65465"
               value={values.Code}
               onChange={handleChange}
               onBlur={handleBlur}
               error={errors.Code}
               touched={touched.Code}
             />
-            
+
             <FormField
-              className='p-3 focus:outline-none'
+              className="p-3 focus:outline-none"
               label="Account Title"
               name="Name"
               type="text"
@@ -125,50 +201,62 @@ function ChartOfAccountsForm({ initialData, onClose }) {
               error={errors.Name}
               touched={touched.Name}
             />
-            
-            <FormField
-              className='p-3 focus:outline-none'
+
+            <SearchableDropdown
               label="Account Group"
-              name="AccountTypeID"
-              type="select"
+              options={accountGroups.map((group) => ({
+                label: `${group.Name} (${group.Code})`,
+                value: group.ID,
+              }))}
+              placeholder="Select Account Group"
+              onSelect={(selectedId) => {
+                setFieldValue('AccountTypeID', selectedId || '');
+              }}
+              selectedValue={values.AccountTypeID || ''}
               required
-              value={values.AccountTypeID}
-              onChange={handleChange}
-              onBlur={handleBlur}
               error={errors.AccountTypeID}
               touched={touched.AccountTypeID}
-              options={accountGroups.map(group => ({ value: group.ID, label: group.Name }))}
             />
-            <FormField
-              className='p-3 focus:outline-none'
+
+            <SearchableDropdown
               label="Major Account Group"
-              name="AccountSubTypeID"
-              type="select"
+              options={majorAccountGroups.map((group) => ({
+                label: `${group.Name} (${group.Code})`,
+                value: group.ID,
+              }))}
+              placeholder="Select Major Account Group"
+              onSelect={(selectedId) => {
+                setFieldValue('AccountSubTypeID', selectedId || '');
+              }}
+              selectedValue={
+                majorAccountGroups.find(
+                  (group) => group.ID === values.AccountSubTypeID
+                )?.ID || ''
+              }
               required
-              value={values.AccountSubTypeID}
-              onChange={handleChange}
-              onBlur={handleBlur}
               error={errors.AccountSubTypeID}
               touched={touched.AccountSubTypeID}
-              options={majorAccountGroups.map(group => ({ value: group.ID, label: group.Name }))}
             />
-            <FormField
-              className='p-3 focus:outline-none'
+
+            <SearchableDropdown
               label="Sub Major Account Group"
-              name="AccountCategoryID"
-              type="select"
-              required
-              value={values.AccountCategoryID}
-              onChange={handleChange}
-              onBlur={handleBlur}
+              options={subMajorAccountGroups.map((group) => ({
+                label: `${group.Name} (${group.Code})`,
+                value: group.ID,
+              }))}
+              placeholder="Select Sub Major Account Group"
+              onSelect={(selectedId) => {
+                setFieldValue('AccountCategoryID', selectedId || '');
+              }}
+              selectedValue={values.AccountCategoryID || ''}
+              required={true}
               error={errors.AccountCategoryID}
               touched={touched.AccountCategoryID}
-              options={subMajorAccountGroups.map(group => ({ value: group.ID, label: group.Name }))}
             />
           </div>
-          
+
           <FormField
-            className='p-3 focus:outline-none'
+            className="p-3 focus:outline-none"
             label="Description"
             name="Description"
             type="textarea"
@@ -180,11 +268,10 @@ function ChartOfAccountsForm({ initialData, onClose }) {
             touched={touched.Description}
             rows={2}
           />
-          
+
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            
             <FormField
-              className='p-3 focus:outline-none'
+              className="p-3 focus:outline-none"
               label="Normal Balance"
               name="NormalBalance"
               type="select"
@@ -200,13 +287,9 @@ function ChartOfAccountsForm({ initialData, onClose }) {
               ]}
             />
           </div>
-          
+
           <div className="flex justify-end space-x-3 pt-4 border-t border-neutral-200">
-            <button
-              type="button"
-              onClick={onClose}
-              className="btn btn-outline"
-            >
+            <button type="button" onClick={onClose} className="btn btn-outline">
               Cancel
             </button>
             <button

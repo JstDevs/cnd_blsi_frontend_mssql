@@ -13,8 +13,10 @@ function DataTable({
   actions = [],
   loading = false,
   onRowClick = null,
+  selectedRow = null,
   emptyMessage = 'No data available',
 }) {
+  // console.log(selectedRow);
   const [currentPage, setCurrentPage] = useState(1);
   const [rowsPerPage, setRowsPerPage] = useState(10);
   const [searchTerm, setSearchTerm] = useState('');
@@ -196,9 +198,9 @@ function DataTable({
               {actions.length > 0 && (
                 <th
                   scope="col"
-                  className="relative px-6 py-3 whitespace-nowrap"
+                  className="px-6 py-3 text-right text-xs font-medium text-neutral-500 uppercase tracking-wider cursor-pointer whitespace-nowrap"
                 >
-                  <span className="sr-only">Actions</span>
+                  <span>Actions</span>
                 </th>
               )}
             </tr>
@@ -207,9 +209,14 @@ function DataTable({
             {paginatedData.map((row, rowIndex) => (
               <tr
                 key={row.id || rowIndex}
-                className={
+                // className={
+                //   onRowClick ? 'hover:bg-neutral-50 cursor-pointer' : ''
+                // }
+                className={`${
                   onRowClick ? 'hover:bg-neutral-50 cursor-pointer' : ''
-                }
+                } ${
+                  selectedRow && selectedRow?.ID === row.ID ? 'bg-blue-100' : ''
+                }`}
                 onClick={onRowClick ? () => onRowClick(row) : undefined}
               >
                 {columns.map((column) => (
@@ -224,30 +231,67 @@ function DataTable({
                       : row[column.key]}
                   </td>
                 ))}
-                {actions.length > 0 && (
-                  <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium space-x-2">
-                    {actions.map((action, i) => (
-                      <button
-                        key={i}
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          action.onClick(row);
-                        }}
-                        className={
-                          action.className ||
-                          'text-primary-600 hover:text-primary-900'
-                        }
-                        title={action.title}
-                      >
-                        {action.icon ? (
-                          <action.icon className="h-5 w-5" aria-hidden="true" />
-                        ) : (
-                          action.label
-                        )}
-                      </button>
-                    ))}
-                  </td>
-                )}
+
+                {typeof actions === 'function'
+                  ? (() => {
+                      const rowActions = actions(row);
+                      return (
+                        rowActions?.length > 0 && (
+                          <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium space-x-2">
+                            {rowActions.map((action, i) => (
+                              <button
+                                key={i}
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  action.onClick(row);
+                                }}
+                                className={
+                                  action.className ||
+                                  'text-primary-600 hover:text-primary-900'
+                                }
+                                title={action.title}
+                              >
+                                {action.icon ? (
+                                  <action.icon
+                                    className="h-5 w-5"
+                                    aria-hidden="true"
+                                  />
+                                ) : (
+                                  action.label
+                                )}
+                              </button>
+                            ))}
+                          </td>
+                        )
+                      );
+                    })()
+                  : actions.length > 0 && (
+                      <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium space-x-2">
+                        {actions.map((action, i) => (
+                          <button
+                            key={i}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              action.onClick(row);
+                            }}
+                            className={
+                              action?.className ||
+                              'text-primary-600 hover:text-primary-900'
+                            }
+                            title={action?.title}
+                          >
+                            {action?.icon ? (
+                              <action.icon
+                                className="h-5 w-5"
+                                aria-hidden="true"
+                              />
+                            ) : (
+                              action?.label
+                            )}
+                          </button>
+                        ))}
+                      </td>
+                    )}
               </tr>
             ))}
           </tbody>

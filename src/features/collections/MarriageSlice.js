@@ -9,7 +9,7 @@ export const fetchMarriageRecords = createAsyncThunk(
   async (_, thunkAPI) => {
     try {
       const token = localStorage.getItem('token');
-      const response = await fetch(`${API_URL}/marriageRecord`, {
+      const response = await fetch(`${API_URL}/marriagerecord`, {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',
@@ -35,7 +35,7 @@ export const fetchMarriageRecordById = createAsyncThunk(
   async (id, thunkAPI) => {
     try {
       const token = localStorage.getItem('token');
-      const response = await fetch(`${API_URL}/marriageRecord/${id}`, {
+      const response = await fetch(`${API_URL}/marriagerecord/${id}`, {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',
@@ -58,16 +58,16 @@ export const fetchMarriageRecordById = createAsyncThunk(
 
 export const addMarriageRecord = createAsyncThunk(
   'marriageRecords/addMarriageRecord',
-  async (marriageRecord, thunkAPI) => {
+  async (marriagerecord, thunkAPI) => {
     try {
       const token = localStorage.getItem('token');
-      const response = await fetch(`${API_URL}/marriageRecord`, {
+      const response = await fetch(`${API_URL}/marriagerecord`, {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/json',
+          // 'Content-Type': 'application/json',
           Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify(marriageRecord),
+        body: marriagerecord,
       });
 
       const res = await response.json();
@@ -85,18 +85,18 @@ export const addMarriageRecord = createAsyncThunk(
 
 export const updateMarriageRecord = createAsyncThunk(
   'marriageRecords/updateMarriageRecord',
-  async (marriageRecord, thunkAPI) => {
+  async (marriagerecord, thunkAPI) => {
     try {
       const token = localStorage.getItem('token');
       const response = await fetch(
-        `${API_URL}/marriageRecord/${marriageRecord.ID}`,
+        `${API_URL}/marriagerecord/${marriagerecord.ID}`,
         {
           method: 'PUT',
           headers: {
             'Content-Type': 'application/json',
             Authorization: `Bearer ${token}`,
           },
-          body: JSON.stringify(marriageRecord),
+          body: JSON.stringify(marriagerecord),
         }
       );
 
@@ -118,7 +118,7 @@ export const deleteMarriageRecord = createAsyncThunk(
   async (id, thunkAPI) => {
     try {
       const token = localStorage.getItem('token');
-      const response = await fetch(`${API_URL}/marriageRecord/${id}`, {
+      const response = await fetch(`${API_URL}/marriagerecord/${id}`, {
         method: 'DELETE',
         headers: {
           'Content-Type': 'application/json',

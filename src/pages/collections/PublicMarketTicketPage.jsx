@@ -11,9 +11,14 @@ import {
   fetchPublicMarketTickets,
 } from '@/features/collections/PublicMarketTicketingSlice';
 import { useDispatch, useSelector } from 'react-redux';
+import { PencilIcon, Trash } from 'lucide-react';
+import { useModulePermissions } from '@/utils/useModulePremission';
+import { formatCurrency } from '@/utils/currencyFormater';
 
 const PublicMarketTicketPage = () => {
   const dispatch = useDispatch();
+  // ---------------------USE MODULE PERMISSIONS------------------START (PublicMarketTicketPage - MODULE ID =  68 )
+  const { Add, Edit, Delete } = useModulePermissions(68);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedTicket, setSelectedTicket] = useState(null);
 
@@ -36,89 +41,116 @@ const PublicMarketTicketPage = () => {
     setIsModalOpen(true);
   };
 
-  const handleEdit = (ticket) => {
-    setSelectedTicket(ticket);
-    setIsModalOpen(true);
-  };
-
-  const handleDelete = async (id) => {
-    if (window.confirm('Are you sure you want to delete this ticket?')) {
-      try {
-        await dispatch(deletePublicMarketTicket(id)).unwrap();
-        toast.success('Ticket deleted successfully');
-      } catch (error) {
-        toast.error(error.message || 'Failed to delete ticket');
-      }
+  const handleDeleteTicket = async (ticket) => {
+    console.log('Deleting ticket:', ticket);
+    try {
+      await dispatch(deletePublicMarketTicket(ticket.ID)).unwrap();
+      toast.success('Ticket deleted successfully');
+    } catch (error) {
+      toast.error(error.message || 'Failed to delete ticket');
     }
   };
 
   const columns = [
     {
-      key: 'ticketNumber',
+      key: 'Items',
       header: 'Items',
       accessorKey: 'items',
     },
-    { key: 'StartTime', header: 'Start Time', accessorKey: 'startTime' },
-    { key: 'EndTime', header: 'End Time', accessorKey: 'endTime' },
-    { key: 'issuedBy', header: 'Issued By', accessorKey: 'issuedBy' },
     {
-      key: 'dateIssued',
+      key: 'StartTime',
+      header: 'Start Time',
+      accessorKey: 'startTime',
+      render: (value) =>
+        new Date(value).toLocaleString('en-US', {
+          year: 'numeric',
+          month: 'long',
+          day: 'numeric',
+          hour: '2-digit',
+          minute: '2-digit',
+        }),
+    },
+    {
+      key: 'EndTime',
+      header: 'End Time',
+      accessorKey: 'endTime',
+      render: (value) =>
+        new Date(value).toLocaleString('en-US', {
+          year: 'numeric',
+          month: 'long',
+          day: 'numeric',
+          hour: '2-digit',
+          minute: '2-digit',
+        }),
+    },
+    { key: 'IssuedBy', header: 'Issued By', accessorKey: 'issuedBy' },
+    {
+      key: 'DateIssued',
       header: 'Date Issued',
       accessorKey: 'dateIssued',
-      cell: ({ row }) => new Date(row.original.dateIssued).toLocaleDateString(),
+      render: (value) => new Date(value).toLocaleDateString(),
     },
     {
-      key: 'postingPeriod',
+      key: 'PostingPeriod',
       header: 'Posting Period',
       accessorKey: 'postingPeriod',
-      cell: ({ row }) =>
-        new Date(row.original.postingPeriod).toLocaleDateString(),
+      render: (value) => new Date(value).toLocaleDateString(),
     },
     {
-      key: 'amountIssued',
+      key: 'AmountIssued',
       header: 'Amount Issued',
       accessorKey: 'amountIssued',
-      cell: ({ row }) => `₱${row.original.amountIssued?.toLocaleString()}`,
+      render: formatCurrency,
     },
-    { key: 'remarks', header: 'Remarks', accessorKey: 'remarks' },
-    {
-      key: 'actions',
-      header: 'Actions',
-      cell: ({ row }) => (
-        <div className="flex items-center space-x-2">
-          <button
-            onClick={() => handleEdit(row.original)}
-            className="text-blue-600 hover:text-blue-800"
-            disabled={isLoading}
-          >
-            <FiEdit2 className="w-5 h-5" />
-          </button>
-          <button
-            onClick={() => handleDelete(row.original.id)}
-            className="text-red-600 hover:text-red-800"
-            disabled={isLoading}
-          >
-            <FiTrash2 className="w-5 h-5" />
-          </button>
-        </div>
-      ),
+    { key: 'Remarks', header: 'Remarks', accessorKey: 'remarks' },
+  ];
+  const handleEditTicket = (ticket) => {
+    console.log('Edit ticket:', ticket);
+    setSelectedTicket(ticket);
+    setIsModalOpen(true);
+  };
+  // Actions for table rows
+  const actions = [
+    Edit && {
+      icon: PencilIcon,
+      title: 'Edit',
+      onClick: handleEditTicket,
+      className:
+        'text-primary-600 hover:text-primary-900 p-1 rounded-full hover:bg-primary-50',
+    },
+    Delete && {
+      icon: Trash,
+      title: 'Delete',
+      onClick: handleDeleteTicket,
+      className:
+        'text-red-600 hover:text-red-900 p-1 rounded-full hover:bg-red-50',
     },
   ];
-
   return (
-    <div className="container mx-auto px-4 py-8">
-      <div className="flex justify-between items-center mb-6">
+    <>
+      <div className="flex justify-between items-center mb-6 page-header max-sm:flex-wrap gap-4">
         <h1 className="text-2xl font-semibold text-gray-900">
           Public Market Tickets
         </h1>
-        <Button onClick={handleAdd} disabled={isLoading}>
-          <FiPlus className="w-5 h-5 mr-2" />
-          Add Ticket
-        </Button>
+        {Add && (
+          <Button
+            onClick={handleAdd}
+            disabled={isLoading}
+            className="max-sm:w-full"
+          >
+            <FiPlus className="w-5 h-5 mr-2" />
+            Add Ticket
+          </Button>
+        )}
       </div>
 
       <div className="bg-white rounded-lg shadow">
-        <DataTable columns={columns} data={tickets} isLoading={isLoading} />
+        <DataTable
+          columns={columns}
+          data={tickets}
+          isLoading={isLoading}
+          actions={actions}
+        />
       </div>
 
       <Modal
@@ -131,7 +163,7 @@ const PublicMarketTicketPage = () => {
           onClose={() => setIsModalOpen(false)}
         />
       </Modal>
-    </div>
+    </>
   );
 };
 

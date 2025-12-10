@@ -8,13 +8,16 @@ import {
   fetchTaxCodes,
   addTaxCode,
   updateTaxCode,
-  deleteTaxCode
+  deleteTaxCode,
 } from '../../features/settings/taxCodeSlice';
+import toast from 'react-hot-toast';
+import { useModulePermissions } from '@/utils/useModulePremission';
 
 function TaxCodePage() {
   const dispatch = useDispatch();
-  const { taxCodes, isLoading } = useSelector(state => state.taxCodes);
-
+  const { taxCodes, isLoading } = useSelector((state) => state.taxCodes);
+  // ---------------------USE MODULE PERMISSIONS------------------START (Tax Code Page  - MODULE ID = 78 )
+  const { Add, Edit, Delete } = useModulePermissions(78);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [currentTaxCode, setCurrentTaxCode] = useState(null);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
@@ -45,21 +48,34 @@ function TaxCodePage() {
         await dispatch(deleteTaxCode(taxCodeToDelete.ID)).unwrap();
         setIsDeleteModalOpen(false);
         setTaxCodeToDelete(null);
+        toast.success('Tax code deleted successfully.');
       } catch (error) {
         console.error('Failed to delete tax code:', error);
+        toast.error('Failed to delete tax code. Please try again.');
       }
     }
   };
 
-  const handleSubmit = (values) => {
+  const handleSubmit = async (values) => {
     // Assuming rate is stored as a decimal, convert to percentage for display if needed later
     // When submitting, ensure it's in the correct format for your backend (decimal usually)
-    if (currentTaxCode) {
-      dispatch(updateTaxCode({ ...values, ID: currentTaxCode.ID }));
-    } else {
-      dispatch(addTaxCode(values));
+    try {
+      if (currentTaxCode) {
+        await dispatch(
+          updateTaxCode({ ...values, ID: currentTaxCode.ID })
+        ).unwrap();
+        toast.success('Tax code updated successfully.');
+      } else {
+        await dispatch(addTaxCode(values)).unwrap();
+        toast.success('Tax code added successfully.');
+      }
+      dispatch(fetchTaxCodes());
+    } catch (error) {
+      console.error('Failed to save tax code:', error);
+      toast.error('Failed to save tax code. Please try again.');
+    } finally {
+      setIsModalOpen(false);
     }
-    setIsModalOpen(false);
   };
 
   const columns = [
@@ -72,52 +88,56 @@ function TaxCodePage() {
     {
       key: 'Code',
       header: 'Code',
-      sortable: true
+      sortable: true,
     },
     {
       key: 'Name',
-      header: 'Nature of Payment',
-      sortable: true
+      header: 'Name',
+      sortable: true,
     },
     {
       key: 'Rate',
       header: 'Rate (%)',
       sortable: true,
-      render: (value) => `${value} %`
-    }
+      render: (value) => `${value} %`,
+    },
   ];
 
   const actions = [
-    {
+    Edit && {
       icon: PencilIcon,
       title: 'Edit',
       onClick: handleEdit,
-      className: 'text-primary-600 hover:text-primary-900 p-1 rounded-full hover:bg-primary-50'
+      className:
+        'text-primary-600 hover:text-primary-900 p-1 rounded-full hover:bg-primary-50',
     },
-    {
+    Delete && {
       icon: TrashIcon,
       title: 'Delete',
       onClick: handleDelete,
-      className: 'text-error-600 hover:text-error-900 p-1 rounded-full hover:bg-error-50'
-    }
+      className:
+        'text-error-600 hover:text-error-900 p-1 rounded-full hover:bg-error-50',
+    },
   ];
 
   return (
     <div>
       <div className="page-header">
-        <div className="flex justify-between items-center">
+        <div className="flex justify-between sm:items-center max-sm:flex-col gap-4">
           <div>
             <h1>Tax Codes</h1>
             <p>Manage tax codes</p>
           </div>
-          <button
-            type="button"
-            onClick={handleAdd}
-            className="btn btn-primary flex items-center"
-          >
-            <PlusIcon className="h-5 w-5 mr-2" aria-hidden="true" />
-            Add Tax Code
-          </button>
+          {Add && (
+            <button
+              type="button"
+              onClick={handleAdd}
+              className="btn btn-primary max-sm:w-full"
+            >
+              <PlusIcon className="h-5 w-5 mr-2" aria-hidden="true" />
+              Add Tax Code
+            </button>
+          )}
         </div>
       </div>
 
@@ -135,7 +155,7 @@ function TaxCodePage() {
       <Modal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
-        title={currentTaxCode ? "Edit Tax Code" : "Add Tax Code"}
+        title={currentTaxCode ? 'Edit Tax Code' : 'Add Tax Code'}
       >
         <TaxCodeForm
           initialData={currentTaxCode}
@@ -152,7 +172,8 @@ function TaxCodePage() {
       >
         <div className="py-3">
           <p className="text-neutral-700">
-            Are you sure you want to delete the tax code "{taxCodeToDelete?.code}"?
+            Are you sure you want to delete the tax code "
+            {taxCodeToDelete?.Code}"?
           </p>
           <p className="text-sm text-neutral-500 mt-2">
             This action cannot be undone.
@@ -179,4 +200,4 @@ function TaxCodePage() {
   );
 }
 
-export default TaxCodePage; 
+export default TaxCodePage;

@@ -1,49 +1,36 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
-
-// Generate mock ORS data
-const generateMockObligationRequests = () => {
-  const statuses = ['Pending', 'Certified Budget Available', 'Approved', 'Obligated', 'Cancelled'];
-  const departments = ['Office of the Mayor', 'Accounting Department', 'Treasury Department', 'IT Department'];
-  const descriptions = [
-    'Purchase of office supplies',
-    'Payment for consulting services',
-    'Monthly internet subscription',
-    'Office equipment maintenance',
-    'Seminar expenses',
-  ];
-
-  return Array.from({ length: 10 }, (_, i) => ({
-    id: i + 1,
-    orsNumber: `ORS-2024-01-${String(i + 1).padStart(4, '0')}`,
-    orsDate: new Date(2024, 0, Math.floor(Math.random() * 28) + 1).toISOString().split('T')[0],
-    payeeName: `Vendor ${i + 1}`,
-    requestingOffice: departments[Math.floor(Math.random() * departments.length)],
-    particulars: descriptions[Math.floor(Math.random() * descriptions.length)],
-    totalAmount: Math.floor(Math.random() * 100000) + 10000,
-    status: statuses[Math.floor(Math.random() * statuses.length)],
-    preparedBy: 'John Smith',
-    dateCreated: new Date(2024, 0, Math.floor(Math.random() * 28) + 1).toISOString(),
-  }));
-};
+const API_URL = import.meta.env.VITE_API_URL;
 
 const initialState = {
-  obligationRequests: generateMockObligationRequests(),
+  obligationRequests: [],
   obligationRequest: null,
   isLoading: false,
   error: null,
 };
 
 // Thunks for API calls
+
 export const fetchObligationRequests = createAsyncThunk(
-  'obligationRequests/fetchAll',
+  'obligationRequests/fetchObligationRequests',
   async (_, thunkAPI) => {
     try {
-      // Simulate API call
-      return new Promise((resolve) => {
-        setTimeout(() => {
-          resolve(generateMockObligationRequests());
-        }, 500);
+      const token = localStorage.getItem('token');
+
+      const response = await fetch(`${API_URL}/obligationRequest`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
       });
+
+      const res = await response.json();
+
+      if (!response.ok) {
+        throw new Error(res.message || 'Failed to fetch');
+      }
+
+      return res;
     } catch (error) {
       return thunkAPI.rejectWithValue(error.message);
     }
@@ -72,28 +59,53 @@ export const fetchObligationRequestById = createAsyncThunk(
   }
 );
 
+
 export const createObligationRequest = createAsyncThunk(
   'obligationRequests/create',
   async (obligationRequest, thunkAPI) => {
     try {
-      // Simulate API call
-      return new Promise((resolve) => {
-        setTimeout(() => {
-          const newRequest = {
-            ...obligationRequest,
-            id: Date.now(),
-            orsNumber: `ORS-2024-01-${String(Math.floor(Math.random() * 9000) + 1000)}`,
-            dateCreated: new Date().toISOString(),
-            status: 'Pending',
-          };
-          resolve(newRequest);
-        }, 500);
+      const response = await fetch(`${API_URL}/obligationRequest`, {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem('token')}`,
+        },
+        body: obligationRequest,
       });
+
+      const res = await response.json();
+
+      if (!response.ok) {
+        throw new Error(res.error || res.message || 'Failed to add');
+      }
+
+      return res;
     } catch (error) {
-      return thunkAPI.rejectWithValue(error.message);
+      return thunkAPI.rejectWithValue(error);
     }
   }
 );
+// export const createObligationRequest = createAsyncThunk(
+//   'obligationRequests/create',
+//   async (obligationRequest, thunkAPI) => {
+//     try {
+//       // Simulate API call
+//       return new Promise((resolve) => {
+//         setTimeout(() => {
+//           const newRequest = {
+//             ...obligationRequest,
+//             id: Date.now(),
+//             orsNumber: `ORS-2024-01-${String(Math.floor(Math.random() * 9000) + 1000)}`,
+//             dateCreated: new Date().toISOString(),
+//             status: 'Pending',
+//           };
+//           resolve(newRequest);
+//         }, 500);
+//       });
+//     } catch (error) {
+//       return thunkAPI.rejectWithValue(error.message);
+//     }
+//   }
+// );
 
 export const updateObligationRequest = createAsyncThunk(
   'obligationRequests/update',

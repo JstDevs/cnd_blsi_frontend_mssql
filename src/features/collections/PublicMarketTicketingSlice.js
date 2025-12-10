@@ -9,7 +9,7 @@ export const fetchPublicMarketTickets = createAsyncThunk(
   async (_, thunkAPI) => {
     try {
       const token = localStorage.getItem('token');
-      const response = await fetch(`${API_URL}/publicMarketTicketing`, {
+      const response = await fetch(`${API_URL}/public-market-ticketing`, {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',
@@ -35,7 +35,7 @@ export const fetchPublicMarketTicketById = createAsyncThunk(
   async (id, thunkAPI) => {
     try {
       const token = localStorage.getItem('token');
-      const response = await fetch(`${API_URL}/publicMarketTicketing/${id}`, {
+      const response = await fetch(`${API_URL}/public-market-ticketing/${id}`, {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',
@@ -61,7 +61,7 @@ export const addPublicMarketTicket = createAsyncThunk(
   async (ticketData, thunkAPI) => {
     try {
       const token = localStorage.getItem('token');
-      const response = await fetch(`${API_URL}/publicMarketTicketing`, {
+      const response = await fetch(`${API_URL}/public-market-ticketing/save`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -84,7 +84,7 @@ export const addPublicMarketTicket = createAsyncThunk(
 );
 
 export const updatePublicMarketTicket = createAsyncThunk(
-  'publicMarketTicketing/updatePublicMarketTicket',
+  'publicMarketTicketing/public-market-ticketing',
   async (ticketData, thunkAPI) => {
     try {
       const token = localStorage.getItem('token');
@@ -118,7 +118,7 @@ export const deletePublicMarketTicket = createAsyncThunk(
   async (id, thunkAPI) => {
     try {
       const token = localStorage.getItem('token');
-      const response = await fetch(`${API_URL}/publicMarketTicketing/${id}`, {
+      const response = await fetch(`${API_URL}/public-market-ticketing/${id}`, {
         method: 'DELETE',
         headers: {
           'Content-Type': 'application/json',

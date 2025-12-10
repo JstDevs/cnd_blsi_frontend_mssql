@@ -1,22 +1,25 @@
-import { useState, useEffect } from "react";
-import { useDispatch, useSelector } from "react-redux";
-import { PlusIcon, PencilIcon, TrashIcon } from "@heroicons/react/24/outline";
-import DataTable from "@/components/common/DataTable";
-import Modal from "@/components/common/Modal";
-import ProjectTypeForm from "@/components/forms/ProjectTypeForm";
+import { useState, useEffect } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import { PlusIcon, PencilIcon, TrashIcon } from '@heroicons/react/24/outline';
+import DataTable from '@/components/common/DataTable';
+import Modal from '@/components/common/Modal';
+import ProjectTypeForm from '@/components/forms/ProjectTypeForm';
 import {
   fetchProjectTypes,
   addProjectType,
   updateProjectType,
   deleteProjectType,
-} from "@/features/settings/projectTypesSlice";
+} from '@/features/settings/projectTypesSlice';
+import toast from 'react-hot-toast';
+import { useModulePermissions } from '@/utils/useModulePremission';
 
 function ProjectTypePage() {
   const dispatch = useDispatch();
   const { projectTypes, isLoading } = useSelector(
     (state) => state.projectTypes
   );
-
+  // ---------------------USE MODULE PERMISSIONS------------------START (Project Type Page  - MODULE ID = 87 )
+  const { Add, Edit, Delete } = useModulePermissions(87);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [currentProjectType, setCurrentProjectType] = useState(null);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
@@ -47,67 +50,81 @@ function ProjectTypePage() {
         await dispatch(deleteProjectType(projectTypeToDelete.ID)).unwrap();
         setIsDeleteModalOpen(false);
         setProjectTypeToDelete(null);
+        toast.success('Project type deleted successfully.');
       } catch (error) {
-        console.error("Failed to delete project type:", error);
+        console.error('Failed to delete project type:', error);
+        toast.error('Failed to delete project type. Please try again.');
       }
     }
   };
 
-  const handleSubmit = (values) => {
-    if (currentProjectType) {
-      dispatch(updateProjectType({ ...values, ID: currentProjectType.ID }));
-    } else {
-      dispatch(addProjectType(values));
+  const handleSubmit = async (values) => {
+    try {
+      if (currentProjectType) {
+        await dispatch(
+          updateProjectType({ ...values, ID: currentProjectType.ID })
+        ).unwrap();
+        toast.success('Project type updated successfully.');
+      } else {
+        await dispatch(addProjectType(values)).unwrap();
+        toast.success('Project type added successfully.');
+      }
+      dispatch(fetchProjectTypes());
+      setIsModalOpen(false);
+    } catch (error) {
+      console.error('Failed to save project type:', error);
+      toast.error('Failed to save project type. Please try again.');
     }
-    setIsModalOpen(false);
   };
 
   const columns = [
     {
-      key: "Type",
-      header: "Type",
+      key: 'Type',
+      header: 'Type',
       sortable: true,
     },
     {
-      key: "Description",
-      header: "Description",
+      key: 'Description',
+      header: 'Description',
       sortable: true,
     },
   ];
 
   const actions = [
-    {
+    Edit && {
       icon: PencilIcon,
-      title: "Edit",
+      title: 'Edit',
       onClick: handleEdit,
       className:
-        "text-primary-600 hover:text-primary-900 p-1 rounded-full hover:bg-primary-50",
+        'text-primary-600 hover:text-primary-900 p-1 rounded-full hover:bg-primary-50',
     },
-    {
+    Delete && {
       icon: TrashIcon,
-      title: "Delete",
+      title: 'Delete',
       onClick: handleDelete,
       className:
-        "text-error-600 hover:text-error-900 p-1 rounded-full hover:bg-error-50",
+        'text-error-600 hover:text-error-900 p-1 rounded-full hover:bg-error-50',
     },
   ];
 
   return (
     <div>
       <div className="page-header">
-        <div className="flex justify-between items-center">
+        <div className="flex justify-between sm:items-center max-sm:flex-col gap-4">
           <div>
             <h1>Project Types</h1>
             <p>Manage project types</p>
           </div>
-          <button
-            type="button"
-            onClick={handleAdd}
-            className="btn btn-primary flex items-center"
-          >
-            <PlusIcon className="h-5 w-5 mr-2" aria-hidden="true" />
-            Add Project Type
-          </button>
+          {Add && (
+            <button
+              type="button"
+              onClick={handleAdd}
+              className="btn btn-primary max-sm:w-full"
+            >
+              <PlusIcon className="h-5 w-5 mr-2" aria-hidden="true" />
+              Add Project Type
+            </button>
+          )}
         </div>
       </div>
 
@@ -125,7 +142,7 @@ function ProjectTypePage() {
       <Modal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
-        title={currentProjectType ? "Edit Project Type" : "Add Project Type"}
+        title={currentProjectType ? 'Edit Project Type' : 'Add Project Type'}
       >
         <ProjectTypeForm
           initialData={currentProjectType}

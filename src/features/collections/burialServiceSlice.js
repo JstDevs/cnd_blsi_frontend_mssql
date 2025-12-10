@@ -10,7 +10,7 @@ export const fetchBurialRecords = createAsyncThunk(
     try {
       const token = localStorage.getItem('token');
 
-      const response = await fetch(`${API_URL}/burialRecord`, {
+      const response = await fetch(`${API_URL}/burialrecord`, {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',
@@ -37,7 +37,7 @@ export const fetchBurialRecordById = createAsyncThunk(
     try {
       const token = localStorage.getItem('token');
 
-      const response = await fetch(`${API_URL}/burialRecord/${id}`, {
+      const response = await fetch(`${API_URL}/burialrecord/${id}`, {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',
@@ -60,16 +60,15 @@ export const fetchBurialRecordById = createAsyncThunk(
 
 export const addBurialRecord = createAsyncThunk(
   'burialRecords/addBurialRecord',
-  async (burialRecord, thunkAPI) => {
+  async (burialrecord, thunkAPI) => {
     try {
       const token = localStorage.getItem('token');
-      const response = await fetch(`${API_URL}/burialRecord`, {
+      const response = await fetch(`${API_URL}/burialrecord`, {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/json',
           Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify(burialRecord),
+        body: burialrecord,
       });
 
       const res = await response.json();
@@ -87,18 +86,18 @@ export const addBurialRecord = createAsyncThunk(
 
 export const updateBurialRecord = createAsyncThunk(
   'burialRecords/updateBurialRecord',
-  async (burialRecord, thunkAPI) => {
+  async (burialrecord, thunkAPI) => {
     try {
       const token = localStorage.getItem('token');
       const response = await fetch(
-        `${API_URL}/burialRecord/${burialRecord.ID}`,
+        `${API_URL}/burialrecord/${burialrecord.ID}`,
         {
           method: 'PUT',
           headers: {
             'Content-Type': 'application/json',
             Authorization: `Bearer ${token}`,
           },
-          body: JSON.stringify(burialRecord),
+          body: JSON.stringify(burialrecord),
         }
       );
 
@@ -120,7 +119,7 @@ export const deleteBurialRecord = createAsyncThunk(
   async (id, thunkAPI) => {
     try {
       const token = localStorage.getItem('token');
-      const response = await fetch(`${API_URL}/burialRecord/${id}`, {
+      const response = await fetch(`${API_URL}/burialrecord/${id}`, {
         method: 'DELETE',
         headers: {
           'Content-Type': 'application/json',

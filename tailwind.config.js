@@ -1,9 +1,6 @@
 /** @type {import('tailwindcss').Config} */
 export default {
-  content: [
-    "./index.html",
-    "./src/**/*.{js,ts,jsx,tsx}",
-  ],
+  content: ['./index.html', './src/**/*.{js,ts,jsx,tsx}'],
   theme: {
     extend: {
       colors: {
@@ -17,7 +14,7 @@ export default {
           600: 'var(--color-primary-600)',
           700: 'var(--color-primary-700)',
           800: 'var(--color-primary-800)',
-          900: 'var(--color-primary-900)',
+          900: 'var(--color-primary-900)'
         },
         secondary: {
           50: 'var(--color-secondary-50)',
@@ -29,7 +26,7 @@ export default {
           600: 'var(--color-secondary-600)',
           700: 'var(--color-secondary-700)',
           800: 'var(--color-secondary-800)',
-          900: 'var(--color-secondary-900)',
+          900: 'var(--color-secondary-900)'
         },
         accent: {
           50: 'var(--color-accent-50)',
@@ -41,7 +38,7 @@ export default {
           600: 'var(--color-accent-600)',
           700: 'var(--color-accent-700)',
           800: 'var(--color-accent-800)',
-          900: 'var(--color-accent-900)',
+          900: 'var(--color-accent-900)'
         },
         success: {
           50: 'var(--color-success-50)',
@@ -53,7 +50,7 @@ export default {
           600: 'var(--color-success-600)',
           700: 'var(--color-success-700)',
           800: 'var(--color-success-800)',
-          900: 'var(--color-success-900)',
+          900: 'var(--color-success-900)'
         },
         warning: {
           50: 'var(--color-warning-50)',
@@ -65,7 +62,7 @@ export default {
           600: 'var(--color-warning-600)',
           700: 'var(--color-warning-700)',
           800: 'var(--color-warning-800)',
-          900: 'var(--color-warning-900)',
+          900: 'var(--color-warning-900)'
         },
         error: {
           50: 'var(--color-error-50)',
@@ -77,7 +74,7 @@ export default {
           600: 'var(--color-error-600)',
           700: 'var(--color-error-700)',
           800: 'var(--color-error-800)',
-          900: 'var(--color-error-900)',
+          900: 'var(--color-error-900)'
         },
         neutral: {
           50: 'var(--color-neutral-50)',
@@ -89,8 +86,8 @@ export default {
           600: 'var(--color-neutral-600)',
           700: 'var(--color-neutral-700)',
           800: 'var(--color-neutral-800)',
-          900: 'var(--color-neutral-900)',
-        },
+          900: 'var(--color-neutral-900)'
+        }
       },
       fontFamily: {
         sans: [
@@ -101,33 +98,34 @@ export default {
           'Roboto',
           'Helvetica Neue',
           'Arial',
-          'sans-serif',
-        ],
+          'sans-serif'
+        ]
       },
       boxShadow: {
         sm: '0 1px 2px 0 rgba(0, 0, 0, 0.05)',
-        DEFAULT: '0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06)',
+        DEFAULT:
+          '0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06)',
         md: '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)',
         lg: '0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)',
         xl: '0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)',
-        '2xl': '0 25px 50px -12px rgba(0, 0, 0, 0.25)',
+        '2xl': '0 25px 50px -12px rgba(0, 0, 0, 0.25)'
       },
       animation: {
         'fade-in': 'fadeIn 0.3s ease-in-out',
         'slide-in': 'slideIn 0.3s ease-in-out',
-        'spin-slow': 'spin 3s linear infinite',
+        'spin-slow': 'spin 3s linear infinite'
       },
       keyframes: {
         fadeIn: {
           '0%': { opacity: '0' },
-          '100%': { opacity: '1' },
+          '100%': { opacity: '1' }
         },
         slideIn: {
           '0%': { transform: 'translateY(10px)', opacity: '0' },
-          '100%': { transform: 'translateY(0)', opacity: '1' },
-        },
-      },
-    },
+          '100%': { transform: 'translateY(0)', opacity: '1' }
+        }
+      }
+    }
   },
-  plugins: [],
+  plugins: [require('@tailwindcss/forms')]
 }

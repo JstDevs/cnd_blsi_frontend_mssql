@@ -1,27 +1,8 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
+const API_URL = import.meta.env.VITE_API_URL;
 
 // Mock data for initial development
-const mockDisbursementJournals = [
-  {
-    id: 1,
-    municipality: 'Sample Municipality',
-    funds: 'General Fund',
-    date: '2024-03-20',
-    checkNo: 'CHK-001',
-    voucherNo: 'DV-001',
-    jevNo: 'JEV-001',
-    claimant: 'John Doe',
-    particulars: 'Office Supplies',
-    accountCode: '1-01-01-010',
-    debit: 5000.00,
-    credit: 0.00,
-    approver: 'Jane Smith',
-    position: 'Department Head',
-    startDate: '2024-03-01',
-    endDate: '2024-03-31'
-  },
-  // Add more mock data as needed
-];
+const mockDisbursementJournals = []
 
 const initialState = {
   disbursementJournals: [],
@@ -32,47 +13,29 @@ const initialState = {
 // Async thunks
 export const fetchDisbursementJournals = createAsyncThunk(
   'disbursementJournal/fetchJournals',
-  async (filters) => {
-    // TODO: Replace with actual API call
-    // Mock data for demonstration
-    return [
-      {
-        id: 1,
-        municipality: 'Sample Municipality',
-        funds: 'General Fund',
-        date: '2024-03-20',
-        checkNo: 'CHK-001',
-        voucherNo: 'DV-001',
-        jevNo: 'JEV-001',
-        claimant: 'John Doe',
-        particulars: 'Office Supplies',
-        accountCode: '1-01-01-010',
-        debit: 5000,
-        credit: 0,
-        approver: 'Jane Smith',
-        position: 'Department Head',
-        startDate: '2024-03-01',
-        endDate: '2024-03-31',
-      },
-      {
-        id: 2,
-        municipality: 'Sample Municipality',
-        funds: 'Special Fund',
-        date: '2024-03-21',
-        checkNo: 'CHK-002',
-        voucherNo: 'DV-002',
-        jevNo: 'JEV-002',
-        claimant: 'Alice Johnson',
-        particulars: 'Equipment Purchase',
-        accountCode: '1-01-02-020',
-        debit: 15000,
-        credit: 0,
-        approver: 'Bob Wilson',
-        position: 'Department Head',
-        startDate: '2024-03-01',
-        endDate: '2024-03-31',
-      },
-    ];
+  async (filters, thunkAPI) => {
+    try {
+      const token = localStorage.getItem('token');
+
+      const response = await fetch(`${API_URL}/disbursementJournals/view`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify(filters),
+      });
+
+      const res = await response.json();
+
+      if (!response.ok) {
+        throw new Error(res.message || 'Failed to fetch');
+      }
+
+      return res;
+    } catch (error) {
+      return thunkAPI.rejectWithValue(error.message);
+    }
   }
 );
 

@@ -11,8 +11,9 @@ import subMajorAccountGroupReducer from '../features/settings/subMajorAccountGro
 import vendorReducer from '../features/settings/vendorSlice';
 import employeeReducer from '../features/settings/employeeSlice';
 import obligationRequestReducer from '../features/disbursement/obligationRequestSlice';
+import fundUtilizationReducer from '../features/disbursement/fundUtilizationSlice';
 import disbursementVoucherReducer from '../features/disbursement/disbursementVoucherSlice';
-import travelOrderReducer from '../features/disbursement/travelOrderSlice';
+import { travelOrderReducer } from '../features/disbursement/travelOrderSlice';
 import generalReceiptReducer from '../features/collections/generalReceiptSlice';
 import ppeReducer from '../features/settings/ppeSlice';
 import approvalMatrixReducer from '../features/settings/approvalMatrixSlice';
@@ -37,6 +38,7 @@ import { nationalityReducer } from '../features/settings/nationalitiesSlice';
 import { vendorCustomerTypesReducer } from '../features/settings/vendorCustomerTypeSlice';
 import { vendorTypesReducer } from '../features/settings/vendorTypeSlice';
 import { journalEntriesReducer } from '../features/disbursement/journalEntrySlice';
+import { purchaseRequestReducer } from '../features/disbursement/purchaseRequestSlice';
 import { taxDeclarationsReducer } from '../features/settings/taxDeclarationSlice';
 import { baseUnitsReducer } from '../features/settings/baseUnitSlice';
 import { regionsReducer } from '../features/settings/regionsSlice';
@@ -49,19 +51,29 @@ import { ppeCategoriesReducer } from '../features/settings/ppeCategoriesSlice';
 import { ppeSuppliersReducer } from '../features/settings/ppeSuppliersSlice';
 
 import { subFundsReducer } from '../features/budget/subFundsSlice';
+import budgetFundsSlice from '../features/budget/fundsSlice';
+import fundTransferReducer from '../features/budget/fundTransferSlice';
+import budgetTransferReducer from '../features/budget/budgetTransferSlice';
 import { budgetDashboardReducer } from '../features/budget/budgetDashboardSlice';
 import { vendorDetailsReducer } from '../features/settings/vendorDetailsSlice';
 import { customersReducer } from '../features/settings/customersSlice';
 
-import communityTaxReducer from '../features/communityTax/communityTaxSlice';
 import generalServiceReceiptsReducer from '../features/collections/generalServiceReceiptsSlice';
 import disbursementJournalReducer from '../features/disbursement/disbursementJournalSlice';
+import beginningBalanceSlice from '../features/disbursement/beginningBalanceSlice';
 import generalJournalReducer from '../features/disbursement/generalJournalSlice';
+import generalLedgerReducer from '../features/reports/generalLedgerSlice';
+import trialBalanceReducer from '../features/reports/trialBalanceSlice';
+import statementComparisonReducer from '../features/budget/statementComparisonSlice';
+import subsidiaryLedgerReducer from '../features/reports/subsidiaryLedgerSlice';
+import financialStatementReportsReducer from '../features/reports/financialStatementSlice';
 import realPropertyTaxReducer from '../features/collections/realPropertyTaxSlice';
 import budgetReducer from '../features/budget/budgetSlice';
 import { burialRecordsReducer } from '@/features/collections/burialServiceSlice';
 import { marriageRecordsReducer } from '@/features/collections/MarriageSlice';
 import { publicMarketTicketingReducer } from '@/features/collections/PublicMarketTicketingSlice';
+import { communityTaxReducer } from '@/features/collections/CommunityTaxSlice';
+import { corporateCommunityTaxReducer } from '@/features/collections/CoorporateCommunityTax';
 // import { publicMarketTicketingReducer } from '@/features/collections/PublicMarketTicketingSlice';
 
 export const store = configureStore({
@@ -78,9 +90,10 @@ export const store = configureStore({
     vendors: vendorReducer,
     employees: employeeReducer,
     obligationRequests: obligationRequestReducer,
+    fundUtilizations: fundUtilizationReducer,
     disbursementVouchers: disbursementVoucherReducer,
     travelOrders: travelOrderReducer,
-    generalReceipts: generalReceiptReducer,
+
     ppes: ppeReducer,
     ppeCategories: ppeCategoriesReducer,
     ppeSuppliers: ppeSuppliersReducer,
@@ -106,6 +119,7 @@ export const store = configureStore({
     vendorCustomerTypes: vendorCustomerTypesReducer,
     vendorTypes: vendorTypesReducer,
     journalEntries: journalEntriesReducer,
+    purchaseRequests: purchaseRequestReducer,
     taxDeclarations: taxDeclarationsReducer,
     baseUnits: baseUnitsReducer,
     regions: regionsReducer,
@@ -114,19 +128,31 @@ export const store = configureStore({
     barangays: barangaysReducer,
     generalRevisions: generalRevisionsReducer,
     modules: modulesReducer,
-    communityTax: communityTaxReducer,
     generalServiceReceipts: generalServiceReceiptsReducer,
     disbursementJournal: disbursementJournalReducer,
+    beginningBalance: beginningBalanceSlice,
     generalJournal: generalJournalReducer,
-    realPropertyTax: realPropertyTaxReducer,
+    generalLedger: generalLedgerReducer,
+    trialBalance: trialBalanceReducer,
+    statementComparison: statementComparisonReducer,
+    subsidiaryLedger: subsidiaryLedgerReducer,
+    financialStatementsReports: financialStatementReportsReducer,
+    // ----------------BUDGET SLICES---------------------
+    fundTransfer: fundTransferReducer,
+    budgetTransfer: budgetTransferReducer,
     budget: budgetReducer,
     subFunds: subFundsReducer,
+    funds: budgetFundsSlice,
     budgetDashboard: budgetDashboardReducer,
     vendorDetails: vendorDetailsReducer,
     // ----------------COLLECTION SLICE-------------
     burialRecords: burialRecordsReducer,
     marriageRecords: marriageRecordsReducer,
     publicMarketTicketing: publicMarketTicketingReducer,
+    communityTax: communityTaxReducer,
+    corporateCommunityTax: corporateCommunityTaxReducer,
+    generalReceipts: generalReceiptReducer,
+    realPropertyTax: realPropertyTaxReducer,
     customers: customersReducer,
   },
   middleware: (getDefaultMiddleware) =>

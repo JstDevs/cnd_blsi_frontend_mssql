@@ -1,20 +1,21 @@
-import React, { useState, useEffect } from "react";
-import { useDispatch, useSelector } from "react-redux";
-import { useFormik } from "formik";
-import * as Yup from "yup";
-import { Building } from "lucide-react";
-import FormField from "../../components/common/FormField";
-import { fetchBarangays } from "../../features/settings/barangaysSlice";
-import { fetchMunicipalities } from "../../features/settings/municipalitiesSlice";
-import { fetchProvinces } from "../../features/settings/provincesSlice";
-import { fetchRegions } from "../../features/settings/regionsSlice";
-
+import React, { useState, useEffect } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import { useFormik } from 'formik';
+import * as Yup from 'yup';
+import { Building } from 'lucide-react';
+import FormField from '../../components/common/FormField';
+import { fetchBarangays } from '../../features/settings/barangaysSlice';
+import { fetchMunicipalities } from '../../features/settings/municipalitiesSlice';
+import { fetchProvinces } from '../../features/settings/provincesSlice';
+import { fetchRegions } from '../../features/settings/regionsSlice';
+import toast from 'react-hot-toast';
+import { useModulePermissions } from '@/utils/useModulePremission';
 
 const LGUMaintenance = () => {
   const dispatch = useDispatch();
   const [logoFile, setLogoFile] = useState(null);
-
-
+  // ---------------------USE MODULE PERMISSIONS------------------START (PpeSuppliersPage - MODULE ID = 96 )
+  const { Edit } = useModulePermissions(58);
   useEffect(() => {
     dispatch(fetchBarangays());
     dispatch(fetchMunicipalities());
@@ -26,7 +27,6 @@ const LGUMaintenance = () => {
   const API_URL = import.meta.env.VITE_API_URL;
   const fetchLguData = async () => {
     try {
-
       const token = localStorage.getItem('token');
 
       const response = await fetch(`${API_URL}/lgu`, {
@@ -35,16 +35,35 @@ const LGUMaintenance = () => {
         },
       });
       if (!response.ok) {
-        throw new Error("Failed to fetch LGU data");
+        throw new Error('Failed to fetch LGU data');
       }
       const data = await response.json();
-      setLgu(data);
-      setImage(data.Logo || "https://placehold.co/150x150?text=LGU+Logo");
+      const extratedData = extraData(data);
+
+      setLgu(extratedData);
+      setImage(data.Logo || 'https://placehold.co/150x150?text=LGU+Logo');
     } catch (error) {
-      console.error("Error loading LGU data:", error);
+      console.error('Error loading LGU data:', error);
     }
   };
-
+  const extraData = (data) => {
+    const { BarangayID, MunicipalityID, ProvinceID, RegionID } = data;
+    const BarangayName = barangays.find(
+      (barangay) => barangay.ID === BarangayID
+    )?.Name;
+    const MunicipalityName = municipalities.find(
+      (municipality) => municipality.ID === MunicipalityID
+    )?.Name;
+    const ProvinceName = provinces.find(
+      (province) => province.ID === ProvinceID
+    )?.Name;
+    const RegionName = regions.find((region) => region.ID === RegionID)?.Name;
+    data.BarangayName = BarangayName;
+    data.MunicipalityName = MunicipalityName;
+    data.ProvinceName = ProvinceName;
+    data.RegionName = RegionName;
+    return data;
+  };
   // const updateLguData = async (values) => {
   //   try {
   //     const token = localStorage.getItem("token");
@@ -72,8 +91,8 @@ const LGUMaintenance = () => {
   //   }
   // };
   const updateLguData = async (values, file) => {
-  try {
-      const token = localStorage.getItem("token");
+    try {
+      const token = localStorage.getItem('token');
 
       const formData = new FormData();
       // Append fields
@@ -83,11 +102,11 @@ const LGUMaintenance = () => {
 
       // Append file (if selected)
       if (file) {
-        formData.append("Logo", file);
+        formData.append('Logo', file);
       }
 
       const response = await fetch(`${API_URL}/lgu/${values.ID}`, {
-        method: "PUT",
+        method: 'PUT',
         headers: {
           Authorization: `Bearer ${token}`,
           // Do not manually set Content-Type!
@@ -96,20 +115,18 @@ const LGUMaintenance = () => {
       });
 
       if (!response.ok) {
-        throw new Error("Failed to update LGU");
+        throw new Error('Failed to update LGU');
       }
 
       const updated = await response.json();
       setLgu(updated);
-      setImage(updated.Logo || "https://placehold.co/150x150?text=LGU+Logo");
+      setImage(updated.Logo || 'https://placehold.co/150x150?text=LGU+Logo');
       return true;
     } catch (error) {
-      console.error("Update error:", error);
+      console.error('Update error:', error);
       return false;
     }
   };
-
-
 
   const { barangays } = useSelector((state) => state.barangays);
   const { municipalities } = useSelector((state) => state.municipalities);
@@ -117,51 +134,59 @@ const LGUMaintenance = () => {
   const { regions } = useSelector((state) => state.regions);
 
   const [lgu, setLgu] = useState({
-    ID: "1",
-    Code: "",
-    Name: "",
-    TIN: "",
-    RDO: "",
-    StreetAddress: "",
-    BarangayName: "",
-    MunicipalityName: "",
-    ProvinceName: "",
-    RegionName: "",
-    ZIPCode: "",
-    PhoneNumber: "",
-    EmailAddress: "",
-    Website: "",
+    ID: '1',
+    Code: '',
+    Name: '',
+    TIN: '',
+    RDO: '',
+    StreetAddress: '',
+    BarangayName: '',
+    MunicipalityName: '',
+    ProvinceName: '',
+    RegionName: '',
+    ZIPCode: '',
+    PhoneNumber: '',
+    EmailAddress: '',
+    Website: '',
   });
 
-  const [image, setImage] = useState("https://placehold.co/150x150?text=LGU+Logo");
+  const [image, setImage] = useState(
+    'https://placehold.co/150x150?text=LGU+Logo'
+  );
   const [isEditing, setIsEditing] = useState(false);
 
   const validationSchema = Yup.object({
-    Code: Yup.string().required("Code is required"),
-    Name: Yup.string().required("Name is required"),
-    TIN: Yup.string().required("TIN is required"),
-    RDO: Yup.string().required("RDO is required"),
-    StreetAddress: Yup.string().required("Street Address is required"),
-    BarangayID: Yup.string().required("Barangay is required"),
-    MunicipalityID: Yup.string().required("Municipality is required"),
-    ProvinceID: Yup.string().required("Province is required"),
-    RegionID: Yup.string().required("Region is required"),
-    ZIPCode: Yup.string().required("Zip Code is required"),
-    PhoneNumber: Yup.string().required("Phone Number is required"),
-    EmailAddress: Yup.string().email("Invalid email").required("Email is required"),
-    Website: Yup.string().required("Website is required"),
+    Code: Yup.string().required('Code is required'),
+    Name: Yup.string().required('Name is required'),
+    TIN: Yup.string()
+      .required('TIN is required')
+      .matches(/^\d{14}$/, 'TIN must be exactly 14 digits'),
+    RDO: Yup.string().required('RDO is required'),
+    StreetAddress: Yup.string().required('Street Address is required'),
+    BarangayID: Yup.string().required('Barangay is required'),
+    MunicipalityID: Yup.string().required('Municipality is required'),
+    ProvinceID: Yup.string().required('Province is required'),
+    RegionID: Yup.string().required('Region is required'),
+    ZIPCode: Yup.string().required('Zip Code is required'),
+    PhoneNumber: Yup.number().required('Phone Number is required'),
+    EmailAddress: Yup.string()
+      .email('Invalid email')
+      .required('Email is required'),
+    Website: Yup.string().required('Website is required'),
   });
 
   const formik = useFormik({
     initialValues: lgu,
     validationSchema,
     enableReinitialize: true,
-    
+
     onSubmit: async (values, { setSubmitting }) => {
       // const success = await updateLguData(values);
       const success = await updateLguData(values, logoFile);
       if (success) {
         setIsEditing(false);
+        toast.success('LGU updated successfully');
+        fetchLguData();
       }
       setSubmitting(false);
     },
@@ -189,9 +214,138 @@ const LGUMaintenance = () => {
   //     reader.readAsDataURL(file);
   //   }
   // };
-
+  const rdos = [
+    '001',
+    '002',
+    '003',
+    '004',
+    '005',
+    '006',
+    '007',
+    '008',
+    '009',
+    '010',
+    '011',
+    '012',
+    '013',
+    '014',
+    '015',
+    '016',
+    '17A',
+    '17B',
+    '018',
+    '019',
+    '020',
+    '21A',
+    '21B',
+    '21C',
+    '022',
+    '23A',
+    '23B',
+    '024',
+    '25A',
+    '25B',
+    '026',
+    '027',
+    '028',
+    '029',
+    '030',
+    '031',
+    '032',
+    '033',
+    '034',
+    '035',
+    '036',
+    '037',
+    '038',
+    '038',
+    '039',
+    '040',
+    '041',
+    '042',
+    '043',
+    '044',
+    '045',
+    '046',
+    '047',
+    '048',
+    '049',
+    '050',
+    '051',
+    '052',
+    '53A',
+    '53B',
+    '54A',
+    '54B',
+    '055',
+    '056',
+    '057',
+    '058',
+    '059',
+    '060',
+    '061',
+    '062',
+    '063',
+    '064',
+    '065',
+    '066',
+    '067',
+    '068',
+    '069',
+    '070',
+    '071',
+    '072',
+    '073',
+    '074',
+    '075',
+    '076',
+    '077',
+    '078',
+    '079',
+    '080',
+    '081',
+    '082',
+    '083',
+    '084',
+    '085',
+    '086',
+    '087',
+    '088',
+    '089',
+    '090',
+    '091',
+    '092',
+    '93A',
+    '93B',
+    '094',
+    '095',
+    '096',
+    '097',
+    '098',
+    '099',
+    '100',
+    '101',
+    '102',
+    '103',
+    '104',
+    '105',
+    '106',
+    '107',
+    '108',
+    '109',
+    '110',
+    '111',
+    '112',
+    '113A',
+    '113B',
+    '114',
+    '115',
+  ].map((id, index) => ({
+    ID: index + 1,
+    Name: id,
+  }));
   return (
-    <div className="py-6 px-4">
+    <div className="sm:py-6 sm:px-4">
       <header className="mb-8">
         <h1 className="text-3xl font-bold text-blue-800">LGU Maintenance</h1>
         <p className="mt-2 text-gray-600">
@@ -206,7 +360,7 @@ const LGUMaintenance = () => {
             <Building className="h-5 w-5 mr-2 text-blue-600" />
             <h2 className="text-lg font-semibold">LGU Information</h2>
           </div>
-          {!isEditing && (
+          {Edit && !isEditing && (
             <button
               onClick={() => setIsEditing(true)}
               className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md transition-colors w-full sm:w-auto text-center"
@@ -216,7 +370,7 @@ const LGUMaintenance = () => {
           )}
         </div>
 
-        <div className="p-6">
+        <div className="p-3 sm:p-6">
           <div className="flex flex-col items-center mb-6">
             <img
               src={image}
@@ -228,7 +382,7 @@ const LGUMaintenance = () => {
                 type="file"
                 accept="image/*"
                 onChange={handleImageChange}
-                className="mt-2"
+                className="mt-2 w-full"
               />
             )}
           </div>
@@ -269,6 +423,8 @@ const LGUMaintenance = () => {
                 <FormField
                   label="RDO"
                   name="RDO"
+                  type="select"
+                  options={rdos.map((r) => ({ value: r.ID, label: r.Name }))}
                   value={formik.values.RDO}
                   onChange={formik.handleChange}
                   onBlur={formik.handleBlur}
@@ -295,7 +451,10 @@ const LGUMaintenance = () => {
                   onBlur={formik.handleBlur}
                   error={formik.errors.BarangayID}
                   touched={formik.touched.BarangayID}
-                  options={barangays.map((b) => ({ value: b.ID, label: b.Name }))}
+                  options={barangays.map((b) => ({
+                    value: b.ID,
+                    label: b.Name,
+                  }))}
                   required
                 />
 
@@ -308,7 +467,10 @@ const LGUMaintenance = () => {
                   onBlur={formik.handleBlur}
                   error={formik.errors.MunicipalityID}
                   touched={formik.touched.MunicipalityID}
-                  options={municipalities.map((m) => ({ value: m.ID, label: m.Name }))}
+                  options={municipalities.map((m) => ({
+                    value: m.ID,
+                    label: m.Name,
+                  }))}
                   required
                 />
 
@@ -321,7 +483,10 @@ const LGUMaintenance = () => {
                   onBlur={formik.handleBlur}
                   error={formik.errors.ProvinceID}
                   touched={formik.touched.ProvinceID}
-                  options={provinces.map((p) => ({ value: p.ID, label: p.Name }))}
+                  options={provinces.map((p) => ({
+                    value: p.ID,
+                    label: p.Name,
+                  }))}
                   required
                 />
 
@@ -397,26 +562,26 @@ const LGUMaintenance = () => {
                   className="btn btn-primary"
                   disabled={formik.isSubmitting}
                 >
-                  {formik.isSubmitting ? "Saving..." : "Save"}
+                  {formik.isSubmitting ? 'Saving...' : 'Save'}
                 </button>
               </div>
             </form>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {Object.entries({
-                Code: "LGU Code",
-                Name: "LGU Name",
-                TIN: "TIN",
-                RDO: "RDO",
-                StreetAddress: "Street Address",
-                BarangayName: "Barangay",
-                MunicipalityName: "Municipality",
-                ProvinceName: "Province",
-                RegionName: "Region",
-                ZIPCode: "ZIP Code",
-                PhoneNumber: "Phone Number",
-                EmailAddress: "Email Address",
-                Website: "Website",
+                Code: 'LGU Code',
+                Name: 'LGU Name',
+                TIN: 'TIN',
+                RDO: 'RDO',
+                StreetAddress: 'Street Address',
+                BarangayName: 'Barangay',
+                MunicipalityName: 'Municipality',
+                ProvinceName: 'Province',
+                RegionName: 'Region',
+                ZIPCode: 'ZIP Code',
+                PhoneNumber: 'Phone Number',
+                EmailAddress: 'Email Address',
+                Website: 'Website',
               }).map(([key, label]) => (
                 <div key={key} className="space-y-1">
                   <h3 className="text-sm font-medium text-gray-500">{label}</h3>

@@ -1,114 +1,100 @@
 import { useEffect, useState } from 'react';
 import FormField from '../../components/common/FormField';
 import { PieChart, Pie, Cell, Legend, ResponsiveContainer } from 'recharts';
+import { fetchDepartments } from '@/features/settings/departmentSlice';
+import { useDispatch, useSelector } from 'react-redux';
+import toast from 'react-hot-toast';
+import {
+  fetchObligationChart,
+  fetchTravelOrderChart,
+  fetchDisbursementChart,
+  fetchDisbursementAmounts,
+} from '../userProfile/profileUtil';
 
 const COLORS = ['#0088FE', '#00C49F', '#FF8042'];
 
-const mockAmounts = {
-  year: {
-    disbursed: 'PHP 10,00,00,000',
-    obligated: 'PHP 8,50,00,000'
-  },
-  month: {
-    disbursed: 'PHP 2,50,00,000',
-    obligated: 'PHP 2,00,00,000'
-  },
-  day: {
-    disbursed: 'PHP 10,00,000',
-    obligated: 'PHP 8,00,000'
-  }
-};
-
-const mockChartData = {
-  year: {
-    disbursement: [
-      { name: 'Posted', value: 80 },
-      { name: 'Rejected', value: 20 }
-    ],
-    obligation: [
-      { name: 'Posted', value: 60 },
-      { name: 'Requested', value: 30 },
-      { name: 'Rejected', value: 10 }
-    ],
-    travel: [
-      { name: 'Posted', value: 40 },
-      { name: 'Requested', value: 40 },
-      { name: 'Rejected', value: 20 }
-    ]
-  },
-  month: {
-    disbursement: [
-      { name: 'Posted', value: 70 },
-      { name: 'Rejected', value: 30 }
-    ],
-    obligation: [
-      { name: 'Posted', value: 50 },
-      { name: 'Requested', value: 40 },
-      { name: 'Rejected', value: 10 }
-    ],
-    travel: [
-      { name: 'Posted', value: 60 },
-      { name: 'Requested', value: 30 },
-      { name: 'Rejected', value: 10 }
-    ]
-  },
-  day: {
-    disbursement: [
-      { name: 'Posted', value: 90 },
-      { name: 'Rejected', value: 10 }
-    ],
-    obligation: [
-      { name: 'Posted', value: 55 },
-      { name: 'Requested', value: 35 },
-      { name: 'Rejected', value: 10 }
-    ],
-    travel: [
-      { name: 'Posted', value: 65 },
-      { name: 'Requested', value: 25 },
-      { name: 'Rejected', value: 10 }
-    ]
-  }
-};
-
+const timeOptions = [
+  { value: 'year', label: 'Year' },
+  { value: 'month', label: 'Month' },
+  { value: 'day', label: 'Day' },
+];
 function DisbursementDashboardPage() {
   const [timeframe1, setTimeframe1] = useState('year');
   const [department1, setDepartment1] = useState('');
   const [timeframe2, setTimeframe2] = useState('year');
   const [department2, setDepartment2] = useState('');
+  const [disbursedAmount, setDisbursedAmount] = useState('');
+  const [obligatedAmount, setObligatedAmount] = useState('');
 
-  const disbursed = mockAmounts[timeframe1]?.disbursed || '';
-  const obligated = mockAmounts[timeframe1]?.obligated || '';
+  const [chartData2, setChartData2] = useState({
+    disbursement: [],
+    obligation: [],
+    travel: [],
+  });
+  const dispatch = useDispatch();
+  const { departments } = useSelector((state) => state.departments);
 
-  const chartData = mockChartData[timeframe2];
+  useEffect(() => {
+    dispatch(fetchDepartments());
+  }, []);
 
-  const timeOptions = [
-    { value: 'year', label: 'Year' },
-    { value: 'month', label: 'Month' },
-    { value: 'day', label: 'Day' }
-  ];
+  // Load disbursed and obligated amounts when timeframe or department changes
+  useEffect(() => {
+    const loadAmounts = async () => {
+      try {
+        const [obligationRes, disbursementRes] = await Promise.all([
+          fetchDisbursementAmounts(
+            timeframe1,
+            'Obligation Request',
+            department1 === 'All' ? '' : department1
+          ),
+          fetchDisbursementAmounts(
+            timeframe1,
+            'Disbursement Voucher',
+            department1 === 'All' ? '' : department1
+          ),
+        ]);
+        setObligatedAmount(
+          `PHP ${parseFloat(obligationRes?.data?.total || 0).toLocaleString()}`
+        );
+        setDisbursedAmount(
+          `PHP ${parseFloat(
+            disbursementRes?.data?.total || 0
+          ).toLocaleString()}`
+        );
+      } catch (error) {
+        console.error('Error loading disbursement amounts:', error);
+        toast.error('Failed to load disbursement amounts');
+      }
+    };
 
-  const deptOptions = [
-    { value: 'dept1', label: 'Department A' },
-    { value: 'dept2', label: 'Department B' }
-  ];
+    loadAmounts();
+  }, [timeframe1, department1]);
+  // Load chart data when timeframe or department changes
+  useEffect(() => {
+    const loadCharts = async () => {
+      try {
+        const dep = department2 === 'All' ? '' : department2;
 
-  const renderPieCard = (title, data) => (
-    <div className="card p-4 h-full">
-      <h3 className="font-semibold text-lg mb-4">{title}</h3>
-      <div className="w-full h-64">
-        <ResponsiveContainer width="100%" height="100%">
-          <PieChart>
-            <Pie data={data} dataKey="value" nameKey="name" outerRadius="80%" label>
-              {data.map((entry, index) => (
-                <Cell key={index} fill={COLORS[index % COLORS.length]} />
-              ))}
-            </Pie>
-            <Legend />
-          </PieChart>
-        </ResponsiveContainer>
-      </div>
-    </div>
-  );
+        const [obligationRes, travelRes, disbursementRes] = await Promise.all([
+          fetchObligationChart(timeframe2, dep),
+          fetchTravelOrderChart(timeframe2, dep),
+          fetchDisbursementChart(timeframe2, dep),
+        ]);
+
+        setChartData2({
+          obligation: obligationRes?.data || [],
+          travel: travelRes?.data || [],
+          disbursement: disbursementRes?.data || [],
+        });
+      } catch (error) {
+        console.error('Error loading chart data:', error);
+        toast.error('Failed to load chart data');
+      }
+    };
+
+    loadCharts();
+  }, [timeframe2, department2]);
 
   return (
     <div>
@@ -122,25 +108,34 @@ function DisbursementDashboardPage() {
           label="Timeframe"
           type="select"
           value={timeframe1}
-          onChange={e => setTimeframe1(e.target.value)}
+          onChange={(e) => setTimeframe1(e.target.value)}
           options={timeOptions}
         />
         <FormField
           label="Department"
+          name="Department"
           type="select"
           value={department1}
-          onChange={e => setDepartment1(e.target.value)}
-          options={deptOptions}
+          onChange={(e) => {
+            const selectedDepartmentId =
+              e.target.value === 'All Departments' ? 'All' : e.target.value;
+            setDepartment1(selectedDepartmentId);
+          }}
+          options={[
+            ...departments?.map((d) => ({ value: d.ID, label: d.Name })),
+            { value: 'All Departments', label: 'All Departments' },
+          ]}
+          required
         />
       </div>
 
       {/* Row 2 */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-6">
         <div className="card p-6 text-center text-lg font-medium text-primary-700">
-          Disbursed Amount: {disbursed}
+          Disbursed Amount: {disbursedAmount}
         </div>
         <div className="card p-6 text-center text-lg font-medium text-amber-700">
-          Obligated Amount: {obligated}
+          Obligated Amount: {obligatedAmount}
         </div>
       </div>
 
@@ -152,26 +147,58 @@ function DisbursementDashboardPage() {
           label="Timeframe"
           type="select"
           value={timeframe2}
-          onChange={e => setTimeframe2(e.target.value)}
+          onChange={(e) => setTimeframe2(e.target.value)}
           options={timeOptions}
         />
         <FormField
           label="Department"
+          name="Department"
           type="select"
-          value={department2}
-          onChange={e => setDepartment2(e.target.value)}
-          options={deptOptions}
+          value={department1}
+          onChange={(e) => {
+            const selectedDepartmentId =
+              e.target.value === 'All Departments' ? 'All' : e.target.value;
+            setDepartment2(selectedDepartmentId);
+          }}
+          options={[
+            ...departments?.map((d) => ({ value: d.ID, label: d.Name })),
+            { value: 'All Departments', label: 'All Departments' },
+          ]}
+          required
         />
       </div>
 
       {/* Row 4 */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-6">
-        {renderPieCard('Disbursement', chartData.disbursement)}
-        {renderPieCard('Obligation', chartData.obligation)}
-        {renderPieCard('Travel', chartData.travel)}
+        {renderPieCard('Disbursement', [chartData2?.disbursement])}
+        {renderPieCard('Obligation', [chartData2?.obligation])}
+        {renderPieCard('Travel', [chartData2?.travel])}
       </div>
     </div>
   );
 }
 
 export default DisbursementDashboardPage;
+const renderPieCard = (title, data) => (
+  <div className="card p-4 h-full">
+    <h3 className="font-semibold text-lg mb-4">{title}</h3>
+    <div className="w-full h-64">
+      <ResponsiveContainer width="100%" height="100%">
+        <PieChart>
+          <Pie
+            data={data}
+            dataKey="value"
+            nameKey="name"
+            outerRadius="80%"
+            label
+          >
+            {data?.map((entry, index) => (
+              <Cell key={index} fill={COLORS[index % COLORS.length]} />
+            ))}
+          </Pie>
+          <Legend />
+        </PieChart>
+      </ResponsiveContainer>
+    </div>
+  </div>
+);

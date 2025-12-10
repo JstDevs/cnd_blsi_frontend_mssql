@@ -1,48 +1,48 @@
-import { useState, useEffect } from "react";
-import { useDispatch, useSelector } from "react-redux";
+import { useState, useEffect } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
 import { fetchPpeCategories } from '../../../features/settings/ppeCategoriesSlice';
 import { fetchPpeSuppliers } from '../../../features/settings/ppeSuppliersSlice';
-import { Formik, Form } from "formik";
-import * as Yup from "yup";
-import FormField from "../../../components/common/FormField";
+import { Formik, Form } from 'formik';
+import * as Yup from 'yup';
+import FormField from '../../../components/common/FormField';
 import {
   addPPE,
   updatePPE,
   addCategory,
   addSupplier,
-} from "../../../features/settings/ppeSlice";
+  fetchPPEs,
+} from '../../../features/settings/ppeSlice';
+import toast from 'react-hot-toast';
 
 const PPE_SCHEMA = Yup.object().shape({
-  CategoryID: Yup.string().required("Category is required"),
-  Description: Yup.string().required("Description is required"),
+  CategoryID: Yup.string().required('Category is required'),
+  Description: Yup.string().required('Description is required'),
   DepreciationRate: Yup.number()
-    .typeError("Must be a number")
-    .required("Depreciation Rate is required"),
+    .typeError('Must be a number')
+    .required('Depreciation Rate is required'),
   DepreciationValue: Yup.number()
-    .typeError("Must be a number")
-    .required("Depreciation Value is required"),
+    .typeError('Must be a number')
+    .required('Depreciation Value is required'),
   NetBookValue: Yup.number()
-    .typeError("Must be a number")
-    .required("Net Book Value is required"),
-  SupplierID: Yup.string().required("Supplier is required"),
-  PPENumber: Yup.string()
-    .required("PPE Number is required"),
-  Unit: Yup.string().required("Unit is required"),
-  Barcode: Yup.string()
-    .required("Barcode is required"),
+    .typeError('Must be a number')
+    .required('Net Book Value is required'),
+  SupplierID: Yup.string().required('Supplier is required'),
+  PPENumber: Yup.string().required('PPE Number is required'),
+  Unit: Yup.string().required('Unit is required'),
+  Barcode: Yup.string().required('Barcode is required'),
   Quantity: Yup.number()
-    .typeError("Must be a number")
-    .required("Quantity is required"),
-  Cost: Yup.number().typeError("Must be a number").required("Cost is required"),
-  DateAcquired: Yup.string().required("Date acquired is required"),
+    .typeError('Must be a number')
+    .required('Quantity is required'),
+  Cost: Yup.number().typeError('Must be a number').required('Cost is required'),
+  DateAcquired: Yup.string().required('Date acquired is required'),
   EstimatedUsefulLife: Yup.number()
-    .typeError("Must be a number")
-    .required("Estimated useful life is required"),
-  PONumber: Yup.string().required("PO Number is required"),
-  PRNumber: Yup.string().required("PR Number is required"),
-  InvoiceNumber: Yup.string().required("Invoice Number is required"),
-  AIRNumber: Yup.string().required("AIR Number is required"),
-  RISNumber: Yup.string().required("RIS Number is required"),
+    .typeError('Must be a number')
+    .required('Estimated useful life is required'),
+  PONumber: Yup.string().required('PO Number is required'),
+  PRNumber: Yup.string().required('PR Number is required'),
+  InvoiceNumber: Yup.string().required('Invoice Number is required'),
+  AIRNumber: Yup.string().required('AIR Number is required'),
+  RISNumber: Yup.string().required('RIS Number is required'),
   Remarks: Yup.string(),
 });
 
@@ -50,8 +50,8 @@ function PPEForm({ initialData, onClose }) {
   const dispatch = useDispatch();
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const { ppeSuppliers } = useSelector(state => state.ppeSuppliers);
-  const { ppeCategories } = useSelector(state => state.ppeCategories);
+  const { ppeSuppliers } = useSelector((state) => state.ppeSuppliers);
+  const { ppeCategories } = useSelector((state) => state.ppeCategories);
   useEffect(() => {
     dispatch(fetchPpeCategories());
     dispatch(fetchPpeSuppliers());
@@ -60,25 +60,25 @@ function PPEForm({ initialData, onClose }) {
   const initialValues = initialData
     ? { ...initialData }
     : {
-        CategoryID: "",
-        Description: "",
-        DepreciationRate: "",
-        DepreciationValue: "",
-        NetBookValue: "",
-        SupplierID: "",
-        PPENumber: "",
-        Unit: "",
-        Barcode: "",
-        Quantity: "",
-        Cost: "",
-        DateAcquired: "",
+        CategoryID: '',
+        Description: '',
+        DepreciationRate: '',
+        DepreciationValue: '',
+        NetBookValue: '',
+        SupplierID: '',
+        PPENumber: '',
+        Unit: '',
+        Barcode: '',
+        Quantity: '',
+        Cost: '',
+        DateAcquired: '',
         EstimatedUsefulLife: 1,
-        PONumber: "",
-        PRNumber: "",
-        InvoiceNumber: "",
-        AIRNumber: "",
-        RISNumber: "",
-        Remarks: "",
+        PONumber: '',
+        PRNumber: '',
+        InvoiceNumber: '',
+        AIRNumber: '',
+        RISNumber: '',
+        Remarks: '',
       };
 
   const handleSubmit = (values) => {
@@ -90,10 +90,15 @@ function PPEForm({ initialData, onClose }) {
     dispatch(action)
       .unwrap()
       .then(() => {
+        initialData
+          ? toast.success('PPE updated successfully')
+          : toast.success('PPE Added successfully');
+        dispatch(fetchPPEs());
         onClose();
       })
       .catch((error) => {
-        console.error("Error submitting PPE:", error);
+        console.error('Error submitting PPE:', error);
+        toast.error('Failed to submit PPE. Please try again.');
       })
       .finally(() => {
         setIsSubmitting(false);
@@ -130,9 +135,9 @@ function PPEForm({ initialData, onClose }) {
                 onChange={handleChange}
                 error={errors.CategoryID}
                 touched={touched.CategoryID}
-                options={ppeCategories.map(cat => ({
+                options={ppeCategories.map((cat) => ({
                   value: cat.ID,
-                  label: cat.Name
+                  label: cat.Name,
                 }))}
               />
             </div>
@@ -201,9 +206,9 @@ function PPEForm({ initialData, onClose }) {
                 onChange={handleChange}
                 error={errors.SupplierID}
                 touched={touched.SupplierID}
-                options={ppeSuppliers.map(supplier => ({
+                options={ppeSuppliers.map((supplier) => ({
                   value: supplier.ID,
-                  label: supplier.Name
+                  label: supplier.Name,
                 }))}
               />
             </div>

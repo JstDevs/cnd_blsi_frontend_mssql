@@ -2,11 +2,39 @@ import React, { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import DisbursementJournalForm from '../../components/forms/DisbursementJournalForm';
 import DataTable from '../../components/common/DataTable';
-import { fetchDisbursementJournals, exportDisbursementJournals } from '../../features/disbursement/disbursementJournalSlice';
+import {
+  fetchDisbursementJournals,
+  resetDisbursementJournalState,
+} from '../../features/disbursement/disbursementJournalSlice';
+import { fetchAccounts } from '../../features/settings/chartOfAccountsSlice';
+import { fetchFunds } from '../../features/budget/fundsSlice';
+import axiosInstance from '@/utils/axiosInstance';
+import toast from 'react-hot-toast';
 
 function DisbursementJournalPage() {
+  const API_URL = import.meta.env.VITE_API_URL;
+
   const dispatch = useDispatch();
-  const { disbursementJournals, isLoading, error } = useSelector(state => state.disbursementJournal);
+  const { disbursementJournals, isLoading, error } = useSelector(
+    (state) => state.disbursementJournal
+  );
+  const chartOfAccounts = useSelector(
+    (state) => state.chartOfAccounts?.accounts || []
+  );
+  const { funds } = useSelector((state) => state.funds);
+
+  const disbursementTypes = [
+    { value: 'Check', label: 'Check' },
+    { value: 'Collection', label: 'Collection' },
+    { value: 'Cash', label: 'Cash' },
+    { value: 'General', label: 'General' },
+  ];
+
+  useEffect(() => {
+    dispatch(resetDisbursementJournalState()); // Reset state on mount
+    dispatch(fetchAccounts());
+    dispatch(fetchFunds());
+  }, [dispatch]);
 
   // Format currency for display
   const formatCurrency = (amount) => {
@@ -19,97 +47,141 @@ function DisbursementJournalPage() {
   // Table columns definition
   const columns = [
     {
-      key: 'municipality',
+      key: 'Municipality',
       header: 'Municipality',
       sortable: true,
     },
     {
-      key: 'funds',
+      key: 'Funds',
       header: 'Funds',
       sortable: true,
     },
     {
-      key: 'date',
+      key: 'Date',
       header: 'Date',
       sortable: true,
       render: (value) => new Date(value).toLocaleDateString(),
     },
     {
-      key: 'checkNo',
+      key: 'CheckNo',
       header: 'Check No.',
       sortable: true,
     },
     {
-      key: 'voucherNo',
+      key: 'VoucherNo',
       header: 'Voucher No.',
       sortable: true,
     },
     {
-      key: 'jevNo',
+      key: 'JEVNo',
       header: 'JEV No.',
       sortable: true,
     },
     {
-      key: 'claimant',
+      key: 'Claimant',
       header: 'Claimant',
       sortable: true,
     },
     {
-      key: 'particulars',
+      key: 'Particulars',
       header: 'Particulars',
       sortable: true,
     },
     {
-      key: 'accountCode',
+      key: 'AccountCode',
       header: 'Account Code',
       sortable: true,
     },
     {
-      key: 'debit',
+      key: 'Debit',
       header: 'Debit',
       sortable: true,
       render: (value) => formatCurrency(value),
       className: 'text-right',
     },
     {
-      key: 'credit',
+      key: 'Credit',
       header: 'Credit',
       sortable: true,
       render: (value) => formatCurrency(value),
       className: 'text-right',
     },
     {
-      key: 'approver',
+      key: 'Approver',
       header: 'Approver',
       sortable: true,
     },
     {
-      key: 'position',
+      key: 'Position',
       header: 'Position',
       sortable: true,
     },
     {
-      key: 'startDate',
+      key: 'StartDate',
       header: 'Start Date',
       sortable: true,
       render: (value) => new Date(value).toLocaleDateString(),
     },
     {
-      key: 'endDate',
+      key: 'EndDate',
       header: 'End Date',
       sortable: true,
       render: (value) => new Date(value).toLocaleDateString(),
     },
   ];
 
-  // Handle form submission
-  const handleFormSubmit = (values) => {
-    dispatch(fetchDisbursementJournals(values));
+  // Handle export to Excel
+  const handleExport = async (values) => {
+    console.log({ values });
+    try {
+      const response = await fetch(
+        `${API_URL}/disbursementJournals/exportExcel`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${localStorage.getItem('token')}`,
+          },
+          body: JSON.stringify({
+            DisbursementType: values.DisbursementType,
+            DateStart: values.DateStart,
+            DateEnd: values.DateEnd,
+            FundID: values.FundID,
+            ChartOfAccountID: values.ChartOfAccountID,
+          }),
+        }
+      );
+      console.log(response);
+      if (!response.ok) throw new Error('Server response was not ok');
+
+      const blob = await response.blob();
+      const disposition = response.headers.get('Content-Disposition');
+      let filename = `Disbursement_Journals_${values.DisbursementType}.xlsx`;
+      if (disposition && disposition.includes('filename=')) {
+        filename = disposition.split('filename=')[1].replace(/['"]/g, '');
+      }
+
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+
+      // Optional: custom file name
+      link.download = filename;
+
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(url);
+    } catch (err) {
+      console.error('Export failed:', err);
+      toast.error(err.message || 'Failed to export disbursement journal');
+    }
   };
 
-  // Handle export to Excel
-  const handleExport = (values) => {
-    dispatch(exportDisbursementJournals(values));
+  // Handle view to Excel
+  const handleView = (values) => {
+    console.log(values);
+    dispatch(fetchDisbursementJournals(values));
   };
 
   return (
@@ -118,11 +190,14 @@ function DisbursementJournalPage() {
         <h1>Disbursement Journal</h1>
         <p>Generate disbursement journal reports.</p>
       </div>
-      
-      <div className="mt-4 p-6 bg-white rounded-md shadow">
-        <DisbursementJournalForm 
-          onSubmit={handleFormSubmit}
-          onExport={handleExport}
+
+      <div className="mt-4 p-3 sm:p-6 bg-white rounded-md shadow">
+        <DisbursementJournalForm
+          chartOfAccounts={chartOfAccounts}
+          funds={funds}
+          disbursementTypes={disbursementTypes}
+          onExportExcel={handleExport}
+          onView={handleView}
           onClose={() => {}}
         />
       </div>
@@ -145,4 +220,4 @@ function DisbursementJournalPage() {
   );
 }
 
-export default DisbursementJournalPage; 
+export default DisbursementJournalPage;

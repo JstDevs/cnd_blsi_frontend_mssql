@@ -8,12 +8,13 @@ import {
   fetchModules,
   addModule,
   updateModule,
-  deleteModule
+  deleteModule,
 } from '../../features/settings/modulesSlice';
+import toast from 'react-hot-toast';
 
 function ModulesPage() {
   const dispatch = useDispatch();
-  const { modules, isLoading } = useSelector(state => state.modules);
+  const { modules, isLoading } = useSelector((state) => state.modules);
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [currentModule, setCurrentModule] = useState(null);
@@ -31,6 +32,7 @@ function ModulesPage() {
 
   const handleEdit = (module) => {
     setCurrentModule(module);
+    console.log('Edit module:', module);
     setIsModalOpen(true);
   };
 
@@ -45,27 +47,41 @@ function ModulesPage() {
         await dispatch(deleteModule(moduleToDelete.ID)).unwrap();
         setIsDeleteModalOpen(false);
         setModuleToDelete(null);
+        toast.success('Module deleted successfully');
       } catch (error) {
         console.error('Failed to delete module:', error);
+        toast.error('Failed to delete module. Please try again.');
       }
     }
   };
 
-  const handleSubmit = (values) => {
-    if (currentModule) {
-      dispatch(updateModule({ ...values, ID: currentModule.ID }));
-    } else {
-      dispatch(addModule(values));
+  const handleSubmit = async (values) => {
+    try {
+      if (currentModule) {
+        await dispatch(
+          updateModule({ ...values, ID: currentModule.ID })
+        ).unwrap();
+        dispatch(fetchModules());
+        toast.success('Module updated successfully');
+      } else {
+        await dispatch(addModule(values)).unwrap();
+        dispatch(fetchModules());
+        toast.success('Module saved successfully');
+      }
+    } catch (error) {
+      console.error('Failed to save module:', error);
+      toast.error('Failed to save module. Please try again.');
+    } finally {
+      setIsModalOpen(false);
     }
-    setIsModalOpen(false);
   };
 
   const columns = [
     {
       key: 'Description',
       header: 'Name',
-      sortable: true
-    }
+      sortable: true,
+    },
   ];
 
   const actions = [
@@ -73,20 +89,22 @@ function ModulesPage() {
       icon: PencilIcon,
       title: 'Edit',
       onClick: handleEdit,
-      className: 'text-primary-600 hover:text-primary-900 p-1 rounded-full hover:bg-primary-50'
+      className:
+        'text-primary-600 hover:text-primary-900 p-1 rounded-full hover:bg-primary-50',
     },
     {
       icon: TrashIcon,
       title: 'Delete',
       onClick: handleDelete,
-      className: 'text-error-600 hover:text-error-900 p-1 rounded-full hover:bg-error-50'
-    }
+      className:
+        'text-error-600 hover:text-error-900 p-1 rounded-full hover:bg-error-50',
+    },
   ];
 
   return (
     <div>
       <div className="page-header">
-        <div className="flex justify-between items-center">
+        <div className="flex justify-between sm:items-center max-sm:flex-col gap-4">
           <div>
             <h1>Modules</h1>
             <p>Manage Modules</p>
@@ -94,7 +112,7 @@ function ModulesPage() {
           <button
             type="button"
             onClick={handleAdd}
-            className="btn btn-primary flex items-center"
+            className="btn btn-primary max-sm:w-full"
           >
             <PlusIcon className="h-5 w-5 mr-2" aria-hidden="true" />
             Add Module
@@ -116,7 +134,7 @@ function ModulesPage() {
       <Modal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
-        title={currentModule ? "Edit Module" : "Add Module"}
+        title={currentModule ? 'Edit Module' : 'Add Module'}
       >
         <ModulesForm
           initialData={currentModule}
@@ -133,7 +151,8 @@ function ModulesPage() {
       >
         <div className="py-3">
           <p className="text-neutral-700">
-            Are you sure you want to delete the module "{moduleToDelete?.name}"?
+            Are you sure you want to delete the module "
+            {moduleToDelete?.Description}"?
           </p>
           <p className="text-sm text-neutral-500 mt-2">
             This action cannot be undone.

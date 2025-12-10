@@ -10,17 +10,17 @@ const mockBeginningBalances = [
   {
     id: 1,
     fund: 'General Fund',
-    beginningBalance: 1000000.00,
+    beginningBalance: 1000000.0,
   },
   {
     id: 2,
     fund: 'Special Education Fund',
-    beginningBalance: 500000.00,
+    beginningBalance: 500000.0,
   },
   {
     id: 3,
     fund: 'Trust Fund',
-    beginningBalance: 250000.00,
+    beginningBalance: 250000.0,
   },
 ];
 
@@ -33,7 +33,9 @@ function BeginningBalancePage() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [currentBalance, setCurrentBalance] = useState(null);
   const [searchQuery, setSearchQuery] = useState('');
-  const [beginningBalances, setBeginningBalances] = useState(mockBeginningBalances);
+  const [beginningBalances, setBeginningBalances] = useState(
+    mockBeginningBalances
+  );
 
   useEffect(() => {
     // TODO: Implement actual data fetching
@@ -51,10 +53,10 @@ function BeginningBalancePage() {
   };
 
   const handleDeleteBalance = (balance) => {
-    if (window.confirm('Are you sure you want to delete this beginning balance entry?')) {
-      // TODO: Implement actual deletion
-      setBeginningBalances(prev => prev.filter(b => b.id !== balance.id));
-    }
+    // if (window.confirm('Are you sure you want to delete this beginning balance entry?')) {
+    // TODO: Implement actual deletion
+    setBeginningBalances((prev) => prev.filter((b) => b.id !== balance.id));
+    // }
   };
 
   const handleCloseModal = () => {
@@ -63,13 +65,14 @@ function BeginningBalancePage() {
   };
 
   // Filter data based on search query
-  const filteredData = beginningBalances.filter(balance =>
-    balance.fund.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    balance.beginningBalance.toString().includes(searchQuery)
+  const filteredData = beginningBalances.filter(
+    (balance) =>
+      balance.fund.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      balance.beginningBalance.toString().includes(searchQuery)
   );
 
   // DataTable columns
-  const columns = FIELDS.map(field => ({
+  const columns = FIELDS.map((field) => ({
     key: field.key,
     header: field.header,
     sortable: true,
@@ -82,13 +85,15 @@ function BeginningBalancePage() {
       icon: PencilIcon,
       title: 'Edit',
       onClick: handleEditBalance,
-      className: 'text-primary-600 hover:text-primary-900 p-1 rounded-full hover:bg-primary-50'
+      className:
+        'text-primary-600 hover:text-primary-900 p-1 rounded-full hover:bg-primary-50',
     },
     {
       icon: TrashIcon,
       title: 'Delete',
       onClick: handleDeleteBalance,
-      className: 'text-danger-600 hover:text-danger-900 p-1 rounded-full hover:bg-danger-50'
+      className:
+        'text-danger-600 hover:text-danger-900 p-1 rounded-full hover:bg-danger-50',
     },
   ];
 
@@ -122,27 +127,25 @@ function BeginningBalancePage() {
           />
         </div>
 
-        <DataTable
-          columns={columns}
-          data={filteredData}
-          actions={actions}
-        />
+        <DataTable columns={columns} data={filteredData} actions={actions} />
       </div>
 
       {/* Beginning Balance Form Modal */}
       <Modal
         isOpen={isModalOpen}
         onClose={handleCloseModal}
-        title={currentBalance ? "Edit Beginning Balance" : "Add Beginning Balance"}
+        title={
+          currentBalance ? 'Edit Beginning Balance' : 'Add Beginning Balance'
+        }
         size="md"
       >
-        <BeginningBalanceForm 
-          initialData={currentBalance} 
-          onClose={handleCloseModal} 
+        <BeginningBalanceForm
+          initialData={currentBalance}
+          onClose={handleCloseModal}
         />
       </Modal>
     </div>
   );
 }
 
-export default BeginningBalancePage; 
+export default BeginningBalancePage;

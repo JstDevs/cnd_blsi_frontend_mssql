@@ -72,7 +72,7 @@ const CommunityTaxPage = () => {
       </div>
 
       <div className="bg-white rounded-lg shadow-md p-6 mb-6">
-        <div className="flex flex-wrap items-start gap-4 mb-4">
+        <div className="flex gap-4 mb-4">
           <div className="flex-1">
             <div className="relative">
               <FiSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
@@ -85,13 +85,11 @@ const CommunityTaxPage = () => {
               />
             </div>
           </div>
-
-          <button className="flex items-center gap-2 px-4 py-2 border rounded-lg hover:bg-gray-50 whitespace-nowrap">
+          <button className="flex items-center gap-2 px-4 py-2 border rounded-lg hover:bg-gray-50">
             <FiFilter />
             Filter
           </button>
         </div>
-
 
         <DataTable
           columns={[

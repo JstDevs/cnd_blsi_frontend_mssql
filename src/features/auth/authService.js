@@ -1,60 +1,38 @@
-// Mock service for auth operations - replace with actual API calls
-// const login = async (username, password) => {
-//   // Simulating API call
-//   return new Promise((resolve, reject) => {
-//     setTimeout(() => {
-//       if (username === 'admin' && password === 'password') {
-//         const user = {
-//           id: 1,
-//           username: 'admin',
-//           firstName: 'Admin',
-//           lastName: 'User',
-//           email: 'admin@lgu.gov.ph',
-//           role: 'Administrator',
-//           department: 'Information Technology',
-//           permissions: ['all']
-//         };
-//         localStorage.setItem('token', 'mock-jwt-token');
-//         localStorage.setItem('user', JSON.stringify(user));
-//         resolve(user);
-//       } else {
-//         reject(new Error('Invalid username or password'));
-//       }
-//     }, 800);
-//   });
-// };
-
 const API_URL = import.meta.env.VITE_API_URL;
 const login = async (userName, password) => {
   try {
     const response = await fetch(`${API_URL}/auth/login`, {
       method: 'POST',
       headers: {
-        'Content-Type': 'application/json'
+        'Content-Type': 'application/json',
       },
-      body: JSON.stringify({ userName, password })
+      body: JSON.stringify({ userName, password }),
     });
 
     const res = await response.json();
     if (!response.ok || !res.token) {
       throw new Error(res.message || res.errors?.general || 'Login failed');
     }
-
+    // Set initial selected role
+    if (res.user.accessList?.length > 0) {
+      const defaultRole =
+        res.user.accessList.length >= 2
+          ? res.user.accessList[1]
+          : res.user.accessList[0];
+      localStorage.setItem('selectedRole', JSON.stringify(defaultRole));
+    }
     localStorage.setItem('token', res.token);
     localStorage.setItem('user', JSON.stringify(res.user));
     return res.user;
-  }
-  catch(error) {
+  } catch (error) {
     throw new Error(error.message);
   }
 };
 
-
-
-
 const logout = async () => {
   localStorage.removeItem('token');
   localStorage.removeItem('user');
+  localStorage.removeItem('selectedRole');
   return null;
 };
 
@@ -93,5 +71,5 @@ export default {
   login,
   logout,
   fetchUserProfile,
-  changePassword
+  changePassword,
 };

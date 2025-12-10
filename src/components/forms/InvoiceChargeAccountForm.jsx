@@ -4,25 +4,40 @@ import FormField from '../common/FormField';
 import { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchAccounts } from '../../features/settings/chartOfAccountsSlice';
+import { useModulePermissions } from '@/utils/useModulePremission';
 
 // Validation schema
 const invoiceChargeAccountSchema = Yup.object().shape({
-  MarriageServiceInvoice: Yup.string().required('Marriage Service Invoice account is required'),
-  BurialServiceInvoice: Yup.string().required('Burial Service Invoice account is required'),
+  MarriageServiceInvoice: Yup.string().required(
+    'Marriage Service Invoice account is required'
+  ),
+  BurialServiceInvoice: Yup.string().required(
+    'Burial Service Invoice account is required'
+  ),
   DueFromLGU: Yup.string().required('Due From LGU account is required'),
-  DueFromRate: Yup.number()
-    .required('Due From Rate is required'),
+  DueFromRate: Yup.number().required('Due From Rate is required'),
   DueToLGU: Yup.string().required('Due To LGU account is required'),
-  DueToRate: Yup.number()
-    .required('Due To Rate is required'),
-  RealPropertyTax: Yup.string().required('Real Property Tax account is required'),
-  RealPropertyTaxRate: Yup.number()
-    .required('Real Property Tax Rate is required'),
+  DueToRate: Yup.number().required('Due To Rate is required'),
+  RealPropertyTax: Yup.string().required(
+    'Real Property Tax account is required'
+  ),
+  RealPropertyTaxRate: Yup.number().required(
+    'Real Property Tax Rate is required'
+  ),
 });
 
-const InvoiceChargeAccountForm = ({ initialData, onClose, onSubmit, invoiceChargeAccounts = [] }) => {
+const InvoiceChargeAccountForm = ({
+  initialData,
+  // onClose,
+  onSubmit,
+  invoiceChargeAccounts = [],
+}) => {
   const dispatch = useDispatch();
-  const chartOfAccounts = useSelector(state => state.chartOfAccounts?.accounts || []);
+  const chartOfAccounts = useSelector(
+    (state) => state.chartOfAccounts?.accounts || []
+  );
+  // ---------------------USE MODULE PERMISSIONS------------------START (Invoice Charge Account Form  - MODULE ID = 54 )
+  const { Add } = useModulePermissions(54);
 
   useEffect(() => {
     dispatch(fetchAccounts());
@@ -70,15 +85,24 @@ const InvoiceChargeAccountForm = ({ initialData, onClose, onSubmit, invoiceCharg
         RealPropertyTax: accountMap.RealPropertyTax || '',
         RealPropertyTaxRate: accountMap.RealPropertyTaxRate || 0,
       }}
-
       validationSchema={invoiceChargeAccountSchema}
       onSubmit={onSubmit}
     >
-      {({ values, errors, touched, handleChange, handleBlur, isSubmitting }) => (
+      {({
+        values,
+        errors,
+        touched,
+        handleChange,
+        handleBlur,
+        isSubmitting,
+        resetForm,
+      }) => (
         <Form className="space-y-6">
           {/* Service Invoice Section */}
           <div className="space-y-4">
-            <h3 className="text-lg font-medium text-neutral-900">Charge Account of Service Invoice</h3>
+            <h3 className="text-lg font-medium text-neutral-900">
+              Charge Account of Service Invoice
+            </h3>
             <div className="grid grid-cols-1 gap-4">
               <FormField
                 label="Marriage Service Invoice"
@@ -90,7 +114,7 @@ const InvoiceChargeAccountForm = ({ initialData, onClose, onSubmit, invoiceCharg
                 onBlur={handleBlur}
                 error={errors.MarriageServiceInvoice}
                 touched={touched.MarriageServiceInvoice}
-                options={(chartOfAccounts || []).map(account => ({
+                options={(chartOfAccounts || []).map((account) => ({
                   value: account.ID,
                   label: account.Name,
                 }))}
@@ -105,7 +129,7 @@ const InvoiceChargeAccountForm = ({ initialData, onClose, onSubmit, invoiceCharg
                 onBlur={handleBlur}
                 error={errors.BurialServiceInvoice}
                 touched={touched.BurialServiceInvoice}
-                options={(chartOfAccounts || []).map(account => ({
+                options={(chartOfAccounts || []).map((account) => ({
                   value: account.ID,
                   label: account.Name,
                 }))}
@@ -115,12 +139,13 @@ const InvoiceChargeAccountForm = ({ initialData, onClose, onSubmit, invoiceCharg
 
           {/* Real Property Tax Shares Section */}
           <div className="space-y-4">
-            <h3 className="text-lg font-medium text-neutral-900">Real Property Tax Shares Settings</h3>
+            <h3 className="text-lg font-medium text-neutral-900">
+              Real Property Tax Shares Settings
+            </h3>
             <div className="grid grid-cols-1 gap-4">
-              
-              <div className="bg-neutral-50 p-4 rounded-lg space-y-4">
+              <div className="bg-neutral-50 p-2 sm:p-4 rounded-lg space-y-4">
                 <h4 className="font-medium text-neutral-700">Due to LGUs</h4>
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid sm:grid-cols-2 sm:gap-4">
                   <FormField
                     label="Account"
                     name="DueToLGU"
@@ -131,7 +156,7 @@ const InvoiceChargeAccountForm = ({ initialData, onClose, onSubmit, invoiceCharg
                     onBlur={handleBlur}
                     error={errors.DueToLGU}
                     touched={touched.DueToLGU}
-                    options={(chartOfAccounts || []).map(account => ({
+                    options={(chartOfAccounts || []).map((account) => ({
                       value: account.ID,
                       label: account.Name,
                     }))}
@@ -150,9 +175,11 @@ const InvoiceChargeAccountForm = ({ initialData, onClose, onSubmit, invoiceCharg
                 </div>
               </div>
 
-              <div className="bg-neutral-50 p-4 rounded-lg space-y-4">
-                <h4 className="font-medium text-neutral-700">Due From Local Government Units</h4>
-                <div className="grid grid-cols-2 gap-4">
+              <div className="bg-neutral-50 p-2 sm:p-4 rounded-lg space-y-4">
+                <h4 className="font-medium text-neutral-700">
+                  Due From Local Government Units
+                </h4>
+                <div className="grid sm:grid-cols-2 sm:gap-4">
                   <FormField
                     label="Account"
                     name="DueFromLGU"
@@ -163,7 +190,7 @@ const InvoiceChargeAccountForm = ({ initialData, onClose, onSubmit, invoiceCharg
                     onBlur={handleBlur}
                     error={errors.DueFromLGU}
                     touched={touched.DueFromLGU}
-                    options={(chartOfAccounts || []).map(account => ({
+                    options={(chartOfAccounts || []).map((account) => ({
                       value: account.ID,
                       label: account.Name,
                     }))}
@@ -181,14 +208,15 @@ const InvoiceChargeAccountForm = ({ initialData, onClose, onSubmit, invoiceCharg
                   />
                 </div>
               </div>
-
             </div>
           </div>
 
           {/* Special Education Fund Section */}
           <div className="space-y-4">
-            <h3 className="text-lg font-medium text-neutral-900">Special Education Funds</h3>
-            <div className="grid grid-cols-2 gap-4">
+            <h3 className="text-lg font-medium text-neutral-900">
+              Special Education Funds
+            </h3>
+            <div className="grid sm:grid-cols-2 sm:gap-4">
               <FormField
                 label="Real Property Tax"
                 name="RealPropertyTax"
@@ -199,7 +227,7 @@ const InvoiceChargeAccountForm = ({ initialData, onClose, onSubmit, invoiceCharg
                 onBlur={handleBlur}
                 error={errors.RealPropertyTax}
                 touched={touched.RealPropertyTax}
-                options={(chartOfAccounts || []).map(account => ({
+                options={(chartOfAccounts || []).map((account) => ({
                   value: account.ID,
                   label: account.Name,
                 }))}
@@ -222,18 +250,23 @@ const InvoiceChargeAccountForm = ({ initialData, onClose, onSubmit, invoiceCharg
           <div className="flex justify-end space-x-3 pt-4 border-t border-neutral-200">
             <button
               type="button"
-              onClick={onClose}
+              onClick={() => {
+                resetForm();
+                // onClose();
+              }}
               className="btn btn-outline"
             >
               Cancel
             </button>
-            <button
-              type="submit"
-              disabled={isSubmitting}
-              className="btn btn-primary"
-            >
-              Save
-            </button>
+            {Add && (
+              <button
+                type="submit"
+                disabled={isSubmitting}
+                className="btn btn-primary disabled:cursor-not-allowed disabled:opacity-50"
+              >
+                {isSubmitting ? 'Saving...' : 'Save'}
+              </button>
+            )}
           </div>
         </Form>
       )}
@@ -241,4 +274,4 @@ const InvoiceChargeAccountForm = ({ initialData, onClose, onSubmit, invoiceCharg
   );
 };
 
-export default InvoiceChargeAccountForm; 
+export default InvoiceChargeAccountForm;

@@ -1,22 +1,22 @@
-import { Fragment } from "react";
-import { Dialog, Transition } from "@headlessui/react";
-import { XMarkIcon } from "@heroicons/react/24/outline";
+import { Fragment } from 'react';
+import { Dialog, Transition } from '@headlessui/react';
+import { XMarkIcon } from '@heroicons/react/24/outline';
 
 function Modal({
   isOpen,
   onClose,
   title,
-  size = "md",
+  size = 'md',
   children,
   footer = null,
 }) {
   const sizeClasses = {
-    sm: "sm:max-w-lg",
-    md: "sm:max-w-xl",
-    lg: "sm:max-w-2xl",
-    xl: "sm:max-w-4xl",
-    xxxl: "sm:max-w-7xl",
-    full: "sm:max-w-full sm:h-screen",
+    sm: 'sm:max-w-lg',
+    md: 'sm:max-w-xl',
+    lg: 'sm:max-w-2xl',
+    xl: 'sm:max-w-4xl',
+    xxxl: 'sm:max-w-7xl',
+    full: 'sm:max-w-full sm:h-screen',
   };
 
   return (
@@ -26,7 +26,7 @@ function Modal({
         className="fixed inset-0 z-50 overflow-y-auto"
         onClose={onClose}
       >
-        <div className="flex items-center justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:p-0">
+        <div className="flex items-center justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:p-2">
           <Transition.Child
             as={Fragment}
             enter="ease-out duration-300"
@@ -57,7 +57,7 @@ function Modal({
             leaveTo="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
           >
             <div
-              className={`inline-block w-full align-bottom sm:align-middle bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 ${sizeClasses[size]}`}
+              className={`inline-block w-full align-bottom sm:align-middle bg-white rounded-lg text-left  shadow-xl transform transition-all sm:my-8 ${sizeClasses[size]}`}
             >
               {/* Modal header */}
               <div className="flex items-center justify-between px-6 py-4 border-b border-neutral-200">
@@ -78,7 +78,7 @@ function Modal({
               </div>
 
               {/* Modal content */}
-              <div className="px-6 py-4">{children}</div>
+              <div className="p-3 sm:px-6 sm:py-4">{children}</div>
 
               {/* Optional modal footer */}
               {footer && (

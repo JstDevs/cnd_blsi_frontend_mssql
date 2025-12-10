@@ -4,7 +4,10 @@ import FormField from '../common/FormField';
 
 function DocumentTypeCategoriesForm({ initialData, onSubmit, onClose }) {
   const validationSchema = Yup.object({
-    Name: Yup.string().required('Name is required'),
+    Name: Yup.string()
+      .trim()
+      .required('Name is required')
+      .min(1, 'Name cannot be empty or just spaces'),
   });
 
   const formik = useFormik({
@@ -32,11 +35,7 @@ function DocumentTypeCategoriesForm({ initialData, onSubmit, onClose }) {
       />
 
       <div className="flex justify-end space-x-3 pt-4 border-t border-neutral-200">
-        <button
-          type="button"
-          onClick={onClose}
-          className="btn btn-outline"
-        >
+        <button type="button" onClick={onClose} className="btn btn-outline">
           Cancel
         </button>
         <button

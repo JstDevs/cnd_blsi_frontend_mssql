@@ -1,50 +1,70 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
-
-// Generate mock DV data
-const generateMockDisbursementVouchers = () => {
-  const statuses = ['Pending Certification', 'Pending Approval', 'Approved for Payment', 'Paid', 'Cancelled'];
-  const departments = ['Office of the Mayor', 'Accounting Department', 'Treasury Department', 'IT Department'];
-  const paymentModes = ['Cash', 'Cheque', 'Bank Transfer'];
-
-  return Array.from({ length: 10 }, (_, i) => ({
-    id: i + 1,
-    dvNumber: `DV-2024-01-${String(i + 1).padStart(4, '0')}`,
-    dvDate: new Date(2024, 0, Math.floor(Math.random() * 28) + 1).toISOString().split('T')[0],
-    payeeName: `Vendor ${i + 1}`,
-    particulars: 'Payment for office supplies and equipment',
-    orsNumber: `ORS-2024-01-${String(i + 1).padStart(4, '0')}`,
-    modeOfPayment: paymentModes[Math.floor(Math.random() * paymentModes.length)],
-    department: departments[Math.floor(Math.random() * departments.length)],
-    grossAmount: Math.floor(Math.random() * 100000) + 10000,
-    totalDeductions: Math.floor(Math.random() * 5000),
-    netAmount: 0, // Will be calculated
-    status: statuses[Math.floor(Math.random() * statuses.length)],
-    preparedBy: 'John Smith',
-    dateCreated: new Date(2024, 0, Math.floor(Math.random() * 28) + 1).toISOString(),
-  })).map(dv => ({
-    ...dv,
-    netAmount: dv.grossAmount - dv.totalDeductions
-  }));
-};
+const API_URL = import.meta.env.VITE_API_URL;
 
 const initialState = {
-  disbursementVouchers: generateMockDisbursementVouchers(),
+  disbursementVouchers: [],
   disbursementVoucher: null,
   isLoading: false,
   error: null,
+  requestOptions: [],
+  requestOptionsLoading: false,
+  requestOptionsError: null,
 };
 
 // Thunks for API calls
+export const fetchRequestOptions = createAsyncThunk(
+  'disbursementVouchers/fetchRequestOptions',
+  async ({ requestType, payeeType, payeeId }, thunkAPI) => {
+    try {
+      const token = localStorage.getItem('token');
+
+      const url =
+        `${API_URL}/disbursementVoucher/selectListForDV` +
+        `?type=${encodeURIComponent(payeeType)}` +
+        `&requestType=${encodeURIComponent(requestType)}` +
+        `&id=${payeeId}`;
+
+      const response = await fetch(url, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(
+          data.error || data.message || 'Failed to fetch request options'
+        );
+      }
+
+      // Map once for react‑select
+      return data;
+    } catch (err) {
+      return thunkAPI.rejectWithValue(err.message);
+    }
+  }
+);
+
 export const fetchDisbursementVouchers = createAsyncThunk(
-  'disbursementVouchers/fetchAll',
+  'disbursementVouchers/fetchDisbursementVouchers',
   async (_, thunkAPI) => {
     try {
-      // Simulate API call
-      return new Promise((resolve) => {
-        setTimeout(() => {
-          resolve(generateMockDisbursementVouchers());
-        }, 500);
+      const token = localStorage.getItem('token');
+
+      const response = await fetch(`${API_URL}/disbursementVoucher`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
       });
+
+      const res = await response.json();
+
+      if (!response.ok) {
+        throw new Error(res.message || 'Failed to fetch');
+      }
+
+      return res;
     } catch (error) {
       return thunkAPI.rejectWithValue(error.message);
     }
@@ -59,9 +79,11 @@ export const fetchDisbursementVoucherById = createAsyncThunk(
       return new Promise((resolve, reject) => {
         setTimeout(() => {
           const state = thunkAPI.getState();
-          const voucher = state.disbursementVouchers.disbursementVouchers.find(dv => dv.id === id);
-          if (voucher) {
-            resolve(voucher);
+          const request = state.disbursementVouchers.disbursementVouchers.find(
+            (ors) => ors.id === id
+          );
+          if (request) {
+            resolve(request);
           } else {
             reject(new Error('Disbursement voucher not found'));
           }
@@ -77,21 +99,23 @@ export const createDisbursementVoucher = createAsyncThunk(
   'disbursementVouchers/create',
   async (disbursementVoucher, thunkAPI) => {
     try {
-      // Simulate API call
-      return new Promise((resolve) => {
-        setTimeout(() => {
-          const newVoucher = {
-            ...disbursementVoucher,
-            id: Date.now(),
-            dvNumber: `DV-2024-01-${String(Math.floor(Math.random() * 9000) + 1000)}`,
-            dateCreated: new Date().toISOString(),
-            status: 'Pending Certification',
-          };
-          resolve(newVoucher);
-        }, 500);
+      const response = await fetch(`${API_URL}/disbursementVoucher/save`, {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem('token')}`,
+        },
+        body: disbursementVoucher,
       });
+
+      const res = await response.json();
+
+      if (!response.ok) {
+        throw new Error(res.error || res.message || 'Failed to add');
+      }
+
+      return res;
     } catch (error) {
-      return thunkAPI.rejectWithValue(error.message);
+      return thunkAPI.rejectWithValue(error);
     }
   }
 );
@@ -175,9 +199,22 @@ const disbursementVoucherSlice = createSlice({
       .addCase(updateDisbursementVoucher.rejected, (state, action) => {
         state.isLoading = false;
         state.error = action.payload;
+      })
+      .addCase(fetchRequestOptions.pending, (state) => {
+        state.requestOptionsLoading = true;
+        state.requestOptionsError = null;
+      })
+      .addCase(fetchRequestOptions.fulfilled, (state, action) => {
+        state.requestOptionsLoading = false;
+        state.requestOptions = action.payload;
+      })
+      .addCase(fetchRequestOptions.rejected, (state, action) => {
+        state.requestOptionsLoading = false;
+        state.requestOptionsError = action.payload;
       });
   },
 });
 
-export const { resetDisbursementVoucherState } = disbursementVoucherSlice.actions;
+export const { resetDisbursementVoucherState } =
+  disbursementVoucherSlice.actions;
 export default disbursementVoucherSlice.reducer;

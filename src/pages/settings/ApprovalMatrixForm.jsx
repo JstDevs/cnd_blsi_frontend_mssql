@@ -7,6 +7,7 @@ import { fetchDocumentDetails } from '@/features/settings/documentDetailsSlice';
 import { fetchPositions } from '@/features/settings/positionSlice';
 import { fetchEmployees } from '@/features/settings/employeeSlice';
 import { TrashIcon } from '@heroicons/react/24/outline';
+import toast from 'react-hot-toast';
 
 const sequenceLevels = [
   { value: '1 - First', label: '1 - First' },
@@ -26,7 +27,9 @@ const schema = Yup.object().shape({
 });
 
 function ApprovalMatrixForm({ initialData, onClose, onSubmit }) {
-  const [approvalRule, setApprovalRule] = useState(initialData?.AllorMajority || 'ALL');
+  const [approvalRule, setApprovalRule] = useState(
+    initialData?.AllorMajority || 'ALL'
+  );
 
   const dispatch = useDispatch();
   const { documentDetails } = useSelector((state) => state.documentDetails);
@@ -46,36 +49,50 @@ function ApprovalMatrixForm({ initialData, onClose, onSubmit }) {
     NumberofApprover: '',
   };
 
-const [approvers, setApprovers] = useState(initialData?.approvers || [
-  { type: 'Position', value: '', amountFrom: '', amountTo: '' }
-]);
+  const [approvers, setApprovers] = useState(
+    initialData?.approvers || [
+      { type: 'Position', value: '', amountFrom: '', amountTo: '' },
+    ]
+  );
 
+  const addApprover = () => {
+    setApprovers([
+      ...approvers,
+      { type: 'Position', value: '', amountFrom: '', amountTo: '', errors: {} },
+    ]);
+  };
 
-const addApprover = () => {
-  setApprovers([
-    ...approvers,
-    { type: 'Position', value: '', amountFrom: '', amountTo: '', errors: {} },
-  ]);
-};
+  const removeApprover = (index) => {
+    const updated = [...approvers];
+    updated.splice(index, 1);
+    setApprovers(updated);
+  };
 
-const removeApprover = (index) => {
-  const updated = [...approvers];
-  updated.splice(index, 1);
-  setApprovers(updated);
-};
-
-const updateApprover = (index, newItem) => {
-  const updated = [...approvers];
-  updated[index] = newItem;
-  setApprovers(updated);
-};
-
+  const updateApprover = (index, newItem) => {
+    const updated = [...approvers];
+    updated[index] = newItem;
+    setApprovers(updated);
+  };
 
   return (
     <Formik
       initialValues={initialValues}
       validationSchema={schema}
       onSubmit={(values, { setSubmitting }) => {
+        if (
+          !values.DocumentTypeID ||
+          values.SequenceLevel === '' ||
+          approvalRule === '' ||
+          approvers.length === 0 ||
+          approvers.some((a) => !a.value) ||
+          approvers.some((a) => !a.type) ||
+          approvers.some((a) => !a.amountFrom) ||
+          approvers.some((a) => !a.amountTo)
+        ) {
+          toast.error('Please Select All Required Fields');
+          setSubmitting(false);
+          return;
+        }
         const transformedApprovers = approvers.map((a) => ({
           PositionorEmployee: a.type,
           PositionorEmployeeID: a.value,
@@ -94,8 +111,7 @@ const updateApprover = (index, newItem) => {
       }}
       enableReinitialize
     >
-
-    {/* <Formik
+      {/* <Formik
       initialValues={initialValues}
       validationSchema={schema}
       onSubmit={(values) => {
@@ -108,7 +124,15 @@ const updateApprover = (index, newItem) => {
       }}
       enableReinitialize
     > */}
-      {({ values, errors, touched, handleChange, handleBlur, setFieldValue, isSubmitting }) => (
+      {({
+        values,
+        errors,
+        touched,
+        handleChange,
+        handleBlur,
+        setFieldValue,
+        isSubmitting,
+      }) => (
         <Form className="space-y-4">
           <FormField
             className="p-3 focus:outline-none"
@@ -121,7 +145,10 @@ const updateApprover = (index, newItem) => {
             onBlur={handleBlur}
             error={errors.DocumentTypeID}
             touched={touched.DocumentTypeID}
-            options={documentDetails.map((doc) => ({ value: doc.ID, label: doc.Name }))}
+            options={documentDetails.map((doc) => ({
+              value: doc.ID,
+              label: doc.Name,
+            }))}
           />
           <FormField
             className="p-3 focus:outline-none"
@@ -137,7 +164,9 @@ const updateApprover = (index, newItem) => {
             options={sequenceLevels}
           />
           <div>
-            <label className="form-label">Approval Rule <span className="text-error-500">*</span></label>
+            <label className="form-label">
+              Approval Rule <span className="text-error-500">*</span>
+            </label>
             <div className="flex items-center space-x-4 p-3">
               <label className="flex items-center space-x-2">
                 <input
@@ -170,143 +199,173 @@ const updateApprover = (index, newItem) => {
                 >
                   <option value="">Select</option>
                   {Array.from({ length: 10 }, (_, i) => (
-                    <option key={i + 1} value={i + 1}>{i + 1}</option>
+                    <option key={i + 1} value={i + 1}>
+                      {i + 1}
+                    </option>
                   ))}
                 </select>
               </label>
             </div>
           </div>
-          
 
           {/* APPROVERS SECTION */}
-<div>
-  <label className="form-label mb-2">Approvers <span className="text-error-500">*</span></label>
-  {approvers.map((item, index) => (
-    <div key={index}>
-      <div className="flex flex-col gap-4 mb-4 border p-4 rounded-md relative">
-        {/* First Row: Radio + Select + Remove */}
-        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-          <div className="flex items-center space-x-4">
-            <label className="flex items-center space-x-2">
-              <input
-                type="radio"
-                name={`approverType-${index}`}
-                value="Position"
-                checked={item.type === 'Position'}
-                onChange={() =>
-                  updateApprover(index, {
-                    type: 'Position',
-                    value: '',
-                    amountFrom: '',
-                    amountTo: '',
-                    errors: {},
-                  })
-                }
-                className="form-radio"
-              />
-              <span>Position</span>
+          <div>
+            <label className="form-label mb-2">
+              Approvers <span className="text-error-500">*</span>
             </label>
-            <label className="flex items-center space-x-2">
-              <input
-                type="radio"
-                name={`approverType-${index}`}
-                value="Employee"
-                checked={item.type === 'Employee'}
-                onChange={() =>
-                  updateApprover(index, {
-                    type: 'Employee',
-                    value: '',
-                    amountFrom: '',
-                    amountTo: '',
-                    errors: {},
-                  })
-                }
-                className="form-radio"
-              />
-              <span>Employee</span>
-            </label>
-          </div>
+            {approvers.map((item, index) => (
+              <div key={index}>
+                <div className="flex flex-col gap-4 mb-4 border p-4 rounded-md relative">
+                  {/* First Row: Radio + Select + Remove */}
+                  <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+                    <div className="flex items-center space-x-4">
+                      <label className="flex items-center space-x-2">
+                        <input
+                          type="radio"
+                          name={`approverType-${index}`}
+                          value="Position"
+                          checked={item.type === 'Position'}
+                          onChange={() =>
+                            updateApprover(index, {
+                              type: 'Position',
+                              value: '',
+                              amountFrom: '',
+                              amountTo: '',
+                              errors: {},
+                            })
+                          }
+                          className="form-radio"
+                        />
+                        <span>Position</span>
+                      </label>
+                      <label className="flex items-center space-x-2">
+                        <input
+                          type="radio"
+                          name={`approverType-${index}`}
+                          value="Employee"
+                          checked={item.type === 'Employee'}
+                          onChange={() =>
+                            updateApprover(index, {
+                              type: 'Employee',
+                              value: '',
+                              amountFrom: '',
+                              amountTo: '',
+                              errors: {},
+                            })
+                          }
+                          className="form-radio"
+                        />
+                        <span>Employee</span>
+                      </label>
+                    </div>
 
-          <div className="w-full md:w-1/3">
-            <select
-              className="w-full p-2 border rounded"
-              value={item.value}
-              onChange={(e) =>
-                updateApprover(index, { ...item, value: e.target.value })
-              }
-            >
-              <option value="">Select</option>
-              {(item.type === 'Position' ? positions : employees).map((opt) => (
-                <option key={opt.ID} value={opt.ID}>
-                  {item.type === 'Position'
-                    ? opt.Name
-                    : `${opt.FirstName} ${opt.MiddleName} ${opt.LastName}`}
-                </option>
-              ))}
-            </select>
-            {item.errors?.value && (
-              <p className="text-red-500 text-sm mt-1">{item.errors.value}</p>
-            )}
-          </div>
+                    <div className="w-full md:w-1/3">
+                      <select
+                        className="w-full p-2 border rounded pr-8"
+                        value={item.value}
+                        onChange={(e) =>
+                          updateApprover(index, {
+                            ...item,
+                            value: e.target.value,
+                          })
+                        }
+                      >
+                        <option value="">Select</option>
+                        {(item.type === 'Position' ? positions : employees).map(
+                          (opt) => (
+                            <option key={opt.ID} value={opt.ID}>
+                              {item.type === 'Position'
+                                ? opt.Name
+                                : `${opt.FirstName} ${opt.MiddleName} ${opt.LastName}`}
+                            </option>
+                          )
+                        )}
+                      </select>
+                      {item.errors?.value && (
+                        <p className="text-red-500 text-sm mt-1">
+                          {item.errors.value}
+                        </p>
+                      )}
+                    </div>
 
-          {approvers.length > 1 && (
+                    {approvers.length > 1 && (
+                      <button
+                        type="button"
+                        onClick={() => removeApprover(index)}
+                        className="btn btn-sm btn-error text-red-500"
+                      >
+                        <TrashIcon className="h-5 w-5" />
+                      </button>
+                    )}
+                  </div>
+
+                  {/* Second Row: Amounts */}
+                  <div className="flex flex-col md:flex-row gap-4">
+                    <div className="w-full md:w-1/2">
+                      <input
+                        type="number"
+                        placeholder="Amount From"
+                        className="w-full p-2 border rounded"
+                        value={item.amountFrom}
+                        onChange={(e) =>
+                          updateApprover(index, {
+                            ...item,
+                            amountFrom: e.target.value,
+                          })
+                        }
+                      />
+                      {item.errors?.amountFrom && (
+                        <p className="text-red-500 text-sm mt-1">
+                          {item.errors.amountFrom}
+                        </p>
+                      )}
+                    </div>
+                    <div className="w-full md:w-1/2">
+                      <input
+                        type="number"
+                        placeholder="Amount To"
+                        className="w-full p-2 border rounded"
+                        value={item.amountTo}
+                        onChange={(e) =>
+                          updateApprover(index, {
+                            ...item,
+                            amountTo: e.target.value,
+                          })
+                        }
+                      />
+                      {item.errors?.amountTo && (
+                        <p className="text-red-500 text-sm mt-1">
+                          {item.errors.amountTo}
+                        </p>
+                      )}
+                    </div>
+                  </div>
+                </div>
+                {index < approvers.length - 1 && (
+                  <hr className="mb-4 border-gray-300" />
+                )}
+              </div>
+            ))}
             <button
               type="button"
-              onClick={() => removeApprover(index)}
-              className="btn btn-sm btn-error text-red-500"
+              className="btn btn-outline"
+              onClick={addApprover}
             >
-              <TrashIcon className="h-5 w-5" />
+              + Add More
             </button>
-          )}
-        </div>
-
-        {/* Second Row: Amounts */}
-        <div className="flex flex-col md:flex-row gap-4">
-          <div className="w-full md:w-1/2">
-            <input
-              type="number"
-              placeholder="Amount From"
-              className="w-full p-2 border rounded"
-              value={item.amountFrom}
-              onChange={(e) =>
-                updateApprover(index, { ...item, amountFrom: e.target.value })
-              }
-            />
-            {item.errors?.amountFrom && (
-              <p className="text-red-500 text-sm mt-1">{item.errors.amountFrom}</p>
-            )}
           </div>
-          <div className="w-full md:w-1/2">
-            <input
-              type="number"
-              placeholder="Amount To"
-              className="w-full p-2 border rounded"
-              value={item.amountTo}
-              onChange={(e) =>
-                updateApprover(index, { ...item, amountTo: e.target.value })
-              }
-            />
-            {item.errors?.amountTo && (
-              <p className="text-red-500 text-sm mt-1">{item.errors.amountTo}</p>
-            )}
-          </div>
-        </div>
-      </div>
-      {index < approvers.length - 1 && <hr className="mb-4 border-gray-300" />}
-    </div>
-  ))}
-  <button type="button" className="btn btn-outline" onClick={addApprover}>
-    + Add More
-  </button>
-</div>
-
-
-
-
 
           <div className="flex justify-end space-x-3 pt-4 border-t border-neutral-200">
-            <button type="button" onClick={onClose} className="btn btn-outline">Cancel</button>
-            <button type="submit" className="btn btn-primary" disabled={isSubmitting}>Save</button>
+            <button type="button" onClick={onClose} className="btn btn-outline">
+              Cancel
+            </button>
+            <button
+              type="submit"
+              className="btn btn-primary"
+              disabled={isSubmitting}
+            >
+              Save
+            </button>
           </div>
         </Form>
       )}
@@ -314,4 +373,4 @@ const updateApprover = (index, newItem) => {
   );
 }
 
-export default ApprovalMatrixForm; 
+export default ApprovalMatrixForm;

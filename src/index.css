@@ -85,6 +85,17 @@ body {
   @apply bg-neutral-50 text-neutral-900 font-sans antialiased min-h-screen;
 }
 
+input[type='text'],
+input[type='date'],
+select,
+textarea {
+  @apply focus:ring-blue-500 focus:border-blue-500 block w-full sm:text-sm border-gray-300 rounded-md;
+}
+
+.btn {
+  @apply inline-flex items-center justify-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500;
+}
+
 .form-input {
   @apply mt-1 block w-full rounded-md border-neutral-300 shadow-sm focus:ring-opacity-50;
 }
@@ -103,10 +114,6 @@ body {
 
 .form-radio {
   @apply border-neutral-300 text-primary-600 shadow-sm focus:ring-opacity-50;
-}
-
-.btn {
-  @apply px-4 py-2 rounded-md text-sm font-medium focus:outline-none focus:ring-2 focus:ring-offset-2 transition duration-150 ease-in-out;
 }
 
 .btn-primary {
@@ -134,7 +141,7 @@ body {
 }
 
 .btn-outline {
-  @apply bg-transparent border border-neutral-300 text-neutral-700 hover:bg-neutral-50 focus:ring-primary-500;
+  @apply bg-transparent border border-neutral-300 text-neutral-700 hover:bg-neutral-100 focus:ring-primary-500;
 }
 
 .card {
@@ -225,7 +232,7 @@ body {
 }
 
 .active-menu-item::after {
-  content: "";
+  content: '';
   position: absolute;
   right: 0;
   top: 50%;

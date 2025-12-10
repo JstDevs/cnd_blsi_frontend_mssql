@@ -1,25 +1,25 @@
-import { useState } from "react";
-import { Formik } from "formik";
-import * as Yup from "yup";
-import { PlusIcon, PencilIcon, TrashIcon } from "@heroicons/react/24/outline";
-import Modal from "@/components/common/Modal";
-import FormField from "@/components/common/FormField";
-import DataTable from "@/components/common/DataTable";
+import { useState } from 'react';
+import { Formik } from 'formik';
+import * as Yup from 'yup';
+import { PlusIcon, PencilIcon, TrashIcon } from '@heroicons/react/24/outline';
+import Modal from '@/components/common/Modal';
+import FormField from '@/components/common/FormField';
+import DataTable from '@/components/common/DataTable';
 
 const sampleProjects = [
   {
-    title: "Project A",
-    type: "Type A",
-    description: "This is Project A.",
-    startDate: "2024-08-30",
-    endDate: "2024-12-25",
+    title: 'Project A',
+    type: 'Type A',
+    description: 'This is Project A.',
+    startDate: '2024-08-30',
+    endDate: '2024-12-25',
   },
   {
-    title: "Project B",
-    type: "Type B",
-    description: "This is Project B.",
-    startDate: "2024-08-30",
-    endDate: "2024-12-31",
+    title: 'Project B',
+    type: 'Type B',
+    description: 'This is Project B.',
+    startDate: '2024-08-30',
+    endDate: '2024-12-31',
   },
 ];
 
@@ -39,7 +39,9 @@ function ProjectDetails() {
   };
 
   const handleDelete = (projectToDelete) => {
-    setProjects((prev) => prev.filter((p) => p.title !== projectToDelete.title));
+    setProjects((prev) =>
+      prev.filter((p) => p.title !== projectToDelete.title)
+    );
   };
 
   const handleFormSubmit = (values, { setSubmitting }) => {
@@ -55,34 +57,36 @@ function ProjectDetails() {
   };
 
   const columns = [
-    { key: "title", header: "Title", sortable: true },
-    { key: "type", header: "Type", sortable: true },
-    { key: "description", header: "Description" },
-    { key: "startDate", header: "Start Date" },
-    { key: "endDate", header: "End Date" },
+    { key: 'title', header: 'Title', sortable: true },
+    { key: 'type', header: 'Type', sortable: true },
+    { key: 'description', header: 'Description' },
+    { key: 'startDate', header: 'Start Date' },
+    { key: 'endDate', header: 'End Date' },
   ];
 
   const actions = [
     {
       icon: PencilIcon,
-      title: "Edit",
+      title: 'Edit',
       onClick: handleEdit,
-      className: "text-primary-600 hover:text-primary-900 p-1 rounded-full hover:bg-primary-50",
+      className:
+        'text-primary-600 hover:text-primary-900 p-1 rounded-full hover:bg-primary-50',
     },
     {
       icon: TrashIcon,
-      title: "Delete",
+      title: 'Delete',
       onClick: handleDelete,
-      className: "text-error-600 hover:text-error-900 p-1 rounded-full hover:bg-error-50",
+      className:
+        'text-error-600 hover:text-error-900 p-1 rounded-full hover:bg-error-50',
     },
   ];
 
   const validationSchema = Yup.object({
-    title: Yup.string().required("Title is required"),
-    type: Yup.string().required("Type is required"),
-    description: Yup.string().required("Description is required"),
-    startDate: Yup.string().required("Start date is required"),
-    endDate: Yup.string().required("End date is required"),
+    title: Yup.string().required('Title is required'),
+    type: Yup.string().required('Type is required'),
+    description: Yup.string().required('Description is required'),
+    startDate: Yup.string().required('Start date is required'),
+    endDate: Yup.string().required('End date is required'),
   });
 
   return (
@@ -117,16 +121,16 @@ function ProjectDetails() {
       <Modal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
-        title={selectedProject ? "Edit Project" : "Add Project"}
+        title={selectedProject ? 'Edit Project' : 'Add Project'}
       >
         <Formik
           enableReinitialize
           initialValues={{
-            title: selectedProject?.title || "",
-            type: selectedProject?.type || "",
-            description: selectedProject?.description || "",
-            startDate: selectedProject?.startDate || "",
-            endDate: selectedProject?.endDate || "",
+            title: selectedProject?.title || '',
+            type: selectedProject?.type || '',
+            description: selectedProject?.description || '',
+            startDate: selectedProject?.startDate || '',
+            endDate: selectedProject?.endDate || '',
           }}
           validationSchema={validationSchema}
           onSubmit={handleFormSubmit}
@@ -158,8 +162,8 @@ function ProjectDetails() {
                 name="type"
                 type="select"
                 options={[
-                  { label: "Type A", value: "Type A" },
-                  { label: "Type B", value: "Type B" },
+                  { label: 'Type A', value: 'Type A' },
+                  { label: 'Type B', value: 'Type B' },
                 ]}
                 value={values.type}
                 onChange={handleChange}
@@ -221,7 +225,7 @@ function ProjectDetails() {
                   className="btn btn-primary"
                   disabled={isSubmitting}
                 >
-                  {selectedProject ? "Update" : "Create"}
+                  {selectedProject ? 'Update' : 'Create'}
                 </button>
               </div>
             </form>

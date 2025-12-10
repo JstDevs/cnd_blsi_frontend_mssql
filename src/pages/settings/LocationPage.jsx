@@ -36,7 +36,15 @@ import {
   updateBarangay,
   deleteBarangay,
 } from '../../features/settings/barangaysSlice';
-
+import toast from 'react-hot-toast';
+import { useModulePermissions } from '@/utils/useModulePremission';
+// Define module IDs for each location type
+const locationModuleIds = {
+  region: 71,
+  province: 67,
+  municipality: 61,
+  barangay: 19,
+};
 function LocationPage() {
   const [activeTab, setActiveTab] = useState('region');
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -44,12 +52,19 @@ function LocationPage() {
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [locationToDelete, setLocationToDelete] = useState(null);
 
+  const pluralLabels = {
+    region: 'Regions',
+    province: 'Provinces',
+    municipality: 'Municipalities',
+    barangay: 'Barangays',
+  };
+
   const dispatch = useDispatch();
 
-  const { regions } = useSelector(state => state.regions);
-  const { provinces } = useSelector(state => state.provinces);
-  const { municipalities } = useSelector(state => state.municipalities);
-  const { barangays } = useSelector(state => state.barangays);
+  const { regions } = useSelector((state) => state.regions);
+  const { provinces } = useSelector((state) => state.provinces);
+  const { municipalities } = useSelector((state) => state.municipalities);
+  const { barangays } = useSelector((state) => state.barangays);
 
   useEffect(() => {
     dispatch(fetchRegions());
@@ -70,6 +85,29 @@ function LocationPage() {
         return barangaySchema;
       default:
         return regionSchema;
+    }
+  };
+  // Get permissions for each location type
+  const regionPermissions = useModulePermissions(locationModuleIds.region);
+  const provincePermissions = useModulePermissions(locationModuleIds.province);
+  const municipalityPermissions = useModulePermissions(
+    locationModuleIds.municipality
+  );
+  const barangayPermissions = useModulePermissions(locationModuleIds.barangay);
+
+  // Helper to get current permissions
+  const getPermissions = () => {
+    switch (activeTab) {
+      case 'region':
+        return regionPermissions;
+      case 'province':
+        return provincePermissions;
+      case 'municipality':
+        return municipalityPermissions;
+      case 'barangay':
+        return barangayPermissions;
+      default:
+        return { Add: false, Edit: false, Delete: false };
     }
   };
 
@@ -105,11 +143,26 @@ function LocationPage() {
       case 'region':
         return regions;
       case 'province':
-        return provinces;
+        return provinces.map((province) => ({
+          ...province,
+          RegionName: getNameFromCode(province.RegionCode, regions),
+        }));
       case 'municipality':
-        return municipalities;
+        return municipalities.map((municipality) => ({
+          ...municipality,
+          RegionName: getNameFromCode(municipality.RegionCode, regions),
+          ProvinceName: getNameFromCode(municipality.ProvinceCode, provinces),
+        }));
       case 'barangay':
-        return barangays;
+        return barangays.map((barangay) => ({
+          ...barangay,
+          RegionName: getNameFromCode(barangay.RegionCode, regions),
+          ProvinceName: getNameFromCode(barangay.ProvinceCode, provinces),
+          MunicipalityName: getNameFromCode(
+            barangay.MunicipalityCode,
+            municipalities
+          ),
+        }));
       default:
         return [];
     }
@@ -161,17 +214,19 @@ function LocationPage() {
   };
 
   const actions = [
-    {
+    getPermissions().Edit && {
       icon: PencilIcon,
       title: 'Edit',
       onClick: (location) => handleEditLocation(location),
-      className: 'text-primary-600 hover:text-primary-900 p-1 rounded-full hover:bg-primary-50'
+      className:
+        'text-primary-600 hover:text-primary-900 p-1 rounded-full hover:bg-primary-50',
     },
-    {
+    getPermissions().Delete && {
       icon: TrashIcon,
       title: 'Delete',
       onClick: (location) => handleDeleteLocation(location),
-      className: 'text-error-600 hover:text-error-900 p-1 rounded-full hover:bg-error-50'
+      className:
+        'text-error-600 hover:text-error-900 p-1 rounded-full hover:bg-error-50',
     },
   ];
 
@@ -190,11 +245,17 @@ function LocationPage() {
     setIsDeleteModalOpen(true);
   };
 
-  const confirmDelete = () => {
-    if (locationToDelete) {
-      dispatch(getDeleteAction()(locationToDelete.ID));
-      setIsDeleteModalOpen(false);
-      setLocationToDelete(null);
+  const confirmDelete = async () => {
+    try {
+      if (locationToDelete) {
+        await dispatch(getDeleteAction()(locationToDelete.ID)).unwrap();
+        setIsDeleteModalOpen(false);
+        setLocationToDelete(null);
+        toast.success('Location deleted successfully');
+      }
+    } catch (error) {
+      console.error('Failed to delete location:', error);
+      toast.error('Failed to delete location. Please try again.');
     }
   };
 
@@ -206,7 +267,7 @@ function LocationPage() {
           RegionCode: '',
           ProvinceCode: '',
           MunicipalityCode: '',
-        }
+        },
       });
     }
   }, [isModalOpen, currentLocation]);
@@ -222,13 +283,27 @@ function LocationPage() {
     validationSchema: getValidationSchema(),
     onSubmit: async (values, { setSubmitting }) => {
       const action = currentLocation ? getUpdateAction() : getAddAction();
-      const payload = currentLocation ? { ...currentLocation, ...values } : values;
-      await dispatch(action(payload));
-      setIsModalOpen(false);
-      setSubmitting(false);
+      const payload = currentLocation
+        ? { ...currentLocation, ...values }
+        : values;
+      try {
+        await dispatch(action(payload)).unwrap();
+        toast.success('Location saved successfully');
+      } catch (error) {
+        console.error('Failed to save location:', error);
+        toast.error('Failed to save location. Please try again.');
+      } finally {
+        setIsModalOpen(false);
+        setSubmitting(false);
+      }
     },
   });
 
+  // Helper function to get region/province name from code
+  const getNameFromCode = (code, list) => {
+    const item = list.find((item) => item.ID.toString() === code.toString());
+    return item ? item.Name : '';
+  };
   const getFormFields = () => {
     const commonProps = {
       formik,
@@ -236,7 +311,7 @@ function LocationPage() {
       onBlur: formik.handleBlur,
       required: true,
     };
-
+    console.log('Active Tab:', activeTab);
     switch (activeTab) {
       case 'region':
         return (
@@ -268,7 +343,7 @@ function LocationPage() {
               label="Region"
               name="RegionCode"
               type="select"
-              options={regions.map(r => ({ value: r.ID, label: r.Name }))}
+              options={regions.map((r) => ({ value: r.ID, label: r.Name }))}
               value={formik.values.RegionCode}
               error={formik.errors.RegionCode}
               touched={formik.touched.RegionCode}
@@ -293,21 +368,34 @@ function LocationPage() {
               label="Province"
               name="ProvinceCode"
               type="select"
-              options={provinces.map(p => ({ value: p.ID, label: p.Name }))}
+              options={provinces.map((p) => ({ value: p.ID, label: p.Name }))}
               value={formik.values.ProvinceCode}
               error={formik.errors.ProvinceCode}
               touched={formik.touched.ProvinceCode}
-              {...commonProps}
+              onChange={(e) => {
+                const provinceCode = e.target.value;
+                const selectedProvince = provinces.find(
+                  (p) => p.ID.toString() === provinceCode.toString()
+                );
+
+                formik.setFieldValue('ProvinceCode', provinceCode);
+                if (selectedProvince) {
+                  formik.setFieldValue(
+                    'RegionCode',
+                    selectedProvince.RegionCode
+                  );
+                }
+              }}
+              onBlur={formik.handleBlur} // Explicitly set here
+              required={true} // Explicitly set here
             />
             <FormField
               label="Region"
               name="RegionCode"
-              type="select"
-              options={regions.map(r => ({ value: r.ID, label: r.Name }))}
-              value={formik.values.RegionCode}
-              error={formik.errors.RegionCode}
-              touched={formik.touched.RegionCode}
-              {...commonProps}
+              type="text"
+              value={getNameFromCode(formik.values.RegionCode, regions)}
+              readOnly
+              className="bg-gray-100 cursor-not-allowed"
             />
           </>
         );
@@ -328,31 +416,49 @@ function LocationPage() {
               label="Municipality"
               name="MunicipalityCode"
               type="select"
-              options={municipalities.map(m => ({ value: m.ID, label: m.Name }))}
+              options={municipalities.map((m) => ({
+                value: m.ID,
+                label: m.Name,
+              }))}
               value={formik.values.MunicipalityCode}
               error={formik.errors.MunicipalityCode}
               touched={formik.touched.MunicipalityCode}
-              {...commonProps}
+              onChange={(e) => {
+                const municipalityCode = e.target.value;
+                const selectedMunicipality = municipalities.find(
+                  (m) => m.ID.toString() === municipalityCode.toString()
+                );
+
+                formik.setFieldValue('MunicipalityCode', municipalityCode);
+                if (selectedMunicipality) {
+                  formik.setFieldValue(
+                    'ProvinceCode',
+                    selectedMunicipality.ProvinceCode
+                  );
+                  formik.setFieldValue(
+                    'RegionCode',
+                    selectedMunicipality.RegionCode
+                  );
+                }
+              }}
+              onBlur={formik.handleBlur}
+              required={true}
             />
             <FormField
               label="Province"
               name="ProvinceCode"
-              type="select"
-              options={provinces.map(p => ({ value: p.ID, label: p.Name }))}
-              value={formik.values.ProvinceCode}
-              error={formik.errors.ProvinceCode}
-              touched={formik.touched.ProvinceCode}
-              {...commonProps}
+              type="text"
+              value={getNameFromCode(formik.values.ProvinceCode, provinces)}
+              readOnly
+              className="bg-gray-100 cursor-not-allowed"
             />
             <FormField
               label="Region"
               name="RegionCode"
-              type="select"
-              options={regions.map(r => ({ value: r.ID, label: r.Name }))}
-              value={formik.values.RegionCode}
-              error={formik.errors.RegionCode}
-              touched={formik.touched.RegionCode}
-              {...commonProps}
+              type="text"
+              value={getNameFromCode(formik.values.RegionCode, regions)}
+              readOnly
+              className="bg-gray-100 cursor-not-allowed"
             />
           </>
         );
@@ -364,19 +470,21 @@ function LocationPage() {
   return (
     <div>
       <div className="page-header">
-        <div className="flex justify-between items-center">
+        <div className="flex justify-between sm:items-center max-sm:flex-col gap-4">
           <div>
             <h1>Locations</h1>
             <p>Manage regions, provinces, municipalities, and barangays</p>
           </div>
-          <button
-            type="button"
-            onClick={handleCreateLocation}
-            className="btn btn-primary flex items-center"
-          >
-            <PlusIcon className="h-5 w-5 mr-2" />
-            Add {activeTab.charAt(0).toUpperCase() + activeTab.slice(1)}
-          </button>
+          {getPermissions().Add && (
+            <button
+              type="button"
+              onClick={handleCreateLocation}
+              className="btn btn-primary max-sm:w-full"
+            >
+              <PlusIcon className="h-5 w-5 mr-2" />
+              Add {activeTab.charAt(0).toUpperCase() + activeTab.slice(1)}
+            </button>
+          )}
         </div>
       </div>
 
@@ -392,7 +500,7 @@ function LocationPage() {
                   : 'border-transparent text-neutral-500 hover:text-neutral-700 hover:border-neutral-300'
               }`}
             >
-              {tab.charAt(0).toUpperCase() + tab.slice(1)}s
+              {pluralLabels[tab]}
             </button>
           ))}
         </nav>
@@ -412,7 +520,7 @@ function LocationPage() {
         onClose={() => setIsModalOpen(false)}
         title={currentLocation ? `Edit ${activeTab}` : `New ${activeTab}`}
       >
-        <form onSubmit={formik.handleSubmit} className="p-4 space-y-4">
+        <form onSubmit={formik.handleSubmit} className="sm:p-4 space-y-4">
           {getFormFields()}
           <div className="flex justify-end space-x-3 pt-4 border-t border-neutral-200">
             <button
@@ -427,7 +535,11 @@ function LocationPage() {
               className="btn btn-primary"
               disabled={formik.isSubmitting}
             >
-              {formik.isSubmitting ? 'Saving...' : currentLocation ? 'Update' : 'Save'}
+              {formik.isSubmitting
+                ? 'Saving...'
+                : currentLocation
+                ? 'Update'
+                : 'Save'}
             </button>
           </div>
         </form>

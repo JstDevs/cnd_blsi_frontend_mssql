@@ -1,25 +1,27 @@
-import { useState, useEffect } from "react";
-import { useDispatch, useSelector } from "react-redux";
-import { Formik, Form } from "formik";
-import * as Yup from "yup";
+import { useState, useEffect } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import { Formik, Form } from 'formik';
+import * as Yup from 'yup';
 import {
   PlusIcon,
   PencilIcon,
   TrashIcon,
   KeyIcon,
-} from "@heroicons/react/24/outline";
-import DataTable from "@/components/common/DataTable";
-import FormField from "@/components/common/FormField";
-import Modal from "@/components/common/Modal";
+} from '@heroicons/react/24/outline';
+import DataTable from '@/components/common/DataTable';
+import FormField from '@/components/common/FormField';
+import Modal from '@/components/common/Modal';
 import {
   fetchUsers,
   addUser,
   updateUser,
   deleteUser,
-} from "@/features/settings/userSlice";
+} from '@/features/settings/userSlice';
 import { fetchEmployees } from '../../features/settings/employeeSlice';
 // import EmployeeForm from "./EmployeeForm";
-import { fetchUserroles } from "../../features/settings/userrolesSlice";
+import { fetchUserroles } from '../../features/settings/userrolesSlice';
+import toast from 'react-hot-toast';
+import { useModulePermissions } from '@/utils/useModulePremission';
 
 // User Access options
 // const userAccessOptions = [
@@ -39,22 +41,23 @@ import { fetchUserroles } from "../../features/settings/userrolesSlice";
 // ];
 
 const userSchema = Yup.object().shape({
-  UserName: Yup.string().required("User name is required"),
-  UserAccessID: Yup.string().required("User Access is required"),
+  UserName: Yup.string().required('User name is required'),
+  UserAccessID: Yup.string().required('User Access is required'),
   Password: Yup.string()
-    .required("Password is required")
-    .min(6, "Password must be at least 6 characters"),
+    .required('Password is required')
+    .min(6, 'Password must be at least 6 characters'),
   ConfirmPassword: Yup.string()
-    .oneOf([Yup.ref("Password"), null], "Passwords must match")
-    .required("Confirm Password is required"),
-  EmployeeID: Yup.string().required("Choose Employee is required"),
+    .oneOf([Yup.ref('Password'), null], 'Passwords must match')
+    .required('Confirm Password is required'),
+  EmployeeID: Yup.string().required('Choose Employee is required'),
 });
 
 function UserPage() {
   const dispatch = useDispatch();
   const { users, isLoading } = useSelector((state) => state.users);
-  const { departments } = useSelector((state) => state.departments);
-
+  // const { departments } = useSelector((state) => state.departments);
+  // ---------------------USE MODULE PERMISSIONS------------------START ( User  Page  - MODULE ID =82 )
+  const { Add, Edit, Delete } = useModulePermissions(82);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [currentUser, setCurrentUser] = useState(null);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
@@ -63,26 +66,28 @@ function UserPage() {
     useState(false);
   const [userToResetPassword, setUserToResetPassword] = useState(null);
 
-  useEffect(() => {
-    dispatch(fetchUsers());
-    dispatch(fetchEmployees());
-    dispatch(fetchUserroles());
-  }, [dispatch]);
-
-  const { userroles, isLoading: isLoadingRoles } = useSelector((state) => state.userroles);
-
+  const { userroles, isLoading: isLoadingRoles } = useSelector(
+    (state) => state.userroles
+  );
 
   const userAccessOptions = userroles.map((role) => ({
     value: role.ID,
     label: role.Description,
   }));
 
-  const { employees } = useSelector((state) => state.employees);
-  const isLoadingEmployees = useSelector((state) => state.employees.isLoading);
+  const { employees, isLoading: isLoadingEmployees } = useSelector(
+    (state) => state.employees
+  );
+
   const employeeOptions = employees.map((emp) => ({
     value: emp.ID,
     label: `${emp.FirstName} ${emp.LastName}`,
   }));
+  useEffect(() => {
+    dispatch(fetchUsers());
+    dispatch(fetchEmployees());
+    dispatch(fetchUserroles());
+  }, [dispatch]);
 
   const handleAddUser = () => {
     setCurrentUser(null);
@@ -104,11 +109,18 @@ function UserPage() {
     setIsResetPasswordModalOpen(true);
   };
 
-  const confirmDelete = () => {
-    if (userToDelete) {
-      dispatch(deleteUser(userToDelete.ID));
-      setIsDeleteModalOpen(false);
-      setUserToDelete(null);
+  const confirmDelete = async () => {
+    try {
+      if (userToDelete) {
+        await dispatch(deleteUser(userToDelete.ID)).unwrap();
+        setIsDeleteModalOpen(false);
+        setUserToDelete(null);
+        toast.success('User deleted successfully');
+      }
+    } catch (error) {
+      console.error('Failed to delete user:', error);
+      // Optionally show an error message to the user
+      toast.error('Failed to delete user');
     }
   };
 
@@ -132,95 +144,117 @@ function UserPage() {
   //   resetForm();
   // };
 
-  const handleSubmit = async (values, { resetForm, setErrors, setSubmitting }) => {
-    const submissionData = { ...values };
-
+  const handleSubmit = async (
+    values,
+    { resetForm, setErrors, setSubmitting }
+  ) => {
+    // const submissionData = { ...values };
+    // console.log('Submission data:', submissionData);
+    // TODO FOR NOW AS WE CAN ONLY SELECT ONE USER ACCESS ID THIS NEEDS TO BE FIXED LATER
+    const payloadAddUser = {
+      EmployeeID: values.EmployeeID,
+      UserName: values.UserName,
+      Password: values.Password,
+      UserAccessArray: [values.UserAccessID],
+    };
+    console.log('Payload:', payloadAddUser);
     try {
       if (currentUser) {
-        const result = await dispatch(updateUser({ ...submissionData, ID: currentUser.ID }));
-
-        if (updateUser.fulfilled.match(result)) {
-          setIsModalOpen(false);
-          resetForm();
-        } else if (updateUser.rejected.match(result)) {
-          setErrors({ general: result.payload || "Failed to update user." });
-        }
+        await dispatch(
+          updateUser({ ...payloadAddUser, ID: currentUser.ID })
+        ).unwrap();
       } else {
-        const result = await dispatch(addUser(submissionData));
-
-        if (addUser.fulfilled.match(result)) {
-          setIsModalOpen(false);
-          resetForm();
-        } else if (addUser.rejected.match(result)) {
-          setErrors({ general: result.payload || "Failed to add user." });
-        }
+        await dispatch(addUser(payloadAddUser)).unwrap();
       }
+      dispatch(fetchUsers());
+      toast.success('User saved successfully.');
     } catch (error) {
-      setErrors({ general: "Unexpected error occurred." });
+      console.log(error);
+      setErrors({ general: 'Unexpected error occurred.' });
+      toast.error('Failed to save user. Please try again.');
     } finally {
+      resetForm();
+      setIsModalOpen(false);
       setSubmitting(false);
     }
   };
 
-
-
-
   // Format date for display
   const formatDate = (dateString) => {
-    if (!dateString) return "Never";
+    if (!dateString) return 'Never';
     return new Date(dateString).toLocaleString();
   };
 
   // Table columns definition
   const columns = [
-    { key: "UserName", header: "User Name", sortable: true },
-    { key: "UserAccessID", header: "User Access", sortable: true },
-    { key: "Employee", header: "Employee", sortable: true },
+    { key: 'UserName', header: 'User Name', sortable: true },
+    {
+      key: 'UserAccessValue',
+      header: 'User Access',
+      sortable: true,
+      render: (value, row) => (
+        <span>
+          {value ||
+            row?.accessList?.map((role) => role.Description).join(', ') ||
+            'N/A'}
+        </span>
+      ),
+    },
+    // { key: 'Employee', header: 'Employee', sortable: true },
   ];
 
   // Actions for table rows
   const actions = [
-    {
+    Edit && {
       icon: PencilIcon,
-      title: "Edit",
+      title: 'Edit',
       onClick: handleEditUser,
       className:
-        "text-primary-600 hover:text-primary-900 p-1 rounded-full hover:bg-primary-50",
+        'text-primary-600 hover:text-primary-900 p-1 rounded-full hover:bg-primary-50',
     },
-    {
+    Delete && {
       icon: TrashIcon,
-      title: "Delete",
+      title: 'Delete',
       onClick: handleDeleteUser,
       className:
-        "text-error-600 hover:text-error-900 p-1 rounded-full hover:bg-error-50",
+        'text-error-600 hover:text-error-900 p-1 rounded-full hover:bg-error-50',
     },
   ];
+
+  // Modify users to include UserAccessValue
+  const modifiedUsers = users.map((user) => ({
+    ...user,
+    UserAccessValue: userroles.find((role) => role.ID === user.UserAccessID)
+      ?.Description,
+  }));
 
   return (
     <div>
       <div className="page-header">
-        <div className="flex justify-between items-center">
+        <div className="flex justify-between sm:items-center max-sm:flex-col gap-4">
           <div>
             <h1>Users</h1>
             <p>Manage system users and their access rights</p>
           </div>
-          <button
-            type="button"
-            onClick={handleAddUser}
-            className="btn btn-primary flex items-center"
-          >
-            <PlusIcon className="h-5 w-5 mr-2" aria-hidden="true" />
-            Add User
-          </button>
+          {Add && (
+            <button
+              type="button"
+              onClick={handleAddUser}
+              className="btn btn-primary max-sm:w-full"
+            >
+              <PlusIcon className="h-5 w-5 mr-2" aria-hidden="true" />
+              Add User
+            </button>
+          )}
         </div>
       </div>
 
       <div className="mt-4">
         <DataTable
           columns={columns}
-          data={users}
+          data={modifiedUsers}
           actions={actions}
-          loading={isLoading}
+          loading={isLoading || isLoadingRoles || isLoadingEmployees}
         />
       </div>
 
@@ -228,15 +262,15 @@ function UserPage() {
       <Modal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
-        title={currentUser ? "Edit User" : "Add User"}
+        title={currentUser ? 'Edit User' : 'Add User'}
       >
         <Formik
           initialValues={{
-            UserName: currentUser?.UserName || "",
-            UserAccessID: currentUser?.UserAccessID || "",
-            Password: "",
-            ConfirmPassword: "",
-            EmployeeID: currentUser?.EmployeeID || "",
+            UserName: currentUser?.UserName || '',
+            UserAccessID: currentUser?.UserAccessID || '',
+            Password: '',
+            ConfirmPassword: '',
+            EmployeeID: currentUser?.EmployeeID || '',
           }}
           validationSchema={userSchema}
           onSubmit={handleSubmit}
@@ -333,7 +367,7 @@ function UserPage() {
                   disabled={isSubmitting}
                   className="btn btn-primary"
                 >
-                  {isSubmitting ? "Saving..." : currentUser ? "Update" : "Save"}
+                  {isSubmitting ? 'Saving...' : currentUser ? 'Update' : 'Save'}
                 </button>
               </div>
             </Form>
@@ -349,7 +383,7 @@ function UserPage() {
       >
         <div className="py-3">
           <p className="text-neutral-700">
-            Are you sure you want to delete the user{" "}
+            Are you sure you want to delete the user{' '}
             <span className="font-medium">{userToDelete?.UserName}</span>?
           </p>
           <p className="text-sm text-neutral-500 mt-2">

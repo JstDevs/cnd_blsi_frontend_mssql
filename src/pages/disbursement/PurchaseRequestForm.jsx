@@ -1,222 +1,388 @@
-import { useState } from "react";
-import { useDispatch, useSelector } from "react-redux";
-import { Formik, Form } from "formik";
-import * as Yup from "yup";
-import FormField from "../../components/common/FormField";
+import { useState } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import { Formik, Form, FieldArray } from 'formik';
+import * as Yup from 'yup';
+import FormField from '../../components/common/FormField';
+import Button from '../../components/common/Button';
+import { Trash2 } from 'lucide-react';
+import Select from 'react-select';
 
 const PURCHASE_REQUEST_SCHEMA = Yup.object().shape({
-  department: Yup.string().required("Department is required"),
-  section: Yup.string().required("Section is required"),
-  chargeAccount: Yup.string().required("Charge Account is required"),
-  prNumber: Yup.string().required("PR Number is required"),
-  saiNumber: Yup.string().required("SAI Number is required"),
-  alobsNumber: Yup.string().required("ALOBS Number is required"),
-  date: Yup.date().required("Date is required"),
-  fromDate: Yup.date().required("From Date is required"),
-  toDate: Yup.date()
-    .required("To Date is required")
-    .min(Yup.ref("fromDate"), "To Date must be after From Date"),
-  purpose: Yup.string().required("Purpose is required"),
+  ResponsibilityCenter: Yup.string().required('Department is required'),
+  OfficeUnitProject: Yup.string().required('Section is required'),
+  ContraAccountID: Yup.string().required('Charge Account is required'),
+  InvoiceNumber: Yup.string().required('PR Number is required'),
+  SAI_No: Yup.string(),
+  ObligationRequestNumber: Yup.string(),
+  InvoiceDate: Yup.date().required('PR Date is required'),
+  SAIDate: Yup.date(),
+  ALOBSDate: Yup.date(),
+  Remarks: Yup.string().required('Purpose is required'),
+  Items: Yup.array()
+    .of(
+      Yup.object({
+        ItemID: Yup.string().required('Required'),
+        Quantity: Yup.string().required('Required'),
+        Unit: Yup.string().required('Required'),
+        Cost: Yup.number()
+          .nullable()
+          .typeError('Must be a number')
+          .required('Cost is required'),
+      })
+    )
+    .min(1, 'At least one entry is required'),
 });
 
-// Mock data for initial development
-const departments = [
-  { value: "IT Department", label: "IT Department" },
-  { value: "Engineering Department", label: "Engineering Department" },
-  { value: "Accounting Department", label: "Accounting Department" },
-];
-
-const sections = [
-  { value: "Section A", label: "Section A" },
-  { value: "Section B", label: "Section B" },
-  { value: "Section C", label: "Section C" },
-];
-
-const chargeAccounts = [
-  { value: "Account 1", label: "Account 1" },
-  { value: "Account 2", label: "Account 2" },
-  { value: "Account 3", label: "Account 3" },
-];
-
-function PurchaseRequestForm({ initialData, onClose }) {
-  const dispatch = useDispatch();
+function PurchaseRequestForm({
+  initialData,
+  onSubmit,
+  onClose,
+  departmentsOptions = [],
+  chartOfAccountsOptions = [],
+  itemsOptions = [],
+  itemsUnitsOptions = [],
+}) {
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const initialValues = initialData
-    ? { ...initialData }
+    ? {
+        ...initialData,
+        Items: initialData.PurchaseItems || [], // 👈 remap here
+      }
     : {
-        department: "",
-        section: "",
-        chargeAccount: "",
-        prNumber: "",
-        saiNumber: "",
-        alobsNumber: "",
-        date: "",
-        fromDate: "",
-        toDate: "",
-        purpose: "",
+        ResponsibilityCenter: '',
+        OfficeUnitProject: '',
+        InvoiceNumber: '',
+        ContraAccountID: '',
+        SAI_No: '',
+        ObligationRequestNumber: '',
+        InvoiceDate: '',
+        SAIDate: '',
+        ALOBSDate: '',
+        Remarks: '',
+        Items: [{ ItemID: '', Quantity: 0, Unit: '', Cost: 0 }],
       };
-
-  const handleSubmit = (values) => {
-    setIsSubmitting(true);
-    // TODO: Implement the actual submission logic
-    console.log("Submitting values:", values);
-    setIsSubmitting(false);
-    onClose();
-  };
 
   return (
     <Formik
       initialValues={initialValues}
       validationSchema={PURCHASE_REQUEST_SCHEMA}
-      onSubmit={handleSubmit}
+      onSubmit={onSubmit}
       enableReinitialize
     >
-      {({ values, errors, touched, handleChange, handleBlur }) => (
-        <Form className="space-y-4">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      {({
+        values,
+        errors,
+        touched,
+        handleChange,
+        handleBlur,
+        setFieldValue,
+      }) => (
+        <Form className="space-y-1">
+          <div className="grid grid-cols-1 md:grid-cols-3 sm:gap-4">
             <FormField
               className="p-3 focus:outline-none"
               label="Department"
-              name="department"
+              name="ResponsibilityCenter"
               type="select"
               required
-              value={values.department}
+              value={values.ResponsibilityCenter}
               onChange={handleChange}
               onBlur={handleBlur}
-              error={errors.department}
-              touched={touched.department}
-              options={departments}
+              error={errors.ResponsibilityCenter}
+              touched={touched.ResponsibilityCenter}
+              options={departmentsOptions}
             />
 
             <FormField
               className="p-3 focus:outline-none"
               label="Section"
-              name="section"
-              type="select"
+              name="OfficeUnitProject"
+              type="text"
               required
-              value={values.section}
+              value={values.OfficeUnitProject}
               onChange={handleChange}
               onBlur={handleBlur}
-              error={errors.section}
-              touched={touched.section}
-              options={sections}
+              error={errors.OfficeUnitProject}
+              touched={touched.OfficeUnitProject}
             />
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <FormField
               className="p-3 focus:outline-none"
               label="Charge Account"
-              name="chargeAccount"
+              name="ContraAccountID"
               type="select"
               required
-              value={values.chargeAccount}
+              value={values.ContraAccountID}
               onChange={handleChange}
               onBlur={handleBlur}
-              error={errors.chargeAccount}
-              touched={touched.chargeAccount}
-              options={chargeAccounts}
-            />
-
-            <FormField
-              className="p-3 focus:outline-none"
-              label="PR Number"
-              name="prNumber"
-              type="text"
-              required
-              value={values.prNumber}
-              onChange={handleChange}
-              onBlur={handleBlur}
-              error={errors.prNumber}
-              touched={touched.prNumber}
+              error={errors.ContraAccountID}
+              touched={touched.ContraAccountID}
+              options={chartOfAccountsOptions}
             />
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-3 sm:gap-4">
             <FormField
               className="p-3 focus:outline-none"
-              label="SAI Number"
-              name="saiNumber"
+              label="PR No."
+              name="InvoiceNumber"
               type="text"
               required
-              value={values.saiNumber}
+              value={values.InvoiceNumber}
               onChange={handleChange}
               onBlur={handleBlur}
-              error={errors.saiNumber}
-              touched={touched.saiNumber}
+              error={errors.InvoiceNumber}
+              touched={touched.InvoiceNumber}
+            />
+            <FormField
+              className="p-3 focus:outline-none"
+              label="SAI No."
+              name="SAI_No"
+              type="text"
+              value={values.SAI_No}
+              onChange={handleChange}
+              onBlur={handleBlur}
+              error={errors.SAI_No}
+              touched={touched.SAI_No}
             />
 
             <FormField
               className="p-3 focus:outline-none"
-              label="ALOBS Number"
-              name="alobsNumber"
+              label="ALOBS No."
+              name="ObligationRequestNumber"
               type="text"
-              required
-              value={values.alobsNumber}
+              value={values.ObligationRequestNumber}
               onChange={handleChange}
               onBlur={handleBlur}
-              error={errors.alobsNumber}
-              touched={touched.alobsNumber}
+              error={errors.ObligationRequestNumber}
+              touched={touched.ObligationRequestNumber}
             />
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-3 sm:gap-4">
             <FormField
               className="p-3 focus:outline-none"
-              label="Date"
-              name="date"
+              label="PR Date"
+              name="InvoiceDate"
               type="date"
               required
-              value={values.date}
+              value={values.InvoiceDate}
               onChange={handleChange}
               onBlur={handleBlur}
-              error={errors.date}
-              touched={touched.date}
+              error={errors.InvoiceDate}
+              touched={touched.InvoiceDate}
             />
 
             <FormField
               className="p-3 focus:outline-none"
-              label="From Date"
-              name="fromDate"
+              label="SAI Date"
+              name="SAIDate"
               type="date"
-              required
-              value={values.fromDate}
+              value={values.SAIDate}
               onChange={handleChange}
               onBlur={handleBlur}
-              error={errors.fromDate}
-              touched={touched.fromDate}
+              error={errors.SAIDate}
+              touched={touched.SAIDate}
             />
 
             <FormField
               className="p-3 focus:outline-none"
-              label="To Date"
-              name="toDate"
+              label="ALOBS Date"
+              name="ALOBSDate"
               type="date"
-              required
-              value={values.toDate}
+              value={values.ALOBSDate}
               onChange={handleChange}
               onBlur={handleBlur}
-              error={errors.toDate}
-              touched={touched.toDate}
+              error={errors.ALOBSDate}
+              touched={touched.ALOBSDate}
             />
           </div>
 
           <FormField
             className="p-3 focus:outline-none"
             label="Purpose"
-            name="purpose"
-            type="textarea"
+            name="Remarks"
+            type="text"
             required
-            value={values.purpose}
+            value={values.Remarks}
             onChange={handleChange}
             onBlur={handleBlur}
-            error={errors.purpose}
-            touched={touched.purpose}
-            rows={4}
+            error={errors.Remarks}
+            touched={touched.Remarks}
           />
 
-          <div className="flex justify-end space-x-2 mt-6">
+          {/* New Items field */}
+
+          <hr className="!mt-5 !mb-5" />
+
+          {/* Items Section */}
+          <FieldArray
+            name="Items"
+            render={({ remove, push }) => (
+              <div className="space-y-4">
+                <div className="flex justify-between items-center mb-2">
+                  <label className="font-medium">Items</label>
+                  <Button
+                    type="button"
+                    onClick={() =>
+                      push({ ItemID: '', Quantity: 0, Unit: '', Cost: 0 })
+                    }
+                    className="btn btn-sm btn-primary"
+                  >
+                    + Add
+                  </Button>
+                </div>
+
+                {values.Items.map((entry, index) => (
+                  <div
+                    key={index}
+                    className="space-y-2 border p-4 rounded-md bg-neutral-50"
+                  >
+                    <div className="flex max-sm:flex-col flex-wrap gap-2 w-full">
+                      <div className="flex-1 w-full sm:min-w-[200px]">
+                        <div>
+                          <label className="form-label">
+                            Item <span className="text-error-500">*</span>
+                          </label>
+                        </div>
+                        <Select
+                          label="Item"
+                          options={itemsOptions}
+                          placeholder="Select item..."
+                          isSearchable={true}
+                          onChange={(selected) =>
+                            setFieldValue(
+                              `Items[${index}].ItemID`,
+                              selected?.value || ''
+                            )
+                          }
+                          name={`Items[${index}].ItemID`}
+                          value={
+                            itemsOptions.find(
+                              (opt) => opt.value === entry.ItemID
+                            ) || null
+                          }
+                          onBlur={handleBlur}
+                          required
+                        />
+                        {errors.Items?.[index]?.ItemID && (
+                          <div className="text-sm text-red-600 mt-1">
+                            {errors.Items[index].ItemID}
+                          </div>
+                        )}
+                      </div>
+                      <FormField
+                        className="flex-1 w-full sm:max-w-[180px]"
+                        type="number"
+                        label="Quantity"
+                        name={`Items[${index}].Quantity`}
+                        value={entry.Quantity}
+                        onChange={handleChange}
+                        onBlur={handleBlur}
+                        error={errors.Items?.[index]?.Quantity}
+                        touched={touched.Items?.[index]?.Quantity}
+                        required
+                      />
+                      <FormField
+                        className="flex-1 w-full sm:max-w-[150px]"
+                        type="select"
+                        label="Unit"
+                        name={`Items[${index}].Unit`}
+                        value={entry.Unit}
+                        onChange={handleChange}
+                        onBlur={handleBlur}
+                        options={itemsUnitsOptions}
+                        error={errors.Items?.[index]?.Unit}
+                        touched={touched.Items?.[index]?.Unit}
+                        required
+                      />
+                      <FormField
+                        className="flex-1 w-full sm:max-w-[200px]"
+                        type="text" // change to text so we can control formatting
+                        label="Cost"
+                        name={`Items[${index}].Cost`}
+                        value={
+                          entry.Cost !== '' && !isNaN(entry.Cost)
+                            ? Number(entry.Cost).toLocaleString(undefined, {
+                                minimumFractionDigits: 2,
+                                maximumFractionDigits: 2,
+                              })
+                            : ''
+                        }
+                        onChange={(e) => {
+                          // Strip all non-digit characters
+                          const rawValue = e.target.value.replace(/\D/g, '');
+
+                          // Format into cents
+                          const formattedValue = rawValue
+                            ? (parseInt(rawValue, 10) / 100).toFixed(2)
+                            : '';
+
+                          handleChange({
+                            target: {
+                              name: `Items[${index}].Cost`,
+                              value: formattedValue,
+                            },
+                          });
+                        }}
+                        onBlur={handleBlur}
+                        error={errors.Items?.[index]?.Cost}
+                        touched={touched.Items?.[index]?.Cost}
+                        required
+                      />
+                    </div>
+
+                    <div className="flex justify-end pt-0">
+                      <Button
+                        type="button"
+                        onClick={() => remove(index)}
+                        className="bg-red-600 hover:bg-red-700 text-white p-1"
+                        disabled={values.Items.length === 1}
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </Button>
+                    </div>
+                  </div>
+                ))}
+
+                {/* ✅ Totals Row */}
+                <div className="grid grid-cols-3 sm:grid-cols-6 sm:gap-4 border-t pt-4 font-semibold">
+                  <div className=" col-span-1 sm:col-span-2 sm:text-right">
+                    Total:
+                  </div>
+
+                  <div className="col-span-1 sm:col-span-2 text-right">
+                    <div className="font-bold">
+                      {values.Items.reduce(
+                        (sum, e) => sum + (parseFloat(e.Cost) || 0),
+                        0
+                      ).toFixed(2)}{' '}
+                      <span className="text-sm max-sm:block font-normal text-gray-500">
+                        (Estimated Cost)
+                      </span>
+                    </div>
+                  </div>
+
+                  <div className="col-span-1 sm:col-span-2 text-right">
+                    <div className="font-bold">
+                      {values.Items.reduce(
+                        (sum, e) =>
+                          sum +
+                          (parseFloat(e.Cost) || 0) *
+                            (parseFloat(e.Quantity) || 0),
+                        0
+                      ).toFixed(2)}{' '}
+                      <span className="text-sm max-sm:block font-normal text-gray-500">
+                        (Cost)
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+          />
+
+          <div className="flex justify-end space-x-2 !mt-5">
             <button type="button" className="btn btn-outline" onClick={onClose}>
               Cancel
             </button>

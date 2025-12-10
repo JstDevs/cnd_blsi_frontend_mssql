@@ -1,67 +1,203 @@
-import React, { useState } from "react";
+import React, { useEffect, useRef } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import StatementComparisonForm from '../../../components/forms/StatementComparisonForm';
+import DataTable from '@/components/common/DataTable';
+import {
+  fetchStatementComparisons,
+  resetStatementComparisonState,
+} from '@/features/budget/statementComparisonSlice';
+import { fetchFiscalYears } from '@/features/settings/fiscalYearSlice';
+import toast from 'react-hot-toast';
+import { formatCurrency } from '@/utils/currencyFormater';
+import StatementComparisonPrintView from './StatementComparisonPrintView';
+import { useReactToPrint } from 'react-to-print';
 
-const StatementComparison = () => {
-  const [fiscalYear, setFiscalYear] = useState("Test");
+function StatementComparison() {
+  const API_URL = import.meta.env.VITE_API_URL;
+  const dispatch = useDispatch();
 
+  const { statementComparisons, isLoading, error } = useSelector(
+    (state) => state.statementComparison
+  );
+  const { fiscalYears } = useSelector((state) => state.fiscalYears);
+
+  useEffect(() => {
+    dispatch(resetStatementComparisonState());
+    dispatch(fetchFiscalYears());
+  }, [dispatch]);
+  // inside StatementComparison()
+  const printRef = useRef();
+  const handlePrint = useReactToPrint({
+    contentRef: printRef,
+    documentTitle: 'Statement Comparison Report',
+  });
+  const columns = [
+    { key: 'Type', header: 'Type', sortable: true },
+    { key: 'SubID', header: 'Sub ID', sortable: true },
+    { key: 'Subtype', header: 'Subtype', sortable: true },
+    { key: 'Category', header: 'Category', sortable: true },
+    { key: 'Chart of Accounts', header: 'Chart of Accounts', sortable: true },
+    { key: 'Account Code', header: 'Account Code', sortable: true },
+    {
+      key: 'Original',
+      header: 'Original',
+      sortable: true,
+      render: formatCurrency,
+      className: 'text-right',
+    },
+    {
+      key: 'Final',
+      header: 'Final',
+      sortable: true,
+      className: 'text-right',
+      render: formatCurrency,
+    },
+    {
+      key: 'Difference',
+      header: 'Difference',
+      sortable: true,
+      className: 'text-right',
+    },
+    {
+      key: 'Actual',
+      header: 'Actual',
+      sortable: true,
+      className: 'text-right',
+    },
+    {
+      key: 'Difference 2',
+      header: 'Difference 2',
+      sortable: true,
+      className: 'text-right',
+    },
+    { key: 'Period', header: 'Period', sortable: true },
+    {
+      key: 'Original_Sum',
+      header: 'Original_Sum',
+      sortable: true,
+      render: formatCurrency,
+    },
+    {
+      key: 'Final_Sum',
+      header: 'Final_Sum',
+      sortable: true,
+      render: formatCurrency,
+    },
+    {
+      key: 'Difference_Sum',
+      header: 'Difference_Sum',
+      sortable: true,
+      render: formatCurrency,
+    },
+    {
+      key: 'Actual_Sum',
+      header: 'Actual_Sum',
+      sortable: true,
+      render: formatCurrency,
+    },
+    {
+      key: 'Difference2_Sum',
+      header: 'Difference2_Sum',
+      sortable: true,
+      render: formatCurrency,
+    },
+
+    { key: 'Municipality', header: 'Municipality', sortable: true },
+    { key: 'Province', header: 'Province', sortable: true },
+  ];
+
+  const handleExport = async (values) => {
+    try {
+      const response = await fetch(
+        `${API_URL}/statementOfComparison/exportExcel`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${localStorage.getItem('token')}`,
+          },
+          body: JSON.stringify({ fiscalYearID: values.fiscalYearID }),
+        }
+      );
+
+      if (!response.ok) throw new Error('Server response was not ok');
+
+      const blob = await response.blob();
+      const disposition = response.headers.get('Content-Disposition');
+      let filename = `Statement_of_Comparison.xlsx`;
+      if (disposition && disposition.includes('filename=')) {
+        filename = disposition.split('filename=')[1].replace(/['"]/g, '');
+      }
+
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = filename;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(url);
+    } catch (err) {
+      console.error('Export failed:', err);
+      toast.error(err.message || 'Failed to export');
+    }
+  };
+
+  const handleView = (values) => {
+    dispatch(fetchStatementComparisons(values));
+  };
+  const handleGenerateJournal = () => {
+    if (statementComparisons.length === 0) {
+      toast.error('No data to generate journal');
+      return;
+    }
+    handlePrint();
+  };
   return (
-    <div className=" bg-gray-50 p-6">
-      <div className="max-w-7xl mx-auto bg-white shadow rounded-xl p-6">
-        <h1 className="text-2xl font-semibold text-gray-800 mb-6">
-          Summary of Comparison of Budget and Actual Amount
-        </h1>
-
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6 items-end">
-          <div>
-            <label className="block text-sm font-medium text-gray-600 mb-1">
-              Fiscal Year
-            </label>
-            <select
-              value={fiscalYear}
-              onChange={(e) => setFiscalYear(e.target.value)}
-              className="w-full rounded-md border-gray-300 shadow-sm"
-            >
-              <option>Test</option>
-              <option>2025</option>
-              <option>2024</option>
-              <option>2023</option>
-            </select>
-          </div>
-
-          <div className="flex flex-wrap gap-3 md:col-span-2">
-            <button className="bg-blue-600 mt-2 sm:mt-0 text-white px-4 py-2 rounded-md hover:bg-blue-700">
-              View
-            </button>
-            <button className="bg-green-600 mt-2 sm:mt-0 text-white px-4 py-2 rounded-md hover:bg-green-700">
-              Generate Journal
-            </button>
-            <button className="bg-gray-700 mt-2 sm:mt-0 text-white px-4 py-2 rounded-md hover:bg-gray-800">
-              Export to Excel
-            </button>
-          </div>
+    <div className="page-container">
+      {/* Unified Page Header */}
+      <div className="page-header">
+        <div>
+          <h1>Statement of Comparison</h1>
+          <p>
+            Compare original, final, and actual budget amounts by fiscal year
+          </p>
         </div>
+      </div>
 
-        <div className="overflow-x-auto bg-white border rounded-lg">
-          <table className="min-w-full text-sm text-left text-gray-600">
-            <thead className="bg-gray-100 text-gray-700 uppercase text-xs">
-              <tr>
-                <th className="px-4 py-2">Department</th>
-                <th className="px-4 py-2">Budget</th>
-                <th className="px-4 py-2">Actual</th>
-                <th className="px-4 py-2">Difference</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr className="bg-white border-t">
-                <td className="px-4 py-2" colSpan={4}>
-                  No data available
-                </td>
-              </tr>
-            </tbody>
-          </table>
+      <div className="mt-4 p-3 sm:p-6 bg-white rounded-md shadow">
+        <StatementComparisonForm
+          fiscalYears={fiscalYears}
+          onGenerateJournal={handleGenerateJournal}
+          onExportExcel={handleExport}
+          onView={handleView}
+          onClose={() => {}}
+        />
+      </div>
+
+      {error && (
+        <div className="mt-4 p-4 bg-red-100 border border-red-300 rounded-md">
+          <p className="text-red-800">{error}</p>
         </div>
+      )}
+
+      <div className="mt-6">
+        <DataTable
+          columns={columns}
+          data={statementComparisons}
+          loading={isLoading}
+          pagination
+        />
+      </div>
+      {/* Hidden print layout */}
+      <div className="hidden">
+        <StatementComparisonPrintView
+          ref={printRef}
+          data={statementComparisons}
+        />
       </div>
     </div>
   );
-};
+}
 
 export default StatementComparison;

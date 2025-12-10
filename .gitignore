@@ -2,7 +2,7 @@
 node_modules/
 
 # Vite cache
-dist
+# dist
 
 package-lock.json
 .vite/
@@ -22,7 +22,7 @@ pnpm-debug.log*
 # Env files
 .env
 .env.*.local
-
+ 
 # IDEs
 .vscode/
 .idea/

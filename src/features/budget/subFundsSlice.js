@@ -60,8 +60,8 @@ export const updateSubFund = createAsyncThunk(
   'subFunds/updateSubFund',
   async (subFund, thunkAPI) => {
     try {
-      const response = await fetch(`${API_URL}/subFunds/${subFund.ID}`, {
-        method: 'PUT',
+      const response = await fetch(`${API_URL}/subFunds`, {
+        method: 'POST',
         headers: {
           'Content-Type': 'application/json',
           Authorization: `Bearer ${localStorage.getItem('token')}`,
@@ -127,7 +127,10 @@ const subFundsSlice = createSlice({
       .addCase(fetchSubFunds.rejected, (state, action) => {
         state.isLoading = false;
         state.error = action.error.message || 'Failed to fetch sub funds';
-        console.warn('Failed to fetch sub funds, using mock data.', state.error);
+        console.warn(
+          'Failed to fetch sub funds, using mock data.',
+          state.error
+        );
         state.subFunds = mockSubFunds;
       })
       .addCase(addSubFund.pending, (state) => {
@@ -152,7 +155,9 @@ const subFundsSlice = createSlice({
       })
       .addCase(updateSubFund.fulfilled, (state, action) => {
         state.isLoading = false;
-        const index = state.subFunds.findIndex(item => item.ID === action.payload.ID);
+        const index = state.subFunds.findIndex(
+          (item) => item.ID === action.payload.ID
+        );
         if (index !== -1) {
           if (!Array.isArray(state.subFunds)) {
             state.subFunds = [];
@@ -169,7 +174,9 @@ const subFundsSlice = createSlice({
         if (!Array.isArray(state.subFunds)) {
           state.subFunds = [];
         }
-        state.subFunds = state.subFunds.filter(item => item.ID !== action.payload);
+        state.subFunds = state.subFunds.filter(
+          (item) => item.ID !== action.payload
+        );
       })
       .addCase(deleteSubFund.rejected, (state, action) => {
         state.isLoading = false;

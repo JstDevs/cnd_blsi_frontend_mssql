@@ -1,76 +1,89 @@
-import { useState } from 'react';
-import { useSelector } from 'react-redux';
-import { PrinterIcon, ArrowDownTrayIcon } from '@heroicons/react/24/outline';
+import React, { useEffect } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import GeneralLedgerForm from '../../components/forms/GeneralLedgerForm';
 import DataTable from '../../components/common/DataTable';
-import FormField from '../../components/common/FormField';
+import {
+  fetchGeneralLedgers,
+  resetGeneralLedgerState,
+} from '../../features/reports/generalLedgerSlice';
+import { fetchFunds } from '../../features/budget/fundsSlice';
+import { fetchAccounts } from '../../features/settings/chartOfAccountsSlice';
+import toast from 'react-hot-toast';
+const API_URL = import.meta.env.VITE_API_URL;
 
 function GeneralLedgerPage() {
-  const [filters, setFilters] = useState({
-    startDate: '',
-    endDate: '',
-    accountCode: '',
-    fund: '',
-  });
-  
-  // Mock data for dropdowns
-  const accounts = [
-    { value: '1-01-01-010', label: '1-01-01-010 - Cash in Bank - Local Currency, Current Account' },
-    { value: '1-01-02-020', label: '1-01-02-020 - Cash - Treasury/Collecting Officer' },
-  ];
-  
-  const funds = [
-    { value: 'General Fund', label: 'General Fund' },
-    { value: 'Special Education Fund', label: 'Special Education Fund' },
-    { value: 'Trust Fund', label: 'Trust Fund' },
-  ];
-  
-  // Mock data for table
-  const entries = [
-    {
-      id: 1,
-      date: '2024-01-15',
-      reference: 'JEV-2024-01-0001',
-      particulars: 'To record collection of real property tax',
-      debit: 50000,
-      credit: 0,
-      balance: 50000,
-    },
-    {
-      id: 2,
-      date: '2024-01-16',
-      reference: 'DV-2024-01-0015',
-      particulars: 'Payment for office supplies',
-      debit: 0,
-      credit: 15000,
-      balance: 35000,
-    },
-  ];
-  
-  // Format amount as Philippine Peso
+  const dispatch = useDispatch();
+
+  const { generalLedgers, isLoading, error } = useSelector(
+    (state) => state.generalLedger
+  );
+  const { funds } = useSelector((state) => state.funds);
+  const { accounts } = useSelector((state) => state.chartOfAccounts);
+
+  // Format currency for display
   const formatCurrency = (amount) => {
     return new Intl.NumberFormat('en-PH', {
       style: 'currency',
       currency: 'PHP',
     }).format(amount);
   };
-  
-  // Table columns
+
+  useEffect(() => {
+    dispatch(resetGeneralLedgerState());
+    dispatch(fetchFunds());
+    dispatch(fetchAccounts());
+  }, [dispatch]);
+
+  // Table columns definition
   const columns = [
+    {
+      key: 'id',
+      header: 'ID',
+      sortable: true,
+    },
+    {
+      key: 'ap_ar',
+      header: 'AP AR',
+      sortable: true,
+    },
+    {
+      key: 'fund',
+      header: 'Fund',
+      sortable: true,
+    },
+    {
+      key: 'account_name',
+      header: 'Account Name',
+      sortable: true,
+    },
+    {
+      key: 'account_code',
+      header: 'Account Code',
+      sortable: true,
+    },
     {
       key: 'date',
       header: 'Date',
       sortable: true,
-      render: (value) => new Date(value).toLocaleDateString(),
     },
     {
-      key: 'reference',
-      header: 'Reference',
+      key: 'ledger_item',
+      header: 'Ledger Item',
       sortable: true,
-      className: 'font-medium text-neutral-900',
     },
     {
-      key: 'particulars',
-      header: 'Particulars',
+      key: 'invoice_number',
+      header: 'Invoice Number',
+      sortable: true,
+    },
+    {
+      key: 'account_code_display',
+      header: 'Account Code Display',
+      sortable: true,
+    },
+    {
+      key: 'account_name_display',
+      header: 'Account Name Display',
       sortable: true,
     },
     {
@@ -92,91 +105,90 @@ function GeneralLedgerPage() {
       header: 'Balance',
       sortable: true,
       render: (value) => formatCurrency(value),
-      className: 'text-right font-medium',
+      className: 'text-right',
+    },
+    {
+      key: 'municipality',
+      header: 'Municipality',
+      sortable: true,
     },
   ];
+
+  // Handle export to Excel
+  const handleExport = async (values) => {
+    // console.log({ values });
+    try {
+      const response = await fetch(`${API_URL}/generalLedger/exportExcel`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${localStorage.getItem('token')}`,
+        },
+        body: JSON.stringify(values),
+      });
+
+      if (!response.ok) throw new Error('Server response was not ok');
+
+      const blob = await response.blob();
+      const disposition = response.headers.get('Content-Disposition');
+      let filename = `General_Ledger.xlsx`;
+      if (disposition && disposition.includes('filename=')) {
+        filename = disposition.split('filename=')[1].replace(/['"]/g, '');
+      }
+
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+
+      // Optional: custom file name
+      link.download = filename;
+
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(url);
+    } catch (err) {
+      console.error('Export failed:', err);
+      toast.error(err.message || 'Failed to export general ledger');
+    }
+  };
+
+  // Handle view to Excel
+  const handleView = (values) => {
+    dispatch(fetchGeneralLedgers(values));
+  };
 
   return (
     <div>
       <div className="page-header">
-        <div className="flex justify-between items-center">
-          <div>
-            <h1>General Ledger</h1>
-            <p>View and print general ledger reports</p>
-          </div>
-          <div className="flex space-x-2">
-            <button
-              type="button"
-              className="btn btn-outline flex items-center"
-            >
-              <ArrowDownTrayIcon className="h-5 w-5 mr-2" />
-              Export
-            </button>
-            <button
-              type="button"
-              className="btn btn-outline flex items-center"
-            >
-              <PrinterIcon className="h-5 w-5 mr-2" />
-              Print
-            </button>
-          </div>
-        </div>
+        <h1>General Ledger</h1>
+        <p>Generate general ledger reports.</p>
       </div>
-      
-      <div className="mt-4 card p-4">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-          <FormField
-            label="Start Date"
-            name="startDate"
-            type="date"
-            value={filters.startDate}
-            onChange={(e) => setFilters({ ...filters, startDate: e.target.value })}
-          />
-          
-          <FormField
-            label="End Date"
-            name="endDate"
-            type="date"
-            value={filters.endDate}
-            onChange={(e) => setFilters({ ...filters, endDate: e.target.value })}
-          />
-          
-          <FormField
-            label="Account"
-            name="accountCode"
-            type="select"
-            value={filters.accountCode}
-            onChange={(e) => setFilters({ ...filters, accountCode: e.target.value })}
-            options={accounts}
-          />
-          
-          <FormField
-            label="Fund"
-            name="fund"
-            type="select"
-            value={filters.fund}
-            onChange={(e) => setFilters({ ...filters, fund: e.target.value })}
-            options={funds}
-          />
-        </div>
-        
-        <div className="flex justify-end mt-4">
-          <button
-            type="button"
-            className="btn btn-primary"
-            onClick={() => {
-              // Handle filter application
-            }}
-          >
-            Apply Filters
-          </button>
-        </div>
+
+      <div className="mt-4 p-3 sm:p-6 bg-white rounded-md shadow">
+        <GeneralLedgerForm
+          funds={funds}
+          accountOptions={accounts.map((acc) => ({
+            value: acc.ID,
+            label: `${acc.AccountCode} - ${acc.Name}`,
+          }))}
+          onExportExcel={handleExport}
+          onView={handleView}
+          onClose={() => {}}
+        />
       </div>
-      
-      <div className="mt-4">
+
+      {error && (
+        <div className="mt-4 p-4 bg-error-50 border border-error-200 rounded-md">
+          <p className="text-error-700">{error}</p>
+        </div>
+      )}
+
+      <div className="mt-6">
         <DataTable
           columns={columns}
-          data={entries}
+          data={generalLedgers}
+          loading={isLoading}
           pagination={true}
         />
       </div>

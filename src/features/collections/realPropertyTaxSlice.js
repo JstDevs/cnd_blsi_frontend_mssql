@@ -1,97 +1,59 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
+import axios from '@/utils/axiosInstance';
 
-// Async thunks
+// Fetch list
 export const fetchRealPropertyTaxes = createAsyncThunk(
   'realPropertyTax/fetchRealPropertyTaxes',
-  async () => {
-    // TODO: Replace with actual API call
-    return new Promise((resolve) => {
-      setTimeout(() => {
-        resolve([
-          {
-            id: 1,
-            tdNo: 'TD-001',
-            owner: 'John Doe',
-            address: '123 Main St',
-            beneficialUser: 'Jane Doe',
-            beneficialAddress: '456 Oak St',
-            octTctCloaNo: 'OCT-123',
-            cct: 'CCT-456',
-            dated: '2024-03-20',
-            propertyIdentificationNo: '12345',
-            tin: '123-456-789',
-            ownerTelephoneNo: '1234567890',
-            beneficialTin: '987-654-321',
-            beneficialTelephoneNo: '0987654321',
-            surveyNo: 'S-001',
-            lotNo: 'L-001',
-            blockNo: 'B-001',
-            boundaries: {
-              taxable: true,
-              north: 'Street A',
-              south: 'Street B',
-              east: 'Street C',
-              west: 'Street D',
-            },
-            cancelledTdNo: 'TD-000',
-            cancelledOwner: 'Previous Owner',
-            effectivityOfAssessment: '2024-01-01',
-            previousOwner: 'Previous Owner',
-            previousAssessedValue: '1000000',
-            propertyDetails: {
-              kind: 'Land',
-              numberOf: '1',
-              description: 'Residential lot',
-            },
-            assessmentDetails: {
-              kind: 'Land',
-              actualUse: 'Residential',
-              classification: 'Class 1',
-              areaSize: 'Medium',
-              assessmentLevel: '20%',
-              marketValue: '1500000',
-            },
-            status: 'active',
-          },
-        ]);
-      }, 1000);
-    });
+  async (_, { rejectWithValue }) => {
+    try {
+      const res = await axios.get('/real-property-tax/list');
+      return res.data;
+    } catch (err) {
+      return rejectWithValue(err.response?.data || err.message);
+    }
   }
 );
 
-export const createRealPropertyTax = createAsyncThunk(
-  'realPropertyTax/createRealPropertyTax',
-  async (data) => {
-    // TODO: Replace with actual API call
-    return new Promise((resolve) => {
-      setTimeout(() => {
-        resolve({ id: Date.now(), ...data });
-      }, 1000);
-    });
+// Save (create or update depending on IsNew flag)
+export const saveRealPropertyTax = createAsyncThunk(
+  'realPropertyTax/saveRealPropertyTax',
+  async (payload, { rejectWithValue }) => {
+    try {
+      const res = await axios.post('/real-property-tax/save', payload);
+      return res.data;
+    } catch (err) {
+      return rejectWithValue(err.response?.data || err.message);
+    }
   }
 );
 
-export const updateRealPropertyTax = createAsyncThunk(
-  'realPropertyTax/updateRealPropertyTax',
-  async ({ id, data }) => {
-    // TODO: Replace with actual API call
-    return new Promise((resolve) => {
-      setTimeout(() => {
-        resolve({ id, ...data });
-      }, 1000);
-    });
+// Get TD Number
+export const getTdNumber = createAsyncThunk(
+  'realPropertyTax/getTdNumber',
+  async ({ ownerId, generalRevision }, { rejectWithValue }) => {
+    try {
+      const res = await axios.get(
+        `/real-property-tax/getTdNumber?ownerId=${ownerId}&generalRevision=${generalRevision}`
+      );
+      return res.data;
+    } catch (err) {
+      return rejectWithValue(err.response?.data || err.message);
+    }
   }
 );
 
-export const deleteRealPropertyTax = createAsyncThunk(
-  'realPropertyTax/deleteRealPropertyTax',
-  async (id) => {
-    // TODO: Replace with actual API call
-    return new Promise((resolve) => {
-      setTimeout(() => {
-        resolve(id);
-      }, 1000);
-    });
+// Add Button
+export const addButtonTDNumber = createAsyncThunk(
+  'realPropertyTax/addButtonTDNumber',
+  async (tdNumber, selectedYear, { rejectWithValue }) => {
+    try {
+      const res = await axios.get(
+        `/real-property-tax/addButton?tdNumber=${tdNumber}&generalRevisionYear=${selectedYear}`
+      );
+      return res.data;
+    } catch (err) {
+      return rejectWithValue(err.response?.data || err.message);
+    }
   }
 );
 
@@ -99,6 +61,8 @@ const initialState = {
   realPropertyTaxes: [],
   isLoading: false,
   error: null,
+  tdNumber: null,
+  addButtonResult: null,
 };
 
 const realPropertyTaxSlice = createSlice({
@@ -107,7 +71,7 @@ const realPropertyTaxSlice = createSlice({
   reducers: {},
   extraReducers: (builder) => {
     builder
-      // Fetch real property taxes
+      // Fetch list
       .addCase(fetchRealPropertyTaxes.pending, (state) => {
         state.isLoading = true;
         state.error = null;
@@ -118,53 +82,38 @@ const realPropertyTaxSlice = createSlice({
       })
       .addCase(fetchRealPropertyTaxes.rejected, (state, action) => {
         state.isLoading = false;
-        state.error = action.error.message;
+        state.error = action.payload;
       })
-      // Create real property tax
-      .addCase(createRealPropertyTax.pending, (state) => {
+      // Save (create/update)
+      .addCase(saveRealPropertyTax.pending, (state) => {
         state.isLoading = true;
         state.error = null;
       })
-      .addCase(createRealPropertyTax.fulfilled, (state, action) => {
+      .addCase(saveRealPropertyTax.fulfilled, (state, action) => {
         state.isLoading = false;
-        state.realPropertyTaxes.push(action.payload);
-      })
-      .addCase(createRealPropertyTax.rejected, (state, action) => {
-        state.isLoading = false;
-        state.error = action.error.message;
-      })
-      // Update real property tax
-      .addCase(updateRealPropertyTax.pending, (state) => {
-        state.isLoading = true;
-        state.error = null;
-      })
-      .addCase(updateRealPropertyTax.fulfilled, (state, action) => {
-        state.isLoading = false;
-        const index = state.realPropertyTaxes.findIndex((item) => item.id === action.payload.id);
+        const updatedItem = action.payload;
+        const index = state.realPropertyTaxes.findIndex(
+          (item) => item.id === updatedItem.id
+        );
         if (index !== -1) {
-          state.realPropertyTaxes[index] = action.payload;
+          state.realPropertyTaxes[index] = updatedItem; // update
+        } else {
+          state.realPropertyTaxes.push(updatedItem); // create
         }
       })
-      .addCase(updateRealPropertyTax.rejected, (state, action) => {
+      .addCase(saveRealPropertyTax.rejected, (state, action) => {
         state.isLoading = false;
-        state.error = action.error.message;
+        state.error = action.payload;
       })
-      // Delete real property tax
-      .addCase(deleteRealPropertyTax.pending, (state) => {
-        state.isLoading = true;
-        state.error = null;
+      // Get TD Number
+      .addCase(getTdNumber.fulfilled, (state, action) => {
+        state.tdNumber = action.payload;
       })
-      .addCase(deleteRealPropertyTax.fulfilled, (state, action) => {
-        state.isLoading = false;
-        state.realPropertyTaxes = state.realPropertyTaxes.filter(
-          (item) => item.id !== action.payload
-        );
-      })
-      .addCase(deleteRealPropertyTax.rejected, (state, action) => {
-        state.isLoading = false;
-        state.error = action.error.message;
+      // Add Button
+      .addCase(addButtonTDNumber.fulfilled, (state, action) => {
+        state.addButtonResult = action.payload;
       });
   },
 });
 
-export default realPropertyTaxSlice.reducer; 
+export default realPropertyTaxSlice.reducer;

@@ -8,10 +8,8 @@ import { fetchRegions } from '../../features/settings/regionsSlice';
 import { fetchProvinces } from '../../features/settings/provincesSlice';
 import { fetchMunicipalities } from '../../features/settings/municipalitiesSlice';
 import { fetchBarangays } from '../../features/settings/barangaysSlice';
-import { fetchIndustries } from '../../features/settings/industrySlice';
-import { fetchTaxCodes } from '../../features/settings/taxCodeSlice';
-import { fetchPaymentTerms } from '../../features/settings/paymentTermsSlice';
-import { fetchModeOfPayments } from '../../features/settings/modeOfPaymentSlice';
+import { NationalityOptions } from '@/utils/Nationality';
+import SearchableDropdown from '../common/SearchableDropdown';
 
 function CustomerForm({ initialData, onSubmit, onClose }) {
   const dispatch = useDispatch();
@@ -21,112 +19,347 @@ function CustomerForm({ initialData, onSubmit, onClose }) {
     dispatch(fetchProvinces());
     dispatch(fetchMunicipalities());
     dispatch(fetchBarangays());
-    dispatch(fetchIndustries());
-    dispatch(fetchTaxCodes());
-    dispatch(fetchPaymentTerms());
-    dispatch(fetchModeOfPayments());
   }, [dispatch]);
 
   const { regions } = useSelector((state) => state.regions);
   const { provinces } = useSelector((state) => state.provinces);
   const { municipalities } = useSelector((state) => state.municipalities);
   const { barangays } = useSelector((state) => state.barangays);
-  const { industries } = useSelector((state) => state.industries);
-  const { taxCodes } = useSelector((state) => state.taxCodes);
-  const { paymentTerms } = useSelector((state) => state.paymentTerms);
-  const { modeOfPayments } = useSelector((state) => state.modeOfPayments);
 
   const validationSchema = Yup.object({
-    Code: Yup.string().required('Code is required'),
-    Name: Yup.string().required('Name is required'),
-    TIN: Yup.string().required('TIN is required'),
-    PhoneNumber: Yup.string().required('Phone Number is required'),
-    MobileNumber: Yup.string().required('Mobile Number is required'),
-    EmailAddress: Yup.string().email().required('Email is required'),
-    Website: Yup.string().required('Website is required'),
+    FirstName: Yup.string().required('First Name is required'),
+    MiddleName: Yup.string(),
+    LastName: Yup.string().required('Last Name is required'),
+    Gender: Yup.string().required('Gender is required'),
+    Citizenship: Yup.string().required('Citizenship is required'),
+    DateOfBirth: Yup.date().required('Date of Birth is required'),
+    PlaceOfBirth: Yup.string().required('Place of Birth is required'),
+    Occupation: Yup.string().required('Occupation is required'),
+    CivilStatus: Yup.string().required('Civil Status is required'),
+    TIN: Yup.string().matches(/^\d{14}$/, 'TIN must be exactly 14 digits'),
+    EmailAddress: Yup.string().email(),
     RegionID: Yup.string().required('Region is required'),
     ProvinceID: Yup.string().required('Province is required'),
     MunicipalityID: Yup.string().required('Municipality is required'),
     BarangayID: Yup.string().required('Barangay is required'),
     ZIPCode: Yup.string().required('ZIP Code is required'),
     StreetAddress: Yup.string().required('Street Address is required'),
-    RDO: Yup.string().required('RDO is required'),
-    PlaceofIncorporation: Yup.string().required('Place of Incorporation is required'),
-    TaxCodeID: Yup.string().required('Tax Code is required'),
-    IndustryTypeID: Yup.string().required('Industry is required'),
-    PaymentTermsID: Yup.string().required('Payment Terms is required'),
-    PaymentMethodID: Yup.string().required('Payment Method is required'),
-    ContactPerson: Yup.string().required('Contact Person is required'),
-    DateofRegistration: Yup.date().required('Date of Registration is required'),
-    KindofOrganization: Yup.string().required('Kind of Organization is required'),
+    // RDO: Yup.string().required('RDO is required'),
   });
 
   const formik = useFormik({
-    initialValues: initialData || {
-      Code: '',
-      Name: '',
-      TIN: '',
-      PhoneNumber: '',
-      MobileNumber: '',
-      EmailAddress: '',
-      Website: '',
-      RegionID: '',
-      ProvinceID: '',
-      MunicipalityID: '',
-      BarangayID: '',
-      ZIPCode: '',
-      StreetAddress: '',
-      RDO: '',
-      PlaceofIncorporation: '',
-      TaxCodeID: '',
-      IndustryTypeID: '',
-      PaymentTermsID: '',
-      PaymentMethodID: '',
-      ContactPerson: '',
-      DateofRegistration: '',
-      KindofOrganization: '',
+    initialValues: {
+      FirstName: initialData?.FirstName || '',
+      MiddleName: initialData?.MiddleName || '',
+      LastName: initialData?.LastName || '',
+      Gender: initialData?.Gender || '',
+      Citizenship: initialData?.Citizenship || '',
+      DateOfBirth: initialData?.Birthdate || '',
+      PlaceOfBirth: initialData?.PlaceofBirth || '',
+      Occupation: initialData?.Occupation || '',
+      CivilStatus: initialData?.CivilStatus || '',
+      TIN: initialData?.TIN || '',
+      EmailAddress: initialData?.EmailAddress || '',
+      RegionID: initialData?.RegionID || '',
+      ProvinceID: initialData?.ProvinceID || '',
+      MunicipalityID: initialData?.MunicipalityID || '',
+      BarangayID: initialData?.BarangayID || '',
+      ZIPCode: initialData?.ZIPCode || '',
+      StreetAddress: initialData?.StreetAddress || '',
+      // RDO: initialData?.RDO || '',
     },
     validationSchema,
-    onSubmit: onSubmit,
+    onSubmit: (values) => onSubmit(values),
   });
 
-  const { values, handleChange, handleBlur, errors, touched } = formik;
+  const {
+    values,
+    handleChange,
+    handleBlur,
+    errors,
+    touched,
+    setFieldValue,
+    handleSubmit,
+    submitCount,
+  } = formik;
+  useEffect(() => {
+    const selectedBarangay = barangays.find(
+      (b) => b.ID.toString() === values.BarangayID
+    );
+    if (selectedBarangay) {
+      if (selectedBarangay.MunicipalityCode)
+        setFieldValue('MunicipalityID', selectedBarangay.MunicipalityCode);
+      if (selectedBarangay.ProvinceCode)
+        setFieldValue('ProvinceID', selectedBarangay.ProvinceCode);
+      if (selectedBarangay.RegionCode)
+        setFieldValue('RegionID', selectedBarangay.RegionCode);
+    }
+  }, [values.BarangayID]);
 
+  useEffect(() => {
+    const selectedMunicipality = municipalities.find(
+      (m) => m.ID.toString() === values.MunicipalityID
+    );
+    if (selectedMunicipality) {
+      if (selectedMunicipality.ProvinceCode)
+        setFieldValue('ProvinceID', selectedMunicipality.ProvinceCode);
+      if (selectedMunicipality.RegionCode)
+        setFieldValue('RegionID', selectedMunicipality.RegionCode);
+    }
+  }, [values.MunicipalityID]);
+
+  useEffect(() => {
+    const selectedProvince = provinces.find(
+      (p) => p.ID.toString() === values.ProvinceID
+    );
+    if (selectedProvince && selectedProvince.RegionCode)
+      setFieldValue('RegionID', selectedProvince.RegionCode);
+  }, [values.ProvinceID]);
+  console.log('values', errors);
   return (
-    <form onSubmit={formik.handleSubmit} className="space-y-6">
+    <form onSubmit={handleSubmit} className="space-y-6">
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <FormField label="Code" name="Code" value={values.Code} onChange={handleChange} onBlur={handleBlur} error={errors.Code} touched={touched.Code} required />
-        <FormField label="TIN" name="TIN" value={values.TIN} onChange={handleChange} onBlur={handleBlur} error={errors.TIN} touched={touched.TIN} required />
-        <FormField label="Phone Number" name="PhoneNumber" value={values.PhoneNumber} onChange={handleChange} onBlur={handleBlur} error={errors.PhoneNumber} touched={touched.PhoneNumber} required />
-        <FormField label="Mobile Number" name="MobileNumber" value={values.MobileNumber} onChange={handleChange} onBlur={handleBlur} error={errors.MobileNumber} touched={touched.MobileNumber} required />
-        <FormField label="Name" name="Name" value={values.Name} onChange={handleChange} onBlur={handleBlur} error={errors.Name} touched={touched.Name} required />
-        <FormField label="EmailAddress" name="EmailAddress" type="email" value={values.EmailAddress} onChange={handleChange} onBlur={handleBlur} error={errors.EmailAddress} touched={touched.EmailAddress} required />
-        <FormField label="Website" name="Website" value={values.Website} onChange={handleChange} onBlur={handleBlur} error={errors.Website} touched={touched.Website} required />
-        <FormField label="Region" name="RegionID" type="select" options={regions.map(r => ({ value: r.ID, label: r.Name }))} value={values.RegionID} onChange={handleChange} onBlur={handleBlur} error={errors.RegionID} touched={touched.RegionID} required />
-        <FormField label="Province" name="ProvinceID" type="select" options={provinces.map(p => ({ value: p.ID, label: p.Name }))} value={values.ProvinceID} onChange={handleChange} onBlur={handleBlur} error={errors.ProvinceID} touched={touched.ProvinceID} required />
-        <FormField label="Municipality" name="MunicipalityID" type="select" options={municipalities.map(m => ({ value: m.ID, label: m.Name }))} value={values.MunicipalityID} onChange={handleChange} onBlur={handleBlur} error={errors.MunicipalityID} touched={touched.MunicipalityID} required />
-        <FormField label="Barangay" name="BarangayID" type="select" options={barangays.map(b => ({ value: b.ID, label: b.Name }))} value={values.BarangayID} onChange={handleChange} onBlur={handleBlur} error={errors.BarangayID} touched={touched.BarangayID} required />
-        <FormField label="ZIP Code" name="ZIPCode" value={values.ZIPCode} onChange={handleChange} onBlur={handleBlur} error={errors.ZIPCode} touched={touched.ZIPCode} required />
-        <FormField label="Street Address" name="StreetAddress" type="textarea" rows={2} value={values.StreetAddress} onChange={handleChange} onBlur={handleBlur} error={errors.StreetAddress} touched={touched.StreetAddress} required />
-        <FormField label="Revenue District Office" name="RDO" value={values.RDO} onChange={handleChange} onBlur={handleBlur} error={errors.RDO} touched={touched.RDO} required />
-        <FormField label="Place of Incorporation" name="PlaceofIncorporation" value={values.PlaceofIncorporation} onChange={handleChange} onBlur={handleBlur} error={errors.PlaceofIncorporation} touched={touched.PlaceofIncorporation} required />
-        <FormField label="Tax Code" name="TaxCodeID" type="select" options={taxCodes.map(tc => ({ value: tc.ID, label: tc.Name }))} value={values.TaxCodeID} onChange={handleChange} onBlur={handleBlur} error={errors.TaxCodeID} touched={touched.TaxCodeID} required />
-        <FormField label="Industry" name="IndustryTypeID" type="select" options={industries.map(i => ({ value: i.ID, label: i.Name }))} value={values.IndustryTypeID} onChange={handleChange} onBlur={handleBlur} error={errors.IndustryTypeID} touched={touched.IndustryTypeID} required />
-        <FormField label="Payment Terms" name="PaymentTermsID" type="select" options={paymentTerms.map(pt => ({ value: pt.ID, label: pt.Name }))} value={values.PaymentTermsID} onChange={handleChange} onBlur={handleBlur} error={errors.PaymentTermsID} touched={touched.PaymentTermsID} required />
-        <FormField label="Mode of Payment" name="PaymentMethodID" type="select" options={modeOfPayments.map(pm => ({ value: pm.ID, label: pm.Name }))} value={values.PaymentMethodID} onChange={handleChange} onBlur={handleBlur} error={errors.PaymentMethodID} touched={touched.PaymentMethodID} required />
-        <FormField label="Contact Person" name="ContactPerson" value={values.ContactPerson} onChange={handleChange} onBlur={handleBlur} error={errors.ContactPerson} touched={touched.ContactPerson} required />
-        <FormField label="Date of Registration" name="DateofRegistration" type="date" value={values.DateofRegistration} onChange={handleChange} onBlur={handleBlur} error={errors.DateofRegistration} touched={touched.DateofRegistration} required />
-        <FormField label="Kind of Organization" name="KindofOrganization" type="select" options={[
-          { value: "Association", label: "Association" },
-          { value: "Partnership", label: "Partnership" },
-          { value: "Corporation", label: "Corporation" },
-        ]} value={values.KindofOrganization} onChange={handleChange} onBlur={handleBlur} error={errors.KindofOrganization} touched={touched.KindofOrganization} required />
+        <FormField
+          label="First Name"
+          name="FirstName"
+          value={values.FirstName}
+          onChange={handleChange}
+          onBlur={handleBlur}
+          error={touched.FirstName && errors.FirstName}
+          touched={touched.FirstName}
+          required
+        />
+        <FormField
+          label="Middle Name"
+          name="MiddleName"
+          value={values.MiddleName}
+          onChange={handleChange}
+          onBlur={handleBlur}
+          error={errors.MiddleName && touched.MiddleName}
+          touched={touched.MiddleName}
+        />
+        <FormField
+          label="Last Name"
+          name="LastName"
+          value={values.LastName}
+          onChange={handleChange}
+          onBlur={handleBlur}
+          error={touched.LastName && errors.LastName}
+          touched={touched.LastName}
+          required
+        />
+        <FormField
+          label="Gender"
+          name="Gender"
+          type="select"
+          options={[
+            { value: 'Male', label: 'Male' },
+            { value: 'Female', label: 'Female' },
+            { value: 'Other', label: 'Other' },
+          ]}
+          value={values.Gender}
+          onChange={handleChange}
+          onBlur={handleBlur}
+          error={touched.Gender && errors.Gender}
+          touched={touched.Gender}
+          required
+        />
+        {/* <FormField
+          label="Citizenship"
+          name="Citizenship"
+          value={values.Citizenship}
+          onChange={handleChange}
+          onBlur={handleBlur}
+          error={touched.Citizenship && errors.Citizenship}
+          touched={touched.Citizenship}
+          required
+        /> */}
+        <SearchableDropdown
+          label="Citizenship"
+          name="Citizenship"
+          type="select"
+          required
+          selectedValue={values.Citizenship}
+          onSelect={(value) => {
+            setFieldValue('Citizenship', value);
+          }}
+          options={NationalityOptions}
+          error={errors.Citizenship && errors.Citizenship}
+          touched={touched.Citizenship}
+        />
+        <FormField
+          label="Date of Birth"
+          name="DateOfBirth"
+          type="date"
+          value={values.DateOfBirth}
+          onChange={handleChange}
+          onBlur={handleBlur}
+          error={touched.DateOfBirth && errors.DateOfBirth}
+          touched={touched.DateOfBirth}
+          required
+        />
+        <FormField
+          label="Place of Birth"
+          name="PlaceOfBirth"
+          value={values.PlaceOfBirth}
+          onChange={handleChange}
+          onBlur={handleBlur}
+          error={touched.PlaceOfBirth && errors.PlaceOfBirth}
+          touched={touched.PlaceOfBirth}
+          required
+        />
+        <FormField
+          label="Occupation"
+          name="Occupation"
+          value={values.Occupation}
+          onChange={handleChange}
+          onBlur={handleBlur}
+          error={touched.Occupation && errors.Occupation}
+          touched={touched.Occupation}
+          required
+        />
+        <FormField
+          label="Civil Status"
+          name="CivilStatus"
+          type="select"
+          options={[
+            { value: 'Single', label: 'Single' },
+            { value: 'Married', label: 'Married' },
+            { value: 'Widowed', label: 'Widowed' },
+            { value: 'Separated', label: 'Separated' },
+            { value: 'Divorced', label: 'Divorced' },
+          ]}
+          value={values.CivilStatus}
+          onChange={handleChange}
+          onBlur={handleBlur}
+          error={touched.CivilStatus && errors.CivilStatus}
+          touched={touched.CivilStatus}
+          required
+        />
+        <FormField
+          label="TIN"
+          name="TIN"
+          value={values.TIN}
+          onChange={handleChange}
+          onBlur={handleBlur}
+          error={touched.TIN && errors.TIN}
+          touched={touched.TIN}
+          // required
+        />
+        <FormField
+          label="Email"
+          name="EmailAddress"
+          type="email"
+          value={values.EmailAddress}
+          onChange={handleChange}
+          onBlur={handleBlur}
+          error={touched.EmailAddress && errors.EmailAddress}
+          touched={touched.EmailAddress}
+          // required
+        />
+        <FormField
+          label="Region"
+          name="RegionID"
+          type="select"
+          options={regions.map((r) => ({ value: r.ID, label: r.Name }))}
+          value={values.RegionID}
+          onChange={handleChange}
+          onBlur={handleBlur}
+          error={touched.RegionID && errors.RegionID}
+          touched={touched.RegionID}
+          required
+        />
+        <FormField
+          label="Province"
+          name="ProvinceID"
+          type="select"
+          options={provinces.map((p) => ({ value: p.ID, label: p.Name }))}
+          value={values.ProvinceID}
+          onChange={handleChange}
+          onBlur={handleBlur}
+          error={touched.ProvinceID && errors.ProvinceID}
+          touched={touched.ProvinceID}
+          required
+        />
+        <FormField
+          label="Municipality"
+          name="MunicipalityID"
+          type="select"
+          options={municipalities.map((m) => ({ value: m.ID, label: m.Name }))}
+          value={values.MunicipalityID}
+          onChange={handleChange}
+          onBlur={handleBlur}
+          error={touched.MunicipalityID && errors.MunicipalityID}
+          touched={touched.MunicipalityID}
+          required
+        />
+        <FormField
+          label="Barangay"
+          name="BarangayID"
+          type="select"
+          options={barangays.map((b) => ({ value: b.ID, label: b.Name }))}
+          value={values.BarangayID}
+          onChange={handleChange}
+          onBlur={handleBlur}
+          error={touched.BarangayID && errors.BarangayID}
+          touched={touched.BarangayID}
+          required
+        />
+        <FormField
+          label="ZIP Code"
+          name="ZIPCode"
+          value={values.ZIPCode}
+          onChange={handleChange}
+          onBlur={handleBlur}
+          error={touched.ZIPCode && errors.ZIPCode}
+          touched={touched.ZIPCode}
+          required
+        />
+        <FormField
+          label="Street Address"
+          name="StreetAddress"
+          type="textarea"
+          rows={2}
+          value={values.StreetAddress}
+          onChange={handleChange}
+          onBlur={handleBlur}
+          error={touched.StreetAddress && errors.StreetAddress}
+          touched={touched.StreetAddress}
+          required
+        />
+        {/* <FormField
+          label="Revenue District Office"
+          name="RDO"
+          value={values.RDO}
+          onChange={handleChange}
+          onBlur={handleBlur}
+          error={touched.RDO && errors.RDO}
+          touched={touched.RDO}
+          required
+        /> */}
       </div>
 
       <div className="flex justify-end gap-3 pt-4 border-t">
-        <button type="button" onClick={onClose} className="btn btn-outline">Cancel</button>
-        <button type="submit" className="btn btn-primary">Save</button>
+        <button type="button" onClick={onClose} className="btn btn-outline">
+          Cancel
+        </button>
+        <button type="submit" className="btn btn-primary">
+          {initialData ? 'Update' : 'Save'}
+        </button>
       </div>
+      {/* Error Message */}
+      {submitCount > 0 && Object.keys(errors).length > 0 && (
+        <div className="mt-4 p-4 bg-red-50 border-l-4 border-red-500 rounded">
+          <h3 className="text-sm font-medium text-red-800">
+            Please fix the following errors:
+          </h3>
+          <ul className="mt-2 text-sm text-red-700 list-disc pl-5 space-y-1">
+            {Object.entries(errors).map(([fieldName, errorMessage]) => (
+              <li key={fieldName}>{errorMessage}</li>
+            ))}
+          </ul>
+        </div>
+      )}
     </form>
   );
 }

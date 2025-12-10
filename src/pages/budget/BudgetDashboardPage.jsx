@@ -1,116 +1,99 @@
 import { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchDepartments } from '../../features/settings/departmentSlice';
-import { fetchSubdepartments } from '../../features/settings/subdepartmentSlice';
-import { fetchBudgetData } from '../../features/budget/budgetDashboardSlice';
+// import { fetchBudgetList, fetchBudgetAPARList } from '../../api/dashboardApi'; // Make sure these are implemented
 import FormField from '../../components/common/FormField';
 import BudgetPieChart from '../../components/charts/BudgetPieChart';
 import EncumbrancePieChart from '../../components/charts/EncumbrancePieChart';
 import DataTable from '../../components/common/DataTable';
+import {
+  fetchBudgetAPARList,
+  fetchBudgetList,
+} from '../userProfile/profileUtil';
 
 function BudgetDashboardPage() {
   const dispatch = useDispatch();
 
   const [selectedDepartment, setSelectedDepartment] = useState('');
-  const [selectedSubDepartment, setSelectedSubDepartment] = useState('');
-  
-  // mock data for testing
-  const [departments, setDepartments] = useState([]);
-  const [subDepartments, setSubDepartments] = useState([]);
-  const [budgetData, setBudgetData] = useState({ chart1: [], chart2: [], table: [] });
+  const [subDepartmentOptions, setSubDepartmentOptions] = useState([]);
+  const [selectedBudgetID, setSelectedBudgetID] = useState('');
+  const [budgetData, setBudgetData] = useState({
+    chart1: [],
+    chart2: [],
+    table: [],
+  });
   const [loading, setLoading] = useState(false);
 
-  const mockDepartments = [
-    { ID: 'dept1', Name: 'Finance' },
-    { ID: 'dept2', Name: 'Operations' },
-  ];
+  const { departments, isLoading } = useSelector((state) => state.departments);
 
-  const mockSubDepartments = {
-    dept1: [
-      { ID: 'sub1', Name: 'Accounts Payable' },
-      { ID: 'sub2', Name: 'Budgeting' },
-    ],
-    dept2: [
-      { ID: 'sub3', Name: 'Logistics' },
-      { ID: 'sub4', Name: 'Maintenance' },
-    ],
-  };
-  const mockBudgetData = {
-    chart1: [
-      { name: 'Budget Amount', value: 600000 },
-      { name: 'Charges', value: 450000 },
-    ],
-    chart2: [
-      { name: 'PreEncumbrance', value: 100000 },
-      { name: 'Encumbrance', value: 200000 },
-      { name: 'Charges', value: 150000 },
-    ],
-    table: [
-      { name: 'Accounts Payable', total: '₹250,000' },
-      { name: 'Accounts Receivable', total: '₹300,000' },
-    ],
-  };
   useEffect(() => {
-    // Simulate department API fetch
-    setDepartments(mockDepartments);
+    dispatch(fetchDepartments());
   }, []);
 
   useEffect(() => {
     if (selectedDepartment) {
-      // Simulate sub-department fetch
-      setSubDepartments(mockSubDepartments[selectedDepartment] || []);
-      setSelectedSubDepartment('');
-      setBudgetData({ chart1: [], chart2: [], table: [] }); // reset data
+      setLoading(true);
+      fetchBudgetList(selectedDepartment === 'All' ? '' : selectedDepartment)
+        .then((res) => {
+          const list = res?.data || [];
+          setSubDepartmentOptions(
+            list.map((item) => ({
+              value: item.ID,
+              label: item.Name,
+              ...item,
+            }))
+          );
+        })
+        .finally(() => setLoading(false));
+    } else {
+      setSubDepartmentOptions([]);
     }
+
+    setSelectedBudgetID('');
+    setBudgetData({ chart1: [], chart2: [], table: [] });
   }, [selectedDepartment]);
 
-  useEffect(() => {
-    if (selectedSubDepartment) {
-      // Simulate budget data fetch
-      setLoading(true);
-      setTimeout(() => {
-        setBudgetData(mockBudgetData);
-        setLoading(false);
-      }, 800);
-    }
-  }, [selectedSubDepartment]);
-  // mock data ends
+  const handleSubDeptChange = (budgetID) => {
+    const row = subDepartmentOptions.find((r) => r.value === Number(budgetID));
+    if (!row) return;
 
+    const appropriation = parseFloat(row.Appropriation || 0);
+    const supplemental = parseFloat(row.Supplemental || 0);
+    const transfer = parseFloat(row.Transfer || 0);
+    const charges = parseFloat(row.Charges || 0);
+    const preEncumbrance = parseFloat(row.PreEncumbrance || 0);
+    const encumbrance = parseFloat(row.Encumbrance || 0);
 
+    const budgetAmount = appropriation + supplemental + transfer - charges;
 
+    const chart1 = [
+      { name: 'Budget Amount', value: budgetAmount },
+      { name: 'Charges', value: charges },
+    ];
+    const chart2 = [
+      { name: 'PreEncumbrance', value: preEncumbrance },
+      { name: 'Encumbrance', value: encumbrance },
+      { name: 'Charges', value: charges },
+    ];
 
+    setBudgetData((prev) => ({
+      ...prev,
+      chart1,
+      chart2,
+    }));
 
-
-  // const { departments, subDepartments, budgetData, loading } = useSelector(state => state.budget);
-  // const {
-  //   departments = [],
-  //   subDepartments = [],
-  //   budgetData,
-  //   loading,
-  // } = useSelector((state) => state.budget);
-
-
-
-  // useEffect(() => {
-  //   dispatch(fetchDepartments());
-  // }, [dispatch]);
-
-  // useEffect(() => {
-  //   if (selectedDepartment) {
-  //     dispatch(fetchSubDepartments(selectedDepartment));
-  //     setSelectedSubDepartment('');
-  //   }
-  // }, [dispatch, selectedDepartment]);
-
-  // useEffect(() => {
-  //   if (selectedSubDepartment) {
-  //     dispatch(fetchBudgetData(selectedSubDepartment));
-  //   }
-  // }, [dispatch, selectedSubDepartment]);
+    setLoading(true);
+    fetchBudgetAPARList(budgetID)
+      .then((res) => {
+        const aparData = res?.data || [];
+        setBudgetData((prev) => ({ ...prev, table: aparData }));
+      })
+      .finally(() => setLoading(false));
+  };
 
   const tableColumns = [
-    { key: 'name', header: 'AP AR', sortable: false },
-    { key: 'total', header: 'Total', sortable: false }
+    { key: 'APAR', header: 'APAR', sortable: false },
+    { key: 'Total', header: 'Total', sortable: false },
   ];
 
   return (
@@ -126,17 +109,31 @@ function BudgetDashboardPage() {
           name="Department"
           type="select"
           value={selectedDepartment}
-          onChange={e => setSelectedDepartment(e.target.value)}
-          options={departments.map(d => ({ value: d.ID, label: d.Name }))}
+          onChange={(e) => {
+            const selectedDepartmentId =
+              e.target.value === 'All Departments' ? 'All' : e.target.value;
+            setSelectedDepartment(selectedDepartmentId);
+            setSelectedBudgetID('');
+            setBudgetData({ chart1: [], chart2: [], table: [] });
+          }}
+          options={[
+            ...departments?.map((d) => ({ value: d.ID, label: d.Name })),
+            { value: 'All Departments', label: 'All Departments' },
+          ]}
           required
         />
         <FormField
           label="Sub-Department"
           name="SubDepartment"
           type="select"
-          value={selectedSubDepartment}
-          onChange={e => setSelectedSubDepartment(e.target.value)}
-          options={subDepartments.map(sd => ({ value: sd.ID, label: sd.Name }))}
+          value={selectedBudgetID}
+          onChange={(e) => {
+            console.log('e.target.value', e.target.value);
+            setSelectedBudgetID(e.target.value);
+            handleSubDeptChange(e.target.value);
+          }}
+          options={subDepartmentOptions}
+          className="disabled:bg-gray-100 disabled:cursor-not-allowed disabled:text-gray-400"
           required
         />
       </div>
@@ -150,7 +147,7 @@ function BudgetDashboardPage() {
         <DataTable
           columns={tableColumns}
           data={budgetData?.table || []}
-          loading={loading}
+          loading={loading || isLoading}
           emptyMessage="No budget data found for selected sub-department."
         />
       </div>

@@ -1,15 +1,16 @@
-import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
-import authService from "./authService";
+import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
+import authService from './authService';
 
 const initialState = {
   user: null,
   isAuthenticated: false,
   isLoading: false,
   error: null,
+  selectedRole: null, // Add selectedRole to initial state
 };
 
 export const login = createAsyncThunk(
-  "auth/login",
+  'auth/login',
   async ({ username, password }, thunkAPI) => {
     try {
       const user = await authService.login(username, password);
@@ -20,7 +21,7 @@ export const login = createAsyncThunk(
   }
 );
 
-export const logout = createAsyncThunk("auth/logout", async (_, thunkAPI) => {
+export const logout = createAsyncThunk('auth/logout', async (_, thunkAPI) => {
   try {
     await authService.logout();
     return null;
@@ -30,7 +31,7 @@ export const logout = createAsyncThunk("auth/logout", async (_, thunkAPI) => {
 });
 
 export const changePassword = createAsyncThunk(
-  "auth/changePassword",
+  'auth/changePassword',
   async ({ currentPassword, newPassword }, thunkAPI) => {
     try {
       const response = await authService.changePassword(
@@ -45,7 +46,7 @@ export const changePassword = createAsyncThunk(
 );
 
 export const fetchUserProfile = createAsyncThunk(
-  "auth/fetchUserProfile",
+  'auth/fetchUserProfile',
   async (token, thunkAPI) => {
     try {
       const user = await authService.fetchUserProfile(token);
@@ -55,9 +56,21 @@ export const fetchUserProfile = createAsyncThunk(
     }
   }
 );
-
+// Add a new action to update the selected role
+export const updateSelectedRole = createAsyncThunk(
+  'auth/updateSelectedRole',
+  async (role, thunkAPI) => {
+    try {
+      // Save to localStorage
+      localStorage.setItem('selectedRole', JSON.stringify(role));
+      return role;
+    } catch (error) {
+      return thunkAPI.rejectWithValue(error.message);
+    }
+  }
+);
 const authSlice = createSlice({
-  name: "auth",
+  name: 'auth',
   initialState,
   reducers: {
     resetAuthState: (state) => {
@@ -74,6 +87,15 @@ const authSlice = createSlice({
         state.isLoading = false;
         state.isAuthenticated = true;
         state.user = action.payload;
+        // Set initial selected role on login
+        if (action.payload.accessList?.length > 0) {
+          const defaultRole =
+            action.payload.accessList.length >= 2
+              ? action.payload.accessList[1]
+              : action.payload.accessList[0];
+          state.selectedRole = defaultRole;
+          localStorage.setItem('selectedRole', JSON.stringify(defaultRole));
+        }
       })
       .addCase(login.rejected, (state, action) => {
         state.isLoading = false;
@@ -82,6 +104,7 @@ const authSlice = createSlice({
       .addCase(logout.fulfilled, (state) => {
         state.user = null;
         state.isAuthenticated = false;
+        state.selectedRole = null; // Clear selected role on logout
       })
       .addCase(fetchUserProfile.pending, (state) => {
         state.isLoading = true;
@@ -90,6 +113,17 @@ const authSlice = createSlice({
         state.isLoading = false;
         state.isAuthenticated = true;
         state.user = action.payload;
+        // Try to get selected role from localStorage or set default
+        const storedRole = localStorage.getItem('selectedRole');
+        if (storedRole) {
+          state.selectedRole = JSON.parse(storedRole);
+        } else if (action.payload.accessList?.length > 0) {
+          const defaultRole =
+            action.payload.accessList.length >= 2
+              ? action.payload.accessList[1]
+              : action.payload.accessList[0];
+          state.selectedRole = defaultRole;
+        }
       })
       .addCase(fetchUserProfile.rejected, (state) => {
         state.isLoading = false;
@@ -104,6 +138,9 @@ const authSlice = createSlice({
       .addCase(changePassword.rejected, (state, action) => {
         state.isLoading = false;
         state.error = action.payload;
+      })
+      .addCase(updateSelectedRole.fulfilled, (state, action) => {
+        state.selectedRole = action.payload;
       });
   },
 });

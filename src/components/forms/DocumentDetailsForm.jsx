@@ -2,25 +2,72 @@ import React, { useState } from 'react';
 import { Formik, Form } from 'formik';
 import * as Yup from 'yup';
 import { useDispatch, useSelector } from 'react-redux';
-import { addDocumentDetail, updateDocumentDetail } from '../../features/settings/documentDetailsSlice';
+import {
+  addDocumentDetail,
+  fetchDocumentDetails,
+  updateDocumentDetail,
+} from '../../features/settings/documentDetailsSlice';
 import FormField from '../common/FormField';
+import toast from 'react-hot-toast';
 
-const DocumentDetailsForm = ({ document, onClose, documentTypeCategoryOptions = [] }) => {
-  const dispatch = useDispatch();
+export const getValidationSchema = (
+  existingDocuments = [],
+  currentDocument = null
+) => {
+  return Yup.object({
+    Name: Yup.string()
+      .required('Name is required')
+      .test('unique-name', 'Name already exists', function (value) {
+        if (!value) return true;
 
-  const validationSchema = Yup.object({
-    Name: Yup.string().required('Name is required'),
-    Code: Yup.string().required('Code is required'),
-    Prefix: Yup.string().required('Prefix is required'),
+        const duplicate = existingDocuments.some(
+          (doc) =>
+            doc.Name.trim().toLowerCase() === value.trim().toLowerCase() &&
+            (!currentDocument || doc.ID !== currentDocument.ID)
+        );
+
+        return !duplicate;
+      }),
+
+    Code: Yup.string()
+      .required('Code is required')
+      .test('unique-code', 'Code already exists', function (value) {
+        if (!value) return true;
+
+        const duplicate = existingDocuments.some(
+          (doc) =>
+            doc.Code.trim().toLowerCase() === value.trim().toLowerCase() &&
+            (!currentDocument || doc.ID !== currentDocument.ID)
+        );
+
+        return !duplicate;
+      }),
+    // The Suffix is indeed mandatory but the prefix is not
+    Prefix: Yup.string(),
     Suffix: Yup.string().required('Suffix is required'),
+
     StartNumber: Yup.number()
       .required('Start number is required')
+      .integer('Start number must be an integer')
       .min(1, 'Start number must be at least 1'),
+
     CurrentNumber: Yup.number()
       .required('Current number is required')
+      .integer('Current number must be an integer')
       .min(1, 'Current number must be at least 1'),
-    DocumentTypeCategoryID: Yup.string().required('Document type category is required')
+
+    DocumentTypeCategoryID: Yup.string().required(
+      'Document type category is required'
+    ),
   });
+};
+const DocumentDetailsForm = ({
+  document,
+  documentList = [],
+  onClose,
+  documentTypeCategoryOptions = [],
+}) => {
+  const dispatch = useDispatch();
 
   const initialValues = {
     Name: document?.Name || '',
@@ -35,25 +82,40 @@ const DocumentDetailsForm = ({ document, onClose, documentTypeCategoryOptions = 
   const handleSubmit = async (values, { setSubmitting }) => {
     try {
       if (document) {
-        await dispatch(updateDocumentDetail({ ...values, ID: document.ID })).unwrap();
+        await dispatch(
+          updateDocumentDetail({ ...values, ID: document.ID })
+        ).unwrap();
+        toast.success('Document detail updated successfully');
       } else {
         await dispatch(addDocumentDetail(values)).unwrap();
+        toast.success('Document detail added successfully');
       }
-      onClose();
+
+      dispatch(fetchDocumentDetails());
     } catch (error) {
       console.error('Failed to save document details:', error);
+      toast.error('Failed to save document details. Please try again.');
     } finally {
       setSubmitting(false);
+      onClose();
     }
   };
-
+  // const validationSchema = getValidationSchema(document, documentList);
   return (
     <Formik
       initialValues={initialValues}
-      validationSchema={validationSchema}
+      validationSchema={getValidationSchema(documentList, document)}
       onSubmit={handleSubmit}
     >
-      {({ values, errors, touched, handleChange, handleBlur, setFieldValue, isSubmitting }) => (
+      {({
+        values,
+        errors,
+        touched,
+        handleChange,
+        handleBlur,
+        setFieldValue,
+        isSubmitting,
+      }) => (
         <Form className="space-y-4">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <FormField
@@ -88,7 +150,6 @@ const DocumentDetailsForm = ({ document, onClose, documentTypeCategoryOptions = 
               label="Prefix"
               name="Prefix"
               type="text"
-              required
               value={values.Prefix}
               onChange={handleChange}
               onBlur={handleBlur}
@@ -155,11 +216,7 @@ const DocumentDetailsForm = ({ document, onClose, documentTypeCategoryOptions = 
           </div>
 
           <div className="flex justify-end space-x-3 pt-4 border-t border-neutral-200">
-            <button
-              type="button"
-              onClick={onClose}
-              className="btn btn-outline"
-            >
+            <button type="button" onClick={onClose} className="btn btn-outline">
               Cancel
             </button>
             <button
@@ -176,4 +233,4 @@ const DocumentDetailsForm = ({ document, onClose, documentTypeCategoryOptions = 
   );
 };
 
-export default DocumentDetailsForm; 
+export default DocumentDetailsForm;

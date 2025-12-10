@@ -8,17 +8,24 @@ import {
   fetchVendorCustomerTypes,
   addVendorCustomerType,
   updateVendorCustomerType,
-  deleteVendorCustomerType
+  deleteVendorCustomerType,
 } from '../../features/settings/vendorCustomerTypeSlice';
+import toast from 'react-hot-toast';
+import { useModulePermissions } from '@/utils/useModulePremission';
 
 function VendorCustomerTypePage() {
   const dispatch = useDispatch();
-  const { vendorCustomerTypes, isLoading } = useSelector(state => state.vendorCustomerTypes);
-
+  const { vendorCustomerTypes, isLoading } = useSelector(
+    (state) => state.vendorCustomerTypes
+  );
+  // ---------------------USE MODULE PERMISSIONS------------------START (Vendor Customer Type Page - MODULE ID = 91 )
+  const { Add, Edit, Delete } = useModulePermissions(91);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [currentVendorCustomerType, setCurrentVendorCustomerType] = useState(null);
+  const [currentVendorCustomerType, setCurrentVendorCustomerType] =
+    useState(null);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
-  const [vendorCustomerTypeToDelete, setVendorCustomerTypeToDelete] = useState(null);
+  const [vendorCustomerTypeToDelete, setVendorCustomerTypeToDelete] =
+    useState(null);
 
   useEffect(() => {
     dispatch(fetchVendorCustomerTypes());
@@ -42,63 +49,85 @@ function VendorCustomerTypePage() {
   const confirmDelete = async () => {
     if (vendorCustomerTypeToDelete) {
       try {
-        await dispatch(deleteVendorCustomerType(vendorCustomerTypeToDelete.ID)).unwrap();
+        await dispatch(
+          deleteVendorCustomerType(vendorCustomerTypeToDelete.ID)
+        ).unwrap();
         setIsDeleteModalOpen(false);
         setVendorCustomerTypeToDelete(null);
+        toast.success('Vendor customer type deleted successfully');
       } catch (error) {
         console.error('Failed to delete vendor customer type:', error);
+        toast.error('Failed to delete vendor customer type. Please try again.');
       }
     }
   };
 
-  const handleSubmit = (values) => {
-    if (currentVendorCustomerType) {
-      dispatch(updateVendorCustomerType({ ...values, ID: currentVendorCustomerType.ID }));
-    } else {
-      dispatch(addVendorCustomerType(values));
+  const handleSubmit = async (values) => {
+    try {
+      if (currentVendorCustomerType) {
+        await dispatch(
+          updateVendorCustomerType({
+            ...values,
+            ID: currentVendorCustomerType.ID,
+          })
+        ).unwrap();
+        toast.success('Vendor customer type updated successfully');
+      } else {
+        await dispatch(addVendorCustomerType(values)).unwrap();
+        toast.success('Vendor customer type saved successfully');
+      }
+      dispatch(fetchVendorCustomerTypes());
+    } catch (error) {
+      console.error('Failed to save vendor customer type:', error);
+      toast.error('Failed to save vendor customer type. Please try again.');
+    } finally {
+      setIsModalOpen(false);
     }
-    setIsModalOpen(false);
   };
 
   const columns = [
     {
       key: 'Name',
       header: 'Name',
-      sortable: true
-    }
+      sortable: true,
+    },
   ];
 
   const actions = [
-    {
+    Edit && {
       icon: PencilIcon,
       title: 'Edit',
       onClick: handleEdit,
-      className: 'text-primary-600 hover:text-primary-900 p-1 rounded-full hover:bg-primary-50'
+      className:
+        'text-primary-600 hover:text-primary-900 p-1 rounded-full hover:bg-primary-50',
     },
-    {
+    Delete && {
       icon: TrashIcon,
       title: 'Delete',
       onClick: handleDelete,
-      className: 'text-error-600 hover:text-error-900 p-1 rounded-full hover:bg-error-50'
-    }
+      className:
+        'text-error-600 hover:text-error-900 p-1 rounded-full hover:bg-error-50',
+    },
   ];
 
   return (
     <div>
       <div className="page-header">
-        <div className="flex justify-between items-center">
+        <div className="flex justify-between sm:items-center max-sm:flex-col gap-4">
           <div>
             <h1>Vendor Customer Types</h1>
             <p>Manage Vendor Customer Types</p>
           </div>
-          <button
-            type="button"
-            onClick={handleAdd}
-            className="btn btn-primary flex items-center"
-          >
-            <PlusIcon className="h-5 w-5 mr-2" aria-hidden="true" />
-            Add Vendor Customer Type
-          </button>
+          {Add && (
+            <button
+              type="button"
+              onClick={handleAdd}
+              className="btn btn-primary max-sm:w-full"
+            >
+              <PlusIcon className="h-5 w-5 mr-2" aria-hidden="true" />
+              Add Vendor Customer Type
+            </button>
+          )}
         </div>
       </div>
 
@@ -116,7 +145,11 @@ function VendorCustomerTypePage() {
       <Modal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
-        title={currentVendorCustomerType ? "Edit Vendor Customer Type" : "Add Vendor Customer Type"}
+        title={
+          currentVendorCustomerType
+            ? 'Edit Vendor Customer Type'
+            : 'Add Vendor Customer Type'
+        }
       >
         <VendorCustomerTypeForm
           initialData={currentVendorCustomerType}
@@ -133,7 +166,8 @@ function VendorCustomerTypePage() {
       >
         <div className="py-3">
           <p className="text-neutral-700">
-            Are you sure you want to delete the vendor customer type "{vendorCustomerTypeToDelete?.name}"?
+            Are you sure you want to delete the vendor customer type "
+            {vendorCustomerTypeToDelete?.Name}"?
           </p>
           <p className="text-sm text-neutral-500 mt-2">
             This action cannot be undone.

@@ -1,49 +1,22 @@
+import axiosInstance from '@/utils/axiosInstance';
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
-
+// const MockData = [
+//   {
+//     ID: '10',
+//     Name: 'Budget 1',
+//   },
+// ];
 // Async thunks
 export const fetchBudgets = createAsyncThunk(
   'budget/fetchBudgets',
-  async () => {
-    // Simulate API call
-    const response = await new Promise((resolve) => {
-      setTimeout(() => {
-        resolve({
-          data: [
-            {
-              id: 1,
-              budgetName: '2024 Operating Budget',
-              fiscalYear: '2024',
-              department: 'Department 1',
-              subDepartment: 'Sub-Department 1',
-              chartOfAccounts: 'Chart of Accounts 1',
-              fund: 'General Fund',
-              project: 'Project 1',
-              appropriation: 1000000,
-              charges: 500000,
-              totalAmount: 1500000,
-              balance: 1000000,
-              status: 'active',
-            },
-            {
-              id: 2,
-              budgetName: '2024 Capital Budget',
-              fiscalYear: '2024',
-              department: 'Department 2',
-              subDepartment: 'Sub-Department 2',
-              chartOfAccounts: 'Chart of Accounts 2',
-              fund: 'General Fund',
-              project: 'Project 2',
-              appropriation: 2000000,
-              charges: 1000000,
-              totalAmount: 3000000,
-              balance: 2000000,
-              status: 'active',
-            },
-          ],
-        });
-      }, 1000);
-    });
-    return response.data;
+  async (_, thunkAPI) => {
+    try {
+      const response = await axiosInstance(`/budget`);
+
+      return response.data.items;
+    } catch (error) {
+      return thunkAPI.rejectWithValue(error.message);
+    }
   }
 );
 
@@ -142,7 +115,9 @@ const budgetSlice = createSlice({
       })
       .addCase(updateBudget.fulfilled, (state, action) => {
         state.isLoading = false;
-        const index = state.budgets.findIndex((budget) => budget.id === action.payload.id);
+        const index = state.budgets.findIndex(
+          (budget) => budget.id === action.payload.id
+        );
         if (index !== -1) {
           state.budgets[index] = action.payload;
         }
@@ -158,7 +133,9 @@ const budgetSlice = createSlice({
       })
       .addCase(deleteBudget.fulfilled, (state, action) => {
         state.isLoading = false;
-        state.budgets = state.budgets.filter((budget) => budget.id !== action.payload);
+        state.budgets = state.budgets.filter(
+          (budget) => budget.id !== action.payload
+        );
       })
       .addCase(deleteBudget.rejected, (state, action) => {
         state.isLoading = false;
@@ -167,4 +144,4 @@ const budgetSlice = createSlice({
   },
 });
 
-export default budgetSlice.reducer; 
+export default budgetSlice.reducer;

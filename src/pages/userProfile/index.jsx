@@ -1,136 +1,211 @@
-import { useState } from "react";
+import { useEffect, useState } from 'react';
 import {
   UserCircleIcon,
   CheckCircleIcon,
   ClockIcon,
   XCircleIcon,
   DocumentIcon,
-} from "@heroicons/react/24/solid";
-import DocumentsTable from "./DocumentsTable";
+  EyeIcon,
+} from '@heroicons/react/24/solid';
 import { Link } from 'react-router-dom';
+import DataTable from '../../components/common/DataTable';
+// import { fetchUserDocumentsList } from '../../api/profileApi'; // adjust path as needed
+import { toast } from 'react-hot-toast';
+import { fetchUserDocumentsList, fetchUserProfile } from './profileUtil';
 
-const mockDocuments = [
-  {
-    id: 1,
-    status: ["approved"],
-    apar: "Disbursement Voucher",
-    invoiceDate: "2024-06-01",
-    invoiceNumber: "INV-001",
-    total: "$15,000.00",
-    funds: "General Fund",
-    owner: "Me",
-  },
-  {
-    id: 2,
-    status: ["requested", "pending"],
-    apar: "Obligation Request",
-    invoiceDate: "2024-06-03",
-    invoiceNumber: "INV-002",
-    total: "$25,000.00",
-    funds: "Special Fund",
-    owner: "Department",
-  },
-  {
-    id: 3,
-    status: ["rejected"],
-    apar: "Disbursement Voucher",
-    invoiceDate: "2024-06-05",
-    invoiceNumber: "INV-003",
-    total: "$5,000.00",
-    funds: "General Fund",
-    owner: "All",
-  },
-];
-
-const statusColors = {
-  approved: "bg-green-100 text-green-700",
-  requested: "bg-blue-100 text-blue-700",
-  pending: "bg-yellow-100 text-yellow-700",
-  rejected: "bg-red-100 text-red-700",
+export const statusLabel = (statusString) => {
+  const statusColors = {
+    'Disbursement Posted': 'bg-green-100 text-green-700',
+    Requested: 'bg-blue-100 text-blue-700',
+    Pending: 'bg-yellow-100 text-yellow-700',
+    'Cheque Requested': 'bg-red-100 text-red-700',
+  };
+  return (
+    <div className="flex gap-2 flex-wrap">
+      {statusString.split(',').map((status, idx) => {
+        const trimmed = status.trim();
+        return (
+          <span
+            key={idx}
+            className={`px-2 py-0.5 rounded-full text-xs font-medium ${
+              statusColors[trimmed] || 'bg-gray-100 text-gray-600'
+            }`}
+          >
+            {trimmed}
+          </span>
+        );
+      })}
+    </div>
+  );
 };
 
 const UserProfilePage = () => {
-  const [ownerFilter, setOwnerFilter] = useState("Me");
-
-  const filteredDocs = mockDocuments.filter((doc) =>
-    ownerFilter === "All" ? true : doc.owner === ownerFilter
-  );
+  const [ownerFilter, setOwnerFilter] = useState('self');
+  const [documents, setDocuments] = useState([]);
+  const [user, setUser] = useState(null);
+  useEffect(() => {
+    fetchUserDocumentsList(ownerFilter)
+      .then((res) => {
+        console.log('res', res);
+        setDocuments(res.data);
+        // setDocuments(res.data || []);
+      })
+      .catch(() => {
+        toast.error('Failed to load documents');
+      });
+  }, [ownerFilter]);
+  useEffect(() => {
+    if (user) return;
+    fetchUserProfile()
+      .then((userData) => {
+        setUser(userData.data);
+      })
+      .catch((error) => {
+        toast.error('Failed to load user profile');
+      });
+  }, []);
+  const { statusCounts, documentsList } = documents || {};
 
   const summary = {
-    total: mockDocuments.length,
-    approved: mockDocuments.filter((d) => d.status.includes("approved")).length,
-    requested: mockDocuments.filter((d) => d.status.includes("requested")).length,
-    rejected: mockDocuments.filter((d) => d.status.includes("rejected")).length,
+    total: statusCounts?.Total,
+    approved: statusCounts?.Approved,
+    requested: statusCounts?.Requested,
+    rejected: statusCounts?.Rejected,
   };
+  // console.log('summary', documentsList);
+  const columns = [
+    {
+      key: 'Status',
+      header: 'Status',
+      render: (value) => statusLabel(value),
+    },
+    { key: 'InvoiceNumber', header: 'Invoice No', sortable: true },
+    { key: 'APAR', header: 'APAR Type', sortable: true },
+    { key: 'InvoiceDate', header: 'Invoice Date', sortable: true },
+    {
+      key: 'Funds',
+      header: 'Funds',
+      sortable: true,
+      render: (value) => value?.Name || '—',
+    },
+    { key: 'Total', header: 'Amount', sortable: true },
+  ];
 
+  // const actions = [
+  //   {
+  //     icon: EyeIcon,
+  //     title: 'View',
+  //     onClick: (item) => {
+  //       console.log('View:', item);
+  //       // Navigate or open modal logic here
+  //     },
+  //   },
+  // ];
   return (
     <div className="p-6 space-y-6">
-      {/* Profile Section */}
-      {/* Profile Section */}
-<div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-  <div className="flex items-center gap-4">
-    <UserCircleIcon className="w-20 h-20 text-gray-400" />
-    <div>
-      <h2 className="text-2xl font-bold text-gray-800">Welcome, John Doe</h2>
-      <p className="text-sm text-gray-500">Position: Accountant</p>
-      <p className="text-sm text-gray-500">Department: Finance</p>
-    </div>
-  </div>
+      {/* Profile Header */}
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+        <div className="flex items-center gap-4">
+          <UserCircleIcon className="w-20 h-20 text-gray-400" />
+          <div className="space-y-1">
+            <h2 className="text-2xl font-bold text-gray-800">
+              Welcome,{' '}
+              {[user?.FirstName, user?.MiddleName, user?.LastName]
+                .filter(Boolean)
+                .join(' ')}
+            </h2>
 
-<div className="flex flex-wrap gap-2">
-    <Link to="/budget-dashboard">
-      <button className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 text-sm">
-        Budget
-      </button>
-    </Link>
-    <Link to="/disbursement-dashboard">
-      <button className="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700 text-sm">
-        Disbursement
-      </button>
-    </Link>
-    <Link to="/collection-dashboard">
-      <button className="px-4 py-2 bg-purple-600 text-white rounded hover:bg-purple-700 text-sm">
-        Collection
-      </button>
-    </Link>
-  </div>
+            {user?.Position?.Name && (
+              <p className="text-sm text-gray-500">
+                Position: {user.Position.Name}
+              </p>
+            )}
 
-</div>
+            {user?.Department?.Name && (
+              <p className="text-sm text-gray-500">
+                Department: {user.Department.Name}
+              </p>
+            )}
+          </div>
+        </div>
 
+        <div className="flex flex-wrap gap-2">
+          <Link to="/budget-dashboard">
+            <button className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 text-sm">
+              Budget
+            </button>
+          </Link>
+          <Link to="/disbursement-dashboard">
+            <button className="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700 text-sm">
+              Disbursement
+            </button>
+          </Link>
+          <Link to="/collection-dashboard">
+            <button className="px-4 py-2 bg-purple-600 text-white rounded hover:bg-purple-700 text-sm">
+              Collection
+            </button>
+          </Link>
+        </div>
+      </div>
 
-      {/* Document Summary Cards */}
+      {/* Summary Cards */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <SummaryCard title="Total Documents" value={summary.total} icon={DocumentIcon} />
-        <SummaryCard title="Approved" value={summary.approved} icon={CheckCircleIcon} />
-        <SummaryCard title="Requested" value={summary.requested} icon={ClockIcon} />
-        <SummaryCard title="Rejected" value={summary.rejected} icon={XCircleIcon} />
+        <SummaryCard
+          title="Total Documents"
+          value={summary.total}
+          icon={DocumentIcon}
+        />
+        <SummaryCard
+          title="Approved"
+          value={summary.approved}
+          icon={CheckCircleIcon}
+        />
+        <SummaryCard
+          title="Requested"
+          value={summary.requested}
+          icon={ClockIcon}
+        />
+        <SummaryCard
+          title="Rejected"
+          value={summary.rejected}
+          icon={XCircleIcon}
+        />
       </div>
 
       {/* Filters */}
       <div className="flex items-center gap-6">
         <span className="text-sm font-medium text-gray-700">Owner:</span>
-        {["Me", "Department", "All"].map((opt) => (
-          <label key={opt} className="flex items-center gap-2">
+        {[
+          { label: 'Me', value: 'self' },
+          { label: 'Department', value: 'department' },
+          { label: 'All', value: 'all' },
+        ].map((opt) => (
+          <label key={opt.value} className="flex items-center gap-2">
             <input
               type="radio"
               name="owner"
-              value={opt}
-              checked={ownerFilter === opt}
-              onChange={() => setOwnerFilter(opt)}
+              value={opt.value}
+              checked={ownerFilter === opt.value}
+              onChange={() => setOwnerFilter(opt.value)}
               className="text-blue-600"
             />
-            <span className="text-sm">{opt}</span>
+            <span className="text-sm">{opt.label}</span>
           </label>
         ))}
       </div>
 
       {/* Document Table */}
-      <DocumentsTable documents={filteredDocs} />
+      <DataTable
+        columns={columns}
+        data={documentsList || []}
+        // actions={actions}
+        pagination
+      />
     </div>
   );
 };
 
-// Summary card component
+// Summary Card component
 const SummaryCard = ({ title, value, icon: Icon }) => (
   <div className="bg-white shadow-sm rounded-lg p-4 flex items-center gap-4">
     <div className="p-2 bg-blue-100 rounded-full text-blue-600">

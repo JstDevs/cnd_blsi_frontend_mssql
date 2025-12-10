@@ -1,183 +1,297 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
+import axios from 'axios';
+const API_URL = import.meta.env.VITE_API_URL;
 
-// Generate mock receipt data
-const generateMockGeneralReceipts = () => {
-  const statuses = ['Valid', 'Cancelled'];
-  const departments = ['Office of the Mayor', 'Accounting Department', 'Treasury Department', 'IT Department'];
-  const paymentModes = ['Cash', 'Cheque', 'Bank Transfer'];
-  const funds = ['General Fund', 'Special Education Fund', 'Trust Fund'];
+// Mock Data
+const mockGeneralServiceReceipts = [];
 
-  return Array.from({ length: 10 }, (_, i) => ({
-    id: i + 1,
-    receiptNumber: `OR-2024-01-${String(i + 1).padStart(4, '0')}`,
-    receiptDate: new Date(2024, 0, Math.floor(Math.random() * 28) + 1).toISOString().split('T')[0],
-    payorName: `Payor ${i + 1}`,
-    payorAddress: 'Sample Address, Municipality',
-    fund: funds[Math.floor(Math.random() * funds.length)],
-    modeOfPayment: paymentModes[Math.floor(Math.random() * paymentModes.length)],
-    department: departments[Math.floor(Math.random() * departments.length)],
-    totalAmount: Math.floor(Math.random() * 50000) + 1000,
-    status: statuses[Math.floor(Math.random() * statuses.length)],
-    collectedBy: 'Jane Doe',
-    dateCreated: new Date(2024, 0, Math.floor(Math.random() * 28) + 1).toISOString(),
-    chequeNumber: null,
-    chequeDate: null,
-    draweeBank: null,
-    ePaymentReference: null,
-  }));
-};
-
-const initialState = {
-  generalReceipts: generateMockGeneralReceipts(),
-  generalReceipt: null,
-  isLoading: false,
-  error: null,
-};
-
-// Thunks for API calls
-export const fetchGeneralReceipts = createAsyncThunk(
-  'generalReceipts/fetchAll',
+// Async thunks for CRUD operations
+export const fetchGeneralServiceReceipts = createAsyncThunk(
+  'generalServiceReceipts/fetchGeneralServiceReceipts',
   async (_, thunkAPI) => {
     try {
-      // Simulate API call
-      return new Promise((resolve) => {
-        setTimeout(() => {
-          resolve(generateMockGeneralReceipts());
-        }, 500);
+      const token = localStorage.getItem('token');
+      const response = await axios.get(`${API_URL}/generalservicerecipt`, {
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
       });
+      return response.data;
     } catch (error) {
-      return thunkAPI.rejectWithValue(error.message);
+      return thunkAPI.rejectWithValue(
+        error.response?.data?.message || error.message
+      );
     }
   }
 );
 
-export const fetchGeneralReceiptById = createAsyncThunk(
-  'generalReceipts/fetchById',
+export const fetchGeneralServiceReceiptById = createAsyncThunk(
+  'generalServiceReceipts/fetchGeneralServiceReceiptById',
   async (id, thunkAPI) => {
     try {
-      // Simulate API call
-      return new Promise((resolve, reject) => {
-        setTimeout(() => {
-          const state = thunkAPI.getState();
-          const receipt = state.generalReceipts.generalReceipts.find(r => r.id === id);
-          if (receipt) {
-            resolve(receipt);
-          } else {
-            reject(new Error('General receipt not found'));
-          }
-        }, 500);
-      });
+      const token = localStorage.getItem('token');
+      const response = await axios.get(
+        `${API_URL}/api/general-service-receipts/${id}`,
+        {
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+      return response.data;
     } catch (error) {
-      return thunkAPI.rejectWithValue(error.message);
+      return thunkAPI.rejectWithValue(
+        error.response?.data?.message || error.message
+      );
     }
   }
 );
 
-export const createGeneralReceipt = createAsyncThunk(
-  'generalReceipts/create',
-  async (generalReceipt, thunkAPI) => {
+export const createGeneralServiceReceipt = createAsyncThunk(
+  'generalServiceReceipts/createGeneralServiceReceipt',
+  async (receiptData, thunkAPI) => {
     try {
-      // Simulate API call
-      return new Promise((resolve) => {
-        setTimeout(() => {
-          const newReceipt = {
-            ...generalReceipt,
-            id: Date.now(),
-            receiptNumber: `OR-2024-01-${String(Math.floor(Math.random() * 9000) + 1000)}`,
-            dateCreated: new Date().toISOString(),
-            status: 'Valid',
-          };
-          resolve(newReceipt);
-        }, 500);
-      });
+      const token = localStorage.getItem('token');
+      const response = await axios.post(
+        `${API_URL}/generalservicerecipt`,
+        receiptData, // This should be the FormData object
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+      return response.data;
     } catch (error) {
-      return thunkAPI.rejectWithValue(error.message);
+      return thunkAPI.rejectWithValue(
+        error.response?.data?.message || error.message
+      );
     }
   }
 );
 
-export const updateGeneralReceipt = createAsyncThunk(
-  'generalReceipts/update',
-  async (generalReceipt, thunkAPI) => {
+export const updateGeneralServiceReceipt = createAsyncThunk(
+  'generalServiceReceipts/updateGeneralServiceReceipt',
+  async ({ id, ...receiptData }, thunkAPI) => {
     try {
-      // Simulate API call
-      return new Promise((resolve) => {
-        setTimeout(() => {
-          resolve(generalReceipt);
-        }, 500);
-      });
+      const token = localStorage.getItem('token');
+      const response = await axios.put(
+        `${API_URL}/generalservicerecipt/${id}`,
+        receiptData,
+        {
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+      return response.data;
     } catch (error) {
-      return thunkAPI.rejectWithValue(error.message);
+      return thunkAPI.rejectWithValue(
+        error.response?.data?.message || error.message
+      );
     }
   }
 );
 
-const generalReceiptSlice = createSlice({
-  name: 'generalReceipts',
-  initialState,
+export const deleteGeneralServiceReceipt = createAsyncThunk(
+  'generalServiceReceipts/deleteGeneralServiceReceipt',
+  async (id, thunkAPI) => {
+    try {
+      const token = localStorage.getItem('token');
+      await axios.delete(`${API_URL}/generalservicerecipt/${id}`, {
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      return id;
+    } catch (error) {
+      return thunkAPI.rejectWithValue(
+        error.response?.data?.message || error.message
+      );
+    }
+  }
+);
+
+// ✅ Get Current Number
+export const getGeneralServiceReceiptCurrentNumber = createAsyncThunk(
+  'generalServiceReceipts/getGeneralServiceReceiptCurrentNumber',
+  async (_, thunkAPI) => {
+    try {
+      const token = localStorage.getItem('token');
+      const response = await axios.get(
+        `${API_URL}/generalservicerecipt/getCurrentNumber`,
+        {
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+      return response.data;
+    } catch (error) {
+      return thunkAPI.rejectWithValue(
+        error.response?.data?.message || error.message
+      );
+    }
+  }
+);
+const generalServiceReceiptsSlice = createSlice({
+  name: 'generalServiceReceipts',
+  initialState: {
+    receipts: [],
+    currentReceipt: null,
+    isLoading: false,
+    currentNumber: null, // ✅ store current number
+    error: null,
+  },
   reducers: {
-    resetGeneralReceiptState: (state) => {
-      state.generalReceipt = null;
+    clearError: (state) => {
       state.error = null;
+    },
+    clearCurrentReceipt: (state) => {
+      state.currentReceipt = null;
     },
   },
   extraReducers: (builder) => {
     builder
-      // Fetch all general receipts
-      .addCase(fetchGeneralReceipts.pending, (state) => {
+      // Fetch receipts
+      .addCase(fetchGeneralServiceReceipts.pending, (state) => {
         state.isLoading = true;
+        state.error = null;
       })
-      .addCase(fetchGeneralReceipts.fulfilled, (state, action) => {
+      .addCase(fetchGeneralServiceReceipts.fulfilled, (state, action) => {
         state.isLoading = false;
-        state.generalReceipts = action.payload;
+        state.receipts = Array.isArray(action.payload) ? action.payload : [];
       })
-      .addCase(fetchGeneralReceipts.rejected, (state, action) => {
+      .addCase(fetchGeneralServiceReceipts.rejected, (state, action) => {
         state.isLoading = false;
-        state.error = action.payload;
+        state.error =
+          action.payload || 'Failed to fetch general service receipts';
+        console.warn(
+          'Failed to fetch general service receipts, using mock data.',
+          state.error
+        );
+        state.receipts = mockGeneralServiceReceipts;
       })
-      // Fetch single general receipt
-      .addCase(fetchGeneralReceiptById.pending, (state) => {
+
+      // Fetch receipt by ID
+      .addCase(fetchGeneralServiceReceiptById.pending, (state) => {
         state.isLoading = true;
+        state.error = null;
       })
-      .addCase(fetchGeneralReceiptById.fulfilled, (state, action) => {
+      .addCase(fetchGeneralServiceReceiptById.fulfilled, (state, action) => {
         state.isLoading = false;
-        state.generalReceipt = action.payload;
+        state.currentReceipt = action.payload;
       })
-      .addCase(fetchGeneralReceiptById.rejected, (state, action) => {
+      .addCase(fetchGeneralServiceReceiptById.rejected, (state, action) => {
         state.isLoading = false;
-        state.error = action.payload;
+        state.error =
+          action.payload || 'Failed to fetch general service receipt';
       })
-      // Create general receipt
-      .addCase(createGeneralReceipt.pending, (state) => {
+
+      // Create receipt
+      .addCase(createGeneralServiceReceipt.pending, (state) => {
         state.isLoading = true;
+        state.error = null;
       })
-      .addCase(createGeneralReceipt.fulfilled, (state, action) => {
+      .addCase(createGeneralServiceReceipt.fulfilled, (state, action) => {
         state.isLoading = false;
-        state.generalReceipts.push(action.payload);
+        if (!Array.isArray(state.receipts)) {
+          state.receipts = [];
+        }
+        state.receipts.push(action.payload);
       })
-      .addCase(createGeneralReceipt.rejected, (state, action) => {
+      .addCase(createGeneralServiceReceipt.rejected, (state, action) => {
         state.isLoading = false;
-        state.error = action.payload;
+        state.error =
+          action.payload || 'Failed to create general service receipt';
+        console.error('Failed to create general service receipt:', state.error);
       })
-      // Update general receipt
-      .addCase(updateGeneralReceipt.pending, (state) => {
+
+      // Update receipt
+      .addCase(updateGeneralServiceReceipt.pending, (state) => {
         state.isLoading = true;
+        state.error = null;
       })
-      .addCase(updateGeneralReceipt.fulfilled, (state, action) => {
+      .addCase(updateGeneralServiceReceipt.fulfilled, (state, action) => {
         state.isLoading = false;
-        const index = state.generalReceipts.findIndex(
+        const index = state.receipts.findIndex(
           (receipt) => receipt.id === action.payload.id
         );
         if (index !== -1) {
-          state.generalReceipts[index] = action.payload;
+          if (!Array.isArray(state.receipts)) {
+            state.receipts = [];
+          }
+          state.receipts[index] = action.payload;
+        }
+        if (
+          state.currentReceipt &&
+          state.currentReceipt.id === action.payload.id
+        ) {
+          state.currentReceipt = action.payload;
         }
       })
-      .addCase(updateGeneralReceipt.rejected, (state, action) => {
+      .addCase(updateGeneralServiceReceipt.rejected, (state, action) => {
         state.isLoading = false;
-        state.error = action.payload;
-      });
+        state.error =
+          action.payload || 'Failed to update general service receipt';
+        console.error('Failed to update general service receipt:', state.error);
+      })
+
+      // Delete receipt
+      .addCase(deleteGeneralServiceReceipt.pending, (state) => {
+        state.isLoading = true;
+        state.error = null;
+      })
+      .addCase(deleteGeneralServiceReceipt.fulfilled, (state, action) => {
+        state.isLoading = false;
+        if (!Array.isArray(state.receipts)) {
+          state.receipts = [];
+        }
+        state.receipts = state.receipts.filter(
+          (receipt) => receipt.id !== action.payload
+        );
+        if (
+          state.currentReceipt &&
+          state.currentReceipt.id === action.payload
+        ) {
+          state.currentReceipt = null;
+        }
+      })
+      .addCase(deleteGeneralServiceReceipt.rejected, (state, action) => {
+        state.isLoading = false;
+        state.error =
+          action.payload || 'Failed to delete general service receipt';
+        console.error('Failed to delete general service receipt:', state.error);
+      })
+      // ✅ Get Current Number
+      .addCase(getGeneralServiceReceiptCurrentNumber.pending, (state) => {
+        state.isLoading = true;
+        state.error = null;
+      })
+      .addCase(
+        getGeneralServiceReceiptCurrentNumber.fulfilled,
+        (state, action) => {
+          state.isLoading = false;
+          state.currentNumber = action.payload;
+        }
+      )
+      .addCase(
+        getGeneralServiceReceiptCurrentNumber.rejected,
+        (state, action) => {
+          state.isLoading = false;
+          state.error =
+            action.payload ||
+            'Failed to fetch general service receipt current number';
+        }
+      );
   },
 });
 
-export const { resetGeneralReceiptState } = generalReceiptSlice.actions;
-export default generalReceiptSlice.reducer;
+export const { clearError, clearCurrentReceipt } =
+  generalServiceReceiptsSlice.actions;
+export default generalServiceReceiptsSlice.reducer;

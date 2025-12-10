@@ -8,17 +8,23 @@ import {
   fetchEmploymentStatuses,
   addEmploymentStatus,
   updateEmploymentStatus,
-  deleteEmploymentStatus
+  deleteEmploymentStatus,
 } from '../../features/settings/employmentStatusSlice';
+import toast from 'react-hot-toast';
+import { useModulePermissions } from '@/utils/useModulePremission';
 
 function EmploymentStatus() {
   const dispatch = useDispatch();
-  const { employmentStatuses, isLoading } = useSelector(state => state.employmentStatuses);
-
+  const { employmentStatuses, isLoading } = useSelector(
+    (state) => state.employmentStatuses
+  );
+  // ---------------------USE MODULE PERMISSIONS------------------START (EmploymentStatus Page - MODULE ID = 93 )
+  const { Add, Edit, Delete } = useModulePermissions(93);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [currentEmploymentStatus, setCurrentEmploymentStatus] = useState(null);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
-  const [employmentStatusToDelete, setEmploymentStatusToDelete] = useState(null);
+  const [employmentStatusToDelete, setEmploymentStatusToDelete] =
+    useState(null);
 
   useEffect(() => {
     dispatch(fetchEmploymentStatuses());
@@ -42,63 +48,82 @@ function EmploymentStatus() {
   const confirmDelete = async () => {
     if (employmentStatusToDelete) {
       try {
-        await dispatch(deleteEmploymentStatus(employmentStatusToDelete.ID)).unwrap();
+        await dispatch(
+          deleteEmploymentStatus(employmentStatusToDelete.ID)
+        ).unwrap();
         setIsDeleteModalOpen(false);
         setEmploymentStatusToDelete(null);
+        toast.success('Employment status deleted successfully');
       } catch (error) {
         console.error('Failed to delete employment status:', error);
+        toast.error('Failed to delete employment status. Please try again.');
       }
     }
   };
 
-  const handleSubmit = (values) => {
-    if (currentEmploymentStatus) {
-      dispatch(updateEmploymentStatus({ ...values, ID: currentEmploymentStatus.ID }));
-    } else {
-      dispatch(addEmploymentStatus(values));
+  const handleSubmit = async (values) => {
+    try {
+      if (currentEmploymentStatus) {
+        await dispatch(
+          updateEmploymentStatus({ ...values, ID: currentEmploymentStatus.ID })
+        ).unwrap();
+        toast.success('Employment status updated successfully');
+      } else {
+        await dispatch(addEmploymentStatus(values)).unwrap();
+        toast.success('Employment status saved successfully');
+      }
+      dispatch(fetchEmploymentStatuses());
+    } catch (error) {
+      console.error('Failed to save employment status:', error);
+      toast.error('Failed to save employment status. Please try again.');
+    } finally {
+      setIsModalOpen(false);
     }
-    setIsModalOpen(false);
   };
 
   const columns = [
     {
       key: 'Name',
       header: 'Employment Status',
-      sortable: true
-    }
+      sortable: true,
+    },
   ];
 
   const actions = [
-    {
+    Edit && {
       icon: PencilIcon,
       title: 'Edit',
       onClick: handleEdit,
-      className: 'text-primary-600 hover:text-primary-900 p-1 rounded-full hover:bg-primary-50'
+      className:
+        'text-primary-600 hover:text-primary-900 p-1 rounded-full hover:bg-primary-50',
     },
-    {
+    Delete && {
       icon: TrashIcon,
       title: 'Delete',
       onClick: handleDelete,
-      className: 'text-error-600 hover:text-error-900 p-1 rounded-full hover:bg-error-50'
-    }
+      className:
+        'text-error-600 hover:text-error-900 p-1 rounded-full hover:bg-error-50',
+    },
   ];
 
   return (
     <div>
       <div className="page-header">
-        <div className="flex justify-between items-center">
+        <div className="flex justify-between sm:items-center max-sm:flex-col gap-4">
           <div>
             <h1>Employment Status</h1>
             <p>Manage Employment Statuses</p>
           </div>
-          <button
-            type="button"
-            onClick={handleAdd}
-            className="btn btn-primary flex items-center"
-          >
-            <PlusIcon className="h-5 w-5 mr-2" aria-hidden="true" />
-            Add Employment Status
-          </button>
+          {Add && (
+            <button
+              type="button"
+              onClick={handleAdd}
+              className="btn btn-primary max-sm:w-full"
+            >
+              <PlusIcon className="h-5 w-5 mr-2" aria-hidden="true" />
+              Add Employment Status
+            </button>
+          )}
         </div>
       </div>
 
@@ -116,7 +141,11 @@ function EmploymentStatus() {
       <Modal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
-        title={currentEmploymentStatus ? "Edit Employment Status" : "Add Employment Status"}
+        title={
+          currentEmploymentStatus
+            ? 'Edit Employment Status'
+            : 'Add Employment Status'
+        }
       >
         <EmploymentStatusForm
           initialData={currentEmploymentStatus}
@@ -133,7 +162,8 @@ function EmploymentStatus() {
       >
         <div className="py-3">
           <p className="text-neutral-700">
-            Are you sure you want to delete the employment status "{employmentStatusToDelete?.name}"?
+            Are you sure you want to delete the employment status "
+            {employmentStatusToDelete?.Name}"?
           </p>
           <p className="text-sm text-neutral-500 mt-2">
             This action cannot be undone.

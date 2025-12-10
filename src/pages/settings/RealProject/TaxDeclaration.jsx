@@ -1,74 +1,75 @@
-import React, { useState } from "react";
-import { Button } from "@/components/common/Button";
-import { Plus, Trash2 } from "lucide-react";
+import React, { useState } from 'react';
+import { Button } from '@/components/common/Button';
+import { Plus, Trash2 } from 'lucide-react';
+import toast from 'react-hot-toast';
 
 export default function TaxDeclarationPage() {
   const [formData, setFormData] = useState({
-    tdNo: "",
-    propertyId: "",
-    kind: "",
-    numStoreys: "",
-    owner: "",
-    tin: "",
-    ownerPhone: "",
-    address: "",
-    beneficialUser: "",
-    beneficialTin: "",
-    beneficialPhone: "",
-    beneficialAddress: "",
-    octTctcloaNo: "",
-    surveyNo: "",
-    lotNo: "",
-    blockNo: "",
-    cct: "",
-    dated: "",
+    tdNo: '',
+    propertyId: '',
+    kind: '',
+    numStoreys: '',
+    owner: '',
+    tin: '',
+    ownerPhone: '',
+    address: '',
+    beneficialUser: '',
+    beneficialTin: '',
+    beneficialPhone: '',
+    beneficialAddress: '',
+    octTctcloaNo: '',
+    surveyNo: '',
+    lotNo: '',
+    blockNo: '',
+    cct: '',
+    dated: '',
     boundaries: {
-      north: "",
-      south: "",
-      east: "",
-      west: "",
+      north: '',
+      south: '',
+      east: '',
+      west: '',
     },
     taxable: false,
-    description: "",
-    actualUse: "",
-    classification: "",
-    areaSize: "",
-    assessmentLevel: "",
-    marketValue: "",
-    cancelsTdNo: "",
-    effectivity: "",
-    ownerPrevious: "",
-    previousValue: "",
-    amountsInWords: "",
-    memoranda: "",
+    description: '',
+    actualUse: '',
+    classification: '',
+    areaSize: '',
+    assessmentLevel: '',
+    marketValue: '',
+    cancelsTdNo: '',
+    effectivity: '',
+    ownerPrevious: '',
+    previousValue: '',
+    amountsInWords: '',
+    memoranda: '',
   });
 
   const [assessmentRows, setAssessmentRows] = useState([
     {
-      description: "",
-      area: "",
-      marketValue: "",
-      actualUse: "",
-      assessmentLevel: "",
-      assessmentValue: "",
+      description: '',
+      area: '',
+      marketValue: '',
+      actualUse: '',
+      assessmentLevel: '',
+      assessmentValue: '',
     },
   ]);
 
   const handleInputChange = (e) => {
     const { name, value, type, checked } = e.target;
-    if (name.includes(".")) {
-      const [parent, child] = name.split(".");
+    if (name.includes('.')) {
+      const [parent, child] = name.split('.');
       setFormData((prev) => ({
         ...prev,
         [parent]: {
           ...prev[parent],
-          [child]: type === "checkbox" ? checked : value,
+          [child]: type === 'checkbox' ? checked : value,
         },
       }));
     } else {
       setFormData((prev) => ({
         ...prev,
-        [name]: type === "checkbox" ? checked : value,
+        [name]: type === 'checkbox' ? checked : value,
       }));
     }
   };
@@ -83,12 +84,12 @@ export default function TaxDeclarationPage() {
     setAssessmentRows([
       ...assessmentRows,
       {
-        description: "",
-        area: "",
-        marketValue: "",
-        actualUse: "",
-        assessmentLevel: "",
-        assessmentValue: "",
+        description: '',
+        area: '',
+        marketValue: '',
+        actualUse: '',
+        assessmentLevel: '',
+        assessmentValue: '',
       },
     ]);
   };
@@ -100,9 +101,9 @@ export default function TaxDeclarationPage() {
   };
 
   const handleSubmit = () => {
-    console.log("Form Data:", formData);
-    console.log("Assessment Rows:", assessmentRows);
-    alert("Tax Declaration saved successfully!");
+    console.log('Form Data:', formData);
+    console.log('Assessment Rows:', assessmentRows);
+    toast.success('Tax Declaration saved successfully!');
   };
 
   return (
@@ -534,7 +535,7 @@ export default function TaxDeclarationPage() {
                         onChange={(e) =>
                           handleAssessmentChange(
                             index,
-                            "description",
+                            'description',
                             e.target.value
                           )
                         }
@@ -546,7 +547,7 @@ export default function TaxDeclarationPage() {
                         type="text"
                         value={row.area}
                         onChange={(e) =>
-                          handleAssessmentChange(index, "area", e.target.value)
+                          handleAssessmentChange(index, 'area', e.target.value)
                         }
                         className="w-full p-1 border-0 focus:ring-1 focus:ring-blue-500"
                       />
@@ -558,7 +559,7 @@ export default function TaxDeclarationPage() {
                         onChange={(e) =>
                           handleAssessmentChange(
                             index,
-                            "marketValue",
+                            'marketValue',
                             e.target.value
                           )
                         }
@@ -572,7 +573,7 @@ export default function TaxDeclarationPage() {
                         onChange={(e) =>
                           handleAssessmentChange(
                             index,
-                            "actualUse",
+                            'actualUse',
                             e.target.value
                           )
                         }
@@ -586,7 +587,7 @@ export default function TaxDeclarationPage() {
                         onChange={(e) =>
                           handleAssessmentChange(
                             index,
-                            "assessmentLevel",
+                            'assessmentLevel',
                             e.target.value
                           )
                         }
@@ -600,7 +601,7 @@ export default function TaxDeclarationPage() {
                         onChange={(e) =>
                           handleAssessmentChange(
                             index,
-                            "assessmentValue",
+                            'assessmentValue',
                             e.target.value
                           )
                         }

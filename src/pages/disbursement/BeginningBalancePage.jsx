@@ -1,252 +1,302 @@
-import { useState } from 'react';
-import { FiPlus, FiEdit2, FiTrash2 } from 'react-icons/fi';
+import React, { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { toast } from 'react-hot-toast';
-import Button from '../../components/common/Button';
+import BeginningBalanceForm from '../../components/forms/BeginningBalanceForm';
 import DataTable from '../../components/common/DataTable';
+import {
+  fetchBeginningBalance,
+  addBeginningBalance,
+  deleteBeginningBalance,
+  updateBeginningBalance,
+  transferBeginningBalance,
+  resetBeginningBalanceState,
+} from '../../features/disbursement/beginningBalanceSlice';
+import { fetchFiscalYears } from '../../features/settings/fiscalYearSlice';
+import BeginningBalanceAddForm from '../../components/forms/BeginningBalanceAddForm';
+import BeginningBalanceTransferForm from '../../components/forms/BeginningBalanceTransferForm';
 import Modal from '../../components/common/Modal';
-import FormField from '../../components/common/FormField';
-import { Formik, Form } from 'formik';
-import * as Yup from 'yup';
+import { fetchFunds } from '../../features/budget/fundsSlice';
+import { fetchAccounts } from '../../features/settings/chartOfAccountsSlice';
+import { PlusIcon, PencilIcon, TrashIcon } from '@heroicons/react/24/outline';
+import { useModulePermissions } from '@/utils/useModulePremission';
 
-const validationSchema = Yup.object().shape({
-  date: Yup.date().required('Date is required'),
-  accountCode: Yup.string().required('Account code is required'),
-  description: Yup.string().required('Description is required'),
-  debit: Yup.number().min(0, 'Debit amount must be greater than or equal to 0'),
-  credit: Yup.number().min(0, 'Credit amount must be greater than or equal to 0'),
-});
+function truncate(str, maxLength) {
+  if (!str) return '';
+  return str.length > maxLength ? str.slice(0, maxLength) + '...' : str;
+}
 
-const BeginningBalanceForm = ({ initialData, onClose }) => {
-  const [isSubmitting, setIsSubmitting] = useState(false);
+function BeginningBalancePage() {
+  const chartOfAccounts = useSelector(
+    (state) => state.chartOfAccounts?.accounts || []
+  );
+  const { funds } = useSelector((state) => state.funds);
 
-  const handleSubmit = async (values) => {
+  const dispatch = useDispatch();
+  const { fiscalYears } = useSelector((state) => state.fiscalYears);
+  const { beginningBalance, isLoading, error } = useSelector(
+    (state) => state.beginningBalance
+  );
+  const [showAddModal, setShowAddModal] = useState(false);
+  const [showTransferModal, setShowTransferModal] = useState(false);
+  const [currentBeginningBalance, setCurrentBeginningBalance] = useState(null);
+
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [beginningBalanceToDelete, setBeginningBalanceToDelete] =
+    useState(null);
+  const [searchFilters, setSearchFilters] = useState(null);
+  // ---------------------USE MODULE PERMISSIONS------------------START (BeginningBalancePage - MODULE ID =  21 )
+  const { Add, Edit, Delete } = useModulePermissions(21);
+  useEffect(() => {
+    dispatch(resetBeginningBalanceState());
+    dispatch(fetchFiscalYears());
+    dispatch(fetchFunds());
+    dispatch(fetchAccounts());
+  }, [dispatch]);
+
+  const handleAddSubmit = async (values) => {
     try {
-      setIsSubmitting(true);
-      // TODO: Replace with actual API call
-      console.log('Form data:', values);
-      toast.success('Beginning balance saved successfully');
-      onClose();
+      if (currentBeginningBalance) {
+        await dispatch(updateBeginningBalance(values)).unwrap();
+      } else {
+        await dispatch(addBeginningBalance(values)).unwrap();
+      }
+
+      toast.success('Success');
+
+      if (searchFilters) {
+        await dispatch(fetchBeginningBalance(searchFilters)).unwrap();
+      }
     } catch (error) {
-      toast.error(error.message || 'Failed to save beginning balance');
+      toast.error(error || 'Failed');
     } finally {
-      setIsSubmitting(false);
+      setShowAddModal(false);
     }
   };
 
-  return (
-    <Formik
-      initialValues={initialData || {
-        date: new Date().toISOString().split('T')[0],
-        accountCode: '',
-        description: '',
-        debit: '',
-        credit: '',
-      }}
-      validationSchema={validationSchema}
-      onSubmit={handleSubmit}
-    >
-      {({ isValid, dirty }) => (
-        <Form className="space-y-4">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <FormField
-              label="Date"
-              name="date"
-              type="date"
-              required
-            />
-            <FormField
-              label="Account Code"
-              name="accountCode"
-              type="select"
-              required
-              options={[
-                { value: '1-01-01-010', label: '1-01-01-010 - Cash in Bank' },
-                { value: '1-01-02-020', label: '1-01-02-020 - Cash - Treasury' },
-              ]}
-            />
-          </div>
+  const handleTransferSubmit = async (values) => {
+    try {
+      await dispatch(transferBeginningBalance(values)).unwrap();
 
-          <FormField
-            label="Description"
-            name="description"
-            type="textarea"
-            required
-            rows={3}
-          />
+      dispatch(resetBeginningBalanceState());
+      await dispatch(
+        fetchBeginningBalance({ FiscalYearID: values.NextFiscalYearID })
+      ).unwrap();
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <FormField
-              label="Debit"
-              name="debit"
-              type="number"
-              min="0"
-              step="0.01"
-            />
-            <FormField
-              label="Credit"
-              name="credit"
-              type="number"
-              min="0"
-              step="0.01"
-            />
-          </div>
+      if (searchFilters) {
+        await dispatch(fetchBeginningBalance(searchFilters)).unwrap();
+      }
 
-          <div className="flex justify-end space-x-3 pt-4">
-            <Button
-              type="button"
-              variant="secondary"
-              onClick={onClose}
-              disabled={isSubmitting}
-            >
-              Cancel
-            </Button>
-            <Button
-              type="submit"
-              disabled={isSubmitting || !isValid || !dirty}
-              loading={isSubmitting}
-            >
-              {initialData ? 'Update' : 'Save'}
-            </Button>
-          </div>
-        </Form>
-      )}
-    </Formik>
-  );
-};
-
-const BeginningBalancePage = () => {
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [selectedEntry, setSelectedEntry] = useState(null);
-  const [isLoading, setIsLoading] = useState(false);
-
-  // Mock data for demonstration
-  const mockEntries = [
-    {
-      id: 1,
-      date: '2024-01-01',
-      accountCode: '1-01-01-010',
-      description: 'Beginning balance for Cash in Bank',
-      debit: 100000,
-      credit: 0,
-    },
-    {
-      id: 2,
-      date: '2024-01-01',
-      accountCode: '1-01-02-020',
-      description: 'Beginning balance for Cash - Treasury',
-      debit: 50000,
-      credit: 0,
-    },
-  ];
+      toast.success('Success');
+    } catch (error) {
+      toast.error(error || 'Transfer failed');
+    } finally {
+      setShowTransferModal(false);
+    }
+  };
 
   const handleAdd = () => {
-    setSelectedEntry(null);
-    setIsModalOpen(true);
+    setCurrentBeginningBalance(null);
+    setShowAddModal(true);
   };
 
-  const handleEdit = (entry) => {
-    setSelectedEntry(entry);
-    setIsModalOpen(true);
+  const handleEdit = (beginningBalance) => {
+    setCurrentBeginningBalance(beginningBalance);
+    setShowAddModal(true);
   };
 
-  const handleDelete = async (id) => {
-    if (window.confirm('Are you sure you want to delete this entry?')) {
+  const handleDelete = (beginningBalance) => {
+    setBeginningBalanceToDelete(beginningBalance);
+    setIsDeleteModalOpen(true);
+  };
+
+  const confirmDelete = async () => {
+    if (beginningBalanceToDelete) {
       try {
-        setIsLoading(true);
-        // TODO: Replace with actual API call
-        console.log('Deleting entry:', id);
-        toast.success('Entry deleted successfully');
+        await dispatch(
+          deleteBeginningBalance(beginningBalanceToDelete.ID)
+        ).unwrap();
+        setIsDeleteModalOpen(false);
+        setBeginningBalanceToDelete(null);
+
+        toast.success('Deleted');
       } catch (error) {
-        toast.error(error.message || 'Failed to delete entry');
-      } finally {
-        setIsLoading(false);
+        toast.error(error || 'Failed');
       }
     }
   };
 
-  const formatCurrency = (amount) => {
-    return new Intl.NumberFormat('en-PH', {
-      style: 'currency',
-      currency: 'PHP',
-    }).format(amount);
-  };
-
+  // Table columns definition
   const columns = [
     {
-      header: 'Date',
-      accessorKey: 'date',
-      cell: ({ row }) => new Date(row.original.date).toLocaleDateString(),
+      key: 'FiscalYearName',
+      header: 'Fiscal Year',
+      sortable: true,
     },
     {
-      header: 'Account Code',
-      accessorKey: 'accountCode',
+      key: 'FundName',
+      header: 'Funds',
+      sortable: true,
     },
     {
-      header: 'Description',
-      accessorKey: 'description',
+      key: 'AccountName',
+      header: 'Account',
+      sortable: true,
     },
     {
-      header: 'Debit',
-      accessorKey: 'debit',
-      cell: ({ row }) => formatCurrency(row.original.debit),
+      key: 'BeginningBalance',
+      header: 'Beginning Balance',
+      sortable: true,
     },
-    {
-      header: 'Credit',
-      accessorKey: 'credit',
-      cell: ({ row }) => formatCurrency(row.original.credit),
+  ];
+  const actions = [
+    Edit && {
+      icon: PencilIcon,
+      title: 'Edit',
+      onClick: handleEdit,
+      className:
+        'text-primary-600 hover:text-primary-900 p-1 rounded-full hover:bg-primary-50',
     },
-    {
-      header: 'Actions',
-      cell: ({ row }) => (
-        <div className="flex items-center space-x-2">
-          <button
-            onClick={() => handleEdit(row.original)}
-            className="text-blue-600 hover:text-blue-800"
-          >
-            <FiEdit2 className="w-5 h-5" />
-          </button>
-          <button
-            onClick={() => handleDelete(row.original.id)}
-            className="text-red-600 hover:text-red-800"
-          >
-            <FiTrash2 className="w-5 h-5" />
-          </button>
-        </div>
-      ),
+    Delete && {
+      icon: TrashIcon,
+      title: 'Delete',
+      onClick: handleDelete,
+      className:
+        'text-error-600 hover:text-error-900 p-1 rounded-full hover:bg-error-50',
     },
   ];
 
+  const handleSubmit = async (values, { setSubmitting }) => {
+    try {
+      setSearchFilters(values);
+      await dispatch(fetchBeginningBalance(values)).unwrap(); // ⬅️ wait for fetch to complete
+    } catch (error) {
+      console.error('Fetch failed:', error);
+    } finally {
+      setSubmitting(false); // ⬅️ ensures button is re-enabled after fetch
+    }
+  };
+
   return (
-    <div className="container mx-auto px-4 py-8">
-      <div className="flex justify-between items-center mb-6">
-        <h1 className="text-2xl font-semibold text-gray-900">Beginning Balance</h1>
-        <Button onClick={handleAdd}>
-          <FiPlus className="w-5 h-5 mr-2" />
-          Add Entry
-        </Button>
+    <div>
+      <div className="page-header">
+        <h1>Beginning Balance</h1>
+        <p>Generate beginning balance reports.</p>
       </div>
 
-      <div className="bg-white rounded-lg shadow">
-        <DataTable
-          columns={columns}
-          data={mockEntries}
-          isLoading={isLoading}
+      <div className="mt-4 p-3 sm:p-6 bg-white rounded-md shadow">
+        <BeginningBalanceForm
+          fiscalYears={fiscalYears.map((item) => ({
+            value: item.ID,
+            label: item.Name,
+          }))}
+          onSubmit={handleSubmit}
+          onAddClick={handleAdd}
+          onTransferClick={() => setShowTransferModal(true)}
+          onClose={() => {}}
+          Add={Add}
         />
       </div>
 
+      {/* Form Modal */}
       <Modal
-        isOpen={isModalOpen}
-        onClose={() => setIsModalOpen(false)}
-        title={selectedEntry ? 'Edit Entry' : 'Add Entry'}
+        isOpen={showAddModal}
+        onClose={() => setShowAddModal(false)}
+        title={
+          currentBeginningBalance
+            ? 'Edit Beginning Balance'
+            : 'Add Beginning Balance'
+        }
+        size="xl"
       >
-        <BeginningBalanceForm
-          initialData={selectedEntry}
-          onClose={() => setIsModalOpen(false)}
+        <BeginningBalanceAddForm
+          onSubmit={handleAddSubmit}
+          initialData={currentBeginningBalance}
+          fiscalYears={fiscalYears.map((item) => ({
+            value: item.ID,
+            label: item.Name,
+          }))}
+          fundsOptions={funds.map((item) => ({
+            value: item.ID,
+            label: item.Name,
+          }))}
+          onClose={() => setShowAddModal(false)}
+          chartOfAccountsOptions={chartOfAccounts.map((item) => ({
+            value: item.ID,
+            label: `${item.AccountCode} - ${item.Name} - [${truncate(
+              item.Description,
+              50
+            )}]`,
+          }))}
         />
       </Modal>
+
+      {/* Form Modal */}
+      <Modal
+        isOpen={showTransferModal}
+        onClose={() => setShowTransferModal(false)}
+        title="Transfer Beginning Balance"
+        size="lg"
+      >
+        <BeginningBalanceTransferForm
+          onSubmit={handleTransferSubmit}
+          fiscalYears={fiscalYears.map((item) => ({
+            value: item.ID,
+            label: item.Name,
+          }))}
+          onClose={() => setShowTransferModal(false)}
+        />
+      </Modal>
+
+      {/* Delete Confirmation Modal */}
+      <Modal
+        isOpen={isDeleteModalOpen}
+        onClose={() => setIsDeleteModalOpen(false)}
+        title="Confirm Delete"
+      >
+        <div className="py-3">
+          <p className="text-neutral-700">
+            Are you sure you want to delete the beginning balance "
+            {beginningBalanceToDelete?.Name}"?
+          </p>
+          <p className="text-sm text-neutral-500 mt-2">
+            This action cannot be undone.
+          </p>
+        </div>
+        <div className="flex justify-end space-x-3 pt-4 border-t border-neutral-200">
+          <button
+            type="button"
+            onClick={() => setIsDeleteModalOpen(false)}
+            className="btn btn-outline"
+          >
+            Cancel
+          </button>
+          <button
+            type="button"
+            onClick={confirmDelete}
+            className="btn btn-danger"
+          >
+            Delete
+          </button>
+        </div>
+      </Modal>
+
+      {error && (
+        <div className="mt-4 p-4 bg-error-50 border border-error-200 rounded-md">
+          <p className="text-error-700">{error}</p>
+        </div>
+      )}
+
+      <div className="mt-6">
+        <DataTable
+          columns={columns}
+          actions={actions}
+          data={beginningBalance}
+          loading={isLoading}
+          pagination={true}
+        />
+      </div>
     </div>
   );
-};
+}
 
-export default BeginningBalancePage; 
+export default BeginningBalancePage;

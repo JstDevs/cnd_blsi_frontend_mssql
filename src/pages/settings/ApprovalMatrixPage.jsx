@@ -10,10 +10,16 @@ import {
   updateApprovalMatrix,
   deleteApprovalMatrix,
 } from '../../features/settings/approvalMatrixSlice';
+import toast from 'react-hot-toast';
+import { useModulePermissions } from '@/utils/useModulePremission';
 
 function ApprovalMatrixPage() {
   const dispatch = useDispatch();
-  const { approvalMatrix, isLoading, error } = useSelector(state => state.approvalMatrix);
+  const { approvalMatrix, isLoading, error } = useSelector(
+    (state) => state.approvalMatrix
+  );
+  // ---------------------USE MODULE PERMISSIONS------------------START ( Approval Matrix  - MODULE ID = 17 )
+  const { Add, Edit, Delete } = useModulePermissions(17);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [currentMatrix, setCurrentMatrix] = useState(null);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
@@ -29,17 +35,15 @@ function ApprovalMatrixPage() {
   };
 
   const handleEdit = (row) => {
-    const mappedApprovers = row.Approvers?.map((a) => ({
-      type: a.PositionorEmployee,
-      value: a.PositionorEmployeeID,
-      amountFrom: Number(a.AmountFrom),
-      amountTo: Number(a.AmountTo),
-    })) || [];
+    const mappedApprovers =
+      row.Approvers?.map((a) => ({
+        type: a.PositionorEmployee,
+        value: a.PositionorEmployeeID,
+        amountFrom: Number(a.AmountFrom),
+        amountTo: Number(a.AmountTo),
+      })) || [];
 
-    const {
-      Approvers,
-      ...rest
-    } = row;
+    const { Approvers, ...rest } = row;
 
     setCurrentMatrix({
       ...rest,
@@ -53,15 +57,17 @@ function ApprovalMatrixPage() {
     setMatrixToDelete(row);
     setIsDeleteModalOpen(true);
   };
-  
+
   const confirmDelete = async () => {
     if (matrixToDelete) {
       try {
         await dispatch(deleteApprovalMatrix(matrixToDelete.ID)).unwrap();
         setIsDeleteModalOpen(false);
         setMatrixToDelete(null);
+        toast.success('Approval matrix deleted successfully');
       } catch (error) {
         console.error('Failed to delete approval matrix:', error);
+        toast.error('Failed to delete approval matrix. Please try again.');
         // Optionally show an error message to the user
       }
     }
@@ -70,13 +76,19 @@ function ApprovalMatrixPage() {
   const handleSubmit = async (values) => {
     try {
       if (currentMatrix) {
-        await dispatch(updateApprovalMatrix({ ...values, ID: currentMatrix.ID })).unwrap();
+        await dispatch(
+          updateApprovalMatrix({ ...values, ID: currentMatrix.ID })
+        ).unwrap();
+        toast.success('Approval matrix updated successfully');
       } else {
         await dispatch(addApprovalMatrix(values)).unwrap(); // <- Important: unwrap to catch errors
+        toast.success('Approval matrix saved successfully');
       }
+      dispatch(fetchApprovalMatrix());
       setIsModalOpen(false); // Only close modal on success
     } catch (err) {
       console.error('Failed to submit approval matrix:', err);
+      toast.error('Failed to submit approval matrix. Please try again.');
       // Optionally display error inside the form or at modal level
     }
   };
@@ -89,40 +101,61 @@ function ApprovalMatrixPage() {
   ];
 
   const actions = [
-    {
+    Edit && {
       icon: PencilIcon,
       title: 'Edit',
       onClick: handleEdit,
-      className: 'text-primary-600 hover:text-primary-900 p-1 rounded-full hover:bg-primary-50',
+      className:
+        'text-primary-600 hover:text-primary-900 p-1 rounded-full hover:bg-primary-50',
     },
-    {
+    Delete && {
       icon: TrashIcon,
       title: 'Delete',
       onClick: handleDelete,
-      className: 'text-error-600 hover:text-error-900 p-1 rounded-full hover:bg-error-50',
+      className:
+        'text-error-600 hover:text-error-900 p-1 rounded-full hover:bg-error-50',
     },
   ];
 
   return (
     <div>
       <div className="page-header">
-        <div className="flex justify-between items-center">
+        <div className="flex justify-between sm:items-center max-sm:flex-col gap-4">
           <div>
             <h1>Approval Matrix</h1>
             <p>Manage approval matrix for document types</p>
           </div>
-          <button type="button" onClick={handleAdd} className="btn btn-primary flex items-center">
-            <PlusIcon className="h-5 w-5 mr-2" aria-hidden="true" />
-            Add Approval Matrix
-          </button>
+          {Add && (
+            <button
+              type="button"
+              onClick={handleAdd}
+              className="btn btn-primary max-sm:w-full"
+            >
+              <PlusIcon className="h-5 w-5 mr-2" aria-hidden="true" />
+              Add Approval Matrix
+            </button>
+          )}
         </div>
       </div>
       <div className="mt-4">
-        <DataTable columns={columns} data={approvalMatrix} actions={actions} loading={isLoading} />
-        {error && <div className="text-error-600 mt-2">{error}</div>}
+        <DataTable
+          columns={columns}
+          data={approvalMatrix}
+          actions={actions}
+          loading={isLoading}
+        />
       </div>
-      <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} title={currentMatrix ? 'Edit Approval Matrix' : 'Add Approval Matrix'}>
-        <ApprovalMatrixForm initialData={currentMatrix} onClose={() => setIsModalOpen(false)} onSubmit={handleSubmit} />
+      {error && <div className="text-error-600 mt-2">{error}</div>}
+      <Modal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        title={currentMatrix ? 'Edit Approval Matrix' : 'Add Approval Matrix'}
+      >
+        <ApprovalMatrixForm
+          initialData={currentMatrix}
+          onClose={() => setIsModalOpen(false)}
+          onSubmit={handleSubmit}
+        />
       </Modal>
 
       {/* Delete Confirmation Modal */}
@@ -160,4 +193,4 @@ function ApprovalMatrixPage() {
   );
 }
 
-export default ApprovalMatrixPage; 
+export default ApprovalMatrixPage;
