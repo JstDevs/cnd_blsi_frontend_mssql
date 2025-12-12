@@ -16,8 +16,19 @@ function DataTable({
   selectedRow = null,
   emptyMessage = 'No data available',
 }) {
-  // Ensure actions is always an array
-  const safeActions = Array.isArray(actions) ? actions : [];
+  // Ensure actions is always an array or function
+  // If actions is a function, we'll call it with a dummy row to check if it returns actions
+  const safeActions = Array.isArray(actions) 
+    ? actions 
+    : typeof actions === 'function' 
+    ? actions 
+    : [];
+  
+  // Check if actions function returns any actions (for header display)
+  // For function-based actions, we assume they always return at least one action
+  const hasActions = Array.isArray(safeActions) 
+    ? safeActions.length > 0 
+    : typeof safeActions === 'function';
   // console.log(selectedRow);
   const [currentPage, setCurrentPage] = useState(1);
   const [rowsPerPage, setRowsPerPage] = useState(10);
@@ -134,7 +145,7 @@ function DataTable({
   }
 
   return (
-    <div className="bg-white shadow-sm rounded-lg border border-neutral-200 overflow-hidden">
+    <div className="bg-white shadow-sm rounded-lg border border-neutral-200">
       {search && (
         <div className="px-4 py-3 border-b border-neutral-200 bg-neutral-50">
           <div className="relative rounded-md shadow-sm">
@@ -155,8 +166,8 @@ function DataTable({
         </div>
       )}
 
-      <div className="overflow-x-auto relative">
-        <table className="min-w-full">
+      <div className="overflow-x-auto w-full" style={{ WebkitOverflowScrolling: 'touch', overflowY: 'visible' }}>
+        <table className="min-w-full divide-y divide-neutral-200" style={{ width: '100%', minWidth: 'max-content' }}>
           <thead>
             <tr className="bg-gradient-to-r from-neutral-50 to-neutral-100 border-b-2 border-neutral-200">
               {columns.map((column) => (
@@ -193,7 +204,7 @@ function DataTable({
                   </div>
                 </th>
               ))}
-              {safeActions.length > 0 && (
+              {hasActions && (
                 <th
                   scope="col"
                   className="px-6 py-4 text-right text-xs font-semibold text-neutral-700 uppercase tracking-wider cursor-pointer whitespace-nowrap sticky right-0 bg-gradient-to-r from-neutral-50 to-neutral-100 z-10 border-l-2 border-neutral-200 shadow-[2px_0_4px_rgba(0,0,0,0.05)]"
@@ -235,7 +246,7 @@ function DataTable({
                   ? (() => {
                       const rowActions = safeActions(row);
                       return (
-                        rowActions?.length > 0 && (
+                        (rowActions?.length > 0 ? (
                           <td className={`px-6 py-4 whitespace-nowrap text-right text-sm font-medium space-x-1.5 sticky right-0 z-10 border-l-2 border-neutral-200 shadow-[2px_0_4px_rgba(0,0,0,0.05)] ${
                             (rowIndex + (currentPage - 1) * rowsPerPage) % 2 === 0 ? 'bg-white' : 'bg-neutral-50/30'
                           } ${selectedRow && selectedRow?.ID === row.ID ? 'bg-blue-50' : ''}`}>
@@ -268,15 +279,15 @@ function DataTable({
                               ))}
                             </div>
                           </td>
-                        )
+                        ) : null)
                       );
                     })()
-                  : safeActions.length > 0 && (
+                  : (Array.isArray(safeActions) ? safeActions.length > 0 : typeof safeActions === 'function') && (
                       <td className={`px-6 py-4 whitespace-nowrap text-right text-sm font-medium space-x-1.5 sticky right-0 z-10 border-l-2 border-neutral-200 shadow-[2px_0_4px_rgba(0,0,0,0.05)] ${
                         (rowIndex + (currentPage - 1) * rowsPerPage) % 2 === 0 ? 'bg-white' : 'bg-neutral-50/30'
                       } ${selectedRow && selectedRow?.ID === row.ID ? 'bg-blue-50' : ''}`}>
                         <div className="flex items-center justify-end gap-1.5">
-                          {safeActions.map((action, i) => (
+                          {(Array.isArray(safeActions) ? safeActions : []).map((action, i) => (
                             <button
                               key={i}
                               onClick={(e) => {

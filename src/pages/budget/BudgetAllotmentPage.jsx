@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState, useMemo } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { PlusIcon } from '@heroicons/react/24/solid';
 import {
@@ -8,6 +8,12 @@ import {
   PrinterIcon,
   TrashIcon,
   X,
+  FilterIcon,
+  XIcon,
+  FileText,
+  DollarSign,
+  Calendar,
+  CheckCircle2,
 } from 'lucide-react';
 import { toast } from 'react-hot-toast';
 
@@ -21,6 +27,7 @@ import { fetchAccounts } from '@/features/settings/chartOfAccountsSlice';
 import axiosInstance from '@/utils/axiosInstance';
 import { useModulePermissions } from '@/utils/useModulePremission';
 import { useReactToPrint } from 'react-to-print';
+import { formatCurrency } from '@/utils/currencyFormater';
 
 const API_URL = import.meta.env.VITE_API_URL;
 
@@ -44,6 +51,7 @@ const BudgetAllotmentPage = () => {
   const [isView, setIsView] = useState(false);
   const [activeRow, setActiveRow] = useState(null);
   const [isLoadingBAPAction, setIsLoadingBAPAction] = useState(false);
+  const [showFilters, setShowFilters] = useState(false);
   const [filters, setFilters] = useState({
     department: '',
     subDepartment: '',
@@ -88,6 +96,16 @@ const BudgetAllotmentPage = () => {
     setFilters((prev) => ({ ...prev, [name]: value }));
   };
 
+  const handleClearFilters = () => {
+    setFilters({
+      department: '',
+      subDepartment: '',
+      chartOfAccounts: '',
+    });
+  };
+
+  const hasActiveFilters = filters.department || filters.subDepartment || filters.chartOfAccounts;
+
   const handleSubmit = async (formData) => {
     try {
       // Make API call using your axiosInstance
@@ -127,25 +145,44 @@ const BudgetAllotmentPage = () => {
     {
       key: 'Status',
       header: 'Status',
-      render: (value) => <span>{value}</span>,
+      render: (value) => {
+        const status = value?.toLowerCase() || '';
+        const statusColors = {
+          requested: 'bg-yellow-100 text-yellow-800 border-yellow-200',
+          approved: 'bg-green-100 text-green-800 border-green-200',
+          rejected: 'bg-red-100 text-red-800 border-red-200',
+        };
+        const colorClass = statusColors[status] || 'bg-neutral-100 text-neutral-800 border-neutral-200';
+        return (
+          <span className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold border ${colorClass}`}>
+            {value || 'N/A'}
+          </span>
+        );
+      },
     },
     {
       key: 'InvoiceNumber',
       header: 'Invoice Number',
-      render: (_, row) => <span>{row.InvoiceNumber}</span>,
+      className: 'text-neutral-900 font-medium',
+      render: (_, row) => (
+        <span className="text-neutral-900 font-medium">{row.InvoiceNumber || 'N/A'}</span>
+      ),
     },
     {
       key: 'Budget',
-      header: 'Budget',
-      render: (_, row) => <span>{row.Budget?.Name}</span>,
+      header: 'Budget Name',
+      render: (_, row) => (
+        <span className="text-neutral-700">{row.Budget?.Name || 'N/A'}</span>
+      ),
     },
     {
       key: 'InvoiceDate',
       header: 'Invoice Date',
       render: (_, row) => {
+        if (!row.InvoiceDate) return <span className="text-neutral-400">N/A</span>;
         const date = new Date(row.InvoiceDate);
         return (
-          <span>
+          <span className="text-neutral-700">
             {date.toLocaleDateString('en-US', {
               month: '2-digit',
               day: '2-digit',
@@ -157,17 +194,16 @@ const BudgetAllotmentPage = () => {
     },
     {
       key: 'Total',
-      header: 'Total',
-      render: (value, row) => (
-        <span>
-          {parseFloat(row?.Budget?.TotalAmount || value || 0).toLocaleString(
-            'en-US',
-            {
-              minimumFractionDigits: 2,
-            }
-          )}
-        </span>
-      ),
+      header: 'Total Amount',
+      className: 'text-right font-semibold',
+      render: (value, row) => {
+        const total = parseFloat(row?.Budget?.TotalAmount || value || 0);
+        return (
+          <span className="text-right font-semibold text-blue-700">
+            {formatCurrency(total)}
+          </span>
+        );
+      },
     },
   ];
 
@@ -198,56 +234,66 @@ const BudgetAllotmentPage = () => {
       setIsLoadingBAPAction(false);
     }
   };
+  // Actions always visible but conditional based on status
   const actions = (row) => {
     const actionList = [];
+    const status = row.Status?.toLowerCase() || '';
 
-    if (row.Status.toLowerCase().includes('rejected') && Edit) {
+    if (status.includes('rejected') && Edit) {
       actionList.push({
         icon: PencilIcon,
         title: 'Edit',
-        onClick: handleEdit,
+        onClick: () => handleEdit(row),
         className:
-          'text-primary-600 hover:text-primary-900 p-1 rounded-full hover:bg-primary-50',
+          'text-primary-600 hover:text-primary-700 p-2 rounded-lg hover:bg-primary-50 transition-all duration-200 shadow-sm hover:shadow',
+        disabled: false,
       });
       actionList.push({
         icon: TrashIcon,
         title: 'Delete',
         onClick: () => handleDelete(row),
         className:
-          'text-error-600 hover:text-error-900 p-1 rounded-full hover:bg-error-50',
+          'text-red-600 hover:text-red-700 p-2 rounded-lg hover:bg-red-50 transition-all duration-200 shadow-sm hover:shadow',
+        disabled: false,
       });
-    } else if (row.Status.toLowerCase().includes('requested')) {
+    } else if (status.includes('requested')) {
       actionList.push(
         {
           icon: CheckLine,
           title: 'Approve',
           onClick: () => handleBAPAction(row, 'approve'),
           className:
-            'text-green-600 hover:text-green-900 p-1 rounded-full hover:bg-green-50',
+            'text-green-600 hover:text-green-700 p-2 rounded-lg hover:bg-green-50 transition-all duration-200 shadow-sm hover:shadow',
+          disabled: false,
         },
         {
           icon: X,
           title: 'Reject',
           onClick: () => handleBAPAction(row, 'reject'),
           className:
-            'text-red-600 hover:text-red-900 p-1 rounded-full hover:bg-red-50',
+            'text-red-600 hover:text-red-700 p-2 rounded-lg hover:bg-red-50 transition-all duration-200 shadow-sm hover:shadow',
+          disabled: false,
         }
       );
     }
+    // View is always available
     actionList.push({
       icon: EyeIcon,
       title: 'View',
-      onClick: handleView,
+      onClick: () => handleView(row),
       className:
-        'text-primary-600 hover:text-primary-900 p-1 rounded-full hover:bg-primary-50',
+        'text-primary-600 hover:text-primary-700 p-2 rounded-lg hover:bg-primary-50 transition-all duration-200 shadow-sm hover:shadow',
+      disabled: false,
     });
     return actionList;
   };
+
   const handleDelete = async (row) => {
     console.log('Delete row', row);
     // await dispatch(deleteBudgetAllotment(row.ID)).unwrap();
     // dispatch(fetchBudgetAllotments());
   };
+
   const filteredData = data?.filter((item) => {
     // console.log('item', item, filters);
     const { Budget } = item;
@@ -259,94 +305,244 @@ const BudgetAllotmentPage = () => {
         Budget?.ChartofAccountsID == filters.chartOfAccounts)
     );
   });
-  // console.log('filteredData', filteredData, data);
+
+  // Calculate summary statistics
+  const summaryStats = useMemo(() => {
+    const total = filteredData?.length || 0;
+    const totalAmount = filteredData?.reduce((sum, item) => {
+      const amount = parseFloat(item?.Budget?.TotalAmount || item?.Total || 0);
+      return sum + amount;
+    }, 0) || 0;
+    const requested = filteredData?.filter(item => item.Status?.toLowerCase().includes('requested')).length || 0;
+    const approved = filteredData?.filter(item => item.Status?.toLowerCase().includes('approved')).length || 0;
+    
+    return {
+      total,
+      totalAmount,
+      requested,
+      approved,
+    };
+  }, [filteredData]);
   return (
     <div className="page-container">
-      {/* Header */}
-      <div className="page-header flex justify-between items-center gap-4 flex-wrap">
-        <div>
-          <h1>Budget Allotment</h1>
-          <p>Manage budget allotments here</p>
-        </div>
-        <div className="flex gap-4">
-          {Add && (
+      {/* Header Section */}
+      <div className="mb-6">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
+          <div className="space-y-1">
+            <div className="flex items-center gap-3">
+              <div className="p-2 bg-primary-100 rounded-lg">
+                <FileText className="h-6 w-6 text-primary-600" />
+              </div>
+              <div>
+                <h1 className="text-3xl font-bold text-neutral-900">
+                  Budget Allotment
+                </h1>
+                <p className="text-sm text-neutral-600 mt-0.5">
+                  Manage budget allotments and releases
+                </p>
+              </div>
+            </div>
+          </div>
+          <div className="flex items-center gap-3">
             <button
-              onClick={() => handleEdit(null)}
-              className="btn btn-primary flex items-center"
+              onClick={() => setShowFilters(!showFilters)}
+              className={`btn btn-outline flex items-center gap-2 transition-all ${
+                showFilters || hasActiveFilters
+                  ? 'bg-primary-50 border-primary-300 text-primary-700 shadow-sm'
+                  : 'hover:bg-neutral-50'
+              }`}
             >
-              <PlusIcon className="h-5 w-5 mr-2" />
-              Add Allotment
+              <FilterIcon className="h-4 w-4" />
+              Filters
+              {hasActiveFilters && (
+                <span className="ml-1 px-2 py-0.5 text-xs font-semibold bg-primary-600 text-white rounded-full">
+                  {[filters.department, filters.subDepartment, filters.chartOfAccounts].filter(Boolean).length}
+                </span>
+              )}
             </button>
-          )}
-          {Print && activeRow && (
-            <button
-              onClick={handlePrint}
-              className="btn btn-outline flex items-center"
-            >
-              <PrinterIcon className="h-5 w-5 mr-2" />
-              Print
-            </button>
-          )}
+            {Add && (
+              <button
+                onClick={() => handleEdit(null)}
+                className="btn btn-primary flex items-center gap-2 shadow-md hover:shadow-lg transition-shadow"
+              >
+                <PlusIcon className="h-5 w-5" />
+                Add Allotment
+              </button>
+            )}
+            {Print && activeRow && (
+              <button
+                onClick={handlePrint}
+                className="btn btn-outline flex items-center gap-2"
+              >
+                <PrinterIcon className="h-5 w-5" />
+                Print
+              </button>
+            )}
+          </div>
         </div>
+
+        {/* Summary Statistics Cards */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+          <div className="bg-gradient-to-br from-blue-50 to-blue-100 border border-blue-200 rounded-xl p-5 shadow-sm hover:shadow-md transition-shadow">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm font-medium text-blue-700 mb-1">Total Allotments</p>
+                <p className="text-2xl font-bold text-blue-900">{summaryStats.total}</p>
+              </div>
+              <div className="p-3 bg-blue-200 rounded-lg">
+                <FileText className="h-6 w-6 text-blue-700" />
+              </div>
+            </div>
+          </div>
+
+          <div className="bg-gradient-to-br from-green-50 to-green-100 border border-green-200 rounded-xl p-5 shadow-sm hover:shadow-md transition-shadow">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm font-medium text-green-700 mb-1">Total Amount</p>
+                <p className="text-2xl font-bold text-green-900">{formatCurrency(summaryStats.totalAmount)}</p>
+              </div>
+              <div className="p-3 bg-green-200 rounded-lg">
+                <DollarSign className="h-6 w-6 text-green-700" />
+              </div>
+            </div>
+          </div>
+
+          <div className="bg-gradient-to-br from-yellow-50 to-yellow-100 border border-yellow-200 rounded-xl p-5 shadow-sm hover:shadow-md transition-shadow">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm font-medium text-yellow-700 mb-1">Requested</p>
+                <p className="text-2xl font-bold text-yellow-900">{summaryStats.requested}</p>
+              </div>
+              <div className="p-3 bg-yellow-200 rounded-lg">
+                <Calendar className="h-6 w-6 text-yellow-700" />
+              </div>
+            </div>
+          </div>
+
+          <div className="bg-gradient-to-br from-emerald-50 to-emerald-100 border border-emerald-200 rounded-xl p-5 shadow-sm hover:shadow-md transition-shadow">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm font-medium text-emerald-700 mb-1">Approved</p>
+                <p className="text-2xl font-bold text-emerald-900">{summaryStats.approved}</p>
+              </div>
+              <div className="p-3 bg-emerald-200 rounded-lg">
+                <CheckCircle2 className="h-6 w-6 text-emerald-700" />
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Filters Panel */}
+        {(showFilters || hasActiveFilters) && (
+          <div className="bg-white border border-neutral-200 rounded-xl shadow-md p-5 mb-6 transition-all">
+            <div className="flex items-center justify-between mb-5">
+              <div className="flex items-center gap-2">
+                <FilterIcon className="h-5 w-5 text-primary-600" />
+                <h3 className="text-base font-semibold text-neutral-800">Filter Options</h3>
+              </div>
+              <div className="flex items-center gap-2">
+                {hasActiveFilters && (
+                  <button
+                    onClick={handleClearFilters}
+                    className="text-xs font-medium text-neutral-600 hover:text-neutral-900 flex items-center gap-1.5 px-3 py-1.5 rounded-lg hover:bg-neutral-100 transition-colors border border-neutral-200"
+                  >
+                    <XIcon className="h-3.5 w-3.5" />
+                    Clear All
+                  </button>
+                )}
+                <button
+                  onClick={() => setShowFilters(false)}
+                  className="p-1.5 text-neutral-400 hover:text-neutral-600 hover:bg-neutral-100 rounded-lg transition-colors"
+                  title="Close filters"
+                >
+                  <XIcon className="h-4 w-4" />
+                </button>
+              </div>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div className="space-y-2">
+                <label className="block text-sm font-medium text-neutral-700">
+                  Department
+                </label>
+                <select
+                  name="department"
+                  value={filters.department}
+                  onChange={handleFilterChange}
+                  className="w-full px-4 py-2.5 text-sm border border-neutral-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 bg-white transition-all hover:border-neutral-400"
+                >
+                  <option value="">All Departments</option>
+                  {departments?.map((d) => (
+                    <option key={d.ID} value={d.ID}>
+                      {d.Name}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div className="space-y-2">
+                <label className="block text-sm font-medium text-neutral-700">
+                  Sub Department
+                </label>
+                <select
+                  name="subDepartment"
+                  value={filters.subDepartment}
+                  onChange={handleFilterChange}
+                  className="w-full px-4 py-2.5 text-sm border border-neutral-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 bg-white transition-all hover:border-neutral-400"
+                >
+                  <option value="">All Sub Departments</option>
+                  {subdepartments?.map((sd) => (
+                    <option key={sd.ID} value={sd.ID}>
+                      {sd.Name}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div className="space-y-2">
+                <label className="block text-sm font-medium text-neutral-700">
+                  Chart of Accounts
+                </label>
+                <select
+                  name="chartOfAccounts"
+                  value={filters.chartOfAccounts}
+                  onChange={handleFilterChange}
+                  className="w-full px-4 py-2.5 text-sm border border-neutral-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 bg-white transition-all hover:border-neutral-400"
+                >
+                  <option value="">All Accounts</option>
+                  {chartOfAccounts?.map((a) => (
+                    <option key={a.ID} value={a.ID}>
+                      {a.Name}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
 
-      {/* Filters */}
-      <div className="mb-4 grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-4">
-        <select
-          name="department"
-          value={filters.department}
-          onChange={handleFilterChange}
-          className="form-select"
-        >
-          <option value="">All Department</option>
-          {departments?.map((d) => (
-            <option key={d.ID} value={d.ID}>
-              {d.Name}
-            </option>
-          ))}
-        </select>
-
-        <select
-          name="subDepartment"
-          value={filters.subDepartment}
-          onChange={handleFilterChange}
-          className="form-select"
-        >
-          <option value="">All Sub Department</option>
-          {subdepartments?.map((sd) => (
-            <option key={sd.ID} value={sd.ID}>
-              {sd.Name}
-            </option>
-          ))}
-        </select>
-
-        <select
-          name="chartOfAccounts"
-          value={filters.chartOfAccounts}
-          onChange={handleFilterChange}
-          className="form-select"
-        >
-          <option value="">All Chart of Account</option>
-          {chartOfAccounts?.map((a) => (
-            <option key={a.ID} value={a.ID}>
-              {a.Name}
-            </option>
-          ))}
-        </select>
+      {/* Table Section */}
+      <div className="bg-white rounded-xl shadow-md border border-neutral-200">
+        <div className="px-6 py-4 border-b border-neutral-200 bg-neutral-50">
+          <h2 className="text-lg font-semibold text-neutral-900">
+            Allotment Entries
+            <span className="ml-2 text-sm font-normal text-neutral-600">
+              ({filteredData?.length || 0} {filteredData?.length === 1 ? 'entry' : 'entries'})
+            </span>
+          </h2>
+        </div>
+        <DataTable
+          columns={columns}
+          data={filteredData}
+          actions={actions}
+          loading={isLoadingBAPAction}
+          onRowClick={(row) => {
+            setActiveRow(row);
+          }}
+          selectedRow={activeRow}
+          pagination
+        />
       </div>
-
-      {/* Table */}
-      <DataTable
-        columns={columns}
-        data={filteredData}
-        actions={actions}
-        loading={isLoadingBAPAction}
-        onRowClick={(row) => {
-          setActiveRow(row);
-        }}
-        selectedRow={activeRow}
-        pagination
-      />
 
       {/* Modal */}
       <Modal
