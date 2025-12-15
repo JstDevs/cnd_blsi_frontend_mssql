@@ -7,13 +7,14 @@ import {
   X,
   Plus,
   FileText,
-  DollarSign,
+  // DollarSign,
   FilterIcon,
   XIcon,
   TrendingUp,
   Calendar,
   CheckCircle2,
   AlertCircle,
+  PhilippinePeso,
 } from 'lucide-react';
 import Modal from '@/components/common/Modal';
 import BudgetTransferForm from '@/components/forms/BudgetTransferForm';
@@ -340,63 +341,64 @@ const BudgetTransferPage = () => {
 
         {/* Summary Statistics Cards */}
         {!loading && filteredData.length > 0 && (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4 mb-6">
-            <div className="bg-gradient-to-br from-blue-50 to-blue-100 border border-blue-200 rounded-xl p-5 shadow-sm hover:shadow-md transition-shadow">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm font-medium text-blue-700 mb-1">Total Transfers</p>
-                  <p className="text-2xl font-bold text-blue-900">{summaryStats.total}</p>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4 mb-6">
+            <div className="bg-gradient-to-br from-blue-50 to-blue-100 border border-blue-200 rounded-xl p-4 sm:p-5 shadow-sm hover:shadow-md transition-shadow min-w-0">
+              <div className="flex items-center justify-between gap-3">
+                <div className='flex-1 min-w-0'>
+                  <p className="text-xs sm:text-sm font-medium text-blue-700 mb-1">Total Transfers</p>
+                  <p className="text-xl sm:text-2xl font-bold text-blue-900">{summaryStats.total}</p>
                 </div>
-                <div className="p-3 bg-blue-200 rounded-lg">
-                  <FileText className="h-6 w-6 text-blue-700" />
-                </div>
-              </div>
-            </div>
-
-            <div className="bg-gradient-to-br from-green-50 to-green-100 border border-green-200 rounded-xl p-5 shadow-sm hover:shadow-md transition-shadow">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm font-medium text-green-700 mb-1">Total Amount</p>
-                  <p className="text-2xl font-bold text-green-900">{formatCurrency(summaryStats.totalAmount)}</p>
-                </div>
-                <div className="p-3 bg-green-200 rounded-lg">
-                  <DollarSign className="h-6 w-6 text-green-700" />
+                <div className="p-3 bg-blue-200 rounded-lg flex-shrink-0">
+                  <FileText className="h-5 w-5 sm:h-6 sm:w-6 text-blue-700" />
                 </div>
               </div>
             </div>
 
-            <div className="bg-gradient-to-br from-yellow-50 to-yellow-100 border border-yellow-200 rounded-xl p-5 shadow-sm hover:shadow-md transition-shadow">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm font-medium text-yellow-700 mb-1">Requested</p>
-                  <p className="text-2xl font-bold text-yellow-900">{summaryStats.requested}</p>
+            <div className="bg-gradient-to-br from-green-50 to-green-100 border border-green-200 rounded-xl p-4 sm:p-5 shadow-sm hover:shadow-md transition-shadow min-w-0">
+              <div className="flex items-center justify-between gap-3">
+                <div className='flex-1 min-w-0'>
+                  <p className="text-xs sm:text-sm font-medium text-green-700 mb-1">Total Amount</p>
+                  <p className="text-base sm:text-lg lg:text-xl font-bold text-green-900 break-words leading-tight">
+                    {formatCurrency(summaryStats.totalAmount)}</p>
                 </div>
-                <div className="p-3 bg-yellow-200 rounded-lg">
-                  <Calendar className="h-6 w-6 text-yellow-700" />
-                </div>
-              </div>
-            </div>
-
-            <div className="bg-gradient-to-br from-emerald-50 to-emerald-100 border border-emerald-200 rounded-xl p-5 shadow-sm hover:shadow-md transition-shadow">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm font-medium text-emerald-700 mb-1">Approved</p>
-                  <p className="text-2xl font-bold text-emerald-900">{summaryStats.approved}</p>
-                </div>
-                <div className="p-3 bg-emerald-200 rounded-lg">
-                  <CheckCircle2 className="h-6 w-6 text-emerald-700" />
+                <div className="p-2 sm:p-3 bg-green-200 rounded-lg flex-shrink-0">
+                  <PhilippinePeso className="h-5 w-5 sm:h-6 sm:w-6 text-green-700" />
                 </div>
               </div>
             </div>
 
-            <div className="bg-gradient-to-br from-red-50 to-red-100 border border-red-200 rounded-xl p-5 shadow-sm hover:shadow-md transition-shadow">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm font-medium text-red-700 mb-1">Rejected</p>
-                  <p className="text-2xl font-bold text-red-900">{summaryStats.rejected}</p>
+            <div className="bg-gradient-to-br from-yellow-50 to-yellow-100 border border-yellow-200 rounded-xl p-4 sm:p-5 shadow-sm hover:shadow-md transition-shadow min-w-0">
+              <div className="flex items-center justify-between gap-3">
+                <div className='flex-1 min-w-0'>
+                  <p className="text-xs sm:text-sm font-medium text-yellow-700 mb-1">Requested</p>
+                  <p className="text-xl sm:text-2xl font-bold text-yellow-900 break-words">{summaryStats.requested}</p>
                 </div>
-                <div className="p-3 bg-red-200 rounded-lg">
-                  <AlertCircle className="h-6 w-6 text-red-700" />
+                <div className="p-2 sm:p-3 bg-yellow-200 rounded-lg flex-shrink-0">
+                  <Calendar className="h-5 w-5 sm:h-6 sm:w-6 text-yellow-700" />
+                </div>
+              </div>
+            </div>
+
+            <div className="bg-gradient-to-br from-emerald-50 to-emerald-100 border border-emerald-200 rounded-xl p-4 sm:p-5 shadow-sm hover:shadow-md transition-shadow min-w-0">
+              <div className="flex items-center justify-between gap-3">
+                <div className="flex-1 min-w-0">
+                  <p className="text-xs sm:text-sm font-medium text-emerald-700 mb-1">Approved</p>
+                  <p className="text-xl sm:text-2xl font-bold text-emerald-900 break-words">{summaryStats.approved}</p>
+                </div>
+                <div className="p-2 sm:p-3 bg-emerald-200 rounded-lg flex-shrink-0">
+                  <CheckCircle2 className="h-5 w=5 sm:h-6 sm:w-6 text-emerald-700" />
+                </div>
+              </div>
+            </div>
+
+            <div className="bg-gradient-to-br from-red-50 to-red-100 border border-red-200 rounded-xl p-4 sm:p-5 shadow-sm hover:shadow-md transition-shadow min-w-0">
+              <div className="flex items-center justify-between gap-3">
+                <div className='flex-1 min-w-0'>
+                  <p className="text-xs sm:text-sm font-medium text-red-700 mb-1">Rejected</p>
+                  <p className="text-xl sm:text-2xl font-bold text-red-900 break-words">{summaryStats.rejected}</p>
+                </div>
+                <div className="p-2 sm:p-3 bg-red-200 rounded-lg">
+                  <AlertCircle className="h-5 w-5 sm:h-6 sm:w-6 text-red-700" />
                 </div>
               </div>
             </div>
