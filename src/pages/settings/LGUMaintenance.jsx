@@ -2,7 +2,19 @@ import React, { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useFormik } from 'formik';
 import * as Yup from 'yup';
-import { Building } from 'lucide-react';
+import {
+  Building,
+  Edit as EditIcon,
+  X,
+  Mail,
+  Phone,
+  Globe,
+  MapPin,
+  FileText,
+  Save,
+  Upload,
+  Image as ImageIcon,
+} from 'lucide-react';
 import FormField from '../../components/common/FormField';
 import { fetchBarangays } from '../../features/settings/barangaysSlice';
 import { fetchMunicipalities } from '../../features/settings/municipalitiesSlice';
@@ -345,51 +357,98 @@ const LGUMaintenance = () => {
     Name: id,
   }));
   return (
-    <div className="sm:py-6 sm:px-4">
-      <header className="mb-8">
-        <h1 className="text-3xl font-bold text-blue-800">LGU Maintenance</h1>
-        <p className="mt-2 text-gray-600">
-          Manage Local Government Unit information
-        </p>
-      </header>
-
-      <div className="bg-white rounded-lg shadow-md overflow-hidden">
-        {/* Card Header */}
-        <div className="px-6 py-4 border-b border-gray-200 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-          <div className="flex items-center">
-            <Building className="h-5 w-5 mr-2 text-blue-600" />
-            <h2 className="text-lg font-semibold">LGU Information</h2>
+    <div className="page-container">
+      {/* Header Section */}
+      <div className="mb-6">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+          <div className="space-y-1">
+            <div className="flex items-center gap-3">
+              <div className="p-2 bg-primary-100 rounded-lg">
+                <Building className="h-6 w-6 text-primary-600" />
+              </div>
+              <div>
+                <h1 className="text-3xl font-bold text-neutral-900">
+                  LGU Maintenance
+                </h1>
+                <p className="text-sm text-neutral-600 mt-0.5">
+                  Manage Local Government Unit information and settings
+                </p>
+              </div>
+            </div>
           </div>
           {Edit && !isEditing && (
             <button
               onClick={() => setIsEditing(true)}
-              className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md transition-colors w-full sm:w-auto text-center"
+              className="btn btn-primary flex items-center gap-2 shadow-md hover:shadow-lg transition-shadow"
             >
+              <EditIcon className="h-5 w-5" />
               Edit Information
             </button>
           )}
         </div>
+      </div>
 
-        <div className="p-3 sm:p-6">
-          <div className="flex flex-col items-center mb-6">
-            <img
-              src={image}
-              className="h-[150px] w-[150px] rounded-full object-cover"
-              alt="LGU Logo"
-            />
+      <div className="bg-white rounded-xl shadow-md border border-neutral-200 overflow-hidden">
+        {/* Card Header */}
+        <div className="px-6 py-4 border-b border-neutral-200 bg-neutral-50">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <FileText className="h-5 w-5 text-primary-600" />
+              <h2 className="text-lg font-semibold text-neutral-900">
+                LGU Information
+              </h2>
+            </div>
             {isEditing && (
-              <input
-                type="file"
-                accept="image/*"
-                onChange={handleImageChange}
-                className="mt-2 w-full"
+              <button
+                onClick={() => {
+                  formik.resetForm();
+                  setIsEditing(false);
+                }}
+                className="text-neutral-600 hover:text-neutral-900 flex items-center gap-2 px-3 py-1.5 rounded-lg hover:bg-neutral-100 transition-colors"
+              >
+                <X className="h-4 w-4" />
+                Cancel
+              </button>
+            )}
+          </div>
+        </div>
+
+        <div className="p-6">
+          {/* Logo Section */}
+          <div className="flex flex-col items-center mb-8 pb-8 border-b border-neutral-200">
+            <div className="relative group">
+              <div className="absolute inset-0 bg-neutral-900 bg-opacity-0 group-hover:bg-opacity-10 rounded-full transition-all duration-200 flex items-center justify-center">
+                {isEditing && (
+                  <div className="opacity-0 group-hover:opacity-100 transition-opacity">
+                    <Upload className="h-8 w-8 text-white" />
+                  </div>
+                )}
+              </div>
+              <img
+                src={image}
+                className="h-32 w-32 sm:h-40 sm:w-40 rounded-full object-cover border-4 border-neutral-200 shadow-lg"
+                alt="LGU Logo"
               />
+            </div>
+            {isEditing && (
+              <label className="mt-4 cursor-pointer">
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={handleImageChange}
+                  className="hidden"
+                />
+                <div className="btn btn-outline flex items-center gap-2">
+                  <ImageIcon className="h-4 w-4" />
+                  Change Logo
+                </div>
+              </label>
             )}
           </div>
 
           {isEditing ? (
-            <form onSubmit={formik.handleSubmit} className="space-y-4">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <form onSubmit={formik.handleSubmit} className="space-y-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <FormField
                   label="LGU Code"
                   name="Code"
@@ -546,48 +605,120 @@ const LGUMaintenance = () => {
                 />
               </div>
 
-              <div className="flex justify-end space-x-3 pt-4 border-t border-gray-200">
+              <div className="flex justify-end space-x-3 pt-6 border-t border-neutral-200 col-span-full">
                 <button
                   type="button"
                   onClick={() => {
                     formik.resetForm();
                     setIsEditing(false);
                   }}
-                  className="btn btn-outline"
+                  className="btn btn-outline flex items-center gap-2"
                 >
+                  <X className="h-4 w-4" />
                   Cancel
                 </button>
                 <button
                   type="submit"
-                  className="btn btn-primary"
+                  className="btn btn-primary flex items-center gap-2"
                   disabled={formik.isSubmitting}
                 >
-                  {formik.isSubmitting ? 'Saving...' : 'Save'}
+                  <Save className="h-4 w-4" />
+                  {formik.isSubmitting ? 'Saving...' : 'Save Changes'}
                 </button>
               </div>
             </form>
           ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {Object.entries({
-                Code: 'LGU Code',
-                Name: 'LGU Name',
-                TIN: 'TIN',
-                RDO: 'RDO',
-                StreetAddress: 'Street Address',
-                BarangayName: 'Barangay',
-                MunicipalityName: 'Municipality',
-                ProvinceName: 'Province',
-                RegionName: 'Region',
-                ZIPCode: 'ZIP Code',
-                PhoneNumber: 'Phone Number',
-                EmailAddress: 'Email Address',
-                Website: 'Website',
-              }).map(([key, label]) => (
-                <div key={key} className="space-y-1">
-                  <h3 className="text-sm font-medium text-gray-500">{label}</h3>
-                  <p className="mt-1 text-sm text-gray-900">{lgu[key]}</p>
+            <div className="space-y-6">
+              {/* Basic Information */}
+              <div>
+                <h3 className="text-lg font-semibold text-neutral-900 mb-4 flex items-center gap-2">
+                  <FileText className="h-5 w-5 text-primary-600" />
+                  Basic Information
+                </h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div className="bg-neutral-50 rounded-lg p-4 border border-neutral-200">
+                    <p className="text-xs font-medium text-neutral-500 uppercase tracking-wide mb-1">LGU Code</p>
+                    <p className="text-base font-semibold text-neutral-900">{lgu.Code || '—'}</p>
+                  </div>
+                  <div className="bg-neutral-50 rounded-lg p-4 border border-neutral-200">
+                    <p className="text-xs font-medium text-neutral-500 uppercase tracking-wide mb-1">LGU Name</p>
+                    <p className="text-base font-semibold text-neutral-900">{lgu.Name || '—'}</p>
+                  </div>
+                  <div className="bg-neutral-50 rounded-lg p-4 border border-neutral-200">
+                    <p className="text-xs font-medium text-neutral-500 uppercase tracking-wide mb-1">TIN</p>
+                    <p className="text-base font-medium text-neutral-700">{lgu.TIN || '—'}</p>
+                  </div>
+                  <div className="bg-neutral-50 rounded-lg p-4 border border-neutral-200">
+                    <p className="text-xs font-medium text-neutral-500 uppercase tracking-wide mb-1">RDO</p>
+                    <p className="text-base font-medium text-neutral-700">{lgu.RDO || '—'}</p>
+                  </div>
                 </div>
-              ))}
+              </div>
+
+              {/* Address Information */}
+              <div>
+                <h3 className="text-lg font-semibold text-neutral-900 mb-4 flex items-center gap-2">
+                  <MapPin className="h-5 w-5 text-primary-600" />
+                  Address Information
+                </h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div className="bg-neutral-50 rounded-lg p-4 border border-neutral-200 md:col-span-2">
+                    <p className="text-xs font-medium text-neutral-500 uppercase tracking-wide mb-1">Street Address</p>
+                    <p className="text-base font-medium text-neutral-700">{lgu.StreetAddress || '—'}</p>
+                  </div>
+                  <div className="bg-neutral-50 rounded-lg p-4 border border-neutral-200">
+                    <p className="text-xs font-medium text-neutral-500 uppercase tracking-wide mb-1">Barangay</p>
+                    <p className="text-base font-medium text-neutral-700">{lgu.BarangayName || '—'}</p>
+                  </div>
+                  <div className="bg-neutral-50 rounded-lg p-4 border border-neutral-200">
+                    <p className="text-xs font-medium text-neutral-500 uppercase tracking-wide mb-1">Municipality</p>
+                    <p className="text-base font-medium text-neutral-700">{lgu.MunicipalityName || '—'}</p>
+                  </div>
+                  <div className="bg-neutral-50 rounded-lg p-4 border border-neutral-200">
+                    <p className="text-xs font-medium text-neutral-500 uppercase tracking-wide mb-1">Province</p>
+                    <p className="text-base font-medium text-neutral-700">{lgu.ProvinceName || '—'}</p>
+                  </div>
+                  <div className="bg-neutral-50 rounded-lg p-4 border border-neutral-200">
+                    <p className="text-xs font-medium text-neutral-500 uppercase tracking-wide mb-1">Region</p>
+                    <p className="text-base font-medium text-neutral-700">{lgu.RegionName || '—'}</p>
+                  </div>
+                  <div className="bg-neutral-50 rounded-lg p-4 border border-neutral-200">
+                    <p className="text-xs font-medium text-neutral-500 uppercase tracking-wide mb-1">ZIP Code</p>
+                    <p className="text-base font-medium text-neutral-700">{lgu.ZIPCode || '—'}</p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Contact Information */}
+              <div>
+                <h3 className="text-lg font-semibold text-neutral-900 mb-4 flex items-center gap-2">
+                  <Phone className="h-5 w-5 text-primary-600" />
+                  Contact Information
+                </h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div className="bg-neutral-50 rounded-lg p-4 border border-neutral-200">
+                    <p className="text-xs font-medium text-neutral-500 uppercase tracking-wide mb-1 flex items-center gap-2">
+                      <Phone className="h-3.5 w-3.5" />
+                      Phone Number
+                    </p>
+                    <p className="text-base font-medium text-neutral-700">{lgu.PhoneNumber || '—'}</p>
+                  </div>
+                  <div className="bg-neutral-50 rounded-lg p-4 border border-neutral-200">
+                    <p className="text-xs font-medium text-neutral-500 uppercase tracking-wide mb-1 flex items-center gap-2">
+                      <Mail className="h-3.5 w-3.5" />
+                      Email Address
+                    </p>
+                    <p className="text-base font-medium text-neutral-700">{lgu.EmailAddress || '—'}</p>
+                  </div>
+                  <div className="bg-neutral-50 rounded-lg p-4 border border-neutral-200 md:col-span-2">
+                    <p className="text-xs font-medium text-neutral-500 uppercase tracking-wide mb-1 flex items-center gap-2">
+                      <Globe className="h-3.5 w-3.5" />
+                      Website
+                    </p>
+                    <p className="text-base font-medium text-blue-600 break-all">{lgu.Website || '—'}</p>
+                  </div>
+                </div>
+              </div>
             </div>
           )}
         </div>
