@@ -1,10 +1,20 @@
-import React, { useState } from 'react';
-import { PlusIcon } from '@heroicons/react/24/outline';
-import { CheckLine, PencilIcon, TrashIcon, X } from 'lucide-react';
+import React, { useState, useEffect, useMemo } from 'react';
+import {
+  Plus,
+  CheckLine,
+  PencilIcon,
+  TrashIcon,
+  X,
+  FileText,
+  DollarSign,
+  ArrowRightLeft,
+  Calendar,
+  CheckCircle2,
+  AlertCircle,
+} from 'lucide-react';
 import Modal from '../../components/common/Modal';
 import BudgetFundTransferForm from '../../components/forms/BudgetFundTransferForm';
 import DataTable from '../../components/common/DataTable';
-import { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import {
   fetchFundOptions,
@@ -14,6 +24,7 @@ import {
 import toast from 'react-hot-toast';
 import { useModulePermissions } from '@/utils/useModulePremission';
 import axiosInstance from '@/utils/axiosInstance';
+import { formatCurrency } from '@/utils/currencyFormater';
 
 const BudgetFundTransferPage = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -30,25 +41,47 @@ const BudgetFundTransferPage = () => {
     error,
   } = useSelector((state) => state.fundTransfer);
 
-  // console.log(data, fundOptions, loading, error);
   useEffect(() => {
     dispatch(fetchFundOptions());
     dispatch(fetchFundTransfers());
-  }, []);
+  }, [dispatch]);
+
+  // Calculate summary statistics
+  const summaryStats = useMemo(() => {
+    const total = data?.length || 0;
+    const totalAmount = data?.reduce((sum, item) => {
+      const amount = parseFloat(item?.Total || 0);
+      return sum + amount;
+    }, 0) || 0;
+    const requested = data?.filter(item => item.Status?.toLowerCase().includes('requested')).length || 0;
+    const approved = data?.filter(item => item.Status?.toLowerCase().includes('approved')).length || 0;
+    const rejected = data?.filter(item => item.Status?.toLowerCase().includes('rejected')).length || 0;
+    
+    return {
+      total,
+      totalAmount,
+      requested,
+      approved,
+      rejected,
+    };
+  }, [data]);
+
   const columns = [
     {
       key: 'InvoiceNumber',
       header: 'Invoice Number',
       sortable: true,
-      className: 'font-medium text-neutral-900',
-      render: (value) => value || '—',
+      className: 'text-neutral-900 font-medium',
+      render: (value) => (
+        <span className="text-neutral-900 font-medium">{value || 'N/A'}</span>
+      ),
     },
     {
       key: 'FundsID',
       header: 'Fund Source',
       sortable: true,
       render: (value, record) => (
-        <span className="text-gray-600">
+        <span className="text-neutral-700">
           {record?.Funds?.Name || value || '—'}
         </span>
       ),
@@ -58,7 +91,7 @@ const BudgetFundTransferPage = () => {
       header: 'Fund Target',
       sortable: true,
       render: (value, record) => (
-        <span className="text-gray-600">
+        <span className="text-neutral-700">
           {record?.targetFunds?.Name || value || '—'}
         </span>
       ),
@@ -67,39 +100,65 @@ const BudgetFundTransferPage = () => {
       key: 'Status',
       header: 'Status',
       sortable: true,
-      render: (value) => (
-        <span
-          className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
-            value === 'Requested'
-              ? 'bg-warning-100 text-warning-800'
-              : value === 'Approved'
-              ? 'bg-success-100 text-success-800'
-              : 'bg-error-100 text-error-800'
-          }`}
-        >
-          {value}
-        </span>
-      ),
+      render: (value) => {
+        const status = value?.toLowerCase() || '';
+        const statusConfig = {
+          requested: {
+            bg: 'bg-yellow-100',
+            text: 'text-yellow-800',
+            border: 'border-yellow-200',
+          },
+          approved: {
+            bg: 'bg-green-100',
+            text: 'text-green-800',
+            border: 'border-green-200',
+          },
+          rejected: {
+            bg: 'bg-red-100',
+            text: 'text-red-800',
+            border: 'border-red-200',
+          },
+        };
+        const config = statusConfig[status] || {
+          bg: 'bg-neutral-100',
+          text: 'text-neutral-800',
+          border: 'border-neutral-200',
+        };
+        return (
+          <span
+            className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold border ${config.bg} ${config.text} ${config.border}`}
+          >
+            {value || 'N/A'}
+          </span>
+        );
+      },
     },
     {
       key: 'InvoiceDate',
       header: 'Invoice Date',
       sortable: true,
-      render: (value) => <span className="font-medium">{value || '—'}</span>,
+      render: (value) => {
+        if (!value) return <span className="text-neutral-400">N/A</span>;
+        const date = new Date(value);
+        return (
+          <span className="text-neutral-700">
+            {date.toLocaleDateString('en-US', {
+              month: '2-digit',
+              day: '2-digit',
+              year: 'numeric',
+            })}
+          </span>
+        );
+      },
     },
     {
       key: 'Total',
       header: 'Total',
       sortable: true,
+      className: 'text-right font-semibold',
       render: (value) => (
-        <span className="font-medium">
-          {' '}
-          {value
-            ? Number(value).toLocaleString(undefined, {
-                minimumFractionDigits: 2,
-                maximumFractionDigits: 2,
-              })
-            : '—'}
+        <span className="text-right font-semibold text-blue-700">
+          {formatCurrency(value)}
         </span>
       ),
     },
@@ -107,7 +166,11 @@ const BudgetFundTransferPage = () => {
       key: 'Remarks',
       header: 'Remarks',
       sortable: true,
-      render: (value) => <span className="font-medium">{value || '—'}</span>,
+      render: (value) => (
+        <span className="text-neutral-600 max-w-xs truncate block">
+          {value || '—'}
+        </span>
+      ),
     },
   ];
 
@@ -131,42 +194,37 @@ const BudgetFundTransferPage = () => {
   };
   const actions = (row) => {
     const actionList = [];
+    const status = row?.Status?.toLowerCase() || '';
 
-    if (row?.Status?.toLowerCase().includes('rejected') && Edit) {
+    if (status.includes('rejected') && Edit) {
       actionList.push({
         icon: PencilIcon,
         title: 'Edit',
-        onClick: handleEdit,
+        onClick: () => handleEdit(row),
         className:
-          'text-primary-600 hover:text-primary-900 p-1 rounded-full hover:bg-primary-50',
+          'text-primary-600 hover:text-primary-700 p-2 rounded-lg hover:bg-primary-50 transition-all duration-200 shadow-sm hover:shadow',
+        disabled: false,
       });
-
-      // actionList.push({
-      //   icon: TrashIcon,
-      //   title: 'Delete',
-      //   onClick: handleDelete,
-      //   className:
-      //     'text-error-600 hover:text-error-900 p-1 rounded-full hover:bg-error-50',
-      // });
-    } else if (row?.Status === 'Requested') {
+    } else if (status.includes('requested')) {
       actionList.push(
         {
           icon: CheckLine,
           title: 'Approve',
           onClick: () => handleBFTAction(row, 'approve'),
           className:
-            'text-green-600 hover:text-green-900 p-1 rounded-full hover:bg-green-50',
+            'text-green-600 hover:text-green-700 p-2 rounded-lg hover:bg-green-50 transition-all duration-200 shadow-sm hover:shadow',
+          disabled: false,
         },
         {
           icon: X,
           title: 'Reject',
           onClick: () => handleBFTAction(row, 'reject'),
           className:
-            'text-red-600 hover:text-red-900 p-1 rounded-full hover:bg-red-50',
+            'text-red-600 hover:text-red-700 p-2 rounded-lg hover:bg-red-50 transition-all duration-200 shadow-sm hover:shadow',
+          disabled: false,
         }
       );
     }
-
     return actionList;
   };
   const handleSubmit = async (values) => {
@@ -204,52 +262,146 @@ const BudgetFundTransferPage = () => {
   };
 
   return (
-    <>
-      <div className="page-header">
-        <div className="flex justify-between items-center max-sm:flex-wrap gap-4">
-          <div>
-            <h1>Fund Transfer</h1>
-            <p>Manage fund transfers between accounts</p>
+    <div className="page-container">
+      {/* Header Section */}
+      <div className="mb-6">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
+          <div className="space-y-1">
+            <div className="flex items-center gap-3">
+              <div className="p-2 bg-primary-100 rounded-lg">
+                <ArrowRightLeft className="h-6 w-6 text-primary-600" />
+              </div>
+              <div>
+                <h1 className="text-3xl font-bold text-neutral-900">
+                  Fund Transfer
+                </h1>
+                <p className="text-sm text-neutral-600 mt-0.5">
+                  Manage fund transfers between accounts and funds
+                </p>
+              </div>
+            </div>
           </div>
-          <div className="flex space-x-2 max-sm:w-full">
+          <div className="flex items-center gap-3">
             {Add && (
               <button
                 type="button"
                 onClick={() => handleEdit(null)}
-                className="btn btn-primary max-sm:w-full"
+                className="btn btn-primary flex items-center gap-2 shadow-md hover:shadow-lg transition-shadow"
               >
-                <PlusIcon className="h-5 w-5 mr-2" aria-hidden="true" />
+                <Plus className="h-5 w-5" />
                 Add Transfer
               </button>
             )}
           </div>
         </div>
+
+        {/* Summary Statistics Cards */}
+        {!loading && data?.length > 0 && (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4 mb-6">
+            <div className="bg-gradient-to-br from-blue-50 to-blue-100 border border-blue-200 rounded-xl p-5 shadow-sm hover:shadow-md transition-shadow">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm font-medium text-blue-700 mb-1">Total Transfers</p>
+                  <p className="text-2xl font-bold text-blue-900">{summaryStats.total}</p>
+                </div>
+                <div className="p-3 bg-blue-200 rounded-lg">
+                  <FileText className="h-6 w-6 text-blue-700" />
+                </div>
+              </div>
+            </div>
+
+            <div className="bg-gradient-to-br from-green-50 to-green-100 border border-green-200 rounded-xl p-5 shadow-sm hover:shadow-md transition-shadow">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm font-medium text-green-700 mb-1">Total Amount</p>
+                  <p className="text-2xl font-bold text-green-900">{formatCurrency(summaryStats.totalAmount)}</p>
+                </div>
+                <div className="p-3 bg-green-200 rounded-lg">
+                  <DollarSign className="h-6 w-6 text-green-700" />
+                </div>
+              </div>
+            </div>
+
+            <div className="bg-gradient-to-br from-yellow-50 to-yellow-100 border border-yellow-200 rounded-xl p-5 shadow-sm hover:shadow-md transition-shadow">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm font-medium text-yellow-700 mb-1">Requested</p>
+                  <p className="text-2xl font-bold text-yellow-900">{summaryStats.requested}</p>
+                </div>
+                <div className="p-3 bg-yellow-200 rounded-lg">
+                  <Calendar className="h-6 w-6 text-yellow-700" />
+                </div>
+              </div>
+            </div>
+
+            <div className="bg-gradient-to-br from-emerald-50 to-emerald-100 border border-emerald-200 rounded-xl p-5 shadow-sm hover:shadow-md transition-shadow">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm font-medium text-emerald-700 mb-1">Approved</p>
+                  <p className="text-2xl font-bold text-emerald-900">{summaryStats.approved}</p>
+                </div>
+                <div className="p-3 bg-emerald-200 rounded-lg">
+                  <CheckCircle2 className="h-6 w-6 text-emerald-700" />
+                </div>
+              </div>
+            </div>
+
+            <div className="bg-gradient-to-br from-red-50 to-red-100 border border-red-200 rounded-xl p-5 shadow-sm hover:shadow-md transition-shadow">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm font-medium text-red-700 mb-1">Rejected</p>
+                  <p className="text-2xl font-bold text-red-900">{summaryStats.rejected}</p>
+                </div>
+                <div className="p-3 bg-red-200 rounded-lg">
+                  <AlertCircle className="h-6 w-6 text-red-700" />
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
 
-      <div className="mt-4">
+      {/* Table Section */}
+      <div className="bg-white rounded-xl shadow-md border border-neutral-200 overflow-hidden">
+        <div className="px-6 py-4 border-b border-neutral-200 bg-neutral-50">
+          <h2 className="text-lg font-semibold text-neutral-900">
+            Transfer Entries
+            <span className="ml-2 text-sm font-normal text-neutral-600">
+              ({data?.length || 0} {(data?.length || 0) === 1 ? 'entry' : 'entries'})
+            </span>
+          </h2>
+        </div>
         <DataTable
           columns={columns}
-          data={data}
+          data={data || []}
           actions={actions}
-          loading={isLoading}
+          loading={isLoading || loading}
           onRowClick={handleViewTransfer}
+          pagination={true}
         />
       </div>
 
+      {/* Modal */}
       <Modal
         size="xl"
         isOpen={isOpen}
-        onClose={() => setIsOpen(false)}
+        onClose={() => {
+          setIsOpen(false);
+          setActiveRow(null);
+        }}
         title={activeRow ? 'Edit Fund Transfer' : 'Add Fund Transfer'}
       >
         <BudgetFundTransferForm
           onSubmit={handleSubmit}
           initialData={activeRow}
-          onClose={() => setIsOpen(false)}
+          onClose={() => {
+            setIsOpen(false);
+            setActiveRow(null);
+          }}
           fundOptions={fundOptions}
         />
       </Modal>
-    </>
+    </div>
   );
 };
 
