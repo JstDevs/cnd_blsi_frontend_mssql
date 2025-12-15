@@ -96,6 +96,8 @@ const authSlice = createSlice({
           state.selectedRole = defaultRole;
           localStorage.setItem('selectedRole', JSON.stringify(defaultRole));
         }
+        // Reset session-based welcome flag on successful login
+        sessionStorage.removeItem('welcome_seen');
       })
       .addCase(login.rejected, (state, action) => {
         state.isLoading = false;
@@ -105,6 +107,7 @@ const authSlice = createSlice({
         state.user = null;
         state.isAuthenticated = false;
         state.selectedRole = null; // Clear selected role on logout
+        sessionStorage.removeItem('welcome_seen');
       })
       .addCase(fetchUserProfile.pending, (state) => {
         state.isLoading = true;
