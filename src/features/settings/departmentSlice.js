@@ -108,6 +108,33 @@ export const addDepartment = createAsyncThunk(
         throw new Error(res.message || 'Failed to add');
       }
 
+      // AUTO-CREATE SUBDEPARTMENT: ZZZZ - ZZZZ
+
+      if (res && res.ID) {
+        try {
+          const subdepartmentData = {
+            Code: `${department.Code}-EXP`,
+            Name: `${department.Name} Expenses`,
+            DepartmentID: res.ID,
+          };
+
+          const subdeptResponse = await fetch(`${API_URL}/subDepartment`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              Authorization: `Bearer ${localStorage.getItem('token')}`,
+            },
+            body: JSON.stringify(subdepartmentData),
+          });
+          // Warning if the subdepartment creation failed the department will still proceed.
+          if (!subdeptResponse.ok) {
+            console.warn('Failed to auto-create subdepartment:', await subdeptResponse.json());
+          }
+        } catch (subdeptError){
+          console.warn('Error creating subdepartment:', subdeptError);
+        }
+      }
+
       return res;
     } catch (error) {
       return thunkAPI.rejectWithValue(error.message);

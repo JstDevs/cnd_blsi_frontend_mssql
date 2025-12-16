@@ -13,6 +13,7 @@ import {
   deleteDepartment,
 } from '../../features/settings/departmentSlice';
 import { useModulePermissions } from '@/utils/useModulePremission';
+import toast from 'react-hot-toast';
 
 function DepartmentPage() {
   const dispatch = useDispatch();
@@ -34,6 +35,7 @@ function DepartmentPage() {
   const departmentSchema = Yup.object().shape({
     Code: Yup.string()
       .required('Department code is required')
+      .min(3, 'Department Code must be at least with 3 characters')
       .max(10, 'Department code must be at most 10 characters')
       .test('unique-code', 'Department code already exists', function (value) {
         if (!value) return true;
@@ -74,9 +76,148 @@ function DepartmentPage() {
     setIsDeleteModalOpen(true);
   };
 
-  const confirmDelete = () => {
-    if (departmentToDelete) {
-      dispatch(deleteDepartment(departmentToDelete.ID));
+  const confirmDelete = async () => {
+    try {
+      if (!departmentToDelete) return;
+
+      const API_URL = import.meta.env.VITE_API_URL;
+      const token = localStorage.getItem('token');
+
+      // Budget check
+      const budgetResponse = await fetch(`${API_URL}/budget`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      if (budgetResponse.ok) {
+        const budgetData = await budgetResponse.json();
+        const budgets = budgetData?.items || [];
+        const isUsedInBudget = budgets.some(
+          (budget) => budget.DepartmentID === departmentToDelete.ID
+        );
+        if (isUsedInBudget) {
+          toast.error(
+            'Cannot delete department. It is currently being used in budget records.'
+          );
+          setIsDeleteModalOpen(false);
+          setDepartmentToDelete(null);
+          return;
+        }
+      }
+
+      // OBR check
+      try {
+        const obrResponse = await fetch(`${API_URL}/obligationRequest`, {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${token}`,
+          },
+        });
+        if (obrResponse.ok) {
+          const obrData = await obrResponse.json();
+          const obrs = obrData?.items || [];
+          const isUsedInOBR = obrs.some(
+            (obr) => obr.ResponsibilityCenter == departmentToDelete.ID
+          );
+          if (isUsedInOBR) {
+            toast.error(
+              'Cannot delete department. It is currently being used in OBR records.'
+            );
+            setIsDeleteModalOpen(false);
+            setDepartmentToDelete(null);
+            return;
+          }
+        }
+      } catch (obrError) {
+        console.warn('Error checking OBR requests:', obrError);
+      }
+
+      // Purchase request check
+      try {
+        const prResponse = await fetch(`${API_URL}/purchaseRequest`, {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${token}`,
+          },
+        });
+        if (prResponse.ok) {
+          const prData = await prResponse.json();
+          const prs = prData?.items || [];
+          const isUsedInPR = prs.some(
+            (pr) => pr.ResponsibilityCenter == departmentToDelete.ID
+          );
+          if (isUsedInPR) {
+            toast.error(
+              'Cannot delete department. It is currently being used in Purchase Request records.'
+            );
+            setIsDeleteModalOpen(false);
+            setDepartmentToDelete(null);
+            return;
+          }
+        }
+      } catch (prError) {
+        console.warn('Error checking Purchase requests:', prError);
+      }
+
+      // Delete child subdepartments (cascade)
+      try {
+        const subdeptResponse = await fetch(`${API_URL}/subDepartment`, {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${token}`,
+          },
+        });
+        if (subdeptResponse.ok) {
+          const subdeptData = await subdeptResponse.json();
+          const subdepartments = subdeptData?.items || [];
+          const childSubdepartments = subdepartments.filter(
+            (subdept) => subdept.DepartmentID === departmentToDelete.ID
+          );
+          for (const subdept of childSubdepartments) {
+            try {
+              await fetch(`${API_URL}/subDepartment/${subdept.ID}`, {
+                method: 'DELETE',
+                headers: {
+                  'Content-Type': 'application/json',
+                  Authorization: `Bearer ${token}`,
+                },
+              });
+            } catch (subdeptError) {
+              console.warn(
+                `Failed to delete subdepartment ${subdept.ID}:`,
+                subdeptError
+              );
+            }
+          }
+        }
+      } catch (subdeptError) {
+        console.warn('Error fetching/deleting subdepartments:', subdeptError);
+      }
+
+      // Proceed with department deletion
+      await dispatch(deleteDepartment(departmentToDelete.ID)).unwrap();
+      toast.success('Department deleted successfully.');
+    } catch (error) {
+      console.error('Failed to delete department:', error);
+      const errorMessage = error?.message || error?.toString() || '';
+      if (
+        errorMessage.toLowerCase().includes('budget') ||
+        errorMessage.toLowerCase().includes('used') ||
+        errorMessage.toLowerCase().includes('reference') ||
+        errorMessage.toLowerCase().includes('transaction')
+      ) {
+        toast.error(
+          'Cannot delete department. It is currently being used in transactions or budget records.'
+        );
+      } else {
+        toast.error('Failed to delete department. Please try again.');
+      }
+    } finally {
       setIsDeleteModalOpen(false);
       setDepartmentToDelete(null);
     }
