@@ -207,7 +207,7 @@ function DataTable({
               {hasActions && (
                 <th
                   scope="col"
-                  className="px-6 py-4 text-right text-xs font-semibold text-neutral-700 uppercase tracking-wider cursor-pointer whitespace-nowrap sticky right-0 bg-gradient-to-r from-neutral-50 to-neutral-100 z-10 border-l-2 border-neutral-200 shadow-[2px_0_4px_rgba(0,0,0,0.05)]"
+                  className="px-4 py-3 text-right text-xs font-semibold text-neutral-700 uppercase tracking-wider whitespace-nowrap sticky right-0 bg-white z-10 border-l border-neutral-200 shadow-[2px_0_4px_rgba(0,0,0,0.05)]"
                 >
                   <span>Actions</span>
                 </th>
@@ -245,48 +245,54 @@ function DataTable({
                 {typeof safeActions === 'function'
                   ? (() => {
                       const rowActions = safeActions(row);
-                      return (
-                        (rowActions?.length > 0 ? (
-                          <td className={`px-6 py-4 whitespace-nowrap text-right text-sm font-medium space-x-1.5 sticky right-0 z-10 border-l-2 border-neutral-200 shadow-[2px_0_4px_rgba(0,0,0,0.05)] ${
-                            (rowIndex + (currentPage - 1) * rowsPerPage) % 2 === 0 ? 'bg-white' : 'bg-neutral-50/30'
-                          } ${selectedRow && selectedRow?.ID === row.ID ? 'bg-blue-50' : ''}`}>
-                            <div className="flex items-center justify-end gap-1.5">
-                              {rowActions.map((action, i) => (
-                                <button
-                                  key={i}
-                                  onClick={(e) => {
-                                    e.stopPropagation();
-                                    if (!action.disabled && action.onClick) {
-                                      action.onClick(row);
-                                    }
-                                  }}
-                                  disabled={action.disabled}
-                                  className={
-                                    action.className ||
-                                    'text-primary-600 hover:text-primary-900'
+                      return rowActions?.length > 0 ? (
+                        <td
+                          className={`px-4 py-3 whitespace-nowrap text-right text-sm font-medium space-x-1.5 sticky right-0 z-10 border-l border-neutral-200 shadow-[2px_0_4px_rgba(0,0,0,0.05)] ${
+                            (rowIndex + (currentPage - 1) * rowsPerPage) % 2 === 0
+                              ? 'bg-white'
+                              : 'bg-neutral-50/30'
+                          } ${
+                            selectedRow && selectedRow?.ID === row.ID ? 'bg-blue-50' : ''
+                          }`}
+                        >
+                          <div className="flex items-center justify-end gap-1 sm:gap-1.5">
+                            {rowActions.map((action, i) => (
+                              <button
+                                key={i}
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  if (!action.disabled && action.onClick) {
+                                    action.onClick(row);
                                   }
-                                  title={action.title}
-                                >
-                                  {action.icon ? (
-                                    <action.icon
-                                      className="h-5 w-5"
-                                      aria-hidden="true"
-                                    />
-                                  ) : (
-                                    action.label
-                                  )}
-                                </button>
-                              ))}
-                            </div>
-                          </td>
-                        ) : null)
-                      );
+                                }}
+                                disabled={action.disabled}
+                                className={
+                                  action.className || 'text-primary-600 hover:text-primary-900'
+                                }
+                                title={action.title}
+                              >
+                                {action.icon ? (
+                                  <action.icon className="h-5 w-5" aria-hidden="true" />
+                                ) : (
+                                  action.label
+                                )}
+                              </button>
+                            ))}
+                          </div>
+                        </td>
+                      ) : null;
                     })()
                   : (Array.isArray(safeActions) ? safeActions.length > 0 : typeof safeActions === 'function') && (
-                      <td className={`px-6 py-4 whitespace-nowrap text-right text-sm font-medium space-x-1.5 sticky right-0 z-10 border-l-2 border-neutral-200 shadow-[2px_0_4px_rgba(0,0,0,0.05)] ${
-                        (rowIndex + (currentPage - 1) * rowsPerPage) % 2 === 0 ? 'bg-white' : 'bg-neutral-50/30'
-                      } ${selectedRow && selectedRow?.ID === row.ID ? 'bg-blue-50' : ''}`}>
-                        <div className="flex items-center justify-end gap-1.5">
+                      <td
+                        className={`px-4 py-3 whitespace-nowrap text-right text-sm font-medium space-x-1.5 sticky right-0 z-10 border-l border-neutral-200 shadow-[2px_0_4px_rgba(0,0,0,0.05)] ${
+                          (rowIndex + (currentPage - 1) * rowsPerPage) % 2 === 0
+                            ? 'bg-white'
+                            : 'bg-neutral-50/30'
+                        } ${
+                          selectedRow && selectedRow?.ID === row.ID ? 'bg-blue-50' : ''
+                        }`}
+                      >
+                        <div className="flex items-center justify-end gap-1 sm:gap-1.5">
                           {(Array.isArray(safeActions) ? safeActions : []).map((action, i) => (
                             <button
                               key={i}
@@ -298,16 +304,12 @@ function DataTable({
                               }}
                               disabled={action?.disabled}
                               className={
-                                action?.className ||
-                                'text-primary-600 hover:text-primary-900'
+                                action?.className || 'text-primary-600 hover:text-primary-900'
                               }
                               title={action?.title}
                             >
                               {action?.icon ? (
-                                <action.icon
-                                  className="h-5 w-5"
-                                  aria-hidden="true"
-                                />
+                                <action.icon className="h-5 w-5" aria-hidden="true" />
                               ) : (
                                 action?.label
                               )}
