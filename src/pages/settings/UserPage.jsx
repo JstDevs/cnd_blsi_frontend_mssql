@@ -45,7 +45,10 @@ const userSchema = Yup.object().shape({
   UserAccessID: Yup.string().required('User Access is required'),
   Password: Yup.string()
     .required('Password is required')
-    .min(6, 'Password must be at least 6 characters'),
+    .min(6, 'Password must be at least 6 characters')
+    .matches(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@%$!?*&])[A-Za-z\d@$!%*?&]/,
+      'Password must contain at least one uppercase letter, one lowercase letter, one number, and one special character.'
+    ),
   ConfirmPassword: Yup.string()
     .oneOf([Yup.ref('Password'), null], 'Passwords must match')
     .required('Confirm Password is required'),
