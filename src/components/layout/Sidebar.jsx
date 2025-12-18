@@ -18,13 +18,13 @@ import {
   ReceiptPercentIcon,
 } from '@heroicons/react/24/outline';
 import { ChevronRightIcon } from '@heroicons/react/20/solid';
-import { CalculatorIcon, ChartBar, CoinsIcon, Ellipsis, LayoutDashboardIcon, ReceiptTextIcon, BanknoteIcon } from 'lucide-react';
+import { CalculatorIcon, ChartBar, CoinsIcon, Ellipsis, LayoutDashboardIcon, ReceiptTextIcon, BanknoteIcon, Settings, HandCoinsIcon } from 'lucide-react';
 
 const DashboardIcon = LayoutDashboardIcon;
 const DisbursementIcon = BanknoteIcon;
 const CollectionsIcon = ReceiptTextIcon;
-const BudgetIcon = CalculatorIcon;
-const SettingsIcon = Cog6ToothIcon;
+const BudgetIcon = HandCoinsIcon;
+const SettingsIcon = Settings;
 
 const navigation = [
   { name: 'Dashboard', href: '/dashboard', icon: DashboardIcon }, // public, no moduleId
