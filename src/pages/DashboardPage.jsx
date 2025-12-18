@@ -440,7 +440,8 @@ function DashboardPage() {
           </div>
         </div>
 
-        <div className="bg-white border border-neutral-200 rounded-lg p-4">
+            {/* OLD HEHE */}
+        {/* <div className="bg-white border border-neutral-200 rounded-lg p-4">
           <h3 className="text-lg font-semibold text-neutral-900 mb-3">
             Disbursement Status (Approved / Rejected)
           </h3>
@@ -464,55 +465,56 @@ function DashboardPage() {
               </span>
             </div>
           </div>
-        </div>
+        </div> */}
+        <div className="bg-white border border-neutral-200 rounded-lg p-4">
+            <div className="flex items-center gap-2 mb-3">
+              <BuildingOfficeIcon className="h-6 w-6 text-primary-600" />
+              <h3 className="text-lg font-semibold text-neutral-900">
+                Remaining Budget by Department
+              </h3>
+            </div>
+            <div className="overflow-x-auto">
+              <table className="min-w-full divide-y divide-neutral-200 text-sm">
+                <thead className="bg-neutral-50">
+                  <tr>
+                    <th className="px-3 py-2 text-left font-medium text-neutral-600">
+                      Department
+                    </th>
+                    <th className="px-3 py-2 text-right font-medium text-neutral-600">
+                      Remaining Budget
+                    </th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-neutral-100">
+                  {loading ? (
+                    <tr>
+                      <td className="px-3 py-3 text-neutral-500" colSpan={2}>
+                        Loading...
+                      </td>
+                    </tr>
+                  ) : budgetRemaining.length === 0 ? (
+                    <tr>
+                      <td className="px-3 py-3 text-neutral-500" colSpan={2}>
+                        No budget data available.
+                      </td>
+                    </tr>
+                  ) : (
+                    budgetRemaining.map((row) => (
+                      <tr key={row.id}>
+                        <td className="px-3 py-2 text-neutral-800">{row.name}</td>
+                        <td className="px-3 py-2 text-right font-semibold text-neutral-900">
+                          {formatCurrency(row.remaining)}
+                        </td>
+                      </tr>
+                    ))
+                  )}
+                </tbody>
+              </table>
+            </div>
+          </div>
       </div>
 
-      <div className="mt-6 bg-white border border-neutral-200 rounded-lg p-4">
-        <div className="flex items-center gap-2 mb-3">
-          <BuildingOfficeIcon className="h-6 w-6 text-primary-600" />
-          <h3 className="text-lg font-semibold text-neutral-900">
-            Remaining Budget by Department
-          </h3>
-        </div>
-        <div className="overflow-x-auto">
-          <table className="min-w-full divide-y divide-neutral-200 text-sm">
-            <thead className="bg-neutral-50">
-              <tr>
-                <th className="px-3 py-2 text-left font-medium text-neutral-600">
-                  Department
-                </th>
-                <th className="px-3 py-2 text-right font-medium text-neutral-600">
-                  Remaining Budget
-                </th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-neutral-100">
-              {loading ? (
-                <tr>
-                  <td className="px-3 py-3 text-neutral-500" colSpan={2}>
-                    Loading...
-                  </td>
-                </tr>
-              ) : budgetRemaining.length === 0 ? (
-                <tr>
-                  <td className="px-3 py-3 text-neutral-500" colSpan={2}>
-                    No budget data available.
-                  </td>
-                </tr>
-              ) : (
-                budgetRemaining.map((row) => (
-                  <tr key={row.id}>
-                    <td className="px-3 py-2 text-neutral-800">{row.name}</td>
-                    <td className="px-3 py-2 text-right font-semibold text-neutral-900">
-                      {formatCurrency(row.remaining)}
-                    </td>
-                  </tr>
-                ))
-              )}
-            </tbody>
-          </table>
-        </div>
-      </div>
+      
 
       {/* Old navigation shortcuts hidden */}
       {/*
