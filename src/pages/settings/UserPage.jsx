@@ -42,7 +42,9 @@ import { useModulePermissions } from '@/utils/useModulePremission';
 
 const userSchema = Yup.object().shape({
   UserName: Yup.string().required('User name is required'),
-  UserAccessID: Yup.string().required('User Access is required'),
+  UserAccessArray: Yup.array()
+  .min(1, 'At least one User Access is required')
+  .required('User Access is required'),
   Password: Yup.string()
     .required('Password is required')
     .min(6, 'Password must be at least 6 characters')
@@ -169,7 +171,7 @@ function UserPage() {
       EmployeeID: values.EmployeeID,
       UserName: values.UserName,
       Password: values.Password,
-      UserAccessArray: [values.UserAccessID],
+      UserAccessArray: values.UserAccessArray,
     };
     console.log('Payload:', payloadAddUser);
     try {
@@ -238,8 +240,7 @@ function UserPage() {
   // Modify users to include UserAccessValue
   const modifiedUsers = Array.isArray(users) ? users.map((user) => ({
     ...user,
-    UserAccessValue: userroles.find((role) => role.ID === user.UserAccessID)
-      ?.Description,
+    UserAccessValue: user.accessList?.map((role) => role.Description).join(', ') || 'N/A',
   })) : [];
 
   // Debug logging
@@ -290,7 +291,7 @@ function UserPage() {
         <Formik
           initialValues={{
             UserName: currentUser?.UserName || '',
-            UserAccessID: currentUser?.UserAccessID || '',
+            UserAccessArray: currentUser?.accessList?.map(role => role.ID) || [],
             Password: '',
             ConfirmPassword: '',
             EmployeeID: currentUser?.EmployeeID || '',
@@ -325,19 +326,42 @@ function UserPage() {
                 error={errors.UserName}
                 touched={touched.UserName}
               />
-              <FormField
-                className="p-3 focus:outline-none"
-                label="User Access"
-                name="UserAccessID"
-                type="select"
-                required
-                value={values.UserAccessID}
-                onChange={handleChange}
-                onBlur={handleBlur}
-                error={errors.UserAccessID}
-                touched={touched.UserAccessID}
-                options={userAccessOptions}
-              />
+              <div className="space-y-2">
+                <label className="block text-sm font-medium text-gray-700">
+                  User Access <span className="text-red-500">*</span>
+                </label>
+                <div className="border border-gray-300 rounded-md p-3 max-h-48 overflow-y-auto">
+                  {userAccessOptions.map((option) => (
+                    <label key={option.value} className="flex items-center space-x-2 py-1">
+                      <input
+                        type="checkbox"
+                        name="UserAccessArray"
+                        value={option.value}
+                        checked={values.UserAccessArray?.includes(Number(option.value)) || false}
+                        onChange={(e) => {
+                          const value = Number(e.target.value);
+                          const currentArray = values.UserAccessArray || [];
+                          const newArray = e.target.checked
+                            ? [...currentArray, value]
+                            : currentArray.filter(id => id !== value);
+                          handleChange({
+                            target: {
+                              name: 'UserAccessArray',
+                              value: newArray
+                            }
+                          });
+                        }}
+                        onBlur={handleBlur}
+                        className="rounded border-gray-300 text-primary-600 focus:ring-primary-500"
+                      />
+                      <span className="text-sm text-gray-700">{option.label}</span>
+                    </label>
+                  ))}
+                </div>
+                {errors.UserAccessArray && touched.UserAccessArray && (
+                  <p className="text-sm text-red-600">{errors.UserAccessArray}</p>
+                )}
+              </div>
               <FormField
                 className="p-3 focus:outline-none"
                 label="Password"
