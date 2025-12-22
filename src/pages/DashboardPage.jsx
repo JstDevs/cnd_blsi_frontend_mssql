@@ -13,6 +13,7 @@ import {
   fetchCollectionTotals,
   fetchBudgetList,
   fetchDisbursementChart,
+  fetchDisbursementList,
 } from './userProfile/profileUtil';
 import { PhilippinePeso } from 'lucide-react';
 
@@ -163,7 +164,10 @@ function DashboardPage() {
             categories: activeCategories,
           }),
           fetchBudgetList(''),
-          fetchDisbursementChart('month'),
+          fetchDisbursementChart({
+            startDate: startDate || undefined,
+            endDate: endDate || undefined,
+          }),
         ]);
 
         // Revenue totals (per range)
@@ -195,22 +199,63 @@ function DashboardPage() {
         });
         setBudgetRemaining(remainingByDept);
 
-        // Disbursement approved vs rejected (uses existing chart endpoint)
-        const disbursementData = Array.isArray(disbursementRes?.data)
-          ? disbursementRes.data
-          : [];
-        const statusTotals = disbursementData.reduce(
-          (acc, item) => {
+        // Disbursement approved vs rejected (counts preferred)
+        let statusTotals = { approved: 0, rejected: 0, pending: 0 };
+        if (Array.isArray(disbursementRes?.data)) {
+          statusTotals = disbursementRes.data.reduce((acc, item) => {
             const name = (item.name || '').toLowerCase();
-            const value = Number(item.value || 0);
-            if (name.includes('approve')) acc.approved += value;
-            else if (name.includes('reject')) acc.rejected += value;
+            const value = Number(item.count ?? item.value ?? 0);
+            // prioritize reject if present (some labels include both Posted and Rejected)
+            if (name.includes('reject')) acc.rejected += value;
+            else if (name.includes('approve') || name.includes('post')) acc.approved += value;
             else acc.pending += value;
             return acc;
-          },
-          { approved: 0, rejected: 0, pending: 0 }
-        );
+          }, statusTotals);
+        } else if (disbursementRes?.data && typeof disbursementRes.data === 'object') {
+          const d = disbursementRes.data;
+          statusTotals.approved = Number(d.Approved ?? d.approved ?? 0);
+          statusTotals.rejected = Number(d.Rejected ?? d.rejected ?? 0);
+          statusTotals.pending = Number(d.Pending ?? d.pending ?? 0);
+        }
         setDisbursementStatus(statusTotals);
+        // log raw response to help debug why totals may be zero
+        console.log('disbursementRes raw:', disbursementRes?.data);
+
+        // Fallback: if totals are zero, fetch DV list and compute counts client-side
+        const totalCount = statusTotals.approved + statusTotals.rejected;
+        if (totalCount === 0) {
+          try {
+            const listRes = await fetchDisbursementList({
+              startDate: startDate || undefined,
+              endDate: endDate || undefined,
+            });
+            const list = Array.isArray(listRes?.data)
+              ? listRes.data
+              : Array.isArray(listRes?.data?.disbursementVouchers)
+              ? listRes.data.disbursementVouchers
+              : [];
+
+            const counts = list.reduce(
+              (acc, item) => {
+                const status = (item.Status || item.status || '').toString();
+                // handle comma-separated statuses like "Posted, Disbursement Rejected"
+                const parts = status.split(',').map((s) => s.trim().toLowerCase()).filter(Boolean);
+                if (parts.some((p) => p.includes('reject'))) acc.rejected += 1;
+                else if (parts.some((p) => p.includes('approve') || p === 'posted' || p.includes('post'))) acc.approved += 1;
+                else acc.pending += 1;
+                return acc;
+              },
+              { approved: 0, rejected: 0, pending: 0 }
+            );
+            // If counts were found, update the UI
+            if (counts.approved + counts.rejected > 0) {
+              setDisbursementStatus(counts);
+              console.log('Fallback counts from disbursement list:', counts);
+            }
+          } catch (err) {
+            console.error('Fallback fetchDisbursementList failed:', err);
+          }
+        }
         setAuthError('');
       } catch (error) {
         console.error(error);
@@ -360,16 +405,16 @@ function DashboardPage() {
           loading={loading}
         />
         <StatCard
-          title="Disbursements Approved"
-          value={loading ? '...' : formatCurrency(disbursementStatus.approved)}
+          title="Disbursement Vouchers Approved"
+          value={loading ? '...' : disbursementStatus.approved}
           icon={CheckBadgeIcon}
           trend="up"
           trendValue={approvalRate}
           loading={loading}
         />
         <StatCard
-          title="Disbursements Rejected"
-          value={loading ? '...' : formatCurrency(disbursementStatus.rejected)}
+          title="Disbursement Vouchers Rejected"
+          value={loading ? '...' : disbursementStatus.rejected}
           icon={XCircleIcon}
           trend="down"
           trendValue={rejectionRate}

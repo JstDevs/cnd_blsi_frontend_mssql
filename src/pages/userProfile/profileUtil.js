@@ -38,6 +38,26 @@ export const fetchDisbursementAmounts = (
   return axiosInstance('/profileDashboard/disbursementAmounts', { params });
 };
 
+export const fetchDisbursementCounts = (options = {}) => {
+  const {
+    dateRange = 'Day',
+    aparType = 'Disbursement Voucher',
+    startDate,
+    endDate,
+    selectedDepartmentID,
+  } = options;
+
+  const params = {
+    dateRange,
+    aparType,
+    ...(startDate && { startDate }),
+    ...(endDate && { endDate }),
+    ...(selectedDepartmentID && { selectedDepartmentID }),
+  };
+
+  return axiosInstance('/profileDashboard/disbursementCounts', { params });
+};
+
 // 2. Obligation Chart
 export const fetchObligationChart = (
   dateRange = 'Day',
@@ -63,15 +83,33 @@ export const fetchTravelOrderChart = (
 };
 
 // 4. Disbursement Chart
-export const fetchDisbursementChart = (
-  dateRange = 'Year',
-  selectedDepartmentID = null
-) => {
+export const fetchDisbursementChart = (options = {}) => {
+  const {
+    dateRange = 'Year',
+    selectedDepartmentID = null,
+    startDate,
+    endDate,
+  } = options;
+
   const params = {
     dateRange,
     ...(selectedDepartmentID && { selectedDepartmentID }),
+    ...(startDate && { startDate }),
+    ...(endDate && { endDate }),
   };
+
   return axiosInstance('/profileDashboard/disbursementChart', { params });
+};
+
+// Fetch raw disbursement vouchers list (used as a fallback to compute counts)
+export const fetchDisbursementList = (options = {}) => {
+  const { startDate, endDate, selectedDepartmentID } = options;
+  const params = {
+    ...(startDate && { startDate }),
+    ...(endDate && { endDate }),
+    ...(selectedDepartmentID && { selectedDepartmentID }),
+  };
+  return axiosInstance('/disbursementVoucher', { params });
 };
 
 // --------------------------COLLECTIONS----------------------------
