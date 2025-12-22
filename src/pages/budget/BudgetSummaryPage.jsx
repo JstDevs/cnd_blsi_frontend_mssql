@@ -754,7 +754,7 @@ const BudgetSummaryDetail = ({ data }) => {
       {/* Financial Summary Section */}
       <div className="bg-neutral-50 rounded-lg p-6 border border-neutral-200">
         <h3 className="text-lg font-semibold text-neutral-900 mb-4 flex items-center gap-2">
-          <DollarSign className="h-5 w-5 text-primary-600" />
+          <PhilippinePeso className="h-5 w-5 text-primary-600" />
           Financial Summary
         </h3>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -848,7 +848,7 @@ const BudgetSummaryDetail = ({ data }) => {
       {/* Monthly Distribution Section */}
       <div className="bg-neutral-50 rounded-lg p-6 border border-neutral-200">
         <h3 className="text-lg font-semibold text-neutral-900 mb-4 flex items-center gap-2">
-          <CalendarIcon className="h-5 w-5 text-primary-600" />
+          <Calendar className="h-5 w-5 text-primary-600" />
           Monthly Distribution
         </h3>
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
