@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useFormik } from 'formik';
 import * as Yup from 'yup';
@@ -26,6 +26,7 @@ import { useModulePermissions } from '@/utils/useModulePremission';
 const LGUMaintenance = () => {
   const dispatch = useDispatch();
   const [logoFile, setLogoFile] = useState(null);
+  const fileInputRef = useRef(null);
   // ---------------------USE MODULE PERMISSIONS------------------START (PpeSuppliersPage - MODULE ID = 96 )
   const { Edit } = useModulePermissions(58);
   useEffect(() => {
@@ -50,12 +51,53 @@ const LGUMaintenance = () => {
         throw new Error('Failed to fetch LGU data');
       }
       const data = await response.json();
+      console.log('LGU Data received:', data); // Debug log
       const extratedData = extraData(data);
 
       setLgu(extratedData);
-      setImage(data.Logo || 'https://placehold.co/150x150?text=LGU+Logo');
+      
+      // Construct image URL properly - check both Logo and LogoUrl fields
+      let imageUrl = 'https://placehold.co/150x150?text=LGU+Logo';
+      const logoData = data.Logo || data.LogoUrl || data.logo || data.logoUrl;
+      if (logoData) {
+        // If Logo is already a full URL, try to use proxy in development
+        if (logoData.startsWith('http://') || logoData.startsWith('https://')) {
+          // In development, use proxy to avoid CORS issues
+          if (import.meta.env.DEV) {
+            // Handle both localhost:3000 (wrong) and localhost:5001 (correct)
+            if (logoData.includes('localhost:3000') || logoData.includes('localhost:5001')) {
+              // Extract the path from the full URL and use proxy
+              const urlObj = new URL(logoData);
+              imageUrl = `/api${urlObj.pathname}`;
+            } else {
+              imageUrl = logoData;
+            }
+          } else {
+            imageUrl = logoData;
+          }
+        } 
+        // If Logo is a relative path or filename, construct full URL
+        else if (logoData.startsWith('/')) {
+          // Use proxy in development
+          if (import.meta.env.DEV) {
+            imageUrl = `/api${logoData}`;
+          } else {
+            imageUrl = `${API_URL}${logoData}`;
+          }
+        } else {
+          // Assume it's a filename in uploads folder
+          if (import.meta.env.DEV) {
+            imageUrl = `/api/uploads/${logoData}`;
+          } else {
+            imageUrl = `${API_URL}/uploads/${logoData}`;
+          }
+        }
+      }
+      console.log('Setting image URL:', imageUrl); // Debug log
+      setImage(imageUrl);
     } catch (error) {
       console.error('Error loading LGU data:', error);
+      toast.error('Failed to load LGU data');
     }
   };
   const extraData = (data) => {
@@ -107,35 +149,102 @@ const LGUMaintenance = () => {
       const token = localStorage.getItem('token');
 
       const formData = new FormData();
-      // Append fields
+      
+      // Append fields (but skip Logo field if we have a new file)
       Object.entries(values).forEach(([key, val]) => {
-        formData.append(key, val);
+        if (val !== null && val !== undefined) {
+          // Skip Logo field if we're uploading a new file
+          if (key === 'Logo' && file) {
+            return; // Don't append old Logo URL if we have a new file
+          }
+          formData.append(key, val);
+        }
       });
 
-      // Append file (if selected)
+      // Append file (if selected) - this will replace the old Logo
       if (file) {
+        console.log('Appending file to FormData:', file.name, file.type, file.size); // Debug log
         formData.append('Logo', file);
+      } else {
+        console.log('No file selected for upload'); // Debug log
+      }
+
+      // Debug: Log FormData contents
+      console.log('FormData entries:');
+      for (let pair of formData.entries()) {
+        console.log(pair[0] + ': ' + (pair[1] instanceof File ? `File(${pair[1].name})` : pair[1]));
       }
 
       const response = await fetch(`${API_URL}/lgu/${values.ID}`, {
         method: 'PUT',
         headers: {
           Authorization: `Bearer ${token}`,
-          // Do not manually set Content-Type!
+          // Do not manually set Content-Type! Let browser set it with boundary
         },
         body: formData,
       });
 
       if (!response.ok) {
-        throw new Error('Failed to update LGU');
+        const errorText = await response.text();
+        console.error('Response error:', errorText); // Debug log
+        let errorData;
+        try {
+          errorData = JSON.parse(errorText);
+        } catch {
+          errorData = { message: errorText || 'Failed to update LGU' };
+        }
+        throw new Error(errorData.message || 'Failed to update LGU');
       }
 
       const updated = await response.json();
+      console.log('Update response:', updated); // Debug log
+      
       setLgu(updated);
-      setImage(updated.Logo || 'https://placehold.co/150x150?text=LGU+Logo');
+      
+      // Construct image URL properly after update - check both Logo and LogoUrl fields
+      let imageUrl = 'https://placehold.co/150x150?text=LGU+Logo';
+      const logoData = updated.Logo || updated.LogoUrl || updated.logo || updated.logoUrl;
+      if (logoData) {
+        // If Logo is already a full URL, try to use proxy in development
+        if (logoData.startsWith('http://') || logoData.startsWith('https://')) {
+          // In development, use proxy to avoid CORS issues
+          if (import.meta.env.DEV) {
+            // Handle both localhost:3000 (wrong) and localhost:5001 (correct)
+            if (logoData.includes('localhost:3000') || logoData.includes('localhost:5001')) {
+              // Extract the path from the full URL and use proxy
+              const urlObj = new URL(logoData);
+              imageUrl = `/api${urlObj.pathname}`;
+            } else {
+              imageUrl = logoData;
+            }
+          } else {
+            imageUrl = logoData;
+          }
+        } 
+        // If Logo is a relative path or filename, construct full URL
+        else if (logoData.startsWith('/')) {
+          // Use proxy in development
+          if (import.meta.env.DEV) {
+            imageUrl = `/api${logoData}`;
+          } else {
+            imageUrl = `${API_URL}${logoData}`;
+          }
+        } else {
+          // Assume it's a filename in uploads folder
+          if (import.meta.env.DEV) {
+            imageUrl = `/api/uploads/${logoData}`;
+          } else {
+            imageUrl = `${API_URL}/uploads/${logoData}`;
+          }
+        }
+      }
+      console.log('Setting updated image URL:', imageUrl); // Debug log
+      setImage(imageUrl);
+      setLogoFile(null); // Clear logoFile after successful upload
       return true;
     } catch (error) {
       console.error('Update error:', error);
+      toast.error(error.message || 'Failed to update LGU. Please try again.');
       return false;
     }
   };
@@ -193,10 +302,21 @@ const LGUMaintenance = () => {
     enableReinitialize: true,
 
     onSubmit: async (values, { setSubmitting }) => {
-      // const success = await updateLguData(values);
+      console.log('Form submitted with logoFile:', logoFile); // Debug log
+      if (logoFile) {
+        console.log('Logo file details:', {
+          name: logoFile.name,
+          type: logoFile.type,
+          size: logoFile.size
+        });
+      }
       const success = await updateLguData(values, logoFile);
       if (success) {
         setIsEditing(false);
+        setLogoFile(null); // Clear logoFile state
+        if (fileInputRef.current) {
+          fileInputRef.current.value = ''; // Reset file input
+        }
         toast.success('LGU updated successfully');
         fetchLguData();
       }
@@ -207,14 +327,51 @@ const LGUMaintenance = () => {
   const handleImageChange = (e) => {
     const file = e.target.files?.[0];
     if (file) {
+      // Validate file type
+      if (!file.type.startsWith('image/')) {
+        toast.error('Please select an image file');
+        if (fileInputRef.current) {
+          fileInputRef.current.value = '';
+        }
+        return;
+      }
+
+      // Validate file size (e.g., max 5MB)
+      const maxSize = 5 * 1024 * 1024; // 5MB
+      if (file.size > maxSize) {
+        toast.error('Image size should be less than 5MB');
+        if (fileInputRef.current) {
+          fileInputRef.current.value = '';
+        }
+        return;
+      }
+
       setLogoFile(file); // store file to send later
 
       const reader = new FileReader();
       reader.onloadend = () => {
         setImage(reader.result); // show preview
       };
+      reader.onerror = () => {
+        toast.error('Error reading image file');
+        setLogoFile(null);
+        if (fileInputRef.current) {
+          fileInputRef.current.value = '';
+        }
+      };
       reader.readAsDataURL(file);
     }
+  };
+
+  const handleCancelEdit = () => {
+    formik.resetForm();
+    setIsEditing(false);
+    setLogoFile(null); // Clear logoFile state
+    if (fileInputRef.current) {
+      fileInputRef.current.value = ''; // Reset file input
+    }
+    // Reset image to original
+    fetchLguData();
   };
   // const handleImageChange = (e) => {
   //   const file = e.target.files?.[0];
@@ -400,10 +557,7 @@ const LGUMaintenance = () => {
             </div>
             {isEditing && (
               <button
-                onClick={() => {
-                  formik.resetForm();
-                  setIsEditing(false);
-                }}
+                onClick={handleCancelEdit}
                 className="text-neutral-600 hover:text-neutral-900 flex items-center gap-2 px-3 py-1.5 rounded-lg hover:bg-neutral-100 transition-colors"
               >
                 <X className="h-4 w-4" />
@@ -417,32 +571,63 @@ const LGUMaintenance = () => {
           {/* Logo Section */}
           <div className="flex flex-col items-center mb-8 pb-8 border-b border-neutral-200">
             <div className="relative group">
-              <div className="absolute inset-0 bg-neutral-900 bg-opacity-0 group-hover:bg-opacity-10 rounded-full transition-all duration-200 flex items-center justify-center">
-                {isEditing && (
+              {isEditing && (
+                <div className="absolute inset-0 bg-neutral-900 bg-opacity-0 group-hover:bg-opacity-10 rounded-full transition-all duration-200 flex items-center justify-center z-10 pointer-events-none">
                   <div className="opacity-0 group-hover:opacity-100 transition-opacity">
                     <Upload className="h-8 w-8 text-white" />
                   </div>
-                )}
-              </div>
+                </div>
+              )}
               <img
                 src={image}
-                className="h-32 w-32 sm:h-40 sm:w-40 rounded-full object-cover border-4 border-neutral-200 shadow-lg"
+                className="h-32 w-32 sm:h-40 sm:w-40 rounded-full object-cover border-4 border-neutral-200 shadow-lg bg-neutral-100"
                 alt="LGU Logo"
+                style={{ display: 'block' }}
+                onError={(e) => {
+                  console.error('Image failed to load:', image);
+                  console.error('Error details:', e);
+                  // If image failed to load and it's not already the placeholder, try fallback
+                  if (image && !image.includes('placehold.co')) {
+                    // Try direct API URL if proxy didn't work
+                    if (image.startsWith('/api/')) {
+                      const directUrl = image.replace('/api/', `${API_URL}/`);
+                      console.log('Trying direct URL:', directUrl);
+                      e.target.src = directUrl;
+                    } else {
+                      // Fallback to placeholder
+                      e.target.src = 'https://placehold.co/150x150?text=LGU+Logo';
+                    }
+                  } else {
+                    // Already placeholder, keep it
+                    e.target.src = 'https://placehold.co/150x150?text=LGU+Logo';
+                  }
+                }}
+                onLoad={() => {
+                  console.log('Image loaded successfully:', image);
+                }}
               />
             </div>
             {isEditing && (
-              <label className="mt-4 cursor-pointer">
-                <input
-                  type="file"
-                  accept="image/*"
-                  onChange={handleImageChange}
-                  className="hidden"
-                />
-                <div className="btn btn-outline flex items-center gap-2">
-                  <ImageIcon className="h-4 w-4" />
-                  Change Logo
-                </div>
-              </label>
+              <div className="mt-4 flex flex-col items-center gap-2">
+                <label className="cursor-pointer">
+                  <input
+                    ref={fileInputRef}
+                    type="file"
+                    accept="image/*"
+                    onChange={handleImageChange}
+                    className="hidden"
+                  />
+                  <div className="btn btn-outline flex items-center gap-2">
+                    <ImageIcon className="h-4 w-4" />
+                    Change Logo
+                  </div>
+                </label>
+                {logoFile && (
+                  <p className="text-sm text-green-600 font-medium">
+                    ✓ {logoFile.name} ready to upload
+                  </p>
+                )}
+              </div>
             )}
           </div>
 
@@ -608,10 +793,7 @@ const LGUMaintenance = () => {
               <div className="flex justify-end space-x-3 pt-6 border-t border-neutral-200 col-span-full">
                 <button
                   type="button"
-                  onClick={() => {
-                    formik.resetForm();
-                    setIsEditing(false);
-                  }}
+                  onClick={handleCancelEdit}
                   className="btn btn-outline flex items-center gap-2"
                 >
                   <X className="h-4 w-4" />

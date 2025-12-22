@@ -586,9 +586,9 @@ function EmployeeForm({ initialData, onClose }) {
 
                   <div className="grid grid-cols-1 gap-4">
                     <div className="flex items-end">
-                      <button type="button" className="btn btn-outline">
+                      {/* <button type="button" className="btn btn-outline">
                         Choose
-                      </button>
+                      </button> */}
                     </div>
                   </div>
                   <div className="mt-2">
