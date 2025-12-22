@@ -238,7 +238,7 @@ function CommunityTaxPage() {
           'text-primary-600 hover:text-primary-900 p-1 rounded-full hover:bg-primary-50',
       });
       actionList.push({
-        icon: TrashIcon,
+        icon: Trash,
         title: 'Delete',
         onClick: handleDeleteCertificate,
         className:
