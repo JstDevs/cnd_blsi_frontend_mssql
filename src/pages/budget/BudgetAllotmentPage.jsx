@@ -220,14 +220,27 @@ const BudgetAllotmentPage = () => {
   const handleBAPAction = async (dv, action) => {
     setIsLoadingBAPAction(true);
     try {
-      // TODO : add action
-      // const response = await axiosInstance.post(
-      //   `/disbursementVoucher/${action}`,
-      //   { ID: dv.ID }
-      // );
+      const response = await axiosInstance.post(
+        `/budgetAllotment/${action}`,
+        { ID: dv.ID }
+      );
       console.log(`${action}d:`, response.data);
-      // dispatch(fetchGeneralServiceReceipts());
-      toast.success(`Budget Allotment ${action}d successfully`);
+
+      // Update local state to reflect change immediately
+      setData((prev) =>
+        prev.map((item) =>
+          item.ID === dv.ID
+            ? { ...item, Status: action === 'approve' ? 'Approved' : 'Rejected' }
+            : item
+        )
+      );
+
+      // Re-fetch to ensure data consistency
+      await fetchBudgetAllotments();
+
+      toast.success(
+        response.data.message || `Budget Allotment ${action}d successfully`
+      );
     } catch (error) {
       console.error(`Error ${action}ing Budget Allotment:`, error);
       toast.error(`Error ${action}ing Budget Allotment`);
@@ -316,7 +329,7 @@ const BudgetAllotmentPage = () => {
     }, 0) || 0;
     const requested = filteredData?.filter(item => item.Status?.toLowerCase().includes('requested')).length || 0;
     const approved = filteredData?.filter(item => item.Status?.toLowerCase().includes('approved')).length || 0;
-    
+
     return {
       total,
       totalAmount,
@@ -347,11 +360,10 @@ const BudgetAllotmentPage = () => {
           <div className="flex items-center gap-3">
             <button
               onClick={() => setShowFilters(!showFilters)}
-              className={`btn btn-outline flex items-center gap-2 transition-all ${
-                showFilters || hasActiveFilters
-                  ? 'bg-primary-50 border-primary-300 text-primary-700 shadow-sm'
-                  : 'hover:bg-neutral-50'
-              }`}
+              className={`btn btn-outline flex items-center gap-2 transition-all ${showFilters || hasActiveFilters
+                ? 'bg-primary-50 border-primary-300 text-primary-700 shadow-sm'
+                : 'hover:bg-neutral-50'
+                }`}
             >
               <FilterIcon className="h-4 w-4" />
               Filters
@@ -558,8 +570,8 @@ const BudgetAllotmentPage = () => {
           isView
             ? 'View Allotment'
             : activeRow
-            ? 'Edit Allotment'
-            : 'Add Allotment'
+              ? 'Edit Allotment'
+              : 'Add Allotment'
         }
       >
         <BudgetAllotmentForm
