@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useSelector } from 'react-redux';
+import { useSelector, useDispatch } from 'react-redux';
 import {
   CurrencyDollarIcon,
   ArrowUpIcon,
@@ -15,7 +15,21 @@ import {
   fetchDisbursementChart,
   fetchDisbursementList,
 } from './userProfile/profileUtil';
-import { PhilippinePeso } from 'lucide-react';
+import { PhilippinePeso, Users, Briefcase } from 'lucide-react';
+import {
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  Legend,
+  ResponsiveContainer,
+  PieChart,
+  Pie,
+  Cell,
+} from 'recharts';
+import { fetchEmployees } from '../features/settings/employeeSlice';
 
 // const sections = [
 //   {
@@ -85,9 +99,8 @@ const StatCard = ({
                   </div>
                   {trendValue && (
                     <div
-                      className={`ml-2 flex items-baseline text-sm font-semibold ${
-                        trend === 'up' ? 'text-success-600' : 'text-error-600'
-                      }`}
+                      className={`ml-2 flex items-baseline text-sm font-semibold ${trend === 'up' ? 'text-success-600' : 'text-error-600'
+                        }`}
                     >
                       {trend === 'up' ? (
                         <ArrowUpIcon className="self-center flex-shrink-0 h-4 w-4 text-success-500" />
@@ -114,7 +127,9 @@ const StatCard = ({
 );
 
 function DashboardPage() {
+  const dispatch = useDispatch();
   const { user, isAuthenticated } = useSelector((state) => state.auth);
+  const { employees } = useSelector((state) => state.employees || {});
   const [loading, setLoading] = useState(true);
   const [startDate, setStartDate] = useState('');
   const [endDate, setEndDate] = useState('');
@@ -156,6 +171,9 @@ function DashboardPage() {
           categoryFilter === 'all'
             ? categoryOptions.map((c) => c.key)
             : [categoryFilter];
+
+        // Dispatch fetchEmployees to get HR data
+        dispatch(fetchEmployees());
 
         const [revenueRes, budgetRes, disbursementRes] = await Promise.all([
           fetchCollectionTotals({
@@ -232,8 +250,8 @@ function DashboardPage() {
             const list = Array.isArray(listRes?.data)
               ? listRes.data
               : Array.isArray(listRes?.data?.disbursementVouchers)
-              ? listRes.data.disbursementVouchers
-              : [];
+                ? listRes.data.disbursementVouchers
+                : [];
 
             const counts = list.reduce(
               (acc, item) => {
@@ -329,6 +347,72 @@ function DashboardPage() {
     approvalTotal > 0
       ? `${((disbursementStatus.rejected / approvalTotal) * 100).toFixed(1)}% rejected`
       : null;
+
+  // ----------------------- HR DATA PROCESSING -----------------------
+  const calculateAge = (birthday) => {
+    if (!birthday) return null;
+    const birthDate = new Date(birthday);
+    const today = new Date();
+    let age = today.getFullYear() - birthDate.getFullYear();
+    const monthDiff = today.getMonth() - birthDate.getMonth();
+    if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
+      age--;
+    }
+    return age;
+  };
+
+  const getAgeBracket = (age) => {
+    if (age === null || isNaN(age)) return 'Unknown';
+    if (age < 18) return 'Below 18';
+    if (age <= 25) return '18-25';
+    if (age <= 35) return '26-35'; // Adjusted bracket for better distribution
+    if (age <= 50) return '36-50';
+    if (age <= 60) return '51-60';
+    return '61+';
+  };
+
+  // Process Employee Data for Charts
+  const { demographicsData, statusData, totalEmployees } = (() => {
+    const defaultBrackets = ['Below 18', '18-25', '26-35', '36-50', '51-60', '61+', 'Unknown'];
+    const bracketMap = {};
+    defaultBrackets.forEach(b => bracketMap[b] = { name: b, Male: 0, Female: 0 });
+
+    const statusMap = {};
+    let total = 0;
+
+    (employees || []).forEach(emp => {
+      total++;
+      // Age/Gender
+      const age = calculateAge(emp.Birthday);
+      const bracket = getAgeBracket(age);
+      const gender = (emp.Gender || 'Unknown').trim();
+
+      // Normalize gender string
+      let genderKey = 'Unknown';
+      if (/male/i.test(gender) && !/female/i.test(gender)) genderKey = 'Male';
+      else if (/female/i.test(gender)) genderKey = 'Female';
+
+      if (bracketMap[bracket]) {
+        bracketMap[bracket][genderKey] = (bracketMap[bracket][genderKey] || 0) + 1;
+      }
+
+      // Employment Status
+      const statusName = emp.EmploymentStatus?.Name || emp.EmploymentStatus || 'Unassigned';
+      statusMap[statusName] = (statusMap[statusName] || 0) + 1;
+    });
+
+    const demoData = Object.values(bracketMap);
+
+    const statData = Object.keys(statusMap).map(key => ({
+      name: key,
+      value: statusMap[key]
+    })).sort((a, b) => b.value - a.value); // Sort by count desc
+
+    return { demographicsData: demoData, statusData: statData, totalEmployees: total };
+  })();
+
+  const GENDER_COLORS = { Male: '#3b82f6', Female: '#ec4899', Unknown: '#9ca3af' };
+  const CHART_COLORS = ['#0ea5e9', '#22c55e', '#eab308', '#f97316', '#ef4444', '#8b5cf6', '#6366f1'];
 
   return (
     <div>
@@ -459,23 +543,20 @@ function DashboardPage() {
               return (
                 <div
                   key={item.key}
-                  className={`rounded-md border p-3 transition ${
-                    isActive
-                      ? 'border-primary-200 bg-primary-50 shadow-sm'
-                      : 'border-neutral-200 bg-neutral-50'
-                  }`}
+                  className={`rounded-md border p-3 transition ${isActive
+                    ? 'border-primary-200 bg-primary-50 shadow-sm'
+                    : 'border-neutral-200 bg-neutral-50'
+                    }`}
                 >
                   <p
-                    className={`text-sm ${
-                      isActive ? 'text-primary-700 font-medium' : 'text-neutral-500'
-                    }`}
+                    className={`text-sm ${isActive ? 'text-primary-700 font-medium' : 'text-neutral-500'
+                      }`}
                   >
                     {item.label}
                   </p>
                   <p
-                    className={`text-lg font-semibold ${
-                      isActive ? 'text-primary-900' : 'text-neutral-900'
-                    }`}
+                    className={`text-lg font-semibold ${isActive ? 'text-primary-900' : 'text-neutral-900'
+                      }`}
                   >
                     {loading ? '...' : formatCurrency(getCategoryAmount(item.key))}
                   </p>
@@ -485,7 +566,7 @@ function DashboardPage() {
           </div>
         </div>
 
-            {/* OLD HEHE */}
+        {/* OLD HEHE */}
         {/* <div className="bg-white border border-neutral-200 rounded-lg p-4">
           <h3 className="text-lg font-semibold text-neutral-900 mb-3">
             Disbursement Status (Approved / Rejected)
@@ -512,57 +593,150 @@ function DashboardPage() {
           </div>
         </div> */}
         <div className="bg-white border border-neutral-200 rounded-lg p-4">
-            <div className="flex items-center gap-2 mb-3">
-              <BuildingOfficeIcon className="h-6 w-6 text-primary-600" />
-              <h3 className="text-lg font-semibold text-neutral-900">
-                Remaining Budget by Department
-              </h3>
-            </div>
-            <div className="overflow-x-auto">
-              <table className="min-w-full divide-y divide-neutral-200 text-sm">
-                <thead className="bg-neutral-50">
-                  <tr>
-                    <th className="px-3 py-2 text-left font-medium text-neutral-600">
-                      Department
-                    </th>
-                    <th className="px-3 py-2 text-right font-medium text-neutral-600">
-                      Remaining Budget
-                    </th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-neutral-100">
-                  {loading ? (
-                    <tr>
-                      <td className="px-3 py-3 text-neutral-500" colSpan={2}>
-                        Loading...
-                      </td>
-                    </tr>
-                  ) : budgetRemaining.length === 0 ? (
-                    <tr>
-                      <td className="px-3 py-3 text-neutral-500" colSpan={2}>
-                        No budget data available.
-                      </td>
-                    </tr>
-                  ) : (
-                    budgetRemaining.map((row) => (
-                      <tr key={row.id}>
-                        <td className="px-3 py-2 text-neutral-800">{row.name}</td>
-                        <td className="px-3 py-2 text-right font-semibold text-neutral-900">
-                          {formatCurrency(row.remaining)}
-                        </td>
-                      </tr>
-                    ))
-                  )}
-                </tbody>
-              </table>
-            </div>
+          <div className="flex items-center gap-2 mb-3">
+            <BuildingOfficeIcon className="h-6 w-6 text-primary-600" />
+            <h3 className="text-lg font-semibold text-neutral-900">
+              Remaining Budget by Department
+            </h3>
           </div>
+          <div className="overflow-x-auto">
+            <table className="min-w-full divide-y divide-neutral-200 text-sm">
+              <thead className="bg-neutral-50">
+                <tr>
+                  <th className="px-3 py-2 text-left font-medium text-neutral-600">
+                    Department
+                  </th>
+                  <th className="px-3 py-2 text-right font-medium text-neutral-600">
+                    Remaining Budget
+                  </th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-neutral-100">
+                {loading ? (
+                  <tr>
+                    <td className="px-3 py-3 text-neutral-500" colSpan={2}>
+                      Loading...
+                    </td>
+                  </tr>
+                ) : budgetRemaining.length === 0 ? (
+                  <tr>
+                    <td className="px-3 py-3 text-neutral-500" colSpan={2}>
+                      No budget data available.
+                    </td>
+                  </tr>
+                ) : (
+                  budgetRemaining.map((row) => (
+                    <tr key={row.id}>
+                      <td className="px-3 py-2 text-neutral-800">{row.name}</td>
+                      <td className="px-3 py-2 text-right font-semibold text-neutral-900">
+                        {formatCurrency(row.remaining)}
+                      </td>
+                    </tr>
+                  ))
+                )}
+              </tbody>
+            </table>
+          </div>
+        </div>
       </div>
 
-      
+      {/* ----------------------- NEW HR DASHBOARD SECTION ----------------------- */}
+      <div className="mt-6 col-span-1 lg:col-span-2 xl:col-span-3">
+        <h3 className="text-xl font-bold text-neutral-800 mb-4 flex items-center gap-2">
+          <Users className="h-6 w-6 text-primary-600" />
+          Workforce Overview
+        </h3>
 
-      {/* Old navigation shortcuts hidden */}
-      {/*
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          {/* Demographics Chart */}
+          <div className="lg:col-span-2 bg-white border border-neutral-200 rounded-lg p-5 shadow-sm">
+            <h4 className="text-sm font-semibold text-neutral-600 mb-4 uppercase tracking-wide">
+              Employee Demographics (Age & Gender)
+            </h4>
+            <div className="h-[300px] w-full">
+              <ResponsiveContainer width="100%" height="100%">
+                <BarChart
+                  data={demographicsData}
+                  margin={{ top: 20, right: 30, left: 20, bottom: 5 }}
+                >
+                  <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e5e7eb" />
+                  <XAxis
+                    dataKey="name"
+                    axisLine={false}
+                    tickLine={false}
+                    tick={{ fill: '#6b7280', fontSize: 12 }}
+                    dy={10}
+                  />
+                  <YAxis
+                    axisLine={false}
+                    tickLine={false}
+                    tick={{ fill: '#6b7280', fontSize: 12 }}
+                  />
+                  <Tooltip
+                    cursor={{ fill: '#f3f4f6' }}
+                    contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }}
+                  />
+                  <Legend iconType="circle" wrapperStyle={{ paddingTop: '20px' }} />
+                  <Bar dataKey="Male" stackId="a" fill={GENDER_COLORS.Male} radius={[0, 0, 4, 4]} barSize={40} />
+                  <Bar dataKey="Female" stackId="a" fill={GENDER_COLORS.Female} radius={[4, 4, 0, 0]} barSize={40} />
+                </BarChart>
+              </ResponsiveContainer>
+            </div>
+          </div>
+
+          {/* Employment Status Chart */}
+          <div className="bg-white border border-neutral-200 rounded-lg p-5 shadow-sm flex flex-col">
+            <h4 className="text-sm font-semibold text-neutral-600 mb-4 uppercase tracking-wide">
+              Employment Status
+            </h4>
+            <div className="h-[200px] w-full flex-grow relative">
+              <ResponsiveContainer width="100%" height="100%">
+                <PieChart>
+                  <Pie
+                    data={statusData}
+                    cx="50%"
+                    cy="50%"
+                    innerRadius={60}
+                    outerRadius={80}
+                    paddingAngle={5}
+                    dataKey="value"
+                  >
+                    {statusData.map((entry, index) => (
+                      <Cell key={`cell-${index}`} fill={CHART_COLORS[index % CHART_COLORS.length]} />
+                    ))}
+                  </Pie>
+                  <Tooltip />
+                </PieChart>
+              </ResponsiveContainer>
+              {/* Center text for Donut Chart */}
+              <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
+                <span className="text-3xl font-bold text-neutral-800">{totalEmployees}</span>
+                <span className="text-xs text-neutral-500 font-medium uppercase">Employees</span>
+              </div>
+            </div>
+            <div className="mt-4 space-y-2 overflow-y-auto max-h-[120px] custom-scrollbar pr-2">
+              {statusData.map((entry, index) => (
+                <div key={entry.name} className="flex items-center justify-between text-sm">
+                  <div className="flex items-center gap-2">
+                    <div
+                      className="w-3 h-3 rounded-full"
+                      style={{ backgroundColor: CHART_COLORS[index % CHART_COLORS.length] }}
+                    />
+                    <span className="text-neutral-600 truncate max-w-[120px]" title={entry.name}>
+                      {entry.name}
+                    </span>
+                  </div>
+                  <span className="font-semibold text-neutral-900">{entry.value}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+
+
+
+        {/* Old navigation shortcuts hidden */}
+        {/*
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 mt-8">
         {sections.map((section) => (
           <Link
@@ -580,6 +754,7 @@ function DashboardPage() {
         ))}
       </div>
       */}
+      </div>
     </div>
   );
 }

@@ -211,11 +211,10 @@ export default function UserAccessPage() {
                 <li
                   key={role.ID}
                   onClick={() => setSelectedRole(role)}
-                  className={`px-4 py-2 cursor-pointer hover:bg-blue-50 ${
-                    selectedRole?.ID === role.ID
+                  className={`px-4 py-2 cursor-pointer hover:bg-blue-50 ${selectedRole?.ID === role.ID
                       ? 'bg-blue-200 font-semibold'
                       : ''
-                  }`}
+                    }`}
                 >
                   {role.Description}
                 </li>
