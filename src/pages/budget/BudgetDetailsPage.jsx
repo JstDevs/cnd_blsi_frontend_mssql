@@ -62,6 +62,7 @@ const BudgetDetailsPage = () => {
   const [activeRow, setActiveRow] = useState(null);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [itemToDelete, setItemToDelete] = useState(null);
+  const [isViewModalOpen, setIsViewModalOpen] = useState(false);
   const [showFilters, setShowFilters] = useState(false);
   const [filters, setFilters] = useState({
     department: '',
@@ -261,204 +262,205 @@ const BudgetDetailsPage = () => {
         );
       },
     },
-    {
-      key: 'Appropriation',
-      header: 'Appropriation',
-      className: 'text-right font-semibold',
-      render: (value) => (
-        <span className="text-right font-semibold text-green-700">
-          {formatCurrency(value)}
-        </span>
-      ),
-    },
-    {
-      key: 'AppropriationBalance',
-      header: 'Appropriation Balance',
-      className: 'text-right',
-      render: (value) => {
-        const numValue = Number(value) || 0;
-        const isPositive = numValue >= 0;
-        return (
-          <span className={`text-right font-medium ${isPositive ? 'text-green-700' : 'text-red-600'}`}>
-            {formatCurrency(value)}
-          </span>
-        );
-      },
-    },
-    {
-      key: 'TotalAmount',
-      header: 'Total Amount',
-      className: 'text-right font-semibold',
-      render: (value) => (
-        <span className="text-right font-semibold text-blue-700">
-          {formatCurrency(value)}
-        </span>
-      ),
-    },
-    {
-      key: 'AllotmentBalance',
-      header: 'Allotment Balance',
-      className: 'text-right',
-      render: (value) => {
-        const numValue = Number(value) || 0;
-        const isPositive = numValue >= 0;
-        return (
-          <span className={`text-right font-medium ${isPositive ? 'text-green-700' : 'text-red-600'}`}>
-            {formatCurrency(value)}
-          </span>
-        );
-      },
-    },
-    {
-      key: 'ChargedAllotment',
-      header: 'Charges',
-      className: 'text-right',
-      render: (value) => (
-        <span className="text-right font-medium text-orange-700">
-          {formatCurrency(value)}
-        </span>
-      ),
-    },
-    {
-      key: 'PreEncumbrance',
-      header: 'Pre Encumbrance',
-      className: 'text-right',
-      render: (value) => (
-        <span className="text-right font-medium text-neutral-600">
-          {formatCurrency(value)}
-        </span>
-      ),
-    },
-    {
-      key: 'Encumbrance',
-      header: 'Encumbrance',
-      className: 'text-right',
-      render: (value) => (
-        <span className="text-right font-medium text-neutral-600">
-          {formatCurrency(value)}
-        </span>
-      ),
-    },
-    {
-      key: 'January',
-      header: 'Jan',
-      className: 'text-right',
-      render: (value) => (
-        <span className="text-right text-neutral-600">
-          {formatCurrency(value)}
-        </span>
-      ),
-    },
-    {
-      key: 'February',
-      header: 'Feb',
-      className: 'text-right',
-      render: (value) => (
-        <span className="text-right text-neutral-600">
-          {formatCurrency(value)}
-        </span>
-      ),
-    },
-    {
-      key: 'March',
-      header: 'Mar',
-      className: 'text-right',
-      render: (value) => (
-        <span className="text-right text-neutral-600">
-          {formatCurrency(value)}
-        </span>
-      ),
-    },
-    {
-      key: 'April',
-      header: 'Apr',
-      className: 'text-right',
-      render: (value) => (
-        <span className="text-right text-neutral-600">
-          {formatCurrency(value)}
-        </span>
-      ),
-    },
-    {
-      key: 'May',
-      header: 'May',
-      className: 'text-right',
-      render: (value) => (
-        <span className="text-right text-neutral-600">
-          {formatCurrency(value)}
-        </span>
-      ),
-    },
-    {
-      key: 'June',
-      header: 'Jun',
-      className: 'text-right',
-      render: (value) => (
-        <span className="text-right text-neutral-600">
-          {formatCurrency(value)}
-        </span>
-      ),
-    },
-    {
-      key: 'July',
-      header: 'Jul',
-      className: 'text-right',
-      render: (value) => (
-        <span className="text-right text-neutral-600">
-          {formatCurrency(value)}
-        </span>
-      ),
-    },
-    {
-      key: 'August',
-      header: 'Aug',
-      className: 'text-right',
-      render: (value) => (
-        <span className="text-right text-neutral-600">
-          {formatCurrency(value)}
-        </span>
-      ),
-    },
-    {
-      key: 'September',
-      header: 'Sep',
-      className: 'text-right',
-      render: (value) => (
-        <span className="text-right text-neutral-600">
-          {formatCurrency(value)}
-        </span>
-      ),
-    },
-    {
-      key: 'October',
-      header: 'Oct',
-      className: 'text-right',
-      render: (value) => (
-        <span className="text-right text-neutral-600">
-          {formatCurrency(value)}
-        </span>
-      ),
-    },
-    {
-      key: 'November',
-      header: 'Nov',
-      className: 'text-right',
-      render: (value) => (
-        <span className="text-right text-neutral-600">
-          {formatCurrency(value)}
-        </span>
-      ),
-    },
-    {
-      key: 'December',
-      header: 'Dec',
-      className: 'text-right',
-      render: (value) => (
-        <span className="text-right text-neutral-600">
-          {formatCurrency(value)}
-        </span>
-      ),
-    },
+    // COMMENTED OUT FOR SIMPLIFIED VIEW - CAN BE RESTORED FOR FUTURE USE
+    // {
+    //   key: 'Appropriation',
+    //   header: 'Appropriation',
+    //   className: 'text-right font-semibold',
+    //   render: (value) => (
+    //     <span className="text-right font-semibold text-green-700">
+    //       {formatCurrency(value)}
+    //     </span>
+    //   ),
+    // },
+    // {
+    //   key: 'AppropriationBalance',
+    //   header: 'Appropriation Balance',
+    //   className: 'text-right',
+    //   render: (value) => {
+    //     const numValue = Number(value) || 0;
+    //     const isPositive = numValue >= 0;
+    //     return (
+    //       <span className={`text-right font-medium ${isPositive ? 'text-green-700' : 'text-red-600'}`}>
+    //         {formatCurrency(value)}
+    //       </span>
+    //     );
+    //   },
+    // },
+    // {
+    //   key: 'TotalAmount',
+    //   header: 'Total Amount',
+    //   className: 'text-right font-semibold',
+    //   render: (value) => (
+    //     <span className="text-right font-semibold text-blue-700">
+    //       {formatCurrency(value)}
+    //     </span>
+    //   ),
+    // },
+    // {
+    //   key: 'AllotmentBalance',
+    //   header: 'Allotment Balance',
+    //   className: 'text-right',
+    //   render: (value) => {
+    //     const numValue = Number(value) || 0;
+    //     const isPositive = numValue >= 0;
+    //     return (
+    //       <span className={`text-right font-medium ${isPositive ? 'text-green-700' : 'text-red-600'}`}>
+    //         {formatCurrency(value)}
+    //       </span>
+    //     );
+    //   },
+    // },
+    // {
+    //   key: 'ChargedAllotment',
+    //   header: 'Charges',
+    //   className: 'text-right',
+    //   render: (value) => (
+    //     <span className="text-right font-medium text-orange-700">
+    //       {formatCurrency(value)}
+    //     </span>
+    //   ),
+    // },
+    // {
+    //   key: 'PreEncumbrance',
+    //   header: 'Pre Encumbrance',
+    //   className: 'text-right',
+    //   render: (value) => (
+    //     <span className="text-right font-medium text-neutral-600">
+    //       {formatCurrency(value)}
+    //     </span>
+    //   ),
+    // },
+    // {
+    //   key: 'Encumbrance',
+    //   header: 'Encumbrance',
+    //   className: 'text-right',
+    //   render: (value) => (
+    //     <span className="text-right font-medium text-neutral-600">
+    //       {formatCurrency(value)}
+    //     </span>
+    //   ),
+    // },
+    // {
+    //   key: 'January',
+    //   header: 'Jan',
+    //   className: 'text-right',
+    //   render: (value) => (
+    //     <span className="text-right text-neutral-600">
+    //       {formatCurrency(value)}
+    //     </span>
+    //   ),
+    // },
+    // {
+    //   key: 'February',
+    //   header: 'Feb',
+    //   className: 'text-right',
+    //   render: (value) => (
+    //     <span className="text-right text-neutral-600">
+    //       {formatCurrency(value)}
+    //     </span>
+    //   ),
+    // },
+    // {
+    //   key: 'March',
+    //   header: 'Mar',
+    //   className: 'text-right',
+    //   render: (value) => (
+    //     <span className="text-right text-neutral-600">
+    //       {formatCurrency(value)}
+    //     </span>
+    //   ),
+    // },
+    // {
+    //   key: 'April',
+    //   header: 'Apr',
+    //   className: 'text-right',
+    //   render: (value) => (
+    //     <span className="text-right text-neutral-600">
+    //       {formatCurrency(value)}
+    //     </span>
+    //   ),
+    // },
+    // {
+    //   key: 'May',
+    //   header: 'May',
+    //   className: 'text-right',
+    //   render: (value) => (
+    //     <span className="text-right text-neutral-600">
+    //       {formatCurrency(value)}
+    //     </span>
+    //   ),
+    // },
+    // {
+    //   key: 'June',
+    //   header: 'Jun',
+    //   className: 'text-right',
+    //   render: (value) => (
+    //     <span className="text-right text-neutral-600">
+    //       {formatCurrency(value)}
+    //     </span>
+    //   ),
+    // },
+    // {
+    //   key: 'July',
+    //   header: 'Jul',
+    //   className: 'text-right',
+    //   render: (value) => (
+    //     <span className="text-right text-neutral-600">
+    //       {formatCurrency(value)}
+    //     </span>
+    //   ),
+    // },
+    // {
+    //   key: 'August',
+    //   header: 'Aug',
+    //   className: 'text-right',
+    //   render: (value) => (
+    //     <span className="text-right text-neutral-600">
+    //       {formatCurrency(value)}
+    //     </span>
+    //   ),
+    // },
+    // {
+    //   key: 'September',
+    //   header: 'Sep',
+    //   className: 'text-right',
+    //   render: (value) => (
+    //     <span className="text-right text-neutral-600">
+    //       {formatCurrency(value)}
+    //     </span>
+    //   ),
+    // },
+    // {
+    //   key: 'October',
+    //   header: 'Oct',
+    //   className: 'text-right',
+    //   render: (value) => (
+    //     <span className="text-right text-neutral-600">
+    //       {formatCurrency(value)}
+    //     </span>
+    //   ),
+    // },
+    // {
+    //   key: 'November',
+    //   header: 'Nov',
+    //   className: 'text-right',
+    //   render: (value) => (
+    //     <span className="text-right text-neutral-600">
+    //       {formatCurrency(value)}
+    //     </span>
+    //   ),
+    // },
+    // {
+    //   key: 'December',
+    //   header: 'Dec',
+    //   className: 'text-right',
+    //   render: (value) => (
+    //     <span className="text-right text-neutral-600">
+    //       {formatCurrency(value)}
+    //     </span>
+    //   ),
+    // },
   ];
 
   // Actions always visible but disabled based on permissions
@@ -532,7 +534,7 @@ const BudgetDetailsPage = () => {
               </div>
               <div>
                 <h1 className="text-3xl font-bold text-neutral-900">
-                  Budget Details
+                  Budget Appropriations
                 </h1>
                 <p className="text-sm text-neutral-600 mt-0.5">
                   View and manage detailed budget entries
@@ -726,6 +728,11 @@ const BudgetDetailsPage = () => {
           data={filteredData}
           actions={actions} // Always has 2 items (Edit & Delete) - Actions column will always be visible
           pagination
+          onRowClick={(row) => {
+            setActiveRow(row);
+            setIsViewModalOpen(true);
+          }}
+          selectedRow={activeRow}
         />
       </div>
 
@@ -776,6 +783,102 @@ const BudgetDetailsPage = () => {
         isDestructive={true}
         confirmText="Delete"
       />
+
+      {/* View Details Modal */}
+      <Modal
+        size="xxxl"
+        isOpen={isViewModalOpen}
+        onClose={() => setIsViewModalOpen(false)}
+        title="Budget Details"
+      >
+        {activeRow && (
+          <div className="space-y-6">
+            {/* Basic Information */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-neutral-700 mb-1">Budget Name</label>
+                <p className="text-base font-semibold text-neutral-900">{activeRow.Name || 'N/A'}</p>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-neutral-700 mb-1">Fiscal Year</label>
+                <p className="text-base text-neutral-900">{activeRow.FiscalYear?.Name || 'N/A'}</p>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-neutral-700 mb-1">Department</label>
+                <p className="text-base text-neutral-900">{activeRow.Department?.Name || 'N/A'}</p>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-neutral-700 mb-1">Sub Department</label>
+                <p className="text-base text-neutral-900">{activeRow.SubDepartment?.Name || 'N/A'}</p>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-neutral-700 mb-1">Chart of Accounts</label>
+                <p className="text-base text-neutral-900">{activeRow.ChartofAccounts?.Name || 'N/A'}</p>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-neutral-700 mb-1">Fund</label>
+                <p className="text-base text-neutral-900">{activeRow.Funds?.Name || 'N/A'}</p>
+              </div>
+              <div className="md:col-span-3">
+                <label className="block text-sm font-medium text-neutral-700 mb-1">Project</label>
+                <p className="text-base text-neutral-900">{activeRow.Project?.Title || 'N/A'}</p>
+              </div>
+            </div>
+
+            <hr className="border-neutral-200" />
+
+            {/* Financial Summary */}
+            <div>
+              <h3 className="text-lg font-semibold text-neutral-900 mb-4">Financial Summary</h3>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div className="bg-green-50 border border-green-200 rounded-lg p-4">
+                  <label className="block text-sm font-medium text-green-700 mb-1">Appropriation</label>
+                  <p className="text-2xl font-bold text-green-900">{formatCurrency(activeRow.Appropriation)}</p>
+                </div>
+                <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                  <label className="block text-sm font-medium text-blue-700 mb-1">Total Amount</label>
+                  <p className="text-2xl font-bold text-blue-900">{formatCurrency(activeRow.TotalAmount)}</p>
+                </div>
+                <div className="bg-orange-50 border border-orange-200 rounded-lg p-4">
+                  <label className="block text-sm font-medium text-orange-700 mb-1">Charges</label>
+                  <p className="text-2xl font-bold text-orange-900">{formatCurrency(activeRow.ChargedAllotment)}</p>
+                </div>
+                <div className={`border rounded-lg p-4 ${Number(activeRow.AppropriationBalance) >= 0 ? 'bg-emerald-50 border-emerald-200' : 'bg-red-50 border-red-200'}`}>
+                  <label className={`block text-sm font-medium mb-1 ${Number(activeRow.AppropriationBalance) >= 0 ? 'text-emerald-700' : 'text-red-700'}`}>Appropriation Balance</label>
+                  <p className={`text-2xl font-bold ${Number(activeRow.AppropriationBalance) >= 0 ? 'text-emerald-900' : 'text-red-900'}`}>{formatCurrency(activeRow.AppropriationBalance)}</p>
+                </div>
+                <div className={`border rounded-lg p-4 ${Number(activeRow.AllotmentBalance) >= 0 ? 'bg-emerald-50 border-emerald-200' : 'bg-red-50 border-red-200'}`}>
+                  <label className={`block text-sm font-medium mb-1 ${Number(activeRow.AllotmentBalance) >= 0 ? 'text-emerald-700' : 'text-red-700'}`}>Allotment Balance</label>
+                  <p className={`text-2xl font-bold ${Number(activeRow.AllotmentBalance) >= 0 ? 'text-emerald-900' : 'text-red-900'}`}>{formatCurrency(activeRow.AllotmentBalance)}</p>
+                </div>
+                <div className="bg-neutral-50 border border-neutral-200 rounded-lg p-4">
+                  <label className="block text-sm font-medium text-neutral-700 mb-1">Pre Encumbrance</label>
+                  <p className="text-2xl font-bold text-neutral-900">{formatCurrency(activeRow.PreEncumbrance)}</p>
+                </div>
+                <div className="bg-neutral-50 border border-neutral-200 rounded-lg p-4">
+                  <label className="block text-sm font-medium text-neutral-700 mb-1">Encumbrance</label>
+                  <p className="text-2xl font-bold text-neutral-900">{formatCurrency(activeRow.Encumbrance)}</p>
+                </div>
+              </div>
+            </div>
+
+            <hr className="border-neutral-200" />
+
+            {/* Monthly Breakdown */}
+            <div>
+              <h3 className="text-lg font-semibold text-neutral-900 mb-4">Monthly Breakdown</h3>
+              <div className="grid grid-cols-3 md:grid-cols-6 gap-3">
+                {['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'].map((month) => (
+                  <div key={month} className="bg-neutral-50 border border-neutral-200 rounded-lg p-3">
+                    <label className="block text-xs font-medium text-neutral-600 mb-1">{month}</label>
+                    <p className="text-sm font-semibold text-neutral-900">{formatCurrency(activeRow[month])}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        )}
+      </Modal>
     </div>
   );
 };
