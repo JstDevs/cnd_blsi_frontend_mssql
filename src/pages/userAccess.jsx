@@ -188,15 +188,15 @@ export default function UserAccessPage() {
           </Link>
         </div>
 
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 py-4 px-4 bg-gray-50/50 rounded-xl border border-gray-100 shadow-sm">
-          <div className="relative w-full sm:w-80">
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 py-4 px-5 bg-gray-50/50 rounded-xl border border-gray-100 shadow-sm">
+          <div className="relative flex-1 max-w-2xl">
             <input
               type="text"
-              placeholder="Search role..."
-              className="w-full border-gray-200 border px-4 py-2.5 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent outline-none transition-all pl-10 bg-white"
+              placeholder="Search roles..."
+              className="w-full border-gray-200 border px-4 py-2 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent outline-none transition-all pl-10 bg-white"
             />
             <svg
-              className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-5 h-5"
+              className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-4 h-4"
               fill="none"
               stroke="currentColor"
               viewBox="0 0 24 24"
@@ -211,11 +211,11 @@ export default function UserAccessPage() {
           </div>
           {Add && (
             <button
-              className="px-10 py-2.5 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 text-white font-bold shadow-lg shadow-emerald-200 hover:shadow-emerald-300 hover:brightness-110 transition-all duration-300 active:scale-95 flex items-center justify-center gap-2"
+              className="px-6 py-2 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white font-semibold shadow-sm hover:shadow transition-all duration-200 active:scale-95 flex items-center justify-center gap-2 whitespace-nowrap text-sm"
               onClick={handleSave}
             >
               <svg
-                className="w-5 h-5"
+                className="w-4 h-4"
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
