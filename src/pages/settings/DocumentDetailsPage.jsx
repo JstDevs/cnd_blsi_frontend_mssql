@@ -17,7 +17,7 @@ const DocumentDetailsPage = () => {
   const { documentDetails, isLoading } = useSelector(
     (state) => state.documentDetails
   );
-  // ---------------------USE MODULE PERMISSIONS------------------START (Document Details Page  - MODULE ID = 41 )
+  // ---------------------USE MODULE PERMISSIONS------------------START (Document Types Page  - MODULE ID = 41 )
   const { Add, Edit, Delete } = useModulePermissions(41);
 
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -148,10 +148,10 @@ const DocumentDetailsPage = () => {
       <div className="flex justify-between sm:items-center max-sm:flex-col gap-4 mb-6">
         <div>
           <h1 className="text-2xl font-semibold text-gray-900">
-            Document Details
+            Document Type
           </h1>
           <p className="mt-1 text-sm text-gray-500">
-            Manage document details and their numbering
+            Manage document types and their numbering
           </p>
         </div>
         {Add && (
@@ -167,7 +167,7 @@ const DocumentDetailsPage = () => {
         data={documentDetails}
         actions={getActions}
         loading={isLoading}
-        emptyMessage="No document details found. Click 'Add Document Detail' to create one."
+        emptyMessage="No document types found. Click 'Add Document Detail' to create one."
       />
 
       <Modal

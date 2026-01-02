@@ -107,8 +107,8 @@ const navigation = [
       {
         name: 'User Settings',
         submenu: [
-          { name: 'User Details',       href: '/settings/users',              moduleId: 82, },
-          { name: 'User Access',        href: '/settings/user-access',        moduleId: 83, },
+          { name: 'User Details',   href: '/settings/users',        moduleId: 82, },
+          { name: 'User Access',    href: '/settings/user-access',  moduleId: 83, },
         ],
       },
       {
