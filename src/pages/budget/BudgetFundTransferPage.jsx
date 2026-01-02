@@ -57,7 +57,7 @@ const BudgetFundTransferPage = () => {
     const requested = data?.filter(item => item.Status?.toLowerCase().includes('requested')).length || 0;
     const approved = data?.filter(item => item.Status?.toLowerCase().includes('approved')).length || 0;
     const rejected = data?.filter(item => item.Status?.toLowerCase().includes('rejected')).length || 0;
-    
+
     return {
       total,
       totalAmount,
@@ -177,18 +177,22 @@ const BudgetFundTransferPage = () => {
 
   const handleBFTAction = async (info, action) => {
     setIsLoading(true);
+    // Properly format action strings for messages
+    const actionPast = action === 'approve' ? 'approved' : 'rejected';
+    const actionPresent = action === 'approve' ? 'approving' : 'rejecting';
+
     try {
       const response = await axiosInstance.post(`/fundTransfer/${action}`, {
         ID: info.ID,
         LinkID: info.LinkID,
         Reason: 'This is the reason',
       });
-      console.log(`${action}d:`, response.data);
+      console.log(`${actionPast}:`, response.data);
       dispatch(fetchFundTransfers());
-      toast.success(`Budget Fund Transfer ${action}d successfully`);
+      toast.success(`Budget Fund Transfer ${actionPast} successfully`);
     } catch (error) {
-      console.error(`Error ${action}ing Budget Fund Transfer:`, error);
-      toast.error(`Error ${action}ing Budget Fund Transfer`);
+      console.error(`Error ${actionPresent} Budget Fund Transfer:`, error);
+      toast.error(`Error ${actionPresent} Budget Fund Transfer`);
     } finally {
       setIsLoading(false);
     }
