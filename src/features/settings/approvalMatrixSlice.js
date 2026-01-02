@@ -116,6 +116,32 @@ export const deleteApprovalMatrix = createAsyncThunk(
   }
 );
 
+export const bulkUpdateApprovalMatrix = createAsyncThunk(
+  'approvalMatrix/bulkUpdateApprovalMatrix',
+  async (payload, thunkAPI) => {
+    try {
+      const response = await fetch(`${API_URL}/approvalMatrix/bulk-update`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${sessionStorage.getItem('token')}`,
+        },
+        body: JSON.stringify(payload),
+      });
+
+      const res = await response.json();
+
+      if (!response.ok) {
+        throw new Error(res.message || 'Failed to bulk-update');
+      }
+
+      return res;
+    } catch (error) {
+      return thunkAPI.rejectWithValue(error.message);
+    }
+  }
+);
+
 const approvalMatrixSlice = createSlice({
   name: 'approvalMatrix',
   initialState,
@@ -178,6 +204,20 @@ const approvalMatrixSlice = createSlice({
         state.error = null;
       })
       .addCase(deleteApprovalMatrix.rejected, (state, action) => {
+        state.isLoading = false;
+        state.error = action.payload;
+      })
+      .addCase(bulkUpdateApprovalMatrix.pending, (state) => {
+        state.isLoading = true;
+      })
+      .addCase(bulkUpdateApprovalMatrix.fulfilled, (state, action) => {
+        state.isLoading = false;
+        // Since the backend returns the updated list for that document type,
+        // and fetchApprovalMatrix fetches everything, we might need to handle this carefully.
+        // For simplicity, let's just mark it as success and let the page re-fetch.
+        state.error = null;
+      })
+      .addCase(bulkUpdateApprovalMatrix.rejected, (state, action) => {
         state.isLoading = false;
         state.error = action.payload;
       });

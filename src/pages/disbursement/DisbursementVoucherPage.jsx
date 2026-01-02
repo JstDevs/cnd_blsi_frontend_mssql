@@ -240,7 +240,7 @@ function DisbursementVoucherPage() {
                 return actionList;
               }}
               loading={isLoading || approvalLoading}
-              // onRowClick={handleViewOR}
+            // onRowClick={handleViewOR}
             />
           </div>
         </div>
