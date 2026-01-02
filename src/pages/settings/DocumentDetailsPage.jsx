@@ -59,10 +59,10 @@ const DocumentDetailsPage = () => {
         await dispatch(deleteDocumentDetail(documentToDelete.ID)).unwrap();
         setIsDeleteModalOpen(false);
         setDocumentToDelete(null);
-        toast.success('Document detail deleted successfully');
+        toast.success('Document type deleted successfully');
       } catch (error) {
-        console.error('Failed to delete document detail:', error);
-        toast.error('Failed to delete document detail. Please try again.');
+        console.error('Failed to delete document type:', error);
+        toast.error('Failed to delete document type. Please try again.');
         // Optionally show an error message to the user
       }
     }
@@ -157,7 +157,7 @@ const DocumentDetailsPage = () => {
         {Add && (
           <button onClick={handleAdd} className="btn btn-primary max-sm:w-full">
             <PlusIcon className="h-5 w-5 mr-2" />
-            Add Document Detail
+            Add Document Type
           </button>
         )}
       </div>
@@ -167,14 +167,14 @@ const DocumentDetailsPage = () => {
         data={documentDetails}
         actions={getActions}
         loading={isLoading}
-        emptyMessage="No document types found. Click 'Add Document Detail' to create one."
+        emptyMessage="No document types found. Click 'Add Document Type' to create one."
       />
 
       <Modal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
         title={
-          selectedDocument ? 'Edit Document Detail' : 'Add Document Detail'
+          selectedDocument ? 'Edit Document Type' : 'Add Document Type'
         }
         size="lg"
       >
@@ -194,7 +194,7 @@ const DocumentDetailsPage = () => {
       >
         <div className="py-3">
           <p className="text-neutral-700">
-            Are you sure you want to delete the document detail for{' '}
+            Are you sure you want to delete the document type for{' '}
             <span className="font-medium">{documentToDelete?.Name}</span>?
           </p>
           <p className="text-sm text-neutral-500 mt-2">
