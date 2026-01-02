@@ -26,6 +26,7 @@ import toast from 'react-hot-toast';
 import { useModulePermissions } from '@/utils/useModulePremission';
 import axiosInstance from '@/utils/axiosInstance';
 import { formatCurrency } from '@/utils/currencyFormater';
+import { fetchFiscalYears } from '@/features/settings/fiscalYearSlice';
 
 const BudgetFundTransferPage = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -42,9 +43,12 @@ const BudgetFundTransferPage = () => {
     error,
   } = useSelector((state) => state.fundTransfer);
 
+  const { fiscalYears } = useSelector((state) => state.fiscalYears);
+
   useEffect(() => {
     dispatch(fetchFundOptions());
     dispatch(fetchFundTransfers());
+    dispatch(fetchFiscalYears());
   }, [dispatch]);
 
   // Calculate summary statistics
@@ -406,6 +410,10 @@ const BudgetFundTransferPage = () => {
             setActiveRow(null);
           }}
           fundOptions={fundOptions}
+          fiscalYearOptions={fiscalYears?.map((f) => ({
+            label: f.Name,
+            value: f.ID,
+          }))}
         />
       </Modal>
     </div>

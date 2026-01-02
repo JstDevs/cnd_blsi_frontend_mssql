@@ -13,6 +13,7 @@ const validationSchema = Yup.object({
     .required('Amount is required')
     .min(0.01, 'Amount must be positive'),
   remarks: Yup.string().required('Remarks are required'),
+  fiscalYearId: Yup.string().required('Fiscal Year is required'),
   Attachments: Yup.array(),
 });
 
@@ -23,6 +24,7 @@ const initialValues = {
   remarks: '',
   fromFund: null,
   toFund: null,
+  fiscalYearId: '',
   Attachments: [],
 };
 
@@ -31,6 +33,7 @@ function BudgetFundTransferForm({
   onSubmit,
   onClose,
   fundOptions,
+  fiscalYearOptions,
 }) {
   const [formData, setFormData] = useState({ ...initialValues });
   // console.log('Initial Data:', initialData, 'Form Data:', formData);
@@ -52,6 +55,7 @@ function BudgetFundTransferForm({
       remarks: apiData.Remarks || '',
       fromFund: apiData.Funds || null,
       toFund: apiData.targetFunds || null,
+      fiscalYearId: apiData.FiscalYearID || '',
       Attachments: apiData.Attachments || [],
     };
   };
@@ -100,6 +104,7 @@ function BudgetFundTransferForm({
     formData.append('TargetID', values.toFundId);
     formData.append('Transfer', transferAmount);
     formData.append('Remarks', values.remarks);
+    formData.append('FiscalYearID', values.fiscalYearId);
 
     // Handle attachments
     if (values.Attachments && values.Attachments.length > 0) {
@@ -139,6 +144,24 @@ function BudgetFundTransferForm({
       [fieldName]: selectedFund,
     };
   };
+
+  const isFundActive = (f, currentId) => {
+    if (f.ID === currentId) return true; // Always show currently selected fund
+
+    // Use the 'Active' property as per the user's database snapshot
+    if (f.Active !== undefined && f.Active !== null) {
+      return Number(f.Active) === 1;
+    }
+
+    const status = (f.Status || f.status || '').toLowerCase();
+    const isDeleted = f.IsDeleted || f.isDeleted;
+
+    // Fallback logic
+    if (status) return status === 'active';
+    if (isDeleted !== undefined) return !isDeleted;
+
+    return true;
+  };
   // -------------FILE UPLOAD-------------
   const handleFileUpload = (event, setFieldValue, values) => {
     const files = Array.from(event.target.files);
@@ -172,6 +195,17 @@ function BudgetFundTransferForm({
         isSubmitting,
       }) => (
         <Form className="space-y-4">
+          <div className="w-full md:w-1/2">
+            <SearchableDropdown
+              label="Fiscal Year"
+              name="fiscalYearId"
+              required
+              selectedValue={values.fiscalYearId}
+              onSelect={(value) => setFieldValue('fiscalYearId', value)}
+              options={fiscalYearOptions}
+              error={touched.fiscalYearId && errors.fiscalYearId}
+            />
+          </div>
           <div className="flex flex-col md:flex-row gap-6">
             {/* From Section (Left) */}
             <div className="flex-1 space-y-4 p-4 border rounded-lg">
@@ -187,10 +221,12 @@ function BudgetFundTransferForm({
                   setFieldValue('fromFundId', updates.fromFundId);
                   setFieldValue('fromFund', updates.fromFund);
                 }}
-                options={fundOptions.map((f) => ({
-                  label: `${f.Code} - ${f.Name}`,
-                  value: f.ID,
-                }))}
+                options={fundOptions
+                  .filter((f) => isFundActive(f, values.fromFundId))
+                  .map((f) => ({
+                    label: `${f.Code} - ${f.Name}`,
+                    value: f.ID,
+                  }))}
                 error={touched.fromFundId && errors.fromFundId}
               />
 
@@ -238,10 +274,12 @@ function BudgetFundTransferForm({
                   setFieldValue('toFundId', updates.toFundId);
                   setFieldValue('toFund', updates.toFund);
                 }}
-                options={fundOptions.map((f) => ({
-                  label: `${f.Code} - ${f.Name}`,
-                  value: f.ID,
-                }))}
+                options={fundOptions
+                  .filter((f) => isFundActive(f, values.toFundId))
+                  .map((f) => ({
+                    label: `${f.Code} - ${f.Name}`,
+                    value: f.ID,
+                  }))}
                 error={touched.toFundId && errors.toFundId}
               />
 
@@ -314,9 +352,9 @@ function BudgetFundTransferForm({
               value={
                 values.transferAmount !== '' && !isNaN(values.transferAmount)
                   ? Number(values.transferAmount).toLocaleString(undefined, {
-                      minimumFractionDigits: 2,
-                      maximumFractionDigits: 2,
-                    })
+                    minimumFractionDigits: 2,
+                    maximumFractionDigits: 2,
+                  })
                   : ''
               }
               error={errors.transferAmount}
