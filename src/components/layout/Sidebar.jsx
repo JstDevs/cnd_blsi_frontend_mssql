@@ -83,7 +83,7 @@ const navigation = [
       { name: 'Budget Appropriation', href: '/budget/details',        moduleId: 22 },
       { name: 'Budget Allotment',     href: '/budget/allotment',      moduleId: 23 },
       { name: 'Budget Supplemental',  href: '/budget/supplemental',   moduleId: 26 },
-      { name: 'Budget Augmentation',  href: '/budget/transfer',       moduleId: 27 },
+      { name: 'Budget Transfer',      href: '/budget/transfer',       moduleId: 27 },
       { name: 'Budget Summary',       href: '/budget/summary',        moduleId: 25 },
       { name: 'Fund Transfer',        href: '/budget/fund-transfer',  moduleId: 46 },
       {
