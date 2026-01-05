@@ -799,7 +799,7 @@ const BudgetSummaryDetail = ({ data }) => {
               Total Allotment
             </p>
             <p className="text-lg font-bold text-orange-700">
-              {formatCurrency(data.ChargedAllotment)}
+              {formatCurrency(data.Released)}
             </p>
           </div>
           <div className="bg-white p-4 rounded-lg border border-neutral-200">

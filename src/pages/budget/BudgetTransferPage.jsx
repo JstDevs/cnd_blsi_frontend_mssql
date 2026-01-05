@@ -246,7 +246,12 @@ const BudgetTransferPage = () => {
         Reason: 'This is the reason',
       });
       console.log(`${action}d:`, response.data);
-      dispatch(fetchBudgetTransfers());
+
+      // Update local state to reflect change immediately
+      // Note: Since we are using standard React state for isLoading but Redux for data, 
+      // we'll wait for the fetch to complete, but let's make sure it's awaited.
+
+      await dispatch(fetchBudgetTransfers()).unwrap();
       if (action === 'reject') {
         toast.error(`Budget Transfer ${action}ed successfully`);
       } else {

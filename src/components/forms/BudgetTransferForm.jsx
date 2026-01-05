@@ -254,7 +254,7 @@ function BudgetTransferForm({ initialData, onSubmit, onClose, budgetOptions }) {
                     label="Released Allotments"
                     name="fromReleasedAllotments"
                     type="text"
-                    value={values.fromBudget.Released || '0.00'}
+                    value={values.fromBudget.TotalAmount || '0.00'}
                     className="bg-gray-200 cursor-not-allowed"
                     readOnly
                   />
@@ -382,7 +382,7 @@ function BudgetTransferForm({ initialData, onSubmit, onClose, budgetOptions }) {
                     label="Released Allotments"
                     name="toReleasedAllotments"
                     type="text"
-                    value={values.toBudget.Released || '0.00'}
+                    value={values.toBudget.TotalAmount || '0.00'}
                     className="bg-gray-200 cursor-not-allowed"
                     readOnly
                   />

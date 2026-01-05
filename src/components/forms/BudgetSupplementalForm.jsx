@@ -56,13 +56,11 @@ function BudgetSupplementalForm({
   projectOptions,
   fiscalYearOptions,
 }) {
-  const [formData, setFormData] = useState({ ...initialValues });
-
-  useEffect(() => {
+  const getInitialValues = () => {
     if (initialData?.ID) {
       const { Budget } = initialData;
-      setFormData({
-        BudgetID: Budget?.ID,
+      return {
+        BudgetID: Budget?.ID || '',
         budgetName: Budget?.Name || '',
         fiscalYearID: Budget?.FiscalYearID || '',
         departmentID: Budget?.DepartmentID || '',
@@ -70,7 +68,7 @@ function BudgetSupplementalForm({
         chartOfAccountsID: Budget?.ChartofAccountsID || '',
         fundID: Budget?.FundID || '',
         projectID: Budget?.ProjectID || '',
-        supplemental: Budget?.Supplemental || 0,
+        supplemental: initialData?.Supplemental || Budget?.Supplemental || 0,
         charges: Budget?.Charges || 0,
         totalAmount: Budget?.TotalAmount || 0,
         balance: Budget?.AppropriationBalance || 0,
@@ -79,11 +77,12 @@ function BudgetSupplementalForm({
         releasedAllotments: Budget?.ReleasedAllotments || 0,
         releasedBalance: Budget?.ReleasedBalance || 0,
         Attachments: initialData?.Attachments || [],
-      });
-    } else {
-      setFormData(initialValues);
+      };
     }
-  }, [initialData]);
+    return initialValues;
+  };
+
+  const currentInitialValues = getInitialValues();
 
   const handleSubmit = async (values, { setSubmitting }) => {
     try {
@@ -112,15 +111,15 @@ function BudgetSupplementalForm({
 
       // Add common fields to formData
       Object.entries(commonFields).forEach(([key, value]) => {
-        formData.append(key, JSON.stringify(value));
+        formData.append(key, value);
       });
 
       // Conditional fields based on whether it's initial data
       if (initialData) {
-        formData.append('LinkID', JSON.stringify(initialData.LinkID));
-        formData.append('IsNew', JSON.stringify(false));
+        formData.append('LinkID', initialData.LinkID);
+        formData.append('IsNew', false);
       } else {
-        formData.append('IsNew', JSON.stringify(true));
+        formData.append('IsNew', true);
       }
 
       // Call onSubmit with the prepared formData
@@ -132,11 +131,11 @@ function BudgetSupplementalForm({
       setSubmitting(false);
     }
   };
-  const handleBudgetSelect = (value) => {
+  const handleBudgetSelect = (value, setValues, currentValues) => {
     const selected = budgetList?.find((item) => item.ID === parseInt(value));
     if (selected) {
-      setFormData({
-        ...formData,
+      setValues({
+        ...currentValues,
         BudgetID: selected.ID,
         budgetName: selected.Name || '',
         fiscalYearID: selected.FiscalYearID || '',
@@ -148,6 +147,8 @@ function BudgetSupplementalForm({
         appropriation: parseFloat(selected.Appropriation) || 0,
         balance: parseFloat(selected.AppropriationBalance) || 0,
         charges: parseFloat(selected.Charges || 0),
+        releasedAllotments: parseFloat(selected.TotalAmount || 0),
+        releasedBalance: parseFloat(selected.AllotmentBalance || 0),
       });
     }
   };
@@ -170,7 +171,7 @@ function BudgetSupplementalForm({
   return (
     <Formik
       enableReinitialize
-      initialValues={formData}
+      initialValues={currentInitialValues}
       validationSchema={validationSchema}
       onSubmit={handleSubmit}
     >
@@ -182,6 +183,7 @@ function BudgetSupplementalForm({
         handleBlur,
         isSubmitting,
         setFieldValue,
+        setValues,
       }) => (
         <Form className="space-y-4">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -191,8 +193,8 @@ function BudgetSupplementalForm({
                 name="BudgetID"
                 type="select"
                 required
-                selectedValue={formData.BudgetID}
-                onSelect={handleBudgetSelect}
+                selectedValue={values.BudgetID}
+                onSelect={(val) => handleBudgetSelect(val, setValues, values)}
                 options={budgetList.map((b) => ({
                   label: b.Name,
                   value: b.ID,

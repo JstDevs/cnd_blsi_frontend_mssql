@@ -283,7 +283,17 @@ const BudgetSupplementalPage = () => {
         { ID: info.ID, LinkID: info.LinkID, Reason: 'This is the reason' }
       );
       console.log(`${action}d:`, response.data);
-      fetchBudgetSupplementals();
+
+      // Update local state to reflect change immediately
+      setData((prev) =>
+        prev.map((item) =>
+          item.ID === info.ID
+            ? { ...item, Status: action === 'approve' ? 'Approved' : 'Rejected' }
+            : item
+        )
+      );
+
+      await fetchBudgetSupplementals();
       if (action === 'reject') {
         toast.error(`Budget Supplemental ${action}ed successfully`);
       } else {

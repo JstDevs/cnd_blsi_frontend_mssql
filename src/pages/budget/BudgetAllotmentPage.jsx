@@ -111,7 +111,7 @@ const BudgetAllotmentPage = () => {
   const handleSubmit = async (formData) => {
     try {
       // Make API call using your axiosInstance
-      const response = await axiosInstance.post('budgetAllotment', formData, {
+      const response = await axiosInstance.post('/budgetAllotment/save', formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
         },
@@ -123,11 +123,11 @@ const BudgetAllotmentPage = () => {
 
         fetchBudgetAllotments();
       } else {
-        toast.error('Failed to save supplemental');
+        toast.error('Failed to save Allotment');
       }
     } catch (error) {
-      console.error('Error submitting supplemental:', error);
-      toast.error(error.message || 'Failed to save supplemental');
+      console.error('Error submitting Allotment:', error);
+      toast.error(error.message || 'Failed to save Allotment');
     } finally {
       setIsModalOpen(false);
     }
@@ -199,7 +199,7 @@ const BudgetAllotmentPage = () => {
       header: 'Total Amount',
       className: 'text-right font-semibold',
       render: (value, row) => {
-        const total = parseFloat(row?.Budget?.TotalAmount || value || 0);
+        const total = parseFloat(value || row?.Budget?.TotalAmount || 0);
         return (
           <span className="text-right font-semibold text-blue-700">
             {formatCurrency(total)}
