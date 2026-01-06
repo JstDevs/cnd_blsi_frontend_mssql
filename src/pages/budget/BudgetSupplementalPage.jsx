@@ -1,6 +1,6 @@
 import React, { useState, useRef } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { CheckLine, PencilIcon, PrinterIcon, TrashIcon, X, FileText, FilterIcon, XIcon, Calendar, CheckCircle2, PhilippinePeso } from 'lucide-react';
+import { CheckLine, PencilIcon, PrinterIcon, TrashIcon, X, FileText, FilterIcon, XIcon, Calendar, CheckCircle2, PhilippinePeso, EyeIcon } from 'lucide-react';
 import { PlusIcon } from '@heroicons/react/24/outline';
 import Modal from '@/components/common/Modal';
 import ConfirmationModal from '@/components/common/ConfirmationModal';
@@ -331,7 +331,7 @@ const BudgetSupplementalPage = () => {
 
     if (row.Status.toLowerCase().includes('approved')) {
       actionList.push({
-        icon: FileText,
+        icon: EyeIcon,
         title: 'View',
         onClick: handleView,
         className:
