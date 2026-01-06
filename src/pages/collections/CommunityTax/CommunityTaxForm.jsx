@@ -239,18 +239,18 @@ const CommunityTaxForm = ({
       // Transform the values based on the mode
       const payload = isEdit
         ? {
-            IsNew: 'false',
-            IsSelectedFromIndividual: 'true', // selected from individual list...!!!!
-            ID: initialData.ID,
-            CustomerID: initialData.CustomerID,
-            ...transformValues(values),
-          }
+          IsNew: 'false',
+          IsSelectedFromIndividual: 'true', // selected from individual list...!!!!
+          ID: initialData.ID,
+          CustomerID: initialData.CustomerID,
+          ...transformValues(values),
+        }
         : {
-            IsNew: 'true', // Create mode
-            IsSelectedFromIndividual: 'true', // selected from individual list...!!!!
-            CustomerID: selectedCustomer?.ID,
-            ...transformValues(values),
-          };
+          IsNew: 'true', // Create mode
+          IsSelectedFromIndividual: 'true', // selected from individual list...!!!!
+          CustomerID: selectedCustomer?.ID,
+          ...transformValues(values),
+        };
 
       // console.log('Form submitted:', payload);
 
