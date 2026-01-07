@@ -199,7 +199,7 @@ const BudgetAllotmentPage = () => {
       header: 'Total Amount',
       className: 'text-right font-semibold',
       render: (value, row) => {
-        const total = parseFloat(value || row?.Budget?.TotalAmount || 0);
+        const total = parseFloat(value || row?.Allotment || row?.Budget?.TotalAmount || 0);
         return (
           <span className="text-right font-semibold text-blue-700">
             {formatCurrency(total)}
@@ -365,7 +365,7 @@ const BudgetAllotmentPage = () => {
   const summaryStats = useMemo(() => {
     const total = filteredData?.length || 0;
     const totalAmount = filteredData?.reduce((sum, item) => {
-      const amount = parseFloat(item?.Budget?.TotalAmount || item?.Total || 0);
+      const amount = parseFloat(item?.Total || item?.Allotment || 0);
       return sum + amount;
     }, 0) || 0;
     const requested = filteredData?.filter(item => item.Status?.toLowerCase().includes('requested')).length || 0;
