@@ -18,16 +18,16 @@ function DataTable({
 }) {
   // Ensure actions is always an array or function
   // If actions is a function, we'll call it with a dummy row to check if it returns actions
-  const safeActions = Array.isArray(actions) 
-    ? actions 
-    : typeof actions === 'function' 
-    ? actions 
-    : [];
-  
+  const safeActions = Array.isArray(actions)
+    ? actions
+    : typeof actions === 'function'
+      ? actions
+      : [];
+
   // Check if actions function returns any actions (for header display)
   // For function-based actions, we assume they always return at least one action
-  const hasActions = Array.isArray(safeActions) 
-    ? safeActions.length > 0 
+  const hasActions = Array.isArray(safeActions)
+    ? safeActions.length > 0
     : typeof safeActions === 'function';
   // console.log(selectedRow);
   const [currentPage, setCurrentPage] = useState(1);
@@ -39,14 +39,19 @@ function DataTable({
   const safeData = Array.isArray(data) ? data : [];
 
   // Search functionality
-  const filteredData = safeData.filter((item) =>
-    Object.values(item).some(
-      (value) =>
-        value !== null &&
-        value !== undefined &&
-        value.toString().toLowerCase().includes(searchTerm.toLowerCase())
-    )
-  );
+  // Search functionality (recursively search nested objects)
+  const filteredData = safeData.filter((item) => {
+    const matchesSearch = (obj) => {
+      return Object.values(obj).some((value) => {
+        if (value === null || value === undefined) return false;
+        if (typeof value === 'object' && !Array.isArray(value)) {
+          return matchesSearch(value);
+        }
+        return value.toString().toLowerCase().includes(searchTerm.toLowerCase());
+      });
+    };
+    return matchesSearch(item);
+  });
 
   // Sorting functionality
   const sortedData = [...filteredData].sort((a, b) => {
@@ -184,20 +189,18 @@ function DataTable({
                     {column.sortable !== false && (
                       <span className="flex flex-col shrink-0">
                         <ChevronUpIcon
-                          className={`h-3 w-3 transition-colors ${
-                            sortConfig.key === column.key &&
-                            sortConfig.direction === 'asc'
+                          className={`h-3 w-3 transition-colors ${sortConfig.key === column.key &&
+                              sortConfig.direction === 'asc'
                               ? 'text-primary-600'
                               : 'text-neutral-300'
-                          }`}
+                            }`}
                         />
                         <ChevronDownIcon
-                          className={`h-3 w-3 -mt-1 transition-colors ${
-                            sortConfig.key === column.key &&
-                            sortConfig.direction === 'desc'
+                          className={`h-3 w-3 -mt-1 transition-colors ${sortConfig.key === column.key &&
+                              sortConfig.direction === 'desc'
                               ? 'text-primary-600'
                               : 'text-neutral-300'
-                          }`}
+                            }`}
                         />
                       </span>
                     )}
@@ -218,23 +221,19 @@ function DataTable({
             {paginatedData.map((row, rowIndex) => (
               <tr
                 key={row.id || rowIndex}
-                className={`transition-all duration-150 ${
-                  onRowClick ? 'hover:bg-neutral-50 cursor-pointer' : 'hover:bg-neutral-50/50'
-                } ${
-                  selectedRow && selectedRow?.ID === row.ID 
-                    ? 'bg-blue-50 border-l-4 border-blue-500' 
+                className={`transition-all duration-150 ${onRowClick ? 'hover:bg-neutral-50 cursor-pointer' : 'hover:bg-neutral-50/50'
+                  } ${selectedRow && selectedRow?.ID === row.ID
+                    ? 'bg-blue-50 border-l-4 border-blue-500'
                     : ''
-                } ${
-                  rowIndex % 2 === 0 ? 'bg-white' : 'bg-neutral-50/30'
-                }`}
+                  } ${rowIndex % 2 === 0 ? 'bg-white' : 'bg-neutral-50/30'
+                  }`}
                 onClick={onRowClick ? () => onRowClick(row) : undefined}
               >
                 {columns.map((column) => (
                   <td
                     key={`${row.id || rowIndex}-${column.key}`}
-                    className={`px-6 py-4 whitespace-nowrap text-sm ${
-                      column.className || 'text-neutral-700'
-                    }`}
+                    className={`px-6 py-4 whitespace-nowrap text-sm ${column.className || 'text-neutral-700'
+                      }`}
                   >
                     {column.render
                       ? column.render(row[column.key], row)
@@ -244,80 +243,76 @@ function DataTable({
 
                 {typeof safeActions === 'function'
                   ? (() => {
-                      const rowActions = safeActions(row);
-                      return rowActions?.length > 0 ? (
-                        <td
-                          className={`px-4 py-3 whitespace-nowrap text-right text-sm font-medium space-x-1.5 sticky right-0 z-10 border-l border-neutral-200 shadow-[2px_0_4px_rgba(0,0,0,0.05)] ${
-                            (rowIndex + (currentPage - 1) * rowsPerPage) % 2 === 0
-                              ? 'bg-white'
-                              : 'bg-neutral-50/30'
-                          } ${
-                            selectedRow && selectedRow?.ID === row.ID ? 'bg-blue-50' : ''
-                          }`}
-                        >
-                          <div className="flex items-center justify-end gap-1 sm:gap-1.5">
-                            {rowActions.map((action, i) => (
-                              <button
-                                key={i}
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  if (!action.disabled && action.onClick) {
-                                    action.onClick(row);
-                                  }
-                                }}
-                                disabled={action.disabled}
-                                className={
-                                  action.className || 'text-primary-600 hover:text-primary-900'
-                                }
-                                title={action.title}
-                              >
-                                {action.icon ? (
-                                  <action.icon className="h-5 w-5" aria-hidden="true" />
-                                ) : (
-                                  action.label
-                                )}
-                              </button>
-                            ))}
-                          </div>
-                        </td>
-                      ) : null;
-                    })()
-                  : (Array.isArray(safeActions) ? safeActions.length > 0 : typeof safeActions === 'function') && (
+                    const rowActions = safeActions(row);
+                    return rowActions?.length > 0 ? (
                       <td
-                        className={`px-4 py-3 whitespace-nowrap text-right text-sm font-medium space-x-1.5 sticky right-0 z-10 border-l border-neutral-200 shadow-[2px_0_4px_rgba(0,0,0,0.05)] ${
-                          (rowIndex + (currentPage - 1) * rowsPerPage) % 2 === 0
+                        className={`px-4 py-3 whitespace-nowrap text-right text-sm font-medium space-x-1.5 sticky right-0 z-10 border-l border-neutral-200 shadow-[2px_0_4px_rgba(0,0,0,0.05)] ${(rowIndex + (currentPage - 1) * rowsPerPage) % 2 === 0
                             ? 'bg-white'
                             : 'bg-neutral-50/30'
-                        } ${
-                          selectedRow && selectedRow?.ID === row.ID ? 'bg-blue-50' : ''
-                        }`}
+                          } ${selectedRow && selectedRow?.ID === row.ID ? 'bg-blue-50' : ''
+                          }`}
                       >
                         <div className="flex items-center justify-end gap-1 sm:gap-1.5">
-                          {(Array.isArray(safeActions) ? safeActions : []).map((action, i) => (
+                          {rowActions.map((action, i) => (
                             <button
                               key={i}
                               onClick={(e) => {
                                 e.stopPropagation();
-                                if (!action?.disabled && action?.onClick) {
+                                if (!action.disabled && action.onClick) {
                                   action.onClick(row);
                                 }
                               }}
-                              disabled={action?.disabled}
+                              disabled={action.disabled}
                               className={
-                                action?.className || 'text-primary-600 hover:text-primary-900'
+                                action.className || 'text-primary-600 hover:text-primary-900'
                               }
-                              title={action?.title}
+                              title={action.title}
                             >
-                              {action?.icon ? (
+                              {action.icon ? (
                                 <action.icon className="h-5 w-5" aria-hidden="true" />
                               ) : (
-                                action?.label
+                                action.label
                               )}
                             </button>
                           ))}
                         </div>
                       </td>
-                    )}
+                    ) : null;
+                  })()
+                  : (Array.isArray(safeActions) ? safeActions.length > 0 : typeof safeActions === 'function') && (
+                    <td
+                      className={`px-4 py-3 whitespace-nowrap text-right text-sm font-medium space-x-1.5 sticky right-0 z-10 border-l border-neutral-200 shadow-[2px_0_4px_rgba(0,0,0,0.05)] ${(rowIndex + (currentPage - 1) * rowsPerPage) % 2 === 0
+                          ? 'bg-white'
+                          : 'bg-neutral-50/30'
+                        } ${selectedRow && selectedRow?.ID === row.ID ? 'bg-blue-50' : ''
+                        }`}
+                    >
+                      <div className="flex items-center justify-end gap-1 sm:gap-1.5">
+                        {(Array.isArray(safeActions) ? safeActions : []).map((action, i) => (
+                          <button
+                            key={i}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              if (!action?.disabled && action?.onClick) {
+                                action.onClick(row);
+                              }
+                            }}
+                            disabled={action?.disabled}
+                            className={
+                              action?.className || 'text-primary-600 hover:text-primary-900'
+                            }
+                            title={action?.title}
+                          >
+                            {action?.icon ? (
+                              <action.icon className="h-5 w-5" aria-hidden="true" />
+                            ) : (
+                              action?.label
+                            )}
+                          </button>
+                        ))}
+                      </div>
+                    </td>
+                  )}
               </tr>
             ))}
           </tbody>
