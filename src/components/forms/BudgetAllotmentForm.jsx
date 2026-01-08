@@ -61,6 +61,11 @@ function BudgetAllotmentForm({
   const getInitialValues = () => {
     if (initialData?.ID) {
       const { Budget } = initialData;
+      console.log('BudgetAllotmentForm Debug - Budget Object:', Budget);
+      const calculatedBalance = (parseFloat(Budget?.Appropriation || 0) + parseFloat(Budget?.Supplemental || 0) + parseFloat(Budget?.Transfer || 0)) - parseFloat(Budget?.Released || 0);
+      const calculatedReleasedBalance = parseFloat(Budget?.Released || 0) - (parseFloat(Budget?.Charges || 0) + parseFloat(Budget?.PreEncumbrance || 0) + parseFloat(Budget?.Encumbrance || 0));
+      console.log('BudgetAllotmentForm Debug - Calculated Balance:', calculatedBalance);
+      console.log('BudgetAllotmentForm Debug - Calculated Released Balance:', calculatedReleasedBalance);
       return {
         BudgetID: Budget?.ID || '',
         budgetName: Budget?.Name || '',
@@ -73,11 +78,11 @@ function BudgetAllotmentForm({
         allotment: initialData?.Allotment || Budget?.Allotment || 0,
         charges: Budget?.Charges || 0,
         totalAmount: Budget?.TotalAmount || 0,
-        balance: Budget?.AppropriationBalance || 0,
+        balance: (parseFloat(Budget?.Appropriation || 0) + parseFloat(Budget?.Supplemental || 0) + parseFloat(Budget?.Transfer || 0)) - parseFloat(Budget?.Released || 0),
         remarks: initialData?.Remarks || '',
         appropriation: Budget?.Appropriation || 0,
-        releasedAllotments: Budget?.ReleasedAllotments || 0,
-        releasedBalance: Budget?.ReleasedBalance || 0,
+        releasedAllotments: Budget?.Released || 0,
+        releasedBalance: parseFloat(Budget?.Released || 0) - (parseFloat(Budget?.Charges || 0) + parseFloat(Budget?.PreEncumbrance || 0) + parseFloat(Budget?.Encumbrance || 0)),
         Attachments: initialData?.Attachments || [],
         Status: initialData?.Status || 'Requested',
       };
@@ -147,10 +152,10 @@ function BudgetAllotmentForm({
         fundID: selected.FundID || '',
         projectID: selected.ProjectID || '',
         appropriation: parseFloat(selected.Appropriation) || 0,
-        balance: parseFloat(selected.AllotmentBalance) || 0, // This is the remaining appropriation
+        balance: (parseFloat(selected.Appropriation || 0) + parseFloat(selected.Supplemental || 0) + parseFloat(selected.Transfer || 0)) - parseFloat(selected.Released || 0),
         charges: parseFloat(selected.Charges || 0),
-        releasedAllotments: parseFloat(selected.Appropriation) - parseFloat(selected.AllotmentBalance),
-        releasedBalance: (parseFloat(selected.Appropriation) - parseFloat(selected.AllotmentBalance)) - parseFloat(selected.ChargedAllotment || 0),
+        releasedAllotments: parseFloat(selected.Released) || 0,
+        releasedBalance: parseFloat(selected.Released || 0) - (parseFloat(selected.Charges || 0) + parseFloat(selected.PreEncumbrance || 0) + parseFloat(selected.Encumbrance || 0)),
       });
     }
   };
