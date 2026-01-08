@@ -31,11 +31,16 @@ const BudgetFundsPage = () => {
   // ---------------------USE MODULE PERMISSIONS------------------START (BudgetSubFundsPage - MODULE ID =  48 )
   const { Add, Edit, Delete } = useModulePermissions(48);
 
+  const activeFunds = useMemo(() => {
+    return funds?.filter((fund) => Number(fund.Active) === 1) || [];
+  }, [funds]);
+
   // Calculate summary statistics
   const summaryStats = useMemo(() => {
-    const total = funds?.length || 0;
-    const totalAmount = funds?.reduce((sum, fund) => {
-      const amount = parseFloat(fund?.OriginalAmount || 0);
+    const total = activeFunds?.length || 0;
+    const totalAmount = activeFunds?.reduce((sum, fund) => {
+      // Try multiple possible field names for current balance
+      const amount = parseFloat(fund?.Balance || fund?.Total || fund?.Amount || fund?.balance || 0);
       return sum + amount;
     }, 0) || 0;
     const averageAmount = total > 0 ? totalAmount / total : 0;
@@ -83,8 +88,19 @@ const BudgetFundsPage = () => {
       sortable: true,
       className: 'text-right font-semibold',
       render: (value) => (
-        <span className="text-right font-semibold text-green-700">
+        <span className="text-right font-semibold text-neutral-600">
           {formatCurrency(value)}
+        </span>
+      ),
+    },
+    {
+      key: 'Balance',
+      header: 'Current Balance',
+      sortable: true,
+      className: 'text-right font-semibold',
+      render: (value, record) => (
+        <span className="text-right font-semibold text-green-700">
+          {formatCurrency(record.Balance || record.Total || record.Amount || record.balance || value)}
         </span>
       ),
     },
@@ -197,7 +213,7 @@ const BudgetFundsPage = () => {
         </div>
 
         {/* Summary Statistics Cards */}
-        {!loading && funds?.length > 0 && (
+        {!loading && activeFunds?.length > 0 && (
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
             <div className="bg-gradient-to-br from-blue-50 to-blue-100 border border-blue-200 rounded-xl p-5 shadow-sm hover:shadow-md transition-shadow">
               <div className="flex items-center justify-between">
@@ -244,13 +260,13 @@ const BudgetFundsPage = () => {
           <h2 className="text-lg font-semibold text-neutral-900">
             Fund Entries
             <span className="ml-2 text-sm font-normal text-neutral-600">
-              ({funds?.length || 0} {(funds?.length || 0) === 1 ? 'entry' : 'entries'})
+              ({activeFunds?.length || 0} {(activeFunds?.length || 0) === 1 ? 'entry' : 'entries'})
             </span>
           </h2>
         </div>
         <DataTable
           columns={columns}
-          data={funds || []}
+          data={activeFunds || []}
           actions={actions}
           loading={loading}
           onRowClick={handleViewReceipt}

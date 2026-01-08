@@ -8,7 +8,7 @@ const API_URL = import.meta.env.VITE_API_URL;
 export const fetchFunds = createAsyncThunk(
   'budgetFunds/fetchBudgetFunds',
   async () => {
-    const response = await axiosInstance(`/funds`);
+    const response = await axiosInstance.get(`/fundTransfer/fundList`);
     return response.data;
   }
 );

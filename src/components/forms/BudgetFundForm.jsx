@@ -35,7 +35,7 @@ function BudgetFundForm({ initialData, onSubmit, onClose, readOnly = false }) {
         Code: initialData?.Code || '',
         Name: initialData?.Name || '',
         Description: initialData?.Description || '',
-        Amount: initialData?.OriginalAmount || '',
+        Amount: initialData?.Balance || initialData?.Total || initialData?.Amount || initialData?.balance || initialData?.OriginalAmount || '',
       });
     } else {
       setFormData(initialValues);
