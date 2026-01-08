@@ -837,19 +837,19 @@ const BudgetDetailsPage = () => {
                 </div>
                 <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
                   <label className="block text-sm font-medium text-blue-700 mb-1">Total Allotted</label>
-                  <p className="text-2xl font-bold text-blue-900">{formatCurrency(Number(activeRow.Appropriation) - Number(activeRow.AllotmentBalance))}</p>
+                  <p className="text-2xl font-bold text-blue-900">{formatCurrency(activeRow.Released)}</p>
                 </div>
                 <div className="bg-orange-50 border border-orange-200 rounded-lg p-4">
                   <label className="block text-sm font-medium text-orange-700 mb-1">Charges</label>
-                  <p className="text-2xl font-bold text-orange-900">{formatCurrency(activeRow.ChargedAllotment)}</p>
+                  <p className="text-2xl font-bold text-orange-900">{formatCurrency(activeRow.Charges)}</p>
                 </div>
-                <div className={`border rounded-lg p-4 ${Number(activeRow.AllotmentBalance) >= 0 ? 'bg-emerald-50 border-emerald-200' : 'bg-red-50 border-red-200'}`}>
-                  <label className={`block text-sm font-medium mb-1 ${Number(activeRow.AllotmentBalance) >= 0 ? 'text-emerald-700' : 'text-red-700'}`}>Appropriation Balance</label>
-                  <p className={`text-2xl font-bold ${Number(activeRow.AllotmentBalance) >= 0 ? 'text-emerald-900' : 'text-red-900'}`}>{formatCurrency(activeRow.AllotmentBalance)}</p>
+                <div className={`border rounded-lg p-4 ${Number(activeRow.AppropriationBalance) >= 0 ? 'bg-emerald-50 border-emerald-200' : 'bg-red-50 border-red-200'}`}>
+                  <label className={`block text-sm font-medium mb-1 ${Number(activeRow.AppropriationBalance) >= 0 ? 'text-emerald-700' : 'text-red-700'}`}>Appropriation Balance</label>
+                  <p className={`text-2xl font-bold ${Number(activeRow.AppropriationBalance) >= 0 ? 'text-emerald-900' : 'text-red-900'}`}>{formatCurrency(activeRow.AppropriationBalance)}</p>
                 </div>
-                <div className={`border rounded-lg p-4 ${(Number(activeRow.Appropriation) - Number(activeRow.AllotmentBalance) - Number(activeRow.ChargedAllotment)) >= 0 ? 'bg-emerald-50 border-emerald-200' : 'bg-red-50 border-red-200'}`}>
-                  <label className={`block text-sm font-medium mb-1 ${(Number(activeRow.Appropriation) - Number(activeRow.AllotmentBalance) - Number(activeRow.ChargedAllotment)) >= 0 ? 'text-emerald-700' : 'text-red-700'}`}>Allotment Balance</label>
-                  <p className={`text-2xl font-bold ${(Number(activeRow.Appropriation) - Number(activeRow.AllotmentBalance) - Number(activeRow.ChargedAllotment)) >= 0 ? 'text-emerald-900' : 'text-red-900'}`}>{formatCurrency(Number(activeRow.Appropriation) - Number(activeRow.AllotmentBalance) - Number(activeRow.ChargedAllotment))}</p>
+                <div className={`border rounded-lg p-4 ${(Number(activeRow.Released) - (Number(activeRow.Charges) + Number(activeRow.PreEncumbrance) + Number(activeRow.Encumbrance))) >= 0 ? 'bg-emerald-50 border-emerald-200' : 'bg-red-50 border-red-200'}`}>
+                  <label className={`block text-sm font-medium mb-1 ${(Number(activeRow.Released) - (Number(activeRow.Charges) + Number(activeRow.PreEncumbrance) + Number(activeRow.Encumbrance))) >= 0 ? 'text-emerald-700' : 'text-red-700'}`}>Allotment Balance</label>
+                  <p className={`text-2xl font-bold ${(Number(activeRow.Released) - (Number(activeRow.Charges) + Number(activeRow.PreEncumbrance) + Number(activeRow.Encumbrance))) >= 0 ? 'text-emerald-900' : 'text-red-900'}`}>{formatCurrency(Number(activeRow.Released) - (Number(activeRow.Charges) + Number(activeRow.PreEncumbrance) + Number(activeRow.Encumbrance)))}</p>
                 </div>
                 <div className="bg-neutral-50 border border-neutral-200 rounded-lg p-4">
                   <label className="block text-sm font-medium text-neutral-700 mb-1">Pre Encumbrance</label>
