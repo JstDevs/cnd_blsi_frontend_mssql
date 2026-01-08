@@ -61,6 +61,7 @@ function ObligationRequestForm({
   unitOptions = [],
   taxCodeOptions = [],
   budgetOptions = [],
+  formBudgets = [],
   taxCodeFull = [],
 }) {
   const dispatch = useDispatch();
@@ -128,16 +129,16 @@ function ObligationRequestForm({
     taxes: Array.isArray(initialData?.taxes) ? initialData.taxes : [],
     contraAccounts:
       Array.isArray(initialData?.contraAccounts) &&
-      initialData.contraAccounts.length > 0
+        initialData.contraAccounts.length > 0
         ? initialData.contraAccounts
         : [
-            {
-              code: '',
-              account: '',
-              amount: '',
-              normalBalance: '',
-            },
-          ],
+          {
+            code: '',
+            account: '',
+            amount: '',
+            normalBalance: '',
+          },
+        ],
     accountingEntries: Array.isArray(initialData?.TransactionItemsAll)
       ? initialData.TransactionItemsAll
       : [],
@@ -185,12 +186,12 @@ function ObligationRequestForm({
     fd.append(
       'Payee',
       selectedPayee?.Name ||
-        selectedPayee?.FirstName +
-          ' ' +
-          selectedPayee?.MiddleName +
-          ' ' +
-          selectedPayee?.LastName ||
-        ''
+      selectedPayee?.FirstName +
+      ' ' +
+      selectedPayee?.MiddleName +
+      ' ' +
+      selectedPayee?.LastName ||
+      ''
     );
     fd.append('Address', selectedPayee?.StreetAddress || '');
     fd.append('InvoiceNumber', values.obrNo);
@@ -393,11 +394,10 @@ function ObligationRequestForm({
                             key={type.value}
                             type="button"
                             onClick={() => handlePayeeTypeChange(type.value)}
-                            className={`w-full flex items-center px-4 py-3 text-left border rounded-lg transition-all duration-200 ${
-                              values.payeeType === type.value
-                                ? 'border-blue-500 bg-blue-50 text-blue-700'
-                                : 'border-gray-300 hover:border-gray-400 text-gray-700'
-                            }`}
+                            className={`w-full flex items-center px-4 py-3 text-left border rounded-lg transition-all duration-200 ${values.payeeType === type.value
+                              ? 'border-blue-500 bg-blue-50 text-blue-700'
+                              : 'border-gray-300 hover:border-gray-400 text-gray-700'
+                              }`}
                           >
                             <PayeeTypeIcon type={type.value} />
                             <span className="ml-3 font-medium">
@@ -452,14 +452,13 @@ function ObligationRequestForm({
                                 </div>
                                 <div className="text-sm text-gray-900">
                                   {selectedPayeeType?.label === 'Employee'
-                                    ? `${selectedPayee.FirstName || ''} ${
-                                        selectedPayee.MiddleName || ''
+                                    ? `${selectedPayee.FirstName || ''} ${selectedPayee.MiddleName || ''
                                       } ${selectedPayee.LastName || ''}`.trim()
                                     : selectedPayeeType?.label === 'Vendor'
-                                    ? selectedPayee.Name
-                                    : selectedPayeeType?.label === 'Individual'
-                                    ? selectedPayee.Name
-                                    : selectedPayee.Name}
+                                      ? selectedPayee.Name
+                                      : selectedPayeeType?.label === 'Individual'
+                                        ? selectedPayee.Name
+                                        : selectedPayee.Name}
                                 </div>
                               </div>
                               <div>
@@ -470,10 +469,10 @@ function ObligationRequestForm({
                                   {selectedPayeeType?.label === 'Employee'
                                     ? selectedPayee.StreetAddress
                                     : selectedPayeeType?.label === 'Vendor'
-                                    ? selectedPayee.StreetAddress
-                                    : selectedPayeeType?.label === 'Individual'
-                                    ? selectedPayee.StreetAddress
-                                    : selectedPayee.StreetAddress}
+                                      ? selectedPayee.StreetAddress
+                                      : selectedPayeeType?.label === 'Individual'
+                                        ? selectedPayee.StreetAddress
+                                        : selectedPayee.StreetAddress}
                                 </div>
                               </div>
                             </div>
@@ -500,7 +499,7 @@ function ObligationRequestForm({
                     readOnly
                     disabled
                     className="pointer-events-none bg-gray-100"
-                    // required
+                  // required
                   />
 
                   <FormField
@@ -721,6 +720,7 @@ function ObligationRequestForm({
                           unitOptions={unitOptions}
                           taxCodeOptions={taxCodeOptions}
                           budgetOptions={budgetOptions}
+                          formBudgets={formBudgets}
                           taxCodeFull={taxCodeFull}
                           onClose={() => setShowEntryModal(false)}
                           onSubmit={(entry) => {
@@ -780,9 +780,8 @@ function ObligationRequestForm({
                             </div>
                           ) : (
                             <div className="flex-1 min-w-[300px]">
-                              <label className="block text-sm font-medium mb-1">{`File ${
-                                index + 1
-                              }`}</label>
+                              <label className="block text-sm font-medium mb-1">{`File ${index + 1
+                                }`}</label>
                               <input
                                 type="file"
                                 name={`Attachments[${index}].File`}

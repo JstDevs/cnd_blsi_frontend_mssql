@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useMemo } from 'react';
 import { useFormik } from 'formik';
 import * as Yup from 'yup';
 import FormField from '../../components/common/FormField';
@@ -13,6 +13,7 @@ function ObligationRequestAddItemForm({
   taxCodeOptions = [],
   taxCodeFull = [],
   budgetOptions = [],
+  formBudgets = [],
   initialData,
 }) {
   const validationSchema = Yup.object({
@@ -126,6 +127,39 @@ function ObligationRequestAddItemForm({
   const currentTaxRate =
     taxCodeFull.find((t) => String(t.ID) === String(formik.values.TAXCodeID))
       ?.Rate ?? '';
+  // Filter budgets based on Selected Responsibility Center
+  const filteredBudgetOptions = useMemo(() => {
+    if (!formik.values.ResponsibilityCenter) return [];
+
+    // If we have raw budget data (formBudgets), filter by DepartmentID
+    if (formBudgets && formBudgets.length > 0) {
+      return formBudgets
+        .filter((b) => {
+          // Must be active
+          const isActive = Number(b.Active) === 1;
+          // Must match Responsibility Center (Department)
+          const matchesDept = String(b.DepartmentID) === String(formik.values.ResponsibilityCenter);
+          return isActive && matchesDept;
+        })
+        .map((b) => ({ value: b.ID, label: b.Name }));
+    }
+
+    // Fallback if formBudgets is missing (should verify if this is desired)
+    return budgetOptions;
+  }, [formik.values.ResponsibilityCenter, formBudgets, budgetOptions]);
+
+  // Reset Charge Account if the selected one is no longer in the filtered list
+  useEffect(() => {
+    if (formik.values.ChargeAccountID && filteredBudgetOptions.length > 0) {
+      const exists = filteredBudgetOptions.some(
+        (opt) => String(opt.value) === String(formik.values.ChargeAccountID)
+      );
+      if (!exists) {
+        formik.setFieldValue('ChargeAccountID', '');
+      }
+    }
+  }, [filteredBudgetOptions, formik.values.ChargeAccountID]);
+
   // const selectedTax = taxCodeFull.find(
   //   (t) => String(t.ID) === String(vals.TAXCodeID)
   // );
@@ -156,7 +190,7 @@ function ObligationRequestAddItemForm({
             type="select"
             label="Charge Account"
             name="ChargeAccountID"
-            options={budgetOptions}
+            options={filteredBudgetOptions}
             {...formik.getFieldProps('ChargeAccountID')}
             required
           />

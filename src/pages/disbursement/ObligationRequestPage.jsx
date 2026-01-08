@@ -158,6 +158,9 @@ function ObligationRequestPage() {
   //       'text-primary-600 hover:text-primary-900 p-1 rounded-full hover:bg-primary-50',
   //   },
   // ];
+  useEffect(() => {
+    console.log('Budgets Data:', budgets);
+  }, [budgets]);
   const handleView = (or) => {
     handleViewOR(or);
   };
@@ -391,10 +394,13 @@ function ObligationRequestPage() {
                 value: code.ID,
                 label: code.Name,
               }))}
-              budgetOptions={budgets.map((code) => ({
-                value: code.ID,
-                label: code.Name,
-              }))}
+              budgetOptions={budgets
+                .filter((fund) => Number(fund.Active) === 1)
+                .map((code) => ({
+                  value: code.ID,
+                  label: code.Name,
+                }))}
+              formBudgets={budgets}
               taxCodeFull={taxCodes}
               onCancel={handleBackToList}
               onSubmitSuccess={handleBackToList}
