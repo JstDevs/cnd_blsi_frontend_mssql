@@ -19,7 +19,7 @@ function ObligationRequestAddItemForm({
   const validationSchema = Yup.object({
     ResponsibilityCenter: Yup.string().required('Required'),
     ChargeAccountID: Yup.string().required('Required'),
-    ItemID: Yup.string().required('Required'),
+    // ItemID: Yup.string().required('Required'),
     Remarks: Yup.string().required('Required'),
     FPP: Yup.string(),
     Price: Yup.number().required('Required'),
@@ -66,16 +66,16 @@ function ObligationRequestAddItemForm({
       const cSelected = budgetOptions.find(
         (o) => String(o.value) === String(vals.ChargeAccountID)
       );
-      const itemSelected = particularsOptions.find(
-        (o) => String(o.value) === String(vals.ItemID)
-      );
+      // const itemSelected = particularsOptions.find(
+      //   (o) => String(o.value) === String(vals.ItemID)
+      // );
 
       onSubmit({
         ...vals,
         // ...computed,
         responsibilityCenterName: rcSelected ? rcSelected.label : '',
         chargeAccountName: cSelected ? cSelected.label : '',
-        itemName: itemSelected ? itemSelected.label : '',
+        itemName: vals.Remarks,
         TaxName: selectedTax?.Name,
         TaxRate: selectedTax?.Rate,
       });
@@ -199,7 +199,7 @@ function ObligationRequestAddItemForm({
           )}
         </div>
 
-        <div>
+        {/* <div>
           <FormField
             type="select"
             label="Particulars"
@@ -211,7 +211,7 @@ function ObligationRequestAddItemForm({
           {formik.touched.ItemID && formik.errors.ItemID && (
             <p className="text-red-500 text-sm">{formik.errors.ItemID}</p>
           )}
-        </div>
+        </div> */}
       </div>
 
       {/* Row 2 */}
@@ -219,7 +219,7 @@ function ObligationRequestAddItemForm({
         <div>
           <FormField
             type="text"
-            label="Remarks"
+            label="Particulars"
             name="Remarks"
             {...formik.getFieldProps('Remarks')}
             required
