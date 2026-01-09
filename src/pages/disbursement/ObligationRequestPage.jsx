@@ -119,7 +119,8 @@ function ObligationRequestPage() {
       sortable: true,
       render: (_, row) => {
         const items = row.TransactionItemsAll || row.Items || [];
-        return items.map((i) => i.Remarks || i.itemName).join(', ');
+        const combinedText = items.map((i) => i.Remarks || i.itemName).join(', ');
+        return <div className="whitespace-pre-wrap">{combinedText}</div>;
       },
     },
     {

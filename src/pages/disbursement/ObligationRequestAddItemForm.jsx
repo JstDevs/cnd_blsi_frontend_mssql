@@ -218,11 +218,12 @@ function ObligationRequestAddItemForm({
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
         <div>
           <FormField
-            type="text"
+            type="textarea"
             label="Particulars"
             name="Remarks"
             {...formik.getFieldProps('Remarks')}
             required
+            rows={3}
           />
           {formik.touched.Remarks && formik.errors.Remarks && (
             <p className="text-red-500 text-sm">{formik.errors.Remarks}</p>
