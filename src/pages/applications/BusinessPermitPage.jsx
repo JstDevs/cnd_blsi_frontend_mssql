@@ -22,7 +22,7 @@ function BusinessPermitPage() {
       dtiRegistrationDate: '1/13/2025',
       businessName: 'ABC Store',
       ownerName: 'John Smith',
-      status: 'Active',
+      status: 'Posted',
     },
     {
       id: 2,
@@ -33,7 +33,7 @@ function BusinessPermitPage() {
       dtiRegistrationDate: '1/14/2025',
       businessName: 'XYZ Restaurant',
       ownerName: 'Jane Doe',
-      status: 'Pending',
+      status: 'Requested',
     },
   ];
 
@@ -97,9 +97,9 @@ function BusinessPermitPage() {
       render: (value) => (
         <span
           className={`px-2 py-1 rounded ${
-            value === 'Pending'       ? 'bg-warning-300 text-error-700'
+            value === 'Requested'     ? 'bg-warning-300 text-error-700'
               : value === 'Approved'  ? 'bg-success-300 text-neutral-800'
-              : value === 'Active'    ? 'bg-success-800 text-success-100'
+              : value === 'Posted'    ? 'bg-success-800 text-success-100'
               : value === 'Rejected'  ? 'bg-error-500 text-neutral-100'
               : value === 'Void'      ? 'bg-primary-900 text-neutral-300'
               : value === 'Cancelled' ? 'bg-neutral-300 text-neutral-700'
