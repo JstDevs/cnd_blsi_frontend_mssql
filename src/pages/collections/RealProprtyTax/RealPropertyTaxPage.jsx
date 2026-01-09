@@ -250,10 +250,10 @@ function RealPropertyTaxPage() {
           <div className="flex justify-between items-center max-sm:flex-wrap gap-4 mb-6 page-header">
             <div ref={printRef}>
               <h1 className="text-2xl font-bold text-gray-800">
-                Real Property Tax Records
+                Real Property Tax Invoice
               </h1>
               <p className="text-gray-600">
-                Manage real property tax assessments
+                Manage real property tax invoices.
               </p>
             </div>
             <div className="flex gap-2">
@@ -265,7 +265,7 @@ function RealPropertyTaxPage() {
                   className="btn btn-primary max-sm:w-full"
                 >
                   <PlusIcon className="h-5 w-5 mr-2" aria-hidden="true" />
-                  New Property
+                  New RPT Invoice
                 </button>
               )}
               {Print && (
@@ -310,13 +310,13 @@ function RealPropertyTaxPage() {
               <div>
                 <h1 className="text-2xl font-bold text-gray-800">
                   {currentProperty
-                    ? 'Edit Real Property Tax Record'
-                    : 'Create New Real Property Tax Record'}
+                    ? 'Edit Real Property Tax Invoice'
+                    : 'Create New Real Property Tax Invoice'}
                 </h1>
                 <p className="text-gray-600">
                   {currentProperty
-                    ? 'Update the property details'
-                    : 'Fill out the form to create a new property record'}
+                    ? 'Update the property details.'
+                    : 'Fill out the form to create a new real property tax invoice.'}
                 </p>
               </div>
             </div>

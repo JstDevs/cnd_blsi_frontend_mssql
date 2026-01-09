@@ -32,18 +32,18 @@ function StatementComparison() {
     documentTitle: 'Statement Comparison Report',
   });
   const columns = [
-    { key: 'Type', header: 'Type', sortable: true },
-    { key: 'SubID', header: 'Sub ID', sortable: true },
-    { key: 'Subtype', header: 'Subtype', sortable: true },
-    { key: 'Category', header: 'Category', sortable: true },
-    { key: 'Chart of Accounts', header: 'Chart of Accounts', sortable: true },
-    { key: 'Account Code', header: 'Account Code', sortable: true },
-    {
-      key: 'Original',
-      header: 'Original',
-      sortable: true,
-      render: formatCurrency,
-      className: 'text-right',
+    { key: 'Type',              header: 'Type',               sortable: true },
+    { key: 'SubID',             header: 'Sub ID',             sortable: true },
+    { key: 'Subtype',           header: 'Subtype',            sortable: true },
+    { key: 'Category',          header: 'Category',           sortable: true },
+    { key: 'Chart of Accounts', header: 'Chart of Accounts',  sortable: true },
+    { key: 'Account Code',      header: 'Account Code',       sortable: true },
+    { 
+      key: 'Original',          
+      header: 'Original',           
+      sortable: true, 
+      render: formatCurrency, 
+      className: 'text-right',  
     },
     {
       key: 'Final',
@@ -189,6 +189,7 @@ function StatementComparison() {
           pagination
         />
       </div>
+      
       {/* Hidden print layout */}
       <div className="hidden">
         <StatementComparisonPrintView

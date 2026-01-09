@@ -199,7 +199,7 @@ function BusinessPermitPage() {
         <div className="flex justify-between items-center flex-wrap gap-4">
           <div>
             <h1>Business Permit Applications</h1>
-            <p>Manage business permit applications and registrations</p>
+            <p>Manage the applications for business permits.</p>
           </div>
           {Add && (
             <button
@@ -208,7 +208,7 @@ function BusinessPermitPage() {
               className="btn btn-primary max-sm:w-full "
             >
               <PlusIcon className="h-5 w-5 mr-2" />
-              New Application
+              New Business Permit
             </button>
           )}
         </div>
@@ -239,8 +239,8 @@ function BusinessPermitPage() {
         onClose={() => setIsModalOpen(false)}
         title={
           currentPermit
-            ? 'Edit Business Application'
-            : 'New Business Application'
+            ? 'Edit Business Permit'
+            : 'New Business Permit'
         }
         size="xl"
       >

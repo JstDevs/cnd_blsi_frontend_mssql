@@ -212,8 +212,8 @@ function GeneralServiceReceiptModal({
       onClose={onClose}
       title={
         selectedReceipt
-          ? 'Edit General Service Receipt'
-          : 'New General Service Receipt'
+          ? 'Edit General Service Invoice'
+          : 'New General Service Invoice'
       }
       size="xl"
     >

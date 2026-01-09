@@ -42,13 +42,14 @@ const navigation = [
       {
         name: 'Reports',
         submenu: [
-          { name: 'Disbursement Journals',  href: '/disbursement/disbursement-journals',  moduleId: 32, }, // Check & Cash Disbursement?
-          { name: 'General Journals',       href: '/disbursement/general-journals',       moduleId: 49, },
-          { name: 'General Ledger',         href: '/reports/general-ledger',              moduleId: 50, },
-          { name: 'Subsidiary Ledger',      href: '/reports/subsidiary-ledger',           moduleId: 77, },
-          { name: 'Trial Balance',          href: '/reports/trial-balance',               moduleId: 81, },
-          { name: 'Financial Statements',   href: '/reports/financial-statements' }, // no mapping
-          { name: 'BIR Reports',            href: '/reports/bir',                         moduleId: 16, },
+          // { name: 'Disbursement Journals',  href: '/disbursement/disbursement-journals',  moduleId: 32, }, // Check & Cash Disbursement?
+          // { name: 'General Journals',       href: '/disbursement/general-journals',       moduleId: 49, },
+          // { name: 'General Ledger',         href: '/reports/general-ledger',              moduleId: 50, },
+          // { name: 'Subsidiary Ledger',      href: '/reports/subsidiary-ledger',           moduleId: 77, },
+          // { name: 'Trial Balance',          href: '/reports/trial-balance',               moduleId: 81, },
+          // { name: 'Financial Statements',   href: '/reports/financial-statements' }, // no mapping
+          // { name: 'BIR Reports',            href: '/reports/bir',                         moduleId: 16, },
+          {name: 'Nothing'}
         ]
       }
     ],
@@ -68,8 +69,9 @@ const navigation = [
       {
         name: 'Reports',
         submenu: [
-          { name: 'Cashbook', href: '/collections/cashbook', moduleId: 30 },
-          { name: 'Collection Report', href: '/collections/reports' },
+          // { name: 'Cashbook', href: '/collections/cashbook', moduleId: 30 },
+          // { name: 'Collection Report', href: '/collections/reports' },
+          {name: 'Nothing'}
         ]
       }
     ],
@@ -89,9 +91,10 @@ const navigation = [
       {
         name: 'Reports',
         submenu: [
-          { name: 'Budget Report',              href: '/budget/report',                  moduleId: 24 },
-          { name: 'Statement of Comparison',    href: '/budget/statement-comparison',    moduleId: 73 },
-          { name: 'Statement of Appropriation', href: '/budget/statement-appropriation', moduleId: 72 },
+          // { name: 'Budget Report',              href: '/budget/report',                  moduleId: 24 },
+          // { name: 'Statement of Comparison',    href: '/budget/statement-comparison',    moduleId: 73 },
+          // { name: 'Statement of Appropriation', href: '/budget/statement-appropriation', moduleId: 72 },
+          {name: 'Nothing'}
         ] 
       },
     ],
@@ -175,6 +178,15 @@ const navigation = [
           { name: 'Account Group',            href: '/settings/account-group',            moduleId: 88, },
           { name: 'Major Account Group',      href: '/settings/major-account-group',      moduleId: 89, },
           { name: 'Sub Major Account Group',  href: '/settings/sub-major-account-group',  moduleId: 90, },
+        ],
+      },
+      {
+        name: 'Report Settings',
+        submenu: [
+          { name: 'Signatories',      href: '/settings/signatories',      moduleId: 0, },
+          { name: 'Logos and Images', href: '/settings/logos-and-images', moduleId: 0, },
+          { name: 'Watermarks',       href: '/settings/watermarks',       moduleId: 0, },
+          { name: 'Data Sources',     href: '/settings/data-sources',     moduleId: 0, },
         ],
       },
       {

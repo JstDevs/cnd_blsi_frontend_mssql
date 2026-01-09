@@ -305,9 +305,9 @@ function CommunityTaxPage() {
           <div className="flex justify-between sm:items-center mb-6 page-header gap-4 max-sm:flex-col">
             <div>
               <h1 className="text-2xl font-bold text-gray-800">
-                Community Tax Certificate
+                Community Tax Certificate - Individual
               </h1>
-              <p className="text-gray-600">Manage community tax certificates</p>
+              <p className="text-gray-600">Manage community tax certificates for individuals.</p>
             </div>
             {Add && (
               <button
@@ -346,8 +346,8 @@ function CommunityTaxPage() {
               <div>
                 <h1 className="text-2xl font-bold text-gray-800">
                   {currentCertificate
-                    ? 'Edit Community Tax Certificate (INDIVIDUAL)'
-                    : 'Community Tax Certificate (INDIVIDUAL)'}
+                    ? 'Edit Community Tax Certificate - Individual'
+                    : 'Community Tax Certificate - Individual'}
                 </h1>
                 <p className="text-gray-600">
                   {currentCertificate ? 'Update the certificate details' : ''}
@@ -365,10 +365,10 @@ function CommunityTaxPage() {
                       value: customer.ID,
                     })) || []
                   }
-                  placeholder="Choose Citizen"
+                  placeholder="Choose Individual"
                   selectedValue={selectedCustomer?.ID}
                   onSelect={handleCustomerChange}
-                  label="Choose Citizen"
+                  label="Choose Individual"
                   required
                 />
               </div>
@@ -405,7 +405,7 @@ function CommunityTaxPage() {
               />
             ) : (
               <h2 className="text-2xl font-bold text-gray-800 text-center h-[50vh]">
-                Please select a Citizen first to start{' '}
+                Please select a Individual first to start{' '}
               </h2>
             )}
           </div>

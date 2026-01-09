@@ -323,10 +323,10 @@ function CommunityTaxCorporationPage() {
           <div className="flex justify-between items-center mb-6 flex-wrap gap-4 page-header">
             <div>
               <h1 className="text-2xl font-bold text-gray-800">
-                Corporation Tax Certificate
+                Community Tax Certificate - Corporate
               </h1>
               <p className="text-gray-600">
-                Manage corporation tax certificates
+                Manage community tax certificates for corporations.
               </p>
             </div>
             {Add && (
@@ -428,7 +428,7 @@ function CommunityTaxCorporationPage() {
               />
             ) : (
               <h2 className="text-2xl font-bold text-gray-800 text-center h-[50vh]">
-                Please select a vendor first to start{' '}
+                Please select a Vendor first to start{' '}
               </h2>
             )}
           </div>

@@ -24,12 +24,14 @@ function StatementComparisonForm({
   const handleSubmit = (values, { setSubmitting }) => {
     const action = submitAction.current;
 
-    if (action === 'view') {
-      onView(values);
-    } else if (action === 'generate') {
-      onGenerateJournal(values);
-    } else if (action === 'export') {
-      onExportExcel(values);
+    // if (action === 'view')           { onView(values) } 
+    // else if (action === 'generate')  { onGenerateJournal(values) }
+    // else if (action === 'export')    { onExportExcel(values) }
+
+    switch (action) {
+      case 'view':      onView(values);             break;
+      case 'generate':  onGenerateJournal(values);  break;
+      case 'export':    onExportExcel(values);      break;
     }
 
     setSubmitting(false);
