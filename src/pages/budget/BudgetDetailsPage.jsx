@@ -845,7 +845,7 @@ const BudgetDetailsPage = () => {
                 </div>
                 <div className={`border rounded-lg p-4 ${Number(activeRow.AppropriationBalance) >= 0 ? 'bg-emerald-50 border-emerald-200' : 'bg-red-50 border-red-200'}`}>
                   <label className={`block text-sm font-medium mb-1 ${Number(activeRow.AppropriationBalance) >= 0 ? 'text-emerald-700' : 'text-red-700'}`}>Appropriation Balance</label>
-                  <p className={`text-2xl font-bold ${Number(activeRow.AppropriationBalance) >= 0 ? 'text-emerald-900' : 'text-red-900'}`}>{formatCurrency(activeRow.AppropriationBalance)}</p>
+                  <p className={`text-2xl font-bold ${Number(activeRow.Appropriation) + Number(activeRow.Supplemental || 0) + Number(activeRow.Transfer || 0) - Number(activeRow.Released) >= 0 ? 'text-emerald-900' : 'text-red-900'}`}>{formatCurrency(Number(activeRow.Appropriation) + Number(activeRow.Supplemental || 0) + Number(activeRow.Transfer || 0) - Number(activeRow.Released))}</p>
                 </div>
                 <div className={`border rounded-lg p-4 ${(Number(activeRow.Released) - Number(activeRow.Charges)) >= 0 ? 'bg-emerald-50 border-emerald-200' : 'bg-red-50 border-red-200'}`}>
                   <label className={`block text-sm font-medium mb-1 ${(Number(activeRow.Released) - Number(activeRow.Charges)) >= 0 ? 'text-emerald-700' : 'text-red-700'}`}>Allotment Balance</label>

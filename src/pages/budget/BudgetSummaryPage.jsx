@@ -101,7 +101,7 @@ const BudgetSummaryPage = () => {
         return {
           totalAppropriation: acc.totalAppropriation + appropriation,
           totalAppropriationBalance:
-            acc.totalAppropriationBalance + (Number(item.AppropriationBalance) || 0),
+            acc.totalAppropriationBalance + (appropriation + supplemental + transfer - released),
           totalAmount: acc.totalAmount + totalAmount,
           totalAllotmentBalance:
             acc.totalAllotmentBalance + (released - charges),
@@ -776,7 +776,7 @@ const BudgetSummaryDetail = ({ data }) => {
                 : 'text-red-600'
                 }`}
             >
-              {formatCurrency(data.AppropriationBalance)}
+              {formatCurrency(Number(data.Appropriation) + Number(data.Supplemental) + Number(data.Transfer) - Number(data.Released))}
             </p>
           </div>
           <div className="bg-white p-4 rounded-lg border border-neutral-200">
