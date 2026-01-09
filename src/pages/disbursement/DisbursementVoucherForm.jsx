@@ -154,8 +154,8 @@ function DisbursementVoucherForm({
   };
 
   const initialValues = {
-    obrNo: initialData?.obrNo || '',
-    obrDate: initialData?.obrDate || new Date().toISOString().split('T')[0],
+    obrNo: initialData?.InvoiceNumber || '',
+    obrDate: initialData?.InvoiceDate || new Date().toISOString().split('T')[0],
     dvDate: initialData?.dvDate || new Date().toISOString().split('T')[0],
     paymentDate:
       initialData?.paymentDate || new Date().toISOString().split('T')[0],
@@ -210,6 +210,11 @@ function DisbursementVoucherForm({
     checkNumber: initialData?.checkNumber || '',
     receivedPaymentBy: initialData?.ReceivedPaymentBy || '',
     // Amount: initialData?.Amount || '',
+    BillingDueDate: initialData?.BillingDueDate || '',
+    ObligationRequestNumber: initialData?.ObligationRequestNumber || '',
+    fund: initialData?.FundsID || '',
+    fiscalYear: initialData?.FiscalYearID || '',
+    project: initialData?.ProjectID || '',
   };
 
   const handleSubmit = (values) => {
@@ -317,6 +322,9 @@ function DisbursementVoucherForm({
     fd.append('CheckNumber', values.checkNumber);
     fd.append('ReceivedPaymentBy', values.receivedPaymentBy);
     // fd.append('Amount', values.Amount);
+    fd.append('BillingDueDate', values.BillingDueDate);
+    fd.append('ObligationRequestNumber', values.ObligationRequestNumber);
+
     // NEW: Handle contra accounts array
     fd.append(
       'ContraAccounts',
@@ -483,6 +491,30 @@ function DisbursementVoucherForm({
               formikRef.current.setFieldValue(
                 'OBR_LinkID',
                 option?.raw?.LinkID || ''
+              );
+              formikRef.current.setFieldValue(
+                'obrNo',
+                option?.raw?.InvoiceNumber || ''
+              );
+              formikRef.current.setFieldValue(
+                'obrDate',
+                option?.raw?.InvoiceDate || ''
+              );
+              formikRef.current.setFieldValue(
+                'ObligationRequestNumber',
+                option?.raw?.InvoiceNumber || ''
+              );
+              formikRef.current.setFieldValue(
+                'fund',
+                option?.raw?.FundsID || ''
+              );
+              formikRef.current.setFieldValue(
+                'fiscalYear',
+                option?.raw?.FiscalYearID || ''
+              );
+              formikRef.current.setFieldValue(
+                'project',
+                option?.raw?.ProjectID || ''
               );
             }
           };
@@ -787,6 +819,45 @@ function DisbursementVoucherForm({
                     </div>
                   )}
                 </div>
+              </div>
+
+              {/* Invoice and Billing Details */}
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <FormField
+                  type="text"
+                  label="Invoice Number"
+                  name="obrNo"
+                  value={values.obrNo}
+                  onChange={handleChange}
+                  onBlur={handleBlur}
+                  error={errors.obrNo}
+                  touched={touched.obrNo}
+                />
+                <FormField
+                  type="date"
+                  label="Invoice Date"
+                  name="obrDate"
+                  value={values.obrDate}
+                  onChange={handleChange}
+                  onBlur={handleBlur}
+                  error={errors.obrDate}
+                  touched={touched.obrDate}
+                />
+                <FormField
+                  type="date"
+                  label="Billing Due Date"
+                  name="BillingDueDate"
+                  value={values.BillingDueDate}
+                  onChange={handleChange}
+                  onBlur={handleBlur}
+                  error={errors.BillingDueDate}
+                  touched={touched.BillingDueDate}
+                />
+
+                {/* Hidden fields for Fund, Fiscal Year, and Project */}
+                <Field type="hidden" name="fund" />
+                <Field type="hidden" name="fiscalYear" />
+                <Field type="hidden" name="project" />
               </div>
               {/* ── Accounting Entries ─────────────────────────────────────── */}
               <FieldArray name="accountingEntries">
