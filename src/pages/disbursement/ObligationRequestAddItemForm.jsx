@@ -25,8 +25,8 @@ function ObligationRequestAddItemForm({
     Price: Yup.number().required('Required'),
     Quantity: Yup.number().required('Required'),
     ItemUnitID: Yup.string().required('Required'),
-    TAXCodeID: Yup.string().required('Required'),
-    DiscountRate: Yup.number().required('Required'),
+    // TAXCodeID: Yup.string().required('Required'),
+    // DiscountRate: Yup.number().required('Required'),
   });
 
   const formik = useFormik({
@@ -287,7 +287,7 @@ function ObligationRequestAddItemForm({
       </div>
 
       {/* Row 4 */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+      {/* <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
         <div>
           <FormField
             type="select"
@@ -326,10 +326,10 @@ function ObligationRequestAddItemForm({
             <p className="text-red-500 text-sm">{formik.errors.DiscountRate}</p>
           )}
         </div>
-      </div>
+      </div> */}
 
       {/* Tax Rate Display */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+      {/* <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
         <FormField
           type="number"
           label="Tax Rate (%)"
@@ -337,10 +337,10 @@ function ObligationRequestAddItemForm({
           value={currentTaxRate}
           disabled
         />
-      </div>
+      </div> */}
 
       {/* Vatable checkbox */}
-      <label className="inline-flex items-center">
+      {/* <label className="inline-flex items-center">
         <input
           type="checkbox"
           name="Vatable"
@@ -349,7 +349,7 @@ function ObligationRequestAddItemForm({
           className="mr-2"
         />
         <span className="text-sm">Vatable</span>
-      </label>
+      </label> */}
 
       {/* Subtotal */}
       <div className="font-semibold text-right">
