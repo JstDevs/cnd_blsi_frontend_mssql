@@ -244,9 +244,12 @@ function DisbursementVoucherForm({
     fd.append('PayeeType', values.payeeType);
 
     // IF STANDALONE REQUEST THEN MAKE IT TRU OR WE HAVE THE OBR LINK ID
-    values?.requestType === 'Standalone Request'
-      ? fd.append('IsStandaloneRequest', true)
-      : fd.append('OBR_LinkID', values.OBR_LinkID || '');
+    if (values?.requestType === 'Standalone Request') {
+      fd.append('IsStandaloneRequest', true);
+    } else {
+      fd.append('OBR_LinkID', values.OBR_LinkID || '');
+      fd.append('SourceLinkID', values.OBR_LinkID || '');
+    }
 
     fd.append(
       'Payee',
@@ -262,6 +265,8 @@ function DisbursementVoucherForm({
     fd.append('InvoiceNumber', values.obrNo);
     fd.append('InvoiceDate', values.obrDate);
     fd.append('ResponsibilityCenter', values.responsibilityCenter);
+    fd.append('DepartmentID', values.responsibilityCenter);
+    fd.append('ResponsibilityCenterID', values.responsibilityCenter);
 
     const total = values.accountingEntries.reduce(
       (sum, e) => sum + Number(e.subtotal || 0),

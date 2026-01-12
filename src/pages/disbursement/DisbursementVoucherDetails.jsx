@@ -7,7 +7,7 @@ import {
 } from '@heroicons/react/24/outline';
 import { formatCurrency } from '../../utils/currencyFormater';
 
-function DisbursementVoucherDetails({ dv, onClose, onEdit }) {
+function DisbursementVoucherDetails({ dv, linkedOBR, onClose, onEdit }) {
 
   // Format date
   const formatDate = (dateString) => {
@@ -99,7 +99,15 @@ function DisbursementVoucherDetails({ dv, onClose, onEdit }) {
                 CAFOA Number
               </dt>
               <dd className="text-sm text-neutral-900 col-span-2">
-                {dv.ObligationRequestNumber || 'N/A'}
+                {dv.ObligationRequestNumber || linkedOBR?.InvoiceNumber || 'N/A'}
+              </dd>
+            </div>
+            <div className="grid grid-cols-3 gap-4">
+              <dt className="text-sm font-medium text-neutral-500">
+                Responsibility Center
+              </dt>
+              <dd className="text-sm text-neutral-900 col-span-2">
+                {dv.ResponsibilityCenterName || linkedOBR?.ResponsibilityCenterName || 'N/A'}
               </dd>
             </div>
             <div className="grid grid-cols-3 gap-4">
@@ -197,20 +205,42 @@ function DisbursementVoucherDetails({ dv, onClose, onEdit }) {
               </tr>
             </thead>
             <tbody className="bg-white divide-y divide-neutral-200">
-              {(dv.Items || dv.TransactionItemsAll) && (dv.Items || dv.TransactionItemsAll).length > 0 ? (
-                (dv.Items || dv.TransactionItemsAll).map((item, index) => (
-                  <tr key={index}>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-neutral-900">{item.responsibilityCenterName || item.RC}</td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-neutral-900">{item.itemName || item.Remarks || item.Particulars}</td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-neutral-900">{item.chargeAccountName || item.Account}</td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-right text-neutral-900">{formatCurrency(item.subtotal || item.Amount || 0)}</td>
+              {(() => {
+                const items =
+                  dv.Items ||
+                  dv.TransactionItemsAll ||
+                  linkedOBR?.TransactionItemsAll ||
+                  linkedOBR?.Items ||
+                  [];
+                if (items.length > 0) {
+                  return items.map((item, index) => (
+                    <tr key={index}>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-neutral-900">
+                        {item.responsibilityCenterName || item.RC || linkedOBR?.ResponsibilityCenterName}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-neutral-900">
+                        {item.itemName || item.Remarks || item.Particulars}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-neutral-900">
+                        {item.chargeAccountName || item.Account}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-right text-neutral-900">
+                        {formatCurrency(item.subtotal || item.Amount || 0)}
+                      </td>
+                    </tr>
+                  ));
+                }
+                return (
+                  <tr>
+                    <td
+                      colSpan="4"
+                      className="px-6 py-4 text-center text-sm text-neutral-500"
+                    >
+                      No transactions found
+                    </td>
                   </tr>
-                ))
-              ) : (
-                <tr>
-                  <td colSpan="4" className="px-6 py-4 text-center text-sm text-neutral-500">No transactions found</td>
-                </tr>
-              )}
+                );
+              })()}
             </tbody>
           </table>
         </div>

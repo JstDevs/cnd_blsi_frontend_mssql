@@ -113,33 +113,50 @@ function DisbursementVoucherPage() {
       render: (value) => statusLabel(value),
     },
     {
+      key: 'ObligationRequestNumber',
+      header: 'CAFOA Number',
+      sortable: true,
+      render: (value, row) =>
+        value || row.OBR_NO || row.OBR_Number || row.SourceInvoiceNumber || 'N/A',
+    },
+    {
       key: 'ResponsibilityCenterName',
       header: 'Responsibility Center',
       sortable: true,
       render: (value, row) => {
-        // 1. Try direct value or common field names
+        // 1. Try OBR join FIRST (Strictly by LinkID or OBR Number)
+        const linkedOBR = obligationRequests.find(
+          (obr) =>
+            (row.OBR_LinkID && obr.LinkID === row.OBR_LinkID) ||
+            (row.SourceLinkID && obr.LinkID === row.SourceLinkID) ||
+            (row.ObligationRequestNumber &&
+              obr.InvoiceNumber === row.ObligationRequestNumber) ||
+            (row.OBR_NO && obr.InvoiceNumber === row.OBR_NO) ||
+            (row.OBR_Number && obr.InvoiceNumber === row.OBR_Number)
+        );
+
+        if (linkedOBR && linkedOBR.ResponsibilityCenterName) {
+          return linkedOBR.ResponsibilityCenterName;
+        }
+
+        // 2. Fallback to direct value if it's a name
         const rcName =
           value ||
           row.ResponsibilityCenter ||
           row.ResponsibilityCenterName ||
           row.DepartmentName;
-        if (rcName && typeof rcName === 'string') return rcName;
 
-        // 2. Try Department lookup
+        if (rcName && typeof rcName === 'string' && isNaN(rcName)) return rcName;
+
+        // 3. Try Department lookup by ID
+        const deptID =
+          row.DepartmentID ||
+          row.ResponsibilityCenterID ||
+          (!isNaN(rcName) ? Number(rcName) : null);
         const dept = departments.find(
-          (d) => d.ID === row.DepartmentID || d.ID === row.ResponsibilityCenterID
+          (d) => String(d.ID) === String(deptID)
         );
         if (dept) return dept.Name;
-
-        // 3. Try OBR join
-        const linkedOBR = obligationRequests.find(
-          (obr) =>
-            (row.OBR_LinkID && obr.LinkID === row.OBR_LinkID) ||
-            (row.LinkID && obr.LinkID === row.LinkID) ||
-            (row.ObligationRequestNumber &&
-              obr.InvoiceNumber === row.ObligationRequestNumber)
-        );
-        if (linkedOBR) return linkedOBR.ResponsibilityCenterName;
 
         return 'N/A';
       },
@@ -152,9 +169,11 @@ function DisbursementVoucherPage() {
         const linkedOBR = obligationRequests.find(
           (obr) =>
             (row.OBR_LinkID && obr.LinkID === row.OBR_LinkID) ||
-            (row.LinkID && obr.LinkID === row.LinkID) ||
+            (row.SourceLinkID && obr.LinkID === row.SourceLinkID) ||
             (row.ObligationRequestNumber &&
-              obr.InvoiceNumber === row.ObligationRequestNumber)
+              obr.InvoiceNumber === row.ObligationRequestNumber) ||
+            (row.OBR_NO && obr.InvoiceNumber === row.OBR_NO) ||
+            (row.OBR_Number && obr.InvoiceNumber === row.OBR_Number)
         );
 
         const items =
@@ -212,11 +231,6 @@ function DisbursementVoucherPage() {
         }
       },
     },
-    {
-      key: 'ObligationRequestNumber',
-      header: 'CAFOA Number',
-      sortable: true,
-    },
     // {
     //   key: 'Fund',
     //   header: 'Fund',
@@ -227,7 +241,6 @@ function DisbursementVoucherPage() {
     //   key: 'CustomerID',
     //   header: 'Customer ID',
     //   sortable: true,
-    // },
   ];
 
   // Actions for table rows
@@ -467,11 +480,27 @@ function DisbursementVoucherPage() {
           </div>
 
           <div className="mt-4">
-            <DisbursementVoucherDetails
-              dv={currentDisbursementVoucher}
-              onClose={handleBackToList}
-              onEdit={() => handleEditDV(currentDisbursementVoucher)}
-            />
+            {(() => {
+              const dv = currentDisbursementVoucher;
+              const linkedOBR = obligationRequests.find(
+                (obr) =>
+                  (dv.OBR_LinkID && obr.LinkID === dv.OBR_LinkID) ||
+                  (dv.SourceLinkID && obr.LinkID === dv.SourceLinkID) ||
+                  (dv.ObligationRequestNumber &&
+                    obr.InvoiceNumber === dv.ObligationRequestNumber) ||
+                  (dv.OBR_NO && obr.InvoiceNumber === dv.OBR_NO) ||
+                  (dv.OBR_Number && obr.InvoiceNumber === dv.OBR_Number) ||
+                  (dv.InvoiceNumber && obr.InvoiceNumber === dv.InvoiceNumber)
+              );
+              return (
+                <DisbursementVoucherDetails
+                  dv={currentDisbursementVoucher}
+                  linkedOBR={linkedOBR}
+                  onClose={handleBackToList}
+                  onEdit={() => handleEditDV(currentDisbursementVoucher)}
+                />
+              );
+            })()}
           </div>
         </div>
       )}
