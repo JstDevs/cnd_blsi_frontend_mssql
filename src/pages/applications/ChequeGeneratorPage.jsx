@@ -67,7 +67,7 @@ function ChequeGeneratorPage() {
   // Formik initialization
   const formik = useFormik({
     initialValues: {
-      status: 'Pending',
+      status: 'Requested',
       payee: '',
       amount: '',
       date: new Date().toISOString().split('T')[0],
@@ -226,17 +226,27 @@ function ChequeGeneratorPage() {
       key: 'Status',
       header: 'Status',
       sortable: true,
-      render: (value) => (
-        <span
-          className={`px-2 py-1 text-xs rounded font-medium ${
-            value === 'Posted'
-              ? 'bg-green-100 text-green-800'
-              : 'bg-yellow-100 text-yellow-800'
-          }`}
-        >
-          {value}
-        </span>
-      ),
+      render: (value) => {
+        let bgColor = 'bg-neutral-100 text-neutral-800';
+
+        switch (value) {
+          case 'Requested':   bgColor = 'bg-warning-300 text-error-700';      break;
+          case 'Approved':    bgColor = 'bg-success-300 text-neutral-800';    break;
+          case 'Posted':      bgColor = 'bg-success-800 text-success-100';    break;
+          case 'Rejected':    bgColor = 'bg-error-500 text-neutral-100';      break;
+          case 'Void':        bgColor = 'bg-primary-900 text-neutral-300';    break;
+          case 'Cancelled':   bgColor = 'bg-neutral-300 text-neutral-700';    break;
+          default:            break;
+        }
+
+        return (
+          <span
+            className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${bgColor}`}
+          >
+            {value}
+          </span>
+        );
+      },
     },
     {
       key: 'AccountNumber',
@@ -579,7 +589,7 @@ function ChequeGeneratorPage() {
               <h2 className="text-lg font-semibold text-yellow-700">
                 Cheque Details
               </h2>
-              <span className="bg-green-100 text-green-800 px-2 py-1 rounded text-sm font-medium">
+              <span className="bg-warning-300 text-error-700 px-2 py-1 rounded text-sm font-medium">
                 Status: {formik.values.status}
               </span>
             </div>

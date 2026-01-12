@@ -127,7 +127,7 @@ function TravelOrderPage() {
   // Table columns definition
   const columns = [
     {
-      key: 'Status',
+      key: 'TransactionStatus',
       header: 'Status',
       sortable: true,
       render: (value) => {
@@ -200,16 +200,13 @@ function TravelOrderPage() {
 
     const getStatusColor = (status) => {
       switch (status) {
-        case 'Requested':
-          return 'bg-yellow-100 text-yellow-800 border-yellow-200';
-        case 'Approval Progress':
-          return 'bg-blue-100 text-blue-800 border-blue-200';
-        case 'Approved':
-          return 'bg-green-100 text-green-800 border-green-200';
-        case 'Rejected':
-          return 'bg-red-100 text-red-800 border-red-200';
-        default:
-          return 'bg-gray-100 text-gray-800 border-gray-200';
+        case 'Requested': return 'bg-warning-300 text-error-700';
+        case 'Approved':  return 'bg-success-300 text-neutral-800';
+        case 'Posted':    return 'bg-success-800 text-success-100';
+        case 'Rejected':  return 'bg-error-500 text-neutral-100';
+        case 'Void':      return 'bg-primary-900 text-neutral-300';
+        case 'Cancelled': return 'bg-neutral-300 text-neutral-700';
+        default:          return 'bg-gray-100 text-gray-800 border-gray-200';
       }
     };
 
