@@ -14,42 +14,89 @@ import { toast } from 'react-hot-toast';
 import { fetchUserDocumentsList, fetchUserProfile } from './profileUtil';
 
 export const statusLabel = (statusString) => {
-  const statusColors = {
-    // 'Disbursement Posted': 'bg-green-100 text-green-700',
-    // 'Disbursement Pending': 'bg-green-100 text-green-700',
-    // Requested: 'bg-warning-300 text-error-700',
-    // Pending: 'bg-yellow-100 text-yellow-700',
-    // 'Cheque Requested': 'bg-red-100 text-red-700',
-    // Posted: 'bg-warning-300 text-error-700'
-
-      // case 'Approved':    bgColor = 'bg-success-300 text-neutral-800';    break;
-      // case 'Posted':      bgColor = 'bg-success-800 text-success-100';    break;
-      // case 'Rejected':    bgColor = 'bg-error-500 text-neutral-100';      break;
-      // case 'Void':        bgColor = 'bg-primary-900 text-neutral-300';    break;
-      // case 'Cancelled':   bgColor = 'bg-neutral-300 text-neutral-700';    break;
-
-    Requested:  'bg-warning-300 text-error-700',
-    Approved:   'bg-success-300 text-neutral-800',
-    Posted:     'bg-success-800 text-success-100',
-    Rejected:   'bg-error-500 text-neutral-100',
-    Void:       'bg-primary-900 text-neutral-300',
-    Cancelled:  'bg-neutral-300 text-neutral-700',
-    'Disbursement Pending': 'bg-warning-300 text-error-700',
-    'Disbursement Posted':  'bg-success-800 text-success-100',
-    'Cheque Pending':       'bg-warning-300 text-error-700',
-    'Cheque Posted':        'bg-success-800 text-success-100',
-    
+  const statusConfig = {
+    Requested: {
+      bg: 'bg-gradient-to-r from-amber-100 to-yellow-100',
+      text: 'text-amber-800',
+      border: 'border-amber-300',
+      icon: '⏳',
+    },
+    Approved: {
+      bg: 'bg-gradient-to-r from-emerald-100 to-green-100',
+      text: 'text-emerald-800',
+      border: 'border-emerald-300',
+      icon: '✓',
+    },
+    Posted: {
+      bg: 'bg-gradient-to-r from-green-600 to-emerald-600',
+      text: 'text-white',
+      border: 'border-green-700',
+      icon: '✓',
+      shadow: 'shadow-sm',
+    },
+    Rejected: {
+      bg: 'bg-gradient-to-r from-red-500 to-rose-500',
+      text: 'text-white',
+      border: 'border-red-600',
+      icon: '✕',
+      shadow: 'shadow-sm',
+    },
+    Void: {
+      bg: 'bg-gradient-to-r from-gray-600 to-slate-600',
+      text: 'text-white',
+      border: 'border-gray-700',
+      icon: '⊘',
+      shadow: 'shadow-sm',
+    },
+    Cancelled: {
+      bg: 'bg-gradient-to-r from-gray-200 to-slate-200',
+      text: 'text-gray-700',
+      border: 'border-gray-400',
+      icon: '✕',
+    },
+    'Disbursement Pending': {
+      bg: 'bg-gradient-to-r from-amber-100 to-yellow-100',
+      text: 'text-amber-800',
+      border: 'border-amber-300',
+      icon: '⏳',
+    },
+    'Disbursement Posted': {
+      bg: 'bg-gradient-to-r from-green-600 to-emerald-600',
+      text: 'text-white',
+      border: 'border-green-700',
+      icon: '✓',
+      shadow: 'shadow-sm',
+    },
+    'Cheque Pending': {
+      bg: 'bg-gradient-to-r from-amber-100 to-yellow-100',
+      text: 'text-amber-800',
+      border: 'border-amber-300',
+      icon: '⏳',
+    },
+    'Cheque Posted': {
+      bg: 'bg-gradient-to-r from-green-600 to-emerald-600',
+      text: 'text-white',
+      border: 'border-green-700',
+      icon: '✓',
+      shadow: 'shadow-sm',
+    },
   };
+
   return (
     <div className="flex gap-2 flex-wrap">
       {statusString.split(',').map((status, idx) => {
         const trimmed = status.trim();
+        const config = statusConfig[trimmed] || {
+          bg: 'bg-gradient-to-r from-gray-100 to-slate-100',
+          text: 'text-gray-700',
+          border: 'border-gray-300',
+          icon: '•',
+        };
+
         return (
           <span
             key={idx}
-            className={`px-2 py-0.5 rounded-full text-xs font-medium ${
-              statusColors[trimmed] || 'bg-gray-100 text-gray-600'
-            }`}
+            className={`inline-flex items-center px-3 py-1.5 rounded-full text-xs font-semibold border ${config.bg} ${config.text} ${config.border} ${config.shadow || ''} transition-all hover:scale-105`}
           >
             {trimmed}
           </span>
