@@ -150,9 +150,9 @@ function DataTable({
   }
 
   return (
-    <div className="bg-white shadow-md rounded-xl border border-neutral-200 overflow-hidden">
+    <div className="bg-white shadow-lg rounded-2xl border-2 border-neutral-200 overflow-hidden">
       {search && (
-        <div className="px-4 py-3 border-b border-neutral-200 bg-neutral-50">
+        <div className="px-6 py-4 border-b-2 border-neutral-200 bg-gradient-to-r from-blue-50 to-indigo-50">
           <div className="relative rounded-md shadow-sm">
             <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
               <MagnifyingGlassIcon
@@ -162,7 +162,7 @@ function DataTable({
             </div>
             <input
               type="text"
-              className="block w-full pl-10 pr-12 py-2 sm:text-sm border-neutral-300 rounded-md focus:ring-primary-500 focus:border-primary-500"
+              className="block w-full pl-10 pr-12 py-3 sm:text-sm border-2 border-neutral-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all"
               placeholder="Search"
               value={searchTerm}
               onChange={handleSearch}
@@ -174,12 +174,12 @@ function DataTable({
       <div className="overflow-x-auto w-full" style={{ WebkitOverflowScrolling: 'touch', overflowY: 'visible' }}>
         <table className="min-w-full divide-y divide-neutral-200" style={{ width: '100%', minWidth: 'max-content' }}>
           <thead>
-            <tr className="bg-neutral-50 border-b border-neutral-200">
+            <tr className="bg-gradient-to-r from-blue-600 to-indigo-600">
               {columns.map((column) => (
                 <th
                   key={column.key}
                   scope="col"
-                  className="px-6 py-4 text-left text-xs font-semibold text-neutral-500 uppercase tracking-wider cursor-pointer whitespace-nowrap transition-colors hover:bg-neutral-100"
+                  className="px-6 py-5 text-left text-xs font-bold text-white uppercase tracking-wider cursor-pointer whitespace-nowrap transition-all hover:bg-blue-700"
                   onClick={() =>
                     column.sortable !== false && requestSort(column.key)
                   }
@@ -191,15 +191,15 @@ function DataTable({
                         <ChevronUpIcon
                           className={`h-3 w-3 transition-colors ${sortConfig.key === column.key &&
                             sortConfig.direction === 'asc'
-                            ? 'text-primary-600'
-                            : 'text-neutral-300'
+                            ? 'text-yellow-300'
+                            : 'text-blue-200'
                             }`}
                         />
                         <ChevronDownIcon
                           className={`h-3 w-3 -mt-1 transition-colors ${sortConfig.key === column.key &&
                             sortConfig.direction === 'desc'
-                            ? 'text-primary-600'
-                            : 'text-neutral-300'
+                            ? 'text-yellow-300'
+                            : 'text-blue-200'
                             }`}
                         />
                       </span>
@@ -210,28 +210,29 @@ function DataTable({
               {hasActions && (
                 <th
                   scope="col"
-                  className="px-4 py-3 text-right text-xs font-semibold text-neutral-700 uppercase tracking-wider whitespace-nowrap sticky right-0 bg-white z-10 border-l border-neutral-200 shadow-[2px_0_4px_rgba(0,0,0,0.05)]"
+                  className="px-6 py-5 text-right text-xs font-bold text-white uppercase tracking-wider whitespace-nowrap sticky right-0 bg-gradient-to-r from-blue-600 to-indigo-600 z-10 border-l-2 border-blue-500 shadow-lg"
                 >
                   <span>Actions</span>
                 </th>
               )}
             </tr>
           </thead>
-          <tbody className="bg-white divide-y divide-neutral-200">
+          <tbody className="bg-white divide-y-2 divide-neutral-100">
             {paginatedData.map((row, rowIndex) => (
               <tr
                 key={row.id || rowIndex}
-                className={`transition-colors duration-200 ${onRowClick ? 'hover:bg-neutral-50 cursor-pointer' : 'hover:bg-neutral-50'
+                className={`transition-all duration-300 ${onRowClick ? 'hover:bg-blue-50 hover:shadow-md hover:scale-[1.01] cursor-pointer' : 'hover:bg-blue-50 hover:shadow-sm'
                   } ${selectedRow && selectedRow?.ID === row.ID
-                    ? 'bg-blue-50 border-l-4 border-blue-500'
+                    ? 'bg-blue-100 border-l-4 border-blue-600 shadow-md'
                     : ''
+                  } ${rowIndex % 2 === 0 ? 'bg-white' : 'bg-neutral-50/50'
                   }`}
                 onClick={onRowClick ? () => onRowClick(row) : undefined}
               >
                 {columns.map((column) => (
                   <td
                     key={`${row.id || rowIndex}-${column.key}`}
-                    className={`px-6 py-4 whitespace-nowrap text-sm ${column.className || 'text-neutral-700'
+                    className={`px-6 py-5 text-sm font-medium ${column.className || 'text-neutral-700'
                       }`}
                   >
                     {column.render
