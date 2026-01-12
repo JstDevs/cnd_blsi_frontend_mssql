@@ -15,10 +15,30 @@ import { fetchUserDocumentsList, fetchUserProfile } from './profileUtil';
 
 export const statusLabel = (statusString) => {
   const statusColors = {
-    'Disbursement Posted': 'bg-green-100 text-green-700',
-    Requested: 'bg-blue-100 text-blue-700',
-    Pending: 'bg-yellow-100 text-yellow-700',
-    'Cheque Requested': 'bg-red-100 text-red-700',
+    // 'Disbursement Posted': 'bg-green-100 text-green-700',
+    // 'Disbursement Pending': 'bg-green-100 text-green-700',
+    // Requested: 'bg-warning-300 text-error-700',
+    // Pending: 'bg-yellow-100 text-yellow-700',
+    // 'Cheque Requested': 'bg-red-100 text-red-700',
+    // Posted: 'bg-warning-300 text-error-700'
+
+      // case 'Approved':    bgColor = 'bg-success-300 text-neutral-800';    break;
+      // case 'Posted':      bgColor = 'bg-success-800 text-success-100';    break;
+      // case 'Rejected':    bgColor = 'bg-error-500 text-neutral-100';      break;
+      // case 'Void':        bgColor = 'bg-primary-900 text-neutral-300';    break;
+      // case 'Cancelled':   bgColor = 'bg-neutral-300 text-neutral-700';    break;
+
+    Requested:  'bg-warning-300 text-error-700',
+    Approved:   'bg-success-300 text-neutral-800',
+    Posted:     'bg-success-800 text-success-100',
+    Rejected:   'bg-error-500 text-neutral-100',
+    Void:       'bg-primary-900 text-neutral-300',
+    Cancelled:  'bg-neutral-300 text-neutral-700',
+    'Disbursement Pending': 'bg-warning-300 text-error-700',
+    'Disbursement Posted':  'bg-success-800 text-success-100',
+    'Cheque Pending':       'bg-warning-300 text-error-700',
+    'Cheque Posted':        'bg-success-800 text-success-100',
+    
   };
   return (
     <div className="flex gap-2 flex-wrap">
