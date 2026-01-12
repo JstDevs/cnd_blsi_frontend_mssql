@@ -191,17 +191,17 @@ function DisbursementVoucherDetails({ dv, linkedOBR, onClose, onEdit }) {
 
       {/* Items / Accounting Entries */}
       <div>
-        <h3 className="text-lg font-medium text-neutral-900 mb-2">
+        <h3 className="text-lg font-medium text-neutral-900 mb-3">
           Transactions / Accounting Entries
         </h3>
-        <div className="overflow-x-auto border border-neutral-200 rounded-lg">
+        <div className="overflow-hidden border border-neutral-200 rounded-xl shadow-sm">
           <table className="min-w-full divide-y divide-neutral-200">
             <thead className="bg-neutral-50">
               <tr>
-                <th className="px-6 py-3 text-left text-xs font-medium text-neutral-500 uppercase tracking-wider">RC</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-neutral-500 uppercase tracking-wider">Particulars</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-neutral-500 uppercase tracking-wider">Account</th>
-                <th className="px-6 py-3 text-right text-xs font-medium text-neutral-500 uppercase tracking-wider">Amount</th>
+                <th scope="col" className="px-6 py-4 text-left text-xs font-semibold text-neutral-500 uppercase tracking-wider">RC</th>
+                <th scope="col" className="px-6 py-4 text-left text-xs font-semibold text-neutral-500 uppercase tracking-wider">Particulars</th>
+                <th scope="col" className="px-6 py-4 text-left text-xs font-semibold text-neutral-500 uppercase tracking-wider">Account</th>
+                <th scope="col" className="px-6 py-4 text-right text-xs font-semibold text-neutral-500 uppercase tracking-wider">Amount</th>
               </tr>
             </thead>
             <tbody className="bg-white divide-y divide-neutral-200">
@@ -214,17 +214,17 @@ function DisbursementVoucherDetails({ dv, linkedOBR, onClose, onEdit }) {
                   [];
                 if (items.length > 0) {
                   return items.map((item, index) => (
-                    <tr key={index}>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-neutral-900">
+                    <tr key={index} className="hover:bg-neutral-50 transition-colors duration-200">
+                      <td className="px-6 py-4 text-sm text-neutral-900">
                         {item.responsibilityCenterName || item.RC || linkedOBR?.ResponsibilityCenterName}
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-neutral-900">
+                      <td className="px-6 py-4 text-sm text-neutral-900">
                         {item.itemName || item.Remarks || item.Particulars}
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-neutral-900">
+                      <td className="px-6 py-4 text-sm text-neutral-600 font-mono tracking-tight">
                         {item.chargeAccountName || item.Account}
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-right text-neutral-900">
+                      <td className="px-6 py-4 text-sm text-right text-neutral-900 font-medium tabular-nums">
                         {formatCurrency(item.subtotal || item.Amount || 0)}
                       </td>
                     </tr>
@@ -234,7 +234,7 @@ function DisbursementVoucherDetails({ dv, linkedOBR, onClose, onEdit }) {
                   <tr>
                     <td
                       colSpan="4"
-                      className="px-6 py-4 text-center text-sm text-neutral-500"
+                      className="px-6 py-8 text-center text-sm text-neutral-500 italic"
                     >
                       No transactions found
                     </td>
@@ -242,31 +242,52 @@ function DisbursementVoucherDetails({ dv, linkedOBR, onClose, onEdit }) {
                 );
               })()}
             </tbody>
+            {/* Table Footer Summary */}
+            {(() => {
+              const items = dv.Items || dv.TransactionItemsAll || linkedOBR?.TransactionItemsAll || linkedOBR?.Items || [];
+              return items.length > 0 && (
+                <tfoot className="bg-neutral-50">
+                  <tr>
+                    <td colSpan="3" className="px-6 py-3 text-right text-xs font-medium text-neutral-500 uppercase tracking-wider">Total</td>
+                    <td className="px-6 py-3 text-right text-sm font-bold text-neutral-900 tabular-nums">{formatCurrency(dv.Total || 0)}</td>
+                  </tr>
+                </tfoot>
+              );
+            })()}
           </table>
         </div>
       </div>
 
       {/* Amounts */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <div className="p-4 rounded-lg bg-white border border-neutral-200">
-          <dt className="text-sm font-medium text-neutral-500">Gross Amount</dt>
-          <dd className="mt-1 text-2xl font-semibold text-neutral-900">
+        {/* Gross Amount Card */}
+        <div className="p-5 rounded-xl bg-white border border-neutral-200 shadow-sm relative overflow-hidden group">
+          <div className="absolute top-0 right-0 p-3 opacity-10 group-hover:opacity-20 transition-opacity">
+            <div className="w-16 h-16 rounded-full bg-neutral-900"></div>
+          </div>
+          <dt className="text-sm font-medium text-neutral-500 uppercase tracking-wide">Gross Amount</dt>
+          <dd className="mt-2 text-3xl font-bold text-neutral-900 tracking-tight">
             {formatCurrency(dv.Total || 0)}
           </dd>
         </div>
 
-        <div className="p-4 rounded-lg bg-white border border-neutral-200">
-          <dt className="text-sm font-medium text-neutral-500">
+        {/* Total Deductions Card */}
+        <div className="p-5 rounded-xl bg-white border border-neutral-200 shadow-sm relative overflow-hidden group">
+          <div className="absolute top-0 right-0 p-3 opacity-10 group-hover:opacity-20 transition-opacity">
+            <div className="w-16 h-16 rounded-full bg-error-600"></div>
+          </div>
+          <dt className="text-sm font-medium text-neutral-500 uppercase tracking-wide">
             Total Deductions
           </dt>
-          <dd className="mt-1 text-2xl font-semibold text-error-600">
+          <dd className="mt-2 text-3xl font-bold text-error-600 tracking-tight">
             {formatCurrency(dv.WithheldAmount || 0)}
           </dd>
         </div>
 
-        <div className="p-4 rounded-lg bg-success-50 border border-success-200">
-          <dt className="text-sm font-medium text-success-700">Net Amount</dt>
-          <dd className="mt-1 text-2xl font-semibold text-success-700">
+        {/* Net Amount Card */}
+        <div className="p-5 rounded-xl bg-gradient-to-br from-success-50 to-white border border-success-200 shadow-sm relative overflow-hidden">
+          <dt className="text-sm font-medium text-success-800 uppercase tracking-wide">Net Amount</dt>
+          <dd className="mt-2 text-3xl font-bold text-success-700 tracking-tight">
             {formatCurrency((dv.Total || 0) - (dv.WithheldAmount || 0))}
           </dd>
         </div>
@@ -274,52 +295,52 @@ function DisbursementVoucherDetails({ dv, linkedOBR, onClose, onEdit }) {
 
       {/* Approval workflow */}
       <div>
-        <h3 className="text-lg font-medium text-neutral-900 mb-2">
+        <h3 className="text-lg font-medium text-neutral-900 mb-3">
           Approval Workflow
         </h3>
-        <div className="overflow-hidden bg-white border border-neutral-200 rounded-lg">
-          <div className="px-4 py-5 sm:p-6">
-            <ol className="relative border-l border-neutral-200 ml-3">
-              <li className="mb-6 ml-6">
-                <span className="absolute flex items-center justify-center w-8 h-8 bg-success-100 rounded-full -left-4 ring-4 ring-white">
+        <div className="overflow-hidden bg-white border border-neutral-200 rounded-xl shadow-sm">
+          <div className="px-6 py-8">
+            <ol className="relative border-l border-neutral-200 ml-3 space-y-8">
+              <li className="ml-6">
+                <span className="absolute flex items-center justify-center w-8 h-8 bg-success-100 rounded-full -left-4 ring-4 ring-white shadow-sm">
                   <CheckCircleIcon className="w-5 h-5 text-success-600" />
                 </span>
-                <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center">
-                  <div>
+                <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start group">
+                  <div className="bg-neutral-50 p-3 rounded-lg w-full mr-4 border border-neutral-100 group-hover:border-neutral-200 transition-colors">
                     <h3 className="text-lg font-semibold text-neutral-900">
                       Prepared
                     </h3>
-                    <p className="text-sm text-neutral-500">{dv.preparedBy}</p>
+                    <p className="text-sm text-neutral-500 mt-1">Prepared by <span className="font-medium text-neutral-900">{dv.preparedBy}</span></p>
                   </div>
-                  <time className="text-sm text-neutral-500">
+                  <time className="text-sm text-neutral-400 font-mono whitespace-nowrap mt-2 sm:mt-0">
                     {formatDate(dv.dateCreated)}
                   </time>
                 </div>
               </li>
-              <li className="mb-6 ml-6">
-                <span className="absolute flex items-center justify-center w-8 h-8 bg-warning-100 rounded-full -left-4 ring-4 ring-white">
+              <li className="ml-6">
+                <span className="absolute flex items-center justify-center w-8 h-8 bg-warning-100 rounded-full -left-4 ring-4 ring-white shadow-sm">
                   <ArrowPathIcon className="w-5 h-5 text-warning-600" />
                 </span>
-                <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center">
-                  <div>
+                <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start">
+                  <div className="bg-neutral-50 p-3 rounded-lg w-full mr-4 border border-neutral-100">
                     <h3 className="text-lg font-semibold text-neutral-900">
                       Certification
                     </h3>
-                    <p className="text-sm text-neutral-500">Pending...</p>
+                    <p className="text-sm text-neutral-500 mt-1 italic">Pending verification...</p>
                   </div>
                 </div>
               </li>
-              <li className="mb-6 ml-6">
-                <span className="absolute flex items-center justify-center w-8 h-8 bg-neutral-100 rounded-full -left-4 ring-4 ring-white">
+              <li className="ml-6">
+                <span className="absolute flex items-center justify-center w-8 h-8 bg-neutral-100 rounded-full -left-4 ring-4 ring-white shadow-sm">
                   <XCircleIcon className="w-5 h-5 text-neutral-400" />
                 </span>
-                <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center">
-                  <div>
+                <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start">
+                  <div className="bg-neutral-50 p-3 rounded-lg w-full mr-4 border border-neutral-100">
                     <h3 className="text-lg font-semibold text-neutral-900">
                       Approval
                     </h3>
-                    <p className="text-sm text-neutral-500">
-                      Waiting for certification
+                    <p className="text-sm text-neutral-500 mt-1">
+                      Waiting for certification to proceed
                     </p>
                   </div>
                 </div>
@@ -329,8 +350,8 @@ function DisbursementVoucherDetails({ dv, linkedOBR, onClose, onEdit }) {
         </div>
       </div>
 
-      <div className="flex justify-end space-x-3 pt-4 border-t border-neutral-200">
-        <button type="button" onClick={onClose} className="btn btn-outline">
+      <div className="flex justify-end space-x-3 pt-6 border-t border-neutral-200">
+        <button type="button" onClick={onClose} className="btn btn-outline px-6">
           Close
         </button>
       </div>

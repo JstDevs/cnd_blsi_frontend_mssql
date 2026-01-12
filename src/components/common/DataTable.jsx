@@ -150,9 +150,9 @@ function DataTable({
   }
 
   return (
-    <div className="bg-white shadow-sm rounded-lg border border-gray-200 overflow-hidden">
+    <div className="bg-white shadow-md rounded-xl border border-gray-200 overflow-hidden">
       {search && (
-        <div className="px-4 py-3 border-b border-gray-200 bg-gray-50">
+        <div className="px-4 py-3 border-b border-gray-200 bg-gradient-to-br from-slate-50 to-gray-50">
           <div className="relative rounded-md shadow-sm">
             <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
               <MagnifyingGlassIcon
@@ -162,7 +162,7 @@ function DataTable({
             </div>
             <input
               type="text"
-              className="block w-full pl-10 pr-12 py-2 text-sm border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              className="block w-full pl-10 pr-12 py-2.5 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-shadow"
               placeholder="Search"
               value={searchTerm}
               onChange={handleSearch}
@@ -174,12 +174,12 @@ function DataTable({
       <div className="overflow-x-auto w-full" style={{ WebkitOverflowScrolling: 'touch', overflowY: 'visible' }}>
         <table className="min-w-full divide-y divide-neutral-200" style={{ width: '100%', minWidth: 'max-content' }}>
           <thead>
-            <tr className="bg-gray-50 border-b border-gray-200">
+            <tr className="bg-gradient-to-r from-slate-50 via-gray-50 to-slate-50 border-b-2 border-gray-200">
               {columns.map((column) => (
                 <th
                   key={column.key}
                   scope="col"
-                  className="px-6 py-3.5 text-left text-xs font-semibold text-gray-700 uppercase tracking-wide cursor-pointer whitespace-nowrap transition-colors hover:bg-gray-100"
+                  className="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wide cursor-pointer whitespace-nowrap transition-colors hover:bg-gray-100"
                   onClick={() =>
                     column.sortable !== false && requestSort(column.key)
                   }
@@ -210,20 +210,20 @@ function DataTable({
               {hasActions && (
                 <th
                   scope="col"
-                  className="px-6 py-3.5 text-right text-xs font-semibold text-gray-700 uppercase tracking-wide whitespace-nowrap sticky right-0 bg-gray-50 z-10 border-l border-gray-200"
+                  className="px-6 py-4 text-right text-xs font-bold text-gray-700 uppercase tracking-wide whitespace-nowrap sticky right-0 bg-gradient-to-r from-slate-50 via-gray-50 to-slate-50 z-10 border-l border-gray-200 shadow-sm"
                 >
                   <span>Actions</span>
                 </th>
               )}
             </tr>
           </thead>
-          <tbody className="bg-white divide-y divide-gray-200">
+          <tbody className="bg-white divide-y divide-gray-100">
             {paginatedData.map((row, rowIndex) => (
               <tr
                 key={row.id || rowIndex}
-                className={`transition-colors duration-150 ${onRowClick ? 'hover:bg-gray-50 cursor-pointer' : 'hover:bg-gray-50'
+                className={`transition-all duration-200 ${onRowClick ? 'hover:bg-slate-50 hover:shadow-sm cursor-pointer' : 'hover:bg-slate-50'
                   } ${selectedRow && selectedRow?.ID === row.ID
-                    ? 'bg-blue-50 border-l-4 border-blue-500'
+                    ? 'bg-blue-50 border-l-4 border-blue-500 shadow-sm'
                     : ''
                   }`}
                 onClick={onRowClick ? () => onRowClick(row) : undefined}
@@ -231,7 +231,7 @@ function DataTable({
                 {columns.map((column) => (
                   <td
                     key={`${row.id || rowIndex}-${column.key}`}
-                    className={`px-6 py-4 text-sm ${column.className || 'text-gray-900'
+                    className={`px-6 py-4 text-sm font-medium ${column.className || 'text-gray-800'
                       }`}
                   >
                     {column.render
