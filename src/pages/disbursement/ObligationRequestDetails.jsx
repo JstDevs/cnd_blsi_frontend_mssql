@@ -5,9 +5,12 @@ import {
   CheckCircleIcon,
   ArrowPathIcon,
 } from '@heroicons/react/24/outline';
+import { useNavigate } from 'react-router-dom';
 import { formatCurrency } from '../../utils/currencyFormater';
+import { BookOpenIcon } from '@heroicons/react/24/outline';
 
 function ObligationRequestDetails({ or, onBack, onEdit }) {
+  const navigate = useNavigate();
   if (!or) return null;
 
   // Format date
@@ -63,8 +66,28 @@ function ObligationRequestDetails({ or, onBack, onEdit }) {
             <PrinterIcon className="h-4 w-4 mr-2" />
             Print
           </button>
+
+          <button
+            type="button"
+            className="btn btn-outline flex items-center"
+            title="View General Ledger"
+            onClick={() => {
+              navigate('/reports/general-ledger', {
+                state: {
+                  from: 'ObligationRequest',
+                  LinkID: or.ID,
+                  FundID: or.FundID,
+                  CutOffDate: or.InvoiceDate || new Date().toISOString().split('T')[0]
+                }
+              });
+            }}
+          >
+            <BookOpenIcon className="h-4 w-4 mr-2" />
+            General Ledger
+          </button>
         </div>
       </div>
+
 
       {/* Main details */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 p-4 rounded-lg bg-neutral-50 border border-neutral-200">
@@ -280,7 +303,7 @@ function ObligationRequestDetails({ or, onBack, onEdit }) {
           Close
         </button>
       </div>
-    </div>
+    </div >
   );
 }
 
