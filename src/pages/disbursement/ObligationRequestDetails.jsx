@@ -194,60 +194,78 @@ function ObligationRequestDetails({ or, onBack, onEdit }) {
 
       {/* Items */}
       <div>
-        <h3 className="text-lg font-medium text-neutral-900 mb-2">
+        <h3 className="text-lg font-medium text-neutral-900 mb-3">
           Items
         </h3>
-        <div className="overflow-x-auto border border-neutral-200 rounded-lg">
+        <div className="overflow-hidden border border-neutral-200 rounded-xl shadow-sm">
           <table className="min-w-full divide-y divide-neutral-200">
             <thead className="bg-neutral-50">
               <tr>
-                <th className="px-6 py-3 text-left text-xs font-medium text-neutral-500 uppercase tracking-wider">RC</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-neutral-500 uppercase tracking-wider">Particulars</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-neutral-500 uppercase tracking-wider">Account Code</th>
-                <th className="px-6 py-3 text-right text-xs font-medium text-neutral-500 uppercase tracking-wider">Amount</th>
+                <th scope="col" className="px-6 py-4 text-left text-xs font-semibold text-neutral-500 uppercase tracking-wider">RC</th>
+                <th scope="col" className="px-6 py-4 text-left text-xs font-semibold text-neutral-500 uppercase tracking-wider">Particulars</th>
+                <th scope="col" className="px-6 py-4 text-left text-xs font-semibold text-neutral-500 uppercase tracking-wider">Account Code</th>
+                <th scope="col" className="px-6 py-4 text-right text-xs font-semibold text-neutral-500 uppercase tracking-wider">Amount</th>
               </tr>
             </thead>
             <tbody className="bg-white divide-y divide-neutral-200">
               {or.TransactionItemsAll && or.TransactionItemsAll.length > 0 ? (
                 or.TransactionItemsAll.map((item, index) => (
-                  <tr key={index}>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-neutral-900">{item.responsibilityCenterName}</td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-neutral-900">{item.itemName}</td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-neutral-900">{item.chargeAccountName}</td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-right text-neutral-900">{formatCurrency(item.subtotal)}</td>
+                  <tr key={index} className="hover:bg-neutral-50 transition-colors duration-200">
+                    <td className="px-6 py-4 text-sm text-neutral-900">{item.responsibilityCenterName}</td>
+                    <td className="px-6 py-4 text-sm text-neutral-900">{item.itemName}</td>
+                    <td className="px-6 py-4 text-sm text-neutral-600 font-mono tracking-tight">{item.chargeAccountName}</td>
+                    <td className="px-6 py-4 text-sm text-right text-neutral-900 font-medium tabular-nums">{formatCurrency(item.subtotal)}</td>
                   </tr>
                 ))
               ) : (
                 <tr>
-                  <td colSpan="4" className="px-6 py-4 text-center text-sm text-neutral-500">No items found</td>
+                  <td colSpan="4" className="px-6 py-8 text-center text-sm text-neutral-500 italic">No items found</td>
                 </tr>
               )}
             </tbody>
+            {/* Table Footer Summary (Optional but looks professional) */}
+            {or.TransactionItemsAll && or.TransactionItemsAll.length > 0 && (
+              <tfoot className="bg-neutral-50">
+                <tr>
+                  <td colSpan="3" className="px-6 py-3 text-right text-xs font-medium text-neutral-500 uppercase tracking-wider">Total</td>
+                  <td className="px-6 py-3 text-right text-sm font-bold text-neutral-900 tabular-nums">{formatCurrency(or.Total)}</td>
+                </tr>
+              </tfoot>
+            )}
           </table>
         </div>
       </div>
 
       {/* Amounts */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <div className="p-4 rounded-lg bg-white border border-neutral-200">
-          <dt className="text-sm font-medium text-neutral-500">Total Amount</dt>
-          <dd className="mt-1 text-2xl font-semibold text-neutral-900">
+        {/* Total Amount Card */}
+        <div className="p-5 rounded-xl bg-white border border-neutral-200 shadow-sm relative overflow-hidden group">
+          <div className="absolute top-0 right-0 p-3 opacity-10 group-hover:opacity-20 transition-opacity">
+            <div className="w-16 h-16 rounded-full bg-neutral-900"></div>
+          </div>
+          <dt className="text-sm font-medium text-neutral-500 uppercase tracking-wide">Total Amount</dt>
+          <dd className="mt-2 text-3xl font-bold text-neutral-900 tracking-tight">
             {formatCurrency(or.Total)}
           </dd>
         </div>
 
-        <div className="p-4 rounded-lg bg-white border border-neutral-200">
-          <dt className="text-sm font-medium text-neutral-500">
+        {/* Vat Total Card */}
+        <div className="p-5 rounded-xl bg-white border border-neutral-200 shadow-sm relative overflow-hidden group">
+          <div className="absolute top-0 right-0 p-3 opacity-10 group-hover:opacity-20 transition-opacity">
+            <div className="w-16 h-16 rounded-full bg-neutral-900"></div>
+          </div>
+          <dt className="text-sm font-medium text-neutral-500 uppercase tracking-wide">
             Vat Total
           </dt>
-          <dd className="mt-1 text-2xl font-semibold text-neutral-900">
+          <dd className="mt-2 text-3xl font-bold text-neutral-900 tracking-tight">
             {formatCurrency(or.Vat_Total)}
           </dd>
         </div>
 
-        <div className="p-4 rounded-lg bg-success-50 border border-success-200">
-          <dt className="text-sm font-medium text-success-700">Net Amount</dt>
-          <dd className="mt-1 text-2xl font-semibold text-success-700">
+        {/* Net Amount Card */}
+        <div className="p-5 rounded-xl bg-gradient-to-br from-success-50 to-white border border-success-200 shadow-sm relative overflow-hidden">
+          <dt className="text-sm font-medium text-success-800 uppercase tracking-wide">Net Amount</dt>
+          <dd className="mt-2 text-3xl font-bold text-success-700 tracking-tight">
             {formatCurrency(or.Total - (or.WithheldAmount || 0))}
           </dd>
         </div>
@@ -255,52 +273,52 @@ function ObligationRequestDetails({ or, onBack, onEdit }) {
 
       {/* Approval workflow */}
       <div>
-        <h3 className="text-lg font-medium text-neutral-900 mb-2">
+        <h3 className="text-lg font-medium text-neutral-900 mb-3">
           Approval Workflow
         </h3>
-        <div className="overflow-hidden bg-white border border-neutral-200 rounded-lg">
-          <div className="px-4 py-5 sm:p-6">
-            <ol className="relative border-l border-neutral-200 ml-3">
-              <li className="mb-6 ml-6">
-                <span className="absolute flex items-center justify-center w-8 h-8 bg-success-100 rounded-full -left-4 ring-4 ring-white">
+        <div className="overflow-hidden bg-white border border-neutral-200 rounded-xl shadow-sm">
+          <div className="px-6 py-8">
+            <ol className="relative border-l border-neutral-200 ml-3 space-y-8">
+              <li className="ml-6">
+                <span className="absolute flex items-center justify-center w-8 h-8 bg-success-100 rounded-full -left-4 ring-4 ring-white shadow-sm">
                   <CheckCircleIcon className="w-5 h-5 text-success-600" />
                 </span>
-                <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center">
-                  <div>
+                <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start group">
+                  <div className="bg-neutral-50 p-3 rounded-lg w-full mr-4 border border-neutral-100 group-hover:border-neutral-200 transition-colors">
                     <h3 className="text-lg font-semibold text-neutral-900">
                       Prepared
                     </h3>
-                    <p className="text-sm text-neutral-500">{or.PreparedBy || 'N/A'}</p>
+                    <p className="text-sm text-neutral-500 mt-1">Prepared by <span className="font-medium text-neutral-900">{or.PreparedBy || 'N/A'}</span></p>
                   </div>
-                  <time className="text-sm text-neutral-500">
+                  <time className="text-sm text-neutral-400 font-mono whitespace-nowrap mt-2 sm:mt-0">
                     {or.DateCreated ? formatDate(or.DateCreated) : formatDate(or.InvoiceDate)}
                   </time>
                 </div>
               </li>
-              <li className="mb-6 ml-6">
-                <span className="absolute flex items-center justify-center w-8 h-8 bg-warning-100 rounded-full -left-4 ring-4 ring-white">
+              <li className="ml-6">
+                <span className="absolute flex items-center justify-center w-8 h-8 bg-warning-100 rounded-full -left-4 ring-4 ring-white shadow-sm">
                   <ArrowPathIcon className="w-5 h-5 text-warning-600" />
                 </span>
-                <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center">
-                  <div>
+                <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start">
+                  <div className="bg-neutral-50 p-3 rounded-lg w-full mr-4 border border-neutral-100">
                     <h3 className="text-lg font-semibold text-neutral-900">
                       Certification
                     </h3>
-                    <p className="text-sm text-neutral-500">Pending...</p>
+                    <p className="text-sm text-neutral-500 mt-1 italic">Pending verification...</p>
                   </div>
                 </div>
               </li>
-              <li className="mb-6 ml-6">
-                <span className="absolute flex items-center justify-center w-8 h-8 bg-neutral-100 rounded-full -left-4 ring-4 ring-white">
+              <li className="ml-6">
+                <span className="absolute flex items-center justify-center w-8 h-8 bg-neutral-100 rounded-full -left-4 ring-4 ring-white shadow-sm">
                   <XCircleIcon className="w-5 h-5 text-neutral-400" />
                 </span>
-                <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center">
-                  <div>
+                <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start">
+                  <div className="bg-neutral-50 p-3 rounded-lg w-full mr-4 border border-neutral-100">
                     <h3 className="text-lg font-semibold text-neutral-900">
                       Approval
                     </h3>
-                    <p className="text-sm text-neutral-500">
-                      Waiting for certification
+                    <p className="text-sm text-neutral-500 mt-1">
+                      Waiting for certification to proceed
                     </p>
                   </div>
                 </div>
@@ -310,8 +328,8 @@ function ObligationRequestDetails({ or, onBack, onEdit }) {
         </div>
       </div>
 
-      <div className="flex justify-end space-x-3 pt-4 border-t border-neutral-200">
-        <button type="button" onClick={onBack} className="btn btn-outline">
+      <div className="flex justify-end space-x-3 pt-6 border-t border-neutral-200">
+        <button type="button" onClick={onBack} className="btn btn-outline px-6">
           Close
         </button>
       </div>
@@ -320,68 +338,87 @@ function ObligationRequestDetails({ or, onBack, onEdit }) {
       <Modal
         isOpen={showGLModal}
         onClose={handleCloseGLModal}
-        title="General Ledger View"
-        size="lg"
+        title="General Ledger Entries"
+        size="4xl" // Increased size for better table view
       >
-        <div className="overflow-x-auto">
+        <div className="overflow-hidden border border-neutral-200 rounded-xl shadow-sm my-2">
           {isGLLoading ? (
-            <div className="text-center py-4">Loading...</div>
+            <div className="flex justify-center items-center py-12">
+              <ArrowPathIcon className="h-8 w-8 animate-spin text-neutral-400" />
+              <span className="ml-2 text-neutral-500">Loading ledger data...</span>
+            </div>
           ) : (
-            <table className="min-w-full divide-y divide-gray-200">
-              <thead className="bg-gray-50">
+            <table className="min-w-full divide-y divide-neutral-200">
+              <thead className="bg-neutral-50">
                 <tr>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Fund Name
+                  <th scope="col" className="px-6 py-4 text-left text-xs font-semibold text-neutral-500 uppercase tracking-wider">
+                    Fund
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th scope="col" className="px-6 py-4 text-left text-xs font-semibold text-neutral-500 uppercase tracking-wider">
                     Ledger Item
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th scope="col" className="px-6 py-4 text-left text-xs font-semibold text-neutral-500 uppercase tracking-wider">
                     Account Name
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Account Code
+                  <th scope="col" className="px-6 py-4 text-left text-xs font-semibold text-neutral-500 uppercase tracking-wider">
+                    Code
                   </th>
-                  <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th scope="col" className="px-6 py-4 text-right text-xs font-semibold text-neutral-500 uppercase tracking-wider">
                     Debit
                   </th>
-                  <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th scope="col" className="px-6 py-4 text-right text-xs font-semibold text-neutral-500 uppercase tracking-wider">
                     Credit
                   </th>
                 </tr>
               </thead>
-              <tbody className="bg-white divide-y divide-gray-200">
+              <tbody className="bg-white divide-y divide-neutral-200">
                 {generalLedgers && generalLedgers.length > 0 ? (
                   generalLedgers.map((item, index) => (
-                    <tr key={index}>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                    <tr key={index} className="hover:bg-neutral-50 transition-colors duration-150">
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-neutral-900 font-medium">
                         {item.fund}
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-neutral-500">
                         {item.ledger_item}
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-neutral-900">
                         {item.account_name}
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-neutral-500 font-mono">
                         {item.account_code}
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-right text-gray-500">
-                        {formatCurrency(item.debit)}
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-right text-neutral-900 font-medium tabular-nums">
+                        {item.debit > 0 ? formatCurrency(item.debit) : '-'}
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-right text-gray-500">
-                        {formatCurrency(item.credit)}
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-right text-neutral-900 font-medium tabular-nums">
+                        {item.credit > 0 ? formatCurrency(item.credit) : '-'}
                       </td>
                     </tr>
                   ))
                 ) : (
                   <tr>
-                    <td colSpan="6" className="px-6 py-4 text-center text-sm text-gray-500">
-                      No records found
+                    <td colSpan="6" className="px-6 py-12 text-center text-sm text-neutral-500">
+                      <div className="flex flex-col items-center justify-center">
+                        <BookOpenIcon className="h-10 w-10 text-neutral-300 mb-2" />
+                        <p>No ledger records found for this transaction.</p>
+                      </div>
                     </td>
                   </tr>
                 )}
               </tbody>
+              {generalLedgers && generalLedgers.length > 0 && (
+                <tfoot className="bg-neutral-50 font-semibold text-neutral-900">
+                  <tr>
+                    <td colSpan="4" className="px-6 py-3 text-right text-xs uppercase tracking-wider text-neutral-500">Total</td>
+                    <td className="px-6 py-3 text-right text-sm tabular-nums">
+                      {formatCurrency(generalLedgers.reduce((acc, curr) => acc + (curr.debit || 0), 0))}
+                    </td>
+                    <td className="px-6 py-3 text-right text-sm tabular-nums">
+                      {formatCurrency(generalLedgers.reduce((acc, curr) => acc + (curr.credit || 0), 0))}
+                    </td>
+                  </tr>
+                </tfoot>
+              )}
             </table>
           )}
         </div>
