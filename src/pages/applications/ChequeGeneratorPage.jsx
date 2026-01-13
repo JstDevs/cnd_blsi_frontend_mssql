@@ -301,9 +301,9 @@ function ChequeGeneratorPage() {
   //     onClick: (item) => handleEditCheque(item),
   //   },
   // ];
-  const handleDelete = (dv) => {
-    console.log('Delete', dv);
-  };
+  // const handleDelete = (dv) => {
+  //   console.log('Delete', dv);
+  // };
   const handleView = (cheque) => {
     setCurrentCheck(cheque);
     setIsViewOnly(true);
@@ -329,6 +329,25 @@ function ChequeGeneratorPage() {
       Attachments: cheque.Attachments || [],
     });
   };
+
+  const handleDelete = async (row) => {
+    if (!window.confirm('Are you sure you want to void this cheque?')) return;
+    setIsLoadingBAPAction(true);
+    try {
+      const response = await axiosInstance.post('/chequeGenerator/void', {
+        ID: row.ID,
+      });
+      console.log('Voided:', response.data);
+      fetchChequeList();
+      toast.success('Cheque voided successfully');
+    } catch (error) {
+      console.error('Error voiding cheque:', error);
+      toast.error('Error voiding cheque');
+    } finally {
+      setIsLoadingBAPAction(false);
+    }
+  };
+
   const handleCGPAction = async (dv, action) => {
     setIsLoadingBAPAction(true);
     try {
@@ -346,10 +365,23 @@ function ChequeGeneratorPage() {
       setIsLoadingBAPAction(false);
     }
   };
+
   const actions = (row) => {
     const actionList = [];
+    const status = row.Status?.toLowerCase() || '';
 
-    if (row.Status.toLowerCase().includes('rejected') && Edit) {
+    if (status === 'void') {
+      actionList.push({
+        icon: EyeIcon,
+        title: 'View',
+        onClick: handleView,
+        className:
+          'text-primary-600 hover:text-primary-900 p-1 rounded-full hover:bg-primary-50',
+      });
+      return actionList;
+    }
+
+    if (status.includes('rejected') && Edit) {
       actionList.push({
         icon: PencilIcon,
         title: 'Edit',
@@ -359,12 +391,12 @@ function ChequeGeneratorPage() {
       });
       actionList.push({
         icon: TrashIcon,
-        title: 'Delete',
+        title: 'Void',
         onClick: () => handleDelete(row),
         className:
           'text-error-600 hover:text-error-900 p-1 rounded-full hover:bg-error-50',
       });
-    } else if (row.Status.toLowerCase().includes('requested')) {
+    } else if (status.includes('requested')) {
       actionList.push(
         {
           icon: CheckLine,
@@ -454,16 +486,15 @@ function ChequeGeneratorPage() {
                   Attachment
                 </button>
               )}
-            {currentCheck &&
-              (
-                <button
-                  type="button"
-                  onClick={resetForm}
-                  className="btn btn-outline mr-2"
-                >
-                  {isViewOnly ? 'Close View' : 'Cancel Edit'}
-                </button>
-              )}
+            {currentCheck && (
+              <button
+                type="button"
+                onClick={resetForm}
+                className="btn btn-outline mr-2"
+              >
+                {isViewOnly ? 'Close View' : 'Cancel Edit'}
+              </button>
+            )}
           </div>
         </div>
       </div>
