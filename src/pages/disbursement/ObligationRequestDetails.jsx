@@ -35,6 +35,7 @@ function ObligationRequestDetails({ or, onBack, onEdit }) {
   if (!or) return null;
 
   // Format date
+  console.log('OBR Detail Data:', or);
   const formatDate = (dateString) => {
     return new Date(dateString).toLocaleDateString('en-PH', {
       year: 'numeric',
@@ -52,17 +53,17 @@ function ObligationRequestDetails({ or, onBack, onEdit }) {
     const lowerStatus = status.toLowerCase();
 
     switch (lowerStatus) {
-          case 'requested':   bgColor = 'bg-gradient-to-r from-warning-400 via-warning-300 to-warning-500 text-error-700';  break;
-          case 'approved':    bgColor = 'bg-gradient-to-r from-success-300 via-success-500 to-success-600 text-neutral-800'; break;
-          case 'posted':      bgColor = 'bg-gradient-to-r from-success-800 via-success-900 to-success-999 text-success-100'; break;
-          case 'rejected':    bgColor = 'bg-gradient-to-r from-error-700 via-error-800 to-error-999 text-neutral-100';     break;
-          case 'void':        bgColor = 'bg-gradient-to-r from-primary-900 via-primary-999 to-tertiary-999 text-neutral-300'; break;
-          case 'cancelled':   bgColor = 'bg-gradient-to-r from-neutral-200 via-neutral-300 to-neutral-400 text-neutral-800'; break;
-          case 'disbursement pending': bgColor = 'bg-gradient-to-r from-warning-400 via-warning-300 to-warning-500 text-error-700'; break;
-          case 'disbursement posted':  bgColor = 'bg-gradient-to-r from-success-800 via-success-900 to-success-999 text-success-100'; break;
-          case 'cheque pending':       bgColor = 'bg-gradient-to-r from-warning-400 via-warning-300 to-warning-500 text-error-700'; break;
-          case 'cheque posted':        bgColor = 'bg-gradient-to-r from-success-800 via-success-900 to-success-999 text-success-100'; break;
-          default:            bgColor = 'bg-neutral-100 text-neutral-800'; break;
+      case 'requested': bgColor = 'bg-gradient-to-r from-warning-400 via-warning-300 to-warning-500 text-error-700'; break;
+      case 'approved': bgColor = 'bg-gradient-to-r from-success-300 via-success-500 to-success-600 text-neutral-800'; break;
+      case 'posted': bgColor = 'bg-gradient-to-r from-success-800 via-success-900 to-success-999 text-success-100'; break;
+      case 'rejected': bgColor = 'bg-gradient-to-r from-error-700 via-error-800 to-error-999 text-neutral-100'; break;
+      case 'void': bgColor = 'bg-gradient-to-r from-primary-900 via-primary-999 to-tertiary-999 text-neutral-300'; break;
+      case 'cancelled': bgColor = 'bg-gradient-to-r from-neutral-200 via-neutral-300 to-neutral-400 text-neutral-800'; break;
+      case 'disbursement pending': bgColor = 'bg-gradient-to-r from-warning-400 via-warning-300 to-warning-500 text-error-700'; break;
+      case 'disbursement posted': bgColor = 'bg-gradient-to-r from-success-800 via-success-900 to-success-999 text-success-100'; break;
+      case 'cheque pending': bgColor = 'bg-gradient-to-r from-warning-400 via-warning-300 to-warning-500 text-error-700'; break;
+      case 'cheque posted': bgColor = 'bg-gradient-to-r from-success-800 via-success-900 to-success-999 text-success-100'; break;
+      default: bgColor = 'bg-neutral-100 text-neutral-800'; break;
     }
 
     // if (lowerStatus.includes('requested') || lowerStatus.includes('pending')) {
@@ -150,7 +151,7 @@ function ObligationRequestDetails({ or, onBack, onEdit }) {
                 Fund
               </dt>
               <dd className="text-sm text-neutral-900 col-span-2">
-                {or.FundName || 'N/A'}
+                {or.FundName || or.fund || or.FundsName || or.FundsID || 'N/A'}
               </dd>
             </div>
             <div className="grid grid-cols-3 gap-4">
@@ -183,7 +184,7 @@ function ObligationRequestDetails({ or, onBack, onEdit }) {
                 Payee Name
               </dt>
               <dd className="text-sm text-neutral-900 col-span-2">
-                {or.Payee || 'N/A'}
+                {or.Payee || or.payeeName || or.PayeeName || or.payee_name || or.Name || or.RecipientName || 'N/A'}
               </dd>
             </div>
             <div className="grid grid-cols-3 gap-4">
@@ -191,7 +192,7 @@ function ObligationRequestDetails({ or, onBack, onEdit }) {
                 Payee Type
               </dt>
               <dd className="text-sm text-neutral-900 col-span-2">
-                {or.PayeeType || 'N/A'}
+                {or.PayeeType || or.payeeType || or.payee_type || 'N/A'}
               </dd>
             </div>
             <div className="grid grid-cols-3 gap-4">
@@ -199,7 +200,7 @@ function ObligationRequestDetails({ or, onBack, onEdit }) {
                 Payee Address
               </dt>
               <dd className="text-sm text-neutral-900 col-span-2">
-                {or.Address || 'N/A'}
+                {or.Address || or.payeeAddress || or.payee_address || or.StreetAddress || 'N/A'}
               </dd>
             </div>
           </dl>
@@ -222,30 +223,46 @@ function ObligationRequestDetails({ or, onBack, onEdit }) {
               </tr>
             </thead>
             <tbody className="bg-white divide-y divide-neutral-200">
-              {or.TransactionItemsAll && or.TransactionItemsAll.length > 0 ? (
-                or.TransactionItemsAll.map((item, index) => (
-                  <tr key={index} className="hover:bg-neutral-50 transition-colors duration-200">
-                    <td className="px-6 py-4 text-sm text-neutral-900">{item.responsibilityCenterName}</td>
-                    <td className="px-6 py-4 text-sm text-neutral-900">{item.itemName}</td>
-                    <td className="px-6 py-4 text-sm text-neutral-600 font-mono tracking-tight">{item.chargeAccountName}</td>
-                    <td className="px-6 py-4 text-sm text-right text-neutral-900 font-medium tabular-nums">{formatCurrency(item.subtotal)}</td>
+              {(() => {
+                const items = or.TransactionItemsAll || or.Items || or.items || [];
+                console.log('OBR Item Data:', items);
+                if (items.length > 0) {
+                  return items.map((item, index) => (
+                    <tr key={index} className="hover:bg-neutral-50 transition-colors duration-200">
+                      <td className="px-6 py-4 text-sm text-neutral-900">
+                        {item.responsibilityCenterName || item.RC || item.ResponsibilityCenterName || item.DepartmentName || item.departmentName || or.ResponsibilityCenterName}
+                      </td>
+                      <td className="px-6 py-4 text-sm text-neutral-900">
+                        {item.itemName || item.Remarks || item.Particulars || item.item_name}
+                      </td>
+                      <td className="px-6 py-4 text-sm text-neutral-600 font-mono tracking-tight">
+                        {item.chargeAccountName || item.Account || item.AccountCode || item.AccountName || item.AccountTitle || item.Account_Name}
+                      </td>
+                      <td className="px-6 py-4 text-sm text-right text-neutral-900 font-medium tabular-nums">
+                        {formatCurrency(item.subtotal || item.Subtotal || item.SubTotal || item.sub_total || item.amount || item.Amount || item.Debit || item.Credit || 0)}
+                      </td>
+                    </tr>
+                  ));
+                }
+                return (
+                  <tr>
+                    <td colSpan="4" className="px-6 py-8 text-center text-sm text-neutral-500 italic">No items found</td>
                   </tr>
-                ))
-              ) : (
-                <tr>
-                  <td colSpan="4" className="px-6 py-8 text-center text-sm text-neutral-500 italic">No items found</td>
-                </tr>
-              )}
+                );
+              })()}
             </tbody>
             {/* Table Footer Summary (Optional but looks professional) */}
-            {or.TransactionItemsAll && or.TransactionItemsAll.length > 0 && (
-              <tfoot className="bg-neutral-50">
-                <tr>
-                  <td colSpan="3" className="px-6 py-3 text-right text-xs font-medium text-neutral-500 uppercase tracking-wider">Total</td>
-                  <td className="px-6 py-3 text-right text-sm font-bold text-neutral-900 tabular-nums">{formatCurrency(or.Total)}</td>
-                </tr>
-              </tfoot>
-            )}
+            {(() => {
+              const items = or.TransactionItemsAll || or.Items || or.items || [];
+              return items.length > 0 && (
+                <tfoot className="bg-neutral-50">
+                  <tr>
+                    <td colSpan="3" className="px-6 py-3 text-right text-xs font-medium text-neutral-500 uppercase tracking-wider">Total</td>
+                    <td className="px-6 py-3 text-right text-sm font-bold text-neutral-900 tabular-nums">{formatCurrency(or.Total || 0)}</td>
+                  </tr>
+                </tfoot>
+              );
+            })()}
           </table>
         </div>
       </div>
