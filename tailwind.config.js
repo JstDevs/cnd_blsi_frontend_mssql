@@ -14,7 +14,8 @@ export default {
           600: 'var(--color-primary-600)',
           700: 'var(--color-primary-700)',
           800: 'var(--color-primary-800)',
-          900: 'var(--color-primary-900)'
+          900: 'var(--color-primary-900)',
+          999: 'var(--color-primary-999)'
         },
         secondary: {
           50: 'var(--color-secondary-50)',
@@ -26,7 +27,8 @@ export default {
           600: 'var(--color-secondary-600)',
           700: 'var(--color-secondary-700)',
           800: 'var(--color-secondary-800)',
-          900: 'var(--color-secondary-900)'
+          900: 'var(--color-secondary-900)',
+          999: 'var(--color-secondary-999)'
         },
         accent: {
           50: 'var(--color-accent-50)',
@@ -38,7 +40,8 @@ export default {
           600: 'var(--color-accent-600)',
           700: 'var(--color-accent-700)',
           800: 'var(--color-accent-800)',
-          900: 'var(--color-accent-900)'
+          900: 'var(--color-accent-900)',
+          999: 'var(--color-accent-999)'
         },
         success: {
           50: 'var(--color-success-50)',
@@ -50,7 +53,8 @@ export default {
           600: 'var(--color-success-600)',
           700: 'var(--color-success-700)',
           800: 'var(--color-success-800)',
-          900: 'var(--color-success-900)'
+          900: 'var(--color-success-900)',
+          999: 'var(--color-success-999)'
         },
         warning: {
           50: 'var(--color-warning-50)',
@@ -62,7 +66,8 @@ export default {
           600: 'var(--color-warning-600)',
           700: 'var(--color-warning-700)',
           800: 'var(--color-warning-800)',
-          900: 'var(--color-warning-900)'
+          900: 'var(--color-warning-900)',
+          999: 'var(--color-warning-999)'
         },
         error: {
           50: 'var(--color-error-50)',
@@ -74,7 +79,8 @@ export default {
           600: 'var(--color-error-600)',
           700: 'var(--color-error-700)',
           800: 'var(--color-error-800)',
-          900: 'var(--color-error-900)'
+          900: 'var(--color-error-900)',
+          999: 'var(--color-error-999)'
         },
         neutral: {
           50: 'var(--color-neutral-50)',
@@ -86,7 +92,21 @@ export default {
           600: 'var(--color-neutral-600)',
           700: 'var(--color-neutral-700)',
           800: 'var(--color-neutral-800)',
-          900: 'var(--color-neutral-900)'
+          900: 'var(--color-neutral-900)',
+          999: 'var(--color-neutral-999)'
+        },
+        tertiary: {
+          50: 'var(--color-tertiary-50)',
+          100: 'var(--color-tertiary-100)',
+          200: 'var(--color-tertiary-200)',
+          300: 'var(--color-tertiary-300)',
+          400: 'var(--color-tertiary-400)',
+          500: 'var(--color-tertiary-500)',
+          600: 'var(--color-tertiary-600)',
+          700: 'var(--color-tertiary-700)',
+          800: 'var(--color-tertiary-800)',
+          900: 'var(--color-tertiary-900)',
+          999: 'var(--color-tertiary-999)'
         }
       },
       fontFamily: {

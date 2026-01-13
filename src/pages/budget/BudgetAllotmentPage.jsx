@@ -150,10 +150,23 @@ const BudgetAllotmentPage = () => {
       render: (value) => {
         const status = value?.toLowerCase() || '';
         const statusColors = {
-          requested: 'bg-yellow-100 text-yellow-800 border-yellow-200',
-          approved: 'bg-green-100 text-green-800 border-green-200',
-          rejected: 'bg-red-100 text-red-800 border-red-200',
+          requested:  'bg-gradient-to-r from-warning-400 via-warning-300 to-warning-500 text-error-700',
+          approved:   'bg-gradient-to-r from-success-300 via-success-500 to-success-600 text-neutral-800',
+          posted:     'bg-gradient-to-r from-success-800 via-success-900 to-success-999 text-success-100',
+          rejected:   'bg-gradient-to-r from-error-700 via-error-800 to-error-999 text-neutral-100',
+          void:       'bg-gradient-to-r from-primary-900 via-primary-999 to-tertiary-999 text-neutral-300',
+          cancelled:  'bg-gradient-to-r from-neutral-200 via-neutral-300 to-neutral-400 text-neutral-800',
         };
+
+
+      // case 'Requested': bgColor = 'bg-warning-300 text-error-700';    break;
+      // case 'Approved':  bgColor = 'bg-success-300 text-neutral-800';  break;
+      // case 'Posted':    bgColor = 'bg-success-800 text-success-100';  break;
+      // case 'Rejected':  bgColor = 'bg-error-500 text-neutral-100';    break;
+      // case 'Void':      bgColor = 'bg-primary-900 text-neutral-300';  break;
+      // case 'Cancelled': bgColor = 'bg-neutral-300 text-neutral-700';  break;
+      // default: break;
+
         const colorClass = statusColors[status] || 'bg-neutral-100 text-neutral-800 border-neutral-200';
         return (
           <span className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold border ${colorClass}`}>
@@ -370,6 +383,7 @@ const BudgetAllotmentPage = () => {
     }, 0) || 0;
     const requested = filteredData?.filter(item => item.Status?.toLowerCase().includes('requested')).length || 0;
     const approved = filteredData?.filter(item => item.Status?.toLowerCase().includes('approved')).length || 0;
+    const posted = filteredData?.filter(item => item.Status?.toLowerCase().includes('posted')).length || 0;
     const rejected = filteredData?.filter(item => item.Status?.toLowerCase().includes('rejected')).length || 0;
 
     return {
@@ -377,6 +391,7 @@ const BudgetAllotmentPage = () => {
       totalAmount,
       requested,
       approved,
+      posted,
       rejected,
     };
   }, [filteredData]);
@@ -395,7 +410,7 @@ const BudgetAllotmentPage = () => {
                   Budget Allotment
                 </h1>
                 <p className="text-sm text-neutral-600 mt-0.5">
-                  Manage budget allotments and releases
+                  Release budget allotments for departments and projects.
                 </p>
               </div>
             </div>
@@ -478,8 +493,8 @@ const BudgetAllotmentPage = () => {
           <div className="bg-gradient-to-br from-emerald-50 to-emerald-100 border border-emerald-200 rounded-xl p-5 shadow-sm hover:shadow-md transition-shadow">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-emerald-700 mb-1">Approved</p>
-                <p className="text-2xl font-bold text-emerald-900">{summaryStats.approved}</p>
+                <p className="text-sm font-medium text-emerald-700 mb-1">Posted</p>
+                <p className="text-2xl font-bold text-emerald-900">{summaryStats.posted}</p>
               </div>
               <div className="p-3 bg-emerald-200 rounded-lg">
                 <CheckCircle2 className="h-6 w-6 text-emerald-700" />
