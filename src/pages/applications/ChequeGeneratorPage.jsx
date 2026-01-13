@@ -332,17 +332,16 @@ function ChequeGeneratorPage() {
   const handleCGPAction = async (dv, action) => {
     setIsLoadingBAPAction(true);
     try {
-      // TODO : add action
-      // const response = await axiosInstance.post(
-      //   `/disbursementVoucher/${action}`,
-      //   { ID: dv.ID }
-      // );
+      const response = await axiosInstance.post(
+        `/chequeGenerator/${action}`,
+        { ID: dv.ID }
+      );
       console.log(`${action}d:`, response.data);
-      // dispatch(fetchGeneralServiceReceipts());
-      toast.success(`Budget Allotment ${action}d successfully`);
+      fetchChequeList();
+      toast.success(`Cheque ${action}d successfully`);
     } catch (error) {
-      console.error(`Error ${action}ing Budget Allotment:`, error);
-      toast.error(`Error ${action}ing Budget Allotment`);
+      console.error(`Error ${action}ing Cheque:`, error);
+      toast.error(`Error ${action}ing Cheque`);
     } finally {
       setIsLoadingBAPAction(false);
     }
