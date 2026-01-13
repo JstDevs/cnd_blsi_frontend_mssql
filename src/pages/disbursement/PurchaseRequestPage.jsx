@@ -51,13 +51,13 @@ function PurchaseRequestPage() {
   };
 
   const handleEditRequest = (request) => {
-    // setCurrentRequest(request);
-    // setIsModalOpen(true);
+    setCurrentRequest(request);
+    setIsModalOpen(true);
   };
 
   const handleDelete = (request) => {
-    // setRequestToDelete(request);
-    // setIsDeleteModalOpen(true);
+    setRequestToDelete(request);
+    setIsDeleteModalOpen(true);
   };
 
   const handleCloseModal = () => {
@@ -236,7 +236,8 @@ function PurchaseRequestPage() {
   // },
   // ];
   const handleView = (values) => {
-    console.log(values);
+    setCurrentRequest(values);
+    setIsModalOpen(true);
   };
   const handleTOPAction = async (dv, action) => {
     setIsLoadingPRPAction(true);
