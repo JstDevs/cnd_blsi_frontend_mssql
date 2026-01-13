@@ -15,6 +15,7 @@ function JournalEntryForm({
   fundOptions,
   centerOptions,
   accountOptions,
+  isReadOnly = false,
 }) {
   const [balanceError, setBalanceError] = useState('');
   // Add state to track the selected type
@@ -145,6 +146,7 @@ function JournalEntryForm({
             error={errors.JEVType}
             touched={touched.JEVType}
             required
+            disabled={isReadOnly}
           />
           <FormField
             type="select"
@@ -157,6 +159,7 @@ function JournalEntryForm({
             error={errors.FundsID}
             touched={touched.FundsID}
             required
+            disabled={isReadOnly}
           />
           <FormField
             type="date"
@@ -168,6 +171,7 @@ function JournalEntryForm({
             error={errors.InvoiceDate}
             touched={touched.InvoiceDate}
             required
+            disabled={isReadOnly}
           />
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-3 sm:gap-4">
@@ -180,6 +184,7 @@ function JournalEntryForm({
             onBlur={handleBlur}
             error={errors.ObligationRequestNumber}
             touched={touched.ObligationRequestNumber}
+            disabled={isReadOnly}
           />
           <FormField
             type="text"
@@ -191,6 +196,7 @@ function JournalEntryForm({
             error={errors.Remarks}
             touched={touched.Remarks}
             required
+            disabled={isReadOnly}
           />
           <FormField
             type="text"
@@ -201,6 +207,7 @@ function JournalEntryForm({
             onBlur={handleBlur}
             error={errors.Payee}
             touched={touched.Payee}
+            disabled={isReadOnly}
           />
         </div>
 
@@ -217,6 +224,7 @@ function JournalEntryForm({
               onBlur={handleBlur}
               error={errors.SAI_No}
               touched={touched.SAI_No}
+              disabled={isReadOnly}
             />
             <FormField
               type="text"
@@ -227,7 +235,8 @@ function JournalEntryForm({
               onBlur={handleBlur}
               error={errors.CheckNumber}
               touched={touched.CheckNumber}
-            // required={selectedType !== 'Cash Disbursement'}
+              // required={selectedType !== 'Cash Disbursement'}
+              disabled={isReadOnly}
             />
             <FormField
               type="date"
@@ -238,7 +247,8 @@ function JournalEntryForm({
               onBlur={handleBlur}
               error={errors.CheckDate}
               touched={touched.CheckDate}
-            // required={selectedType !== 'Cash Disbursement'}
+              // required={selectedType !== 'Cash Disbursement'}
+              disabled={isReadOnly}
             />
           </div>
         )}
@@ -252,21 +262,23 @@ function JournalEntryForm({
             <div className="space-y-4">
               <div className="flex justify-between items-center mb-2">
                 <label className="font-medium">Accounting Entries</label>
-                <Button
-                  type="button"
-                  onClick={() =>
-                    push({
-                      ResponsibilityCenter: '',
-                      AccountExplanation: '',
-                      PR: '',
-                      Debit: 0,
-                      Credit: 0,
-                    })
-                  }
-                  className="btn btn-sm btn-primary"
-                >
-                  + Add
-                </Button>
+                {!isReadOnly && (
+                  <Button
+                    type="button"
+                    onClick={() =>
+                      push({
+                        ResponsibilityCenter: '',
+                        AccountExplanation: '',
+                        PR: '',
+                        Debit: 0,
+                        Credit: 0,
+                      })
+                    }
+                    className="btn btn-sm btn-primary"
+                  >
+                    + Add
+                  </Button>
+                )}
               </div>
 
               {values.AccountingEntries.map((entry, index) => {
@@ -297,6 +309,7 @@ function JournalEntryForm({
                             ?.ResponsibilityCenter
                         }
                         required
+                        disabled={isReadOnly}
                       />
                       <div className="flex-1 sm:min-w-[200px]">
                         <label className="form-label">
@@ -323,6 +336,7 @@ function JournalEntryForm({
                           }
                           onBlur={handleBlur}
                           required
+                          isDisabled={isReadOnly}
                         />
                         {errors.AccountingEntries?.[index]
                           ?.AccountExplanation && (
@@ -368,6 +382,7 @@ function JournalEntryForm({
                         touched={touched.AccountingEntries?.[index]?.Debit}
                         // disabled={hasCredit} // Disable if Credit has value
                         required={!hasCredit} // Only required if Credit is empty
+                        disabled={isReadOnly}
                       />
 
                       <FormField
@@ -395,19 +410,22 @@ function JournalEntryForm({
                         touched={touched.AccountingEntries?.[index]?.Credit}
                         // disabled={hasDebit} // Disable if Debit has value
                         required={!hasDebit} // Only required if Debit is empty
+                        disabled={isReadOnly}
                       />
                     </div>
 
-                    <div className="flex justify-end pt-0">
-                      <Button
-                        type="button"
-                        onClick={() => remove(index)}
-                        className="bg-red-600 hover:bg-red-700 text-white p-1"
-                        disabled={values.AccountingEntries.length === 1}
-                      >
-                        <Trash2 className="w-4 h-4" />
-                      </Button>
-                    </div>
+                    {!isReadOnly && (
+                      <div className="flex justify-end pt-0">
+                        <Button
+                          type="button"
+                          onClick={() => remove(index)}
+                          className="bg-red-600 hover:bg-red-700 text-white p-1"
+                          disabled={values.AccountingEntries.length === 1}
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </Button>
+                      </div>
+                    )}
                   </div>
                 );
               })}
@@ -456,13 +474,15 @@ function JournalEntryForm({
             <div className="space-y-4">
               <div className="mb-2 mt-10">
                 <label className="font-medium">Attachments</label>
-                <Button
-                  type="button"
-                  onClick={() => push({ File: null })}
-                  className="btn btn-sm btn-primary ml-5"
-                >
-                  + Add
-                </Button>
+                {!isReadOnly && (
+                  <Button
+                    type="button"
+                    onClick={() => push({ File: null })}
+                    className="btn btn-sm btn-primary ml-5"
+                  >
+                    + Add
+                  </Button>
+                )}
               </div>
 
               {values.Attachments?.map((att, index) => (
@@ -503,13 +523,15 @@ function JournalEntryForm({
                     </div>
                   )}
 
-                  <Button
-                    type="button"
-                    onClick={() => remove(index)}
-                    className="bg-red-600 hover:bg-red-700 text-white p-1"
-                  >
-                    <Trash2 className="w-4 h-4" />
-                  </Button>
+                  {!isReadOnly && (
+                    <Button
+                      type="button"
+                      onClick={() => remove(index)}
+                      className="bg-red-600 hover:bg-red-700 text-white p-1"
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </Button>
+                  )}
                 </div>
               ))}
             </div>
@@ -526,13 +548,15 @@ function JournalEntryForm({
           <Button type="button" onClick={onClose} className="btn btn-outline">
             Cancel
           </Button>
-          <Button
-            type="submit"
-            className="btn btn-primary"
-            disabled={formik.isSubmitting}
-          >
-            {formik.isSubmitting ? 'Saving...' : 'Save'}
-          </Button>
+          {!isReadOnly && (
+            <Button
+              type="submit"
+              className="btn btn-primary"
+              disabled={formik.isSubmitting}
+            >
+              {formik.isSubmitting ? 'Saving...' : 'Save'}
+            </Button>
+          )}
         </div>
       </form>
     </FormikProvider>

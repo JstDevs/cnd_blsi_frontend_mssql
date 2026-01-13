@@ -56,6 +56,7 @@ function ChequeGeneratorPage() {
   const [currentCheck, setCurrentCheck] = useState(null);
   const [chequeList, setChequeList] = useState([]);
   const [isLoadingBAPAction, setIsLoadingBAPAction] = useState(false);
+  const [isViewOnly, setIsViewOnly] = useState(false);
 
   const dispatch = useDispatch();
   const { banks, isLoading } = useSelector((state) => state.banks);
@@ -192,6 +193,7 @@ function ChequeGeneratorPage() {
 
   const handleEditCheque = (cheque) => {
     setCurrentCheck(cheque);
+    setIsViewOnly(false);
 
     // Populate the form fields using Formik's setValues
     formik.setValues({
@@ -217,6 +219,7 @@ function ChequeGeneratorPage() {
 
   const resetForm = () => {
     setCurrentCheck(null);
+    setIsViewOnly(false);
     formik.resetForm();
     setAttachments([]);
   };
@@ -228,12 +231,12 @@ function ChequeGeneratorPage() {
       render: (value) => {
         const status = value?.toLowerCase() || '';
         const statusColors = {
-          requested:  'bg-gradient-to-r from-warning-400 via-warning-300 to-warning-500 text-error-700',
-          approved:   'bg-gradient-to-r from-success-300 via-success-500 to-success-600 text-neutral-800',
-          posted:     'bg-gradient-to-r from-success-800 via-success-900 to-success-999 text-success-100',
-          rejected:   'bg-gradient-to-r from-error-700 via-error-800 to-error-999 text-neutral-100',
-          void:       'bg-gradient-to-r from-primary-900 via-primary-999 to-tertiary-999 text-neutral-300',
-          cancelled:  'bg-gradient-to-r from-neutral-200 via-neutral-300 to-neutral-400 text-neutral-800',
+          requested: 'bg-gradient-to-r from-warning-400 via-warning-300 to-warning-500 text-error-700',
+          approved: 'bg-gradient-to-r from-success-300 via-success-500 to-success-600 text-neutral-800',
+          posted: 'bg-gradient-to-r from-success-800 via-success-900 to-success-999 text-success-100',
+          rejected: 'bg-gradient-to-r from-error-700 via-error-800 to-error-999 text-neutral-100',
+          void: 'bg-gradient-to-r from-primary-900 via-primary-999 to-tertiary-999 text-neutral-300',
+          cancelled: 'bg-gradient-to-r from-neutral-200 via-neutral-300 to-neutral-400 text-neutral-800',
         };
         const colorClass = statusColors[status] || 'bg-neutral-100 text-neutral-800 border-neutral-200';
         return (
@@ -272,9 +275,9 @@ function ChequeGeneratorPage() {
           {' '}
           {value
             ? Number(value).toLocaleString(undefined, {
-                minimumFractionDigits: 2,
-                maximumFractionDigits: 2,
-              })
+              minimumFractionDigits: 2,
+              maximumFractionDigits: 2,
+            })
             : '—'}
         </span>
       ),
@@ -301,8 +304,30 @@ function ChequeGeneratorPage() {
   const handleDelete = (dv) => {
     console.log('Delete', dv);
   };
-  const handleView = (dv) => {
-    console.log('View', dv);
+  const handleView = (cheque) => {
+    setCurrentCheck(cheque);
+    setIsViewOnly(true);
+
+    // Populate the form fields using Formik's setValues
+    formik.setValues({
+      status: cheque.Status,
+      payee: cheque.Payee,
+      amount: cheque.Amount,
+      date: cheque.CheckDate,
+      bank: cheque.BankID.toString(),
+      accountNumber: cheque.AccountNumber,
+      accountName: cheque.AccountName,
+      chequeType: cheque.SignatoryType,
+      particulars: cheque.Particulars || '',
+      checkNumber: cheque.CheckNumber,
+      brstn: cheque.BRSTN,
+      dv: cheque.DisbursementID,
+      additionalInformation: cheque.Remarks,
+      obr: cheque.OBR || '',
+      signatory1: cheque.SignatoryOneID.toString(),
+      signatory2: cheque.SignatoryTwoID.toString(),
+      Attachments: cheque.Attachments || [],
+    });
   };
   const handleCGPAction = async (dv, action) => {
     setIsLoadingBAPAction(true);
@@ -377,7 +402,7 @@ function ChequeGeneratorPage() {
           </div>
           <div className="flex gap-2 max-sm:w-full">
             {/* // SAVE BUTTON  */}
-            {!currentCheck && Add && (
+            {!currentCheck && !isViewOnly && Add && (
               <button
                 type="submit"
                 onClick={formik.handleSubmit}
@@ -391,6 +416,7 @@ function ChequeGeneratorPage() {
             {/* ?? EDIT BUTTON  */}
             {currentCheck &&
               !currentCheck?.Status?.toLowerCase().includes('requested') &&
+              !isViewOnly &&
               Edit && (
                 <button
                   type="submit"
@@ -430,13 +456,13 @@ function ChequeGeneratorPage() {
                 </button>
               )}
             {currentCheck &&
-              !currentCheck?.Status?.toLowerCase().includes('requested') && (
+              (
                 <button
                   type="button"
                   onClick={resetForm}
                   className="btn btn-outline mr-2"
                 >
-                  Cancel Edit
+                  {isViewOnly ? 'Close View' : 'Cancel Edit'}
                 </button>
               )}
           </div>
@@ -466,6 +492,7 @@ function ChequeGeneratorPage() {
                   error={formik.touched.bank && formik.errors.bank}
                   touched={formik.touched.bank}
                   required
+                  isDisabled={isViewOnly}
                 />
               </div>
 
@@ -479,6 +506,7 @@ function ChequeGeneratorPage() {
                       checked={formik.values.chequeType === 'Single'}
                       onChange={formik.handleChange}
                       className="mr-2"
+                      disabled={isViewOnly}
                     />
                     Single
                   </label>
@@ -490,6 +518,7 @@ function ChequeGeneratorPage() {
                       checked={formik.values.chequeType === 'Double'}
                       onChange={formik.handleChange}
                       className="mr-2"
+                      disabled={isViewOnly}
                     />
                     Double
                   </label>
@@ -509,6 +538,7 @@ function ChequeGeneratorPage() {
                 name="dv"
                 error={formik.touched.dv && formik.errors.dv}
                 touched={formik.touched.dv}
+                disabled={isViewOnly}
               />
             </div>
             {/* Attachments Section */}
@@ -528,6 +558,7 @@ function ChequeGeneratorPage() {
                   file:text-sm file:font-medium
                   file:bg-blue-50 file:text-blue-700
                   hover:file:bg-blue-100"
+                  disabled={isViewOnly}
                 />
               </div>
               {formik?.values?.Attachments?.length > 0 ? (
@@ -554,19 +585,21 @@ function ChequeGeneratorPage() {
                           )}
                         </span>
                       </div>
-                      <button
-                        type="button"
-                        onClick={() =>
-                          removeAttachment(
-                            index,
-                            formik.setFieldValue,
-                            formik.values
-                          )
-                        }
-                        className="text-red-500 hover:text-red-700"
-                      >
-                        <Trash2 className="h-4 w-4" />
-                      </button>
+                      {!isViewOnly && (
+                        <button
+                          type="button"
+                          onClick={() =>
+                            removeAttachment(
+                              index,
+                              formik.setFieldValue,
+                              formik.values
+                            )
+                          }
+                          className="text-red-500 hover:text-red-700"
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </button>
+                      )}
                     </div>
                   ))}
                 </div>
@@ -603,6 +636,7 @@ function ChequeGeneratorPage() {
                       formik.errors.accountNumber
                     }
                     touched={formik.touched.accountNumber}
+                    disabled={isViewOnly}
                   />
                 </div>
                 <div>
@@ -616,6 +650,7 @@ function ChequeGeneratorPage() {
                       formik.touched.accountName && formik.errors.accountName
                     }
                     touched={formik.touched.accountName}
+                    disabled={isViewOnly}
                   />
                 </div>
               </div>
@@ -632,6 +667,7 @@ function ChequeGeneratorPage() {
                       formik.touched.checkNumber && formik.errors.checkNumber
                     }
                     touched={formik.touched.checkNumber}
+                    disabled={isViewOnly}
                   />
                 </div>
                 <div>
@@ -643,6 +679,7 @@ function ChequeGeneratorPage() {
                     onChange={formik.handleChange}
                     error={formik.touched.brstn && formik.errors.brstn}
                     touched={formik.touched.brstn}
+                    disabled={isViewOnly}
                   />
                 </div>
               </div>
@@ -656,6 +693,7 @@ function ChequeGeneratorPage() {
                   onChange={formik.handleChange}
                   error={formik.touched.date && formik.errors.date}
                   touched={formik.touched.date}
+                  disabled={isViewOnly}
                 />
               </div>
 
@@ -668,6 +706,7 @@ function ChequeGeneratorPage() {
                   onChange={formik.handleChange}
                   error={formik.touched.payee && formik.errors.payee}
                   touched={formik.touched.payee}
+                  disabled={isViewOnly}
                 />
               </div>
 
@@ -679,9 +718,9 @@ function ChequeGeneratorPage() {
                   value={
                     formik.values.amount !== '' && !isNaN(formik.values.amount)
                       ? Number(formik.values.amount).toLocaleString(undefined, {
-                          minimumFractionDigits: 2,
-                          maximumFractionDigits: 2,
-                        })
+                        minimumFractionDigits: 2,
+                        maximumFractionDigits: 2,
+                      })
                       : ''
                   }
                   onChange={(e) => {
@@ -698,6 +737,7 @@ function ChequeGeneratorPage() {
                   step="0.01"
                   error={formik.touched.amount && formik.errors.amount}
                   touched={formik.touched.amount}
+                  disabled={isViewOnly}
                 />
               </div>
 
@@ -744,6 +784,7 @@ function ChequeGeneratorPage() {
                   error={formik.touched.signatory1 && formik.errors.signatory1}
                   touched={formik.touched.signatory1}
                   required
+                  isDisabled={isViewOnly}
                 />
               </div>
 
@@ -769,6 +810,7 @@ function ChequeGeneratorPage() {
                   error={formik.touched.signatory2 && formik.errors.signatory2}
                   touched={formik.touched.signatory2}
                   required
+                  isDisabled={isViewOnly}
                 />
               </div>
 
@@ -783,6 +825,7 @@ function ChequeGeneratorPage() {
                   placeholder="Additional information..."
                   className="w-full p-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   rows="3"
+                  disabled={isViewOnly}
                 />
               </div>
             </div>
@@ -851,9 +894,9 @@ function ChequeGeneratorPage() {
                 <p className="font-medium text-lg">
                   {formik.values.amount
                     ? new Intl.NumberFormat('en-PH', {
-                        style: 'currency',
-                        currency: 'PHP',
-                      }).format(formik.values.amount)
+                      style: 'currency',
+                      currency: 'PHP',
+                    }).format(formik.values.amount)
                     : '₱0.00'}
                 </p>
               </div>

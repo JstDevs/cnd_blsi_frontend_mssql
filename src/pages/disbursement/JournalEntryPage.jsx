@@ -47,6 +47,7 @@ function JournalEntryPage() {
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [isLoadingJEPAction, setIsLoadingJEPAction] = useState(false);
   const [journalEntryToDelete, setJournalEntryToDelete] = useState(null);
+  const [isViewOnly, setIsViewOnly] = useState(false);
 
   useEffect(() => {
     dispatch(fetchJournalEntries());
@@ -56,11 +57,19 @@ function JournalEntryPage() {
 
   const handleAdd = () => {
     setCurrentJournalEntry(null);
+    setIsViewOnly(false);
     setIsModalOpen(true);
   };
 
   const handleEdit = (journalEntry) => {
     setCurrentJournalEntry(journalEntry);
+    setIsViewOnly(false);
+    setIsModalOpen(true);
+  };
+
+  const handleView = (journalEntry) => {
+    setCurrentJournalEntry(journalEntry);
+    setIsViewOnly(true);
     setIsModalOpen(true);
   };
 
@@ -129,12 +138,12 @@ function JournalEntryPage() {
       render: (value) => {
         const status = value?.toLowerCase() || '';
         const statusColors = {
-          requested:  'bg-gradient-to-r from-warning-400 via-warning-300 to-warning-500 text-error-700',
-          approved:   'bg-gradient-to-r from-success-300 via-success-500 to-success-600 text-neutral-800',
-          posted:     'bg-gradient-to-r from-success-800 via-success-900 to-success-999 text-success-100',
-          rejected:   'bg-gradient-to-r from-error-700 via-error-800 to-error-999 text-neutral-100',
-          void:       'bg-gradient-to-r from-primary-900 via-primary-999 to-tertiary-999 text-neutral-300',
-          cancelled:  'bg-gradient-to-r from-neutral-200 via-neutral-300 to-neutral-400 text-neutral-800',
+          requested: 'bg-gradient-to-r from-warning-400 via-warning-300 to-warning-500 text-error-700',
+          approved: 'bg-gradient-to-r from-success-300 via-success-500 to-success-600 text-neutral-800',
+          posted: 'bg-gradient-to-r from-success-800 via-success-900 to-success-999 text-success-100',
+          rejected: 'bg-gradient-to-r from-error-700 via-error-800 to-error-999 text-neutral-100',
+          void: 'bg-gradient-to-r from-primary-900 via-primary-999 to-tertiary-999 text-neutral-300',
+          cancelled: 'bg-gradient-to-r from-neutral-200 via-neutral-300 to-neutral-400 text-neutral-800',
         };
         const colorClass = statusColors[status] || 'bg-neutral-100 text-neutral-800 border-neutral-200';
         return (
@@ -210,9 +219,9 @@ function JournalEntryPage() {
   //   className: 'text-error-600 hover:text-error-900 p-1 rounded-full hover:bg-error-50'
   // }
   // ];
-  const handleView = (values) => {
-    console.log(values);
-  };
+  // const handleView = (values) => {
+  //   console.log(values);
+  // };
   const handleJEPAction = async (item, action) => {
     setIsLoadingJEPAction(true);
     try {
@@ -324,9 +333,11 @@ function JournalEntryPage() {
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
         title={
-          currentJournalEntry
-            ? 'Edit Journal Entry Voucher'
-            : 'Add Journal Entry Voucher'
+          isViewOnly
+            ? 'View Journal Entry Voucher'
+            : currentJournalEntry
+              ? 'Edit Journal Entry Voucher'
+              : 'Add Journal Entry Voucher'
         }
       >
         <JournalEntryForm
@@ -366,6 +377,7 @@ function JournalEntryPage() {
           }
           onClose={() => setIsModalOpen(false)}
           onSubmit={handleSubmit}
+          isReadOnly={isViewOnly}
         />
       </Modal>
 
