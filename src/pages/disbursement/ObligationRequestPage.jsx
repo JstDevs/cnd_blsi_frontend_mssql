@@ -179,14 +179,14 @@ function ObligationRequestPage() {
     handleEditOR(or);
   };
   const handleDelete = async (or) => {
-    if (window.confirm('Are you sure you want to delete this obligation request?')) {
+    if (window.confirm('Are you sure you want to void this obligation request? This will mark it as void but keep it visible in the list.')) {
       try {
         await axiosInstance.delete(`/obligationRequest/delete/${or.ID}`);
-        toast.success('Obligation Request deleted successfully');
+        toast.success('Obligation Request voided successfully');
         dispatch(fetchObligationRequests());
       } catch (error) {
-        console.error('Error deleting obligation request:', error);
-        toast.error(error.response?.data?.message || 'Error deleting obligation request');
+        console.error('Error voiding obligation request:', error);
+        toast.error(error.response?.data?.message || 'Error voiding obligation request');
       }
     }
   };
@@ -247,40 +247,46 @@ function ObligationRequestPage() {
 
   const actions = (row) => {
     const actionList = [];
+    const isVoided = row?.Status?.toLowerCase().includes('void');
 
-    if (row?.Status?.toLowerCase().includes('rejected') && Edit) {
-      actionList.push({
-        icon: PencilIcon,
-        title: 'Edit',
-        onClick: handleEditRequest,
-        className:
-          'text-primary-600 hover:text-primary-900 p-1 rounded-full hover:bg-primary-50',
-      });
-      actionList.push({
-        icon: TrashIcon,
-        title: 'Delete',
-        onClick: () => handleDelete(row),
-        className:
-          'text-error-600 hover:text-error-900 p-1 rounded-full hover:bg-error-50',
-      });
-    } else if (row?.Status?.toLowerCase().includes('requested')) {
-      actionList.push(
-        {
-          icon: CheckLine,
-          title: 'Approve',
-          onClick: () => handleORPAction(row, 'approve'),
+    // Don't show any action buttons for voided records except View
+    if (!isVoided) {
+      if (row?.Status?.toLowerCase().includes('rejected') && Edit) {
+        actionList.push({
+          icon: PencilIcon,
+          title: 'Edit',
+          onClick: handleEditRequest,
           className:
-            'text-green-600 hover:text-green-900 p-1 rounded-full hover:bg-green-50',
-        },
-        {
-          icon: X,
-          title: 'Reject',
-          onClick: () => handleORPAction(row, 'reject'),
+            'text-primary-600 hover:text-primary-900 p-1 rounded-full hover:bg-primary-50',
+        });
+        actionList.push({
+          icon: TrashIcon,
+          title: 'Void',
+          onClick: () => handleDelete(row),
           className:
-            'text-red-600 hover:text-red-900 p-1 rounded-full hover:bg-red-50',
-        }
-      );
+            'text-error-600 hover:text-error-900 p-1 rounded-full hover:bg-error-50',
+        });
+      } else if (row?.Status?.toLowerCase().includes('requested')) {
+        actionList.push(
+          {
+            icon: CheckLine,
+            title: 'Approve',
+            onClick: () => handleORPAction(row, 'approve'),
+            className:
+              'text-green-600 hover:text-green-900 p-1 rounded-full hover:bg-green-50',
+          },
+          {
+            icon: X,
+            title: 'Reject',
+            onClick: () => handleORPAction(row, 'reject'),
+            className:
+              'text-red-600 hover:text-red-900 p-1 rounded-full hover:bg-red-50',
+          }
+        );
+      }
     }
+
+    // Always show View button
     actionList.push({
       icon: EyeIcon,
       title: 'View',
