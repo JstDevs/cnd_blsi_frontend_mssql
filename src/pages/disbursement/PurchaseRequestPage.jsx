@@ -17,6 +17,8 @@ import {
 } from '../../features/disbursement/purchaseRequestSlice';
 import { useModulePermissions } from '@/utils/useModulePremission';
 import { CheckLine, EyeIcon, X } from 'lucide-react';
+import { use } from 'react';
+import { set } from 'date-fns';
 
 function PurchaseRequestPage() {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -33,6 +35,7 @@ function PurchaseRequestPage() {
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [isLoadingPRPAction, setIsLoadingPRPAction] = useState(false);
   const [requestToDelete, setRequestToDelete] = useState(null);
+  const [isViewOnly, setIsViewOnly] = useState(false);
 
   // ---------------------USE MODULE PERMISSIONS------------------START (FundUtilizationPage - MODULE ID =  69 )
   const { Add, Edit, Delete } = useModulePermissions(69);
@@ -47,11 +50,13 @@ function PurchaseRequestPage() {
 
   const handleAddRequest = () => {
     setCurrentRequest(null);
+    setIsViewOnly(false);
     setIsModalOpen(true);
   };
 
   const handleEditRequest = (request) => {
     setCurrentRequest(request);
+    setIsViewOnly(false);
     setIsModalOpen(true);
   };
 
@@ -238,6 +243,7 @@ function PurchaseRequestPage() {
   const handleView = (values) => {
     setCurrentRequest(values);
     setIsModalOpen(true);
+    setIsViewOnly(true);
   };
   const handleTOPAction = async (dv, action) => {
     setIsLoadingPRPAction(true);
@@ -338,11 +344,12 @@ function PurchaseRequestPage() {
         isOpen={isModalOpen}
         onClose={handleCloseModal}
         title={
-          currentRequest ? 'Edit Purchase Request' : 'Add Purchase Request'
+          isViewOnly ? 'View Purchase Request' : currentRequest ? 'Edit Purchase Request' : 'Add Purchase Request'
         }
         size="xxxl"
       >
         <PurchaseRequestForm
+          isReadOnly={isViewOnly}
           initialData={currentRequest}
           departmentsOptions={departments.map((dept) => ({
             value: dept.ID,
