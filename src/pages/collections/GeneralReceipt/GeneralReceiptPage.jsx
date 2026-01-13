@@ -110,12 +110,12 @@ function GeneralReceiptPage() {
       render: (value) => (
         <span
           className={`px-2 py-1 rounded ${
-            value === 'Requested'     ? 'bg-warning-300 text-error-700'
-              : value === 'Approved'  ? 'bg-success-300 text-neutral-800'
-              : value === 'Posted'    ? 'bg-success-800 text-success-100'
-              : value === 'Rejected'  ? 'bg-error-500 text-neutral-100'
-              : value === 'Void'      ? 'bg-primary-900 text-neutral-300'
-              : value === 'Cancelled' ? 'bg-neutral-300 text-neutral-700'
+            value === 'Requested'     ? 'bg-gradient-to-r from-warning-400 via-warning-300 to-warning-500 text-error-700'
+              : value === 'Approved'  ? 'bg-gradient-to-r from-success-300 via-success-500 to-success-600 text-neutral-800'
+              : value === 'Posted'    ? 'bg-gradient-to-r from-success-800 via-success-900 to-success-999 text-success-100'
+              : value === 'Rejected'  ? 'bg-gradient-to-r from-error-700 via-error-800 to-error-999 text-neutral-100'
+              : value === 'Void'      ? 'bg-gradient-to-r from-primary-900 via-primary-999 to-tertiary-999 text-neutral-300'
+              : value === 'Cancelled' ? 'bg-gradient-to-r from-neutral-200 via-neutral-300 to-neutral-400 text-neutral-800'
               : 'bg-gray-100 text-gray-800'
           }`}
         >
@@ -381,12 +381,12 @@ function GeneralReceiptPage() {
                       <dd className="text-sm text-neutral-900 col-span-2">
                         <span
                           className={`px-2 py-1 rounded text-xs ${
-                            currentReceipt.Status === 'Requested'     ? 'bg-warning-300 text-error-700'
-                              : currentReceipt.Status === 'Approved'  ? 'bg-success-300 text-neutral-800'
-                              : currentReceipt.Status === 'Posted'    ? 'bg-success-800 text-success-100'
-                              : currentReceipt.Status === 'Rejected'  ? 'bg-error-500 text-neutral-100'
-                              : currentReceipt.Status === 'Void'      ? 'bg-primary-900 text-neutral-300'
-                              : currentReceipt.Status === 'Cancelled' ? 'bg-neutral-300 text-neutral-700'
+                            currentReceipt.Status === 'Requested'     ? 'bg-gradient-to-r from-warning-400 via-warning-300 to-warning-500 text-error-700'
+                              : currentReceipt.Status === 'Approved'  ? 'bg-gradient-to-r from-success-300 via-success-500 to-success-600 text-neutral-800'
+                              : currentReceipt.Status === 'Posted'    ? 'bg-gradient-to-r from-success-800 via-success-900 to-success-999 text-success-100'
+                              : currentReceipt.Status === 'Rejected'  ? 'bg-gradient-to-r from-error-700 via-error-800 to-error-999 text-neutral-100'
+                              : currentReceipt.Status === 'Void'      ? 'bg-gradient-to-r from-primary-900 via-primary-999 to-tertiary-999 text-neutral-300'
+                              : currentReceipt.Status === 'Cancelled' ? 'bg-gradient-to-r from-neutral-200 via-neutral-300 to-neutral-400 text-neutral-800'
                               : 'bg-gray-100 text-gray-800'
                           }`}
                         >

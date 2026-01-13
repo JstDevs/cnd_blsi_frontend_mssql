@@ -118,6 +118,7 @@ const BudgetTransferPage = () => {
     }, 0) || 0;
     const requested = filteredData?.filter(item => item.Status?.toLowerCase().includes('requested')).length || 0;
     const approved = filteredData?.filter(item => item.Status?.toLowerCase().includes('approved')).length || 0;
+    const posted = filteredData?.filter(item => item.Status?.toLowerCase().includes('posted')).length || 0;
     const rejected = filteredData?.filter(item => item.Status?.toLowerCase().includes('rejected')).length || 0;
 
     return {
@@ -125,6 +126,7 @@ const BudgetTransferPage = () => {
       totalAmount,
       requested,
       approved,
+      posted,
       rejected,
     };
   }, [filteredData]);
@@ -167,35 +169,19 @@ const BudgetTransferPage = () => {
     {
       key: 'Status',
       header: 'Status',
-      sortable: true,
       render: (value) => {
         const status = value?.toLowerCase() || '';
-        const statusConfig = {
-          requested: {
-            bg: 'bg-yellow-100',
-            text: 'text-yellow-800',
-            border: 'border-yellow-200',
-          },
-          approved: {
-            bg: 'bg-green-100',
-            text: 'text-green-800',
-            border: 'border-green-200',
-          },
-          rejected: {
-            bg: 'bg-red-100',
-            text: 'text-red-800',
-            border: 'border-red-200',
-          },
+        const statusColors = {
+          requested:  'bg-gradient-to-r from-warning-400 via-warning-300 to-warning-500 text-error-700',
+          approved:   'bg-gradient-to-r from-success-300 via-success-500 to-success-600 text-neutral-800',
+          posted:     'bg-gradient-to-r from-success-800 via-success-900 to-success-999 text-success-100',
+          rejected:   'bg-gradient-to-r from-error-700 via-error-800 to-error-999 text-neutral-100',
+          void:       'bg-gradient-to-r from-primary-900 via-primary-999 to-tertiary-999 text-neutral-300',
+          cancelled:  'bg-gradient-to-r from-neutral-200 via-neutral-300 to-neutral-400 text-neutral-800',
         };
-        const config = statusConfig[status] || {
-          bg: 'bg-neutral-100',
-          text: 'text-neutral-800',
-          border: 'border-neutral-200',
-        };
+        const colorClass = statusColors[status] || 'bg-neutral-100 text-neutral-800 border-neutral-200';
         return (
-          <span
-            className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold border ${config.bg} ${config.text} ${config.border}`}
-          >
+          <span className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold border ${colorClass}`}>
             {value || 'N/A'}
           </span>
         );
@@ -343,7 +329,7 @@ const BudgetTransferPage = () => {
                   Budget Transfer
                 </h1>
                 <p className="text-sm text-neutral-600 mt-0.5">
-                  Manage budget transfers between accounts and departments
+                  Augment budgets appropriated for specific purposes.
                 </p>
               </div>
             </div>
@@ -419,8 +405,8 @@ const BudgetTransferPage = () => {
             <div className="bg-gradient-to-br from-emerald-50 to-emerald-100 border border-emerald-200 rounded-xl p-4 sm:p-5 shadow-sm hover:shadow-md transition-shadow min-w-0">
               <div className="flex items-center justify-between gap-3">
                 <div className="flex-1 min-w-0">
-                  <p className="text-xs sm:text-sm font-medium text-emerald-700 mb-1">Approved</p>
-                  <p className="text-xl sm:text-2xl font-bold text-emerald-900 break-words">{summaryStats.approved}</p>
+                  <p className="text-xs sm:text-sm font-medium text-emerald-700 mb-1">Posted</p>
+                  <p className="text-xl sm:text-2xl font-bold text-emerald-900 break-words">{summaryStats.posted}</p>
                 </div>
                 <div className="p-2 sm:p-3 bg-emerald-200 rounded-lg flex-shrink-0">
                   <CheckCircle2 className="h-5 w=5 sm:h-6 sm:w-6 text-emerald-700" />

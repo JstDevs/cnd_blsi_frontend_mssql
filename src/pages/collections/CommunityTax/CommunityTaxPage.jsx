@@ -174,19 +174,14 @@ function CommunityTaxPage() {
     // }
 
     switch (value) {
-      case 'Requested': bgColor = 'bg-warning-300 text-error-700';    break;
-      case 'Approved':  bgColor = 'bg-success-300 text-neutral-800';  break;
-      case 'Posted':    bgColor = 'bg-success-800 text-success-100';  break;
-      case 'Rejected':  bgColor = 'bg-error-500 text-neutral-100';    break;
-      case 'Void':      bgColor = 'bg-primary-900 text-neutral-300';  break;
-      case 'Cancelled': bgColor = 'bg-neutral-300 text-neutral-700';  break;
+      case 'Requested': bgColor = 'bg-gradient-to-r from-warning-400 via-warning-300 to-warning-500 text-error-700';    break;
+      case 'Approved':  bgColor = 'bg-gradient-to-r from-success-300 via-success-500 to-success-600 text-neutral-800';  break;
+      case 'Posted':    bgColor = 'bg-gradient-to-r from-success-800 via-success-900 to-success-999 text-success-100';  break;
+      case 'Rejected':  bgColor = 'bg-gradient-to-r from-error-700 via-error-800 to-error-999 text-neutral-100';        break;
+      case 'Void':      bgColor = 'bg-gradient-to-r from-primary-900 via-primary-999 to-tertiary-999 text-neutral-300'; break;
+      case 'Cancelled': bgColor = 'bg-gradient-to-r from-neutral-200 via-neutral-300 to-neutral-400 text-neutral-800';  break;
       default: break;
     }
-
-    // bg: 'bg-gradient-to-r from-amber-100 to-yellow-100',
-    //   text: 'text-amber-800',
-    //   border: 'border-amber-300',
-    //   icon: '⏳',bg-gradient-to-r from-success-800 to-error-500
 
     return (
       <span

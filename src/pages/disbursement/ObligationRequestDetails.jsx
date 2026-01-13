@@ -51,13 +51,27 @@ function ObligationRequestDetails({ or, onBack, onEdit }) {
 
     const lowerStatus = status.toLowerCase();
 
-    if (lowerStatus.includes('requested') || lowerStatus.includes('pending')) {
-      bgColor = 'bg-warning-100 text-warning-800';
-    } else if (lowerStatus.includes('posted') || lowerStatus.includes('approved')) {
-      bgColor = 'bg-success-100 text-success-800';
-    } else if (lowerStatus.includes('rejected') || lowerStatus.includes('cancelled')) {
-      bgColor = 'bg-error-100 text-error-800';
+    switch (lowerStatus) {
+          case 'requested':   bgColor = 'bg-gradient-to-r from-warning-400 via-warning-300 to-warning-500 text-error-700';  break;
+          case 'approved':    bgColor = 'bg-gradient-to-r from-success-300 via-success-500 to-success-600 text-neutral-800'; break;
+          case 'posted':      bgColor = 'bg-gradient-to-r from-success-800 via-success-900 to-success-999 text-success-100'; break;
+          case 'rejected':    bgColor = 'bg-gradient-to-r from-error-700 via-error-800 to-error-999 text-neutral-100';     break;
+          case 'void':        bgColor = 'bg-gradient-to-r from-primary-900 via-primary-999 to-tertiary-999 text-neutral-300'; break;
+          case 'cancelled':   bgColor = 'bg-gradient-to-r from-neutral-200 via-neutral-300 to-neutral-400 text-neutral-800'; break;
+          case 'disbursement pending': bgColor = 'bg-gradient-to-r from-warning-400 via-warning-300 to-warning-500 text-error-700'; break;
+          case 'disbursement posted':  bgColor = 'bg-gradient-to-r from-success-800 via-success-900 to-success-999 text-success-100'; break;
+          case 'cheque pending':       bgColor = 'bg-gradient-to-r from-warning-400 via-warning-300 to-warning-500 text-error-700'; break;
+          case 'cheque posted':        bgColor = 'bg-gradient-to-r from-success-800 via-success-900 to-success-999 text-success-100'; break;
+          default:            bgColor = 'bg-neutral-100 text-neutral-800'; break;
     }
+
+    // if (lowerStatus.includes('requested') || lowerStatus.includes('pending')) {
+    //   bgColor = 'bg-warning-100 text-warning-800';
+    // } else if (lowerStatus.includes('posted') || lowerStatus.includes('approved')) {
+    //   bgColor = 'bg-success-100 text-success-800';
+    // } else if (lowerStatus.includes('rejected') || lowerStatus.includes('cancelled')) {
+    //   bgColor = 'bg-error-100 text-error-800';
+    // }
 
     return bgColor;
   };

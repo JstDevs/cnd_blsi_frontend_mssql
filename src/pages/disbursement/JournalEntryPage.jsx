@@ -126,25 +126,20 @@ function JournalEntryPage() {
     {
       key: 'Status',
       header: 'Status',
-      sortable: true,
       render: (value) => {
-        let bgColor = 'bg-neutral-100 text-neutral-800';
-
-        switch (value) {
-          case 'Requested': bgColor = 'bg-warning-300 text-error-700'; break;
-          case 'Approved': bgColor = 'bg-success-300 text-neutral-800'; break;
-          case 'Posted': bgColor = 'bg-success-800 text-success-100'; break;
-          case 'Rejected': bgColor = 'bg-error-500 text-neutral-100'; break;
-          case 'Void': bgColor = 'bg-primary-900 text-neutral-300'; break;
-          case 'Cancelled': bgColor = 'bg-neutral-300 text-neutral-700'; break;
-          default: break;
-        }
-
+        const status = value?.toLowerCase() || '';
+        const statusColors = {
+          requested:  'bg-gradient-to-r from-warning-400 via-warning-300 to-warning-500 text-error-700',
+          approved:   'bg-gradient-to-r from-success-300 via-success-500 to-success-600 text-neutral-800',
+          posted:     'bg-gradient-to-r from-success-800 via-success-900 to-success-999 text-success-100',
+          rejected:   'bg-gradient-to-r from-error-700 via-error-800 to-error-999 text-neutral-100',
+          void:       'bg-gradient-to-r from-primary-900 via-primary-999 to-tertiary-999 text-neutral-300',
+          cancelled:  'bg-gradient-to-r from-neutral-200 via-neutral-300 to-neutral-400 text-neutral-800',
+        };
+        const colorClass = statusColors[status] || 'bg-neutral-100 text-neutral-800 border-neutral-200';
         return (
-          <span
-            className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${bgColor}`}
-          >
-            {value}
+          <span className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold border ${colorClass}`}>
+            {value || 'N/A'}
           </span>
         );
       },
