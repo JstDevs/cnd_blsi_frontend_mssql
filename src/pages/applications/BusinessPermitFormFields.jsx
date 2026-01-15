@@ -22,19 +22,19 @@ const BusinessPermitFormFields = ({
           <FormField
             label="Applicant Type"
             name="applicantType"
-            type="radio-group"
+            type="radio"
             options={[
               { value: 'new', label: 'New' },
               { value: 'renewal', label: 'Renewal' },
             ]}
             value={formData.applicantType}
-            onChange={(value) => handleInputChange('applicantType', value)}
+            onChange={(e) => handleInputChange('applicantType', e.target.value)}
           />
 
           <FormField
             label="Mode of Payment"
             name="modeOfPayment"
-            type="radio-group"
+            type="radio"
             options={[
               { value: 'annually', label: 'Annually' },
               { value: 'semi-annually', label: 'Semi-Annually' },
