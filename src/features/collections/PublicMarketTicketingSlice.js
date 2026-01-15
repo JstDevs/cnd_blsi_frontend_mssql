@@ -25,6 +25,7 @@ export const fetchPublicMarketTickets = createAsyncThunk(
 
       return res;
     } catch (error) {
+      console.error('Error fetching public market tickets:', error); // Debug log
       return thunkAPI.rejectWithValue(error.message);
     }
   }
@@ -51,6 +52,7 @@ export const fetchPublicMarketTicketById = createAsyncThunk(
 
       return res;
     } catch (error) {
+      console.error(`Error fetching public market ticket by ID ${id}:`, error); // Debug log
       return thunkAPI.rejectWithValue(error.message);
     }
   }
@@ -78,18 +80,19 @@ export const addPublicMarketTicket = createAsyncThunk(
 
       return res;
     } catch (error) {
+      console.error('Error adding public market ticket:', error); // Debug log
       return thunkAPI.rejectWithValue(error.message);
     }
   }
 );
 
 export const updatePublicMarketTicket = createAsyncThunk(
-  'publicMarketTicketing/public-market-ticketing',
+  'publicMarketTicketing/updatePublicMarketTicket',
   async (ticketData, thunkAPI) => {
     try {
       const token = sessionStorage.getItem('token');
       const response = await fetch(
-        `${API_URL}/publicMarketTicketing/${ticketData.ID}`,
+        `${API_URL}/public-market-ticketing/${ticketData.ID}`,
         {
           method: 'PUT',
           headers: {
@@ -108,6 +111,7 @@ export const updatePublicMarketTicket = createAsyncThunk(
 
       return res;
     } catch (error) {
+      console.error(`Error updating public market ticket with ID ${ticketData.ID}:`, error); // Debug log
       return thunkAPI.rejectWithValue(error.message);
     }
   }
@@ -135,6 +139,57 @@ export const deletePublicMarketTicket = createAsyncThunk(
 
       return id;
     } catch (error) {
+      console.error(`Error deleting public market ticket with ID ${id}:`, error); // Debug log
+      return thunkAPI.rejectWithValue(error.message);
+    }
+  }
+);
+
+export const approvePublicMarketTicket = createAsyncThunk(
+  'publicMarketTicketing/approvePublicMarketTicket',
+  async (id, thunkAPI) => {
+    try {
+      const token = sessionStorage.getItem('token');
+      const response = await fetch(`${API_URL}/public-market-ticketing/approve/${id}`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      const res = await response.json();
+      if (!response.ok) {
+        throw new Error(res.message || 'Failed to approve ticket');
+      }
+      return res;
+    } catch (error) {
+      console.error(`Error approving public market ticket with ID ${id}:`, error); // Debug log
+      return thunkAPI.rejectWithValue(error.message);
+    }
+  }
+);
+
+export const rejectPublicMarketTicket = createAsyncThunk(
+  'publicMarketTicketing/rejectPublicMarketTicket',
+  async (id, thunkAPI) => {
+    try {
+      const token = sessionStorage.getItem('token');
+      const response = await fetch(`${API_URL}/public-market-ticketing/reject/${id}`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      const res = await response.json();
+      if (!response.ok) {
+        throw new Error(res.message || 'Failed to reject ticket');
+      }
+      return res;
+    } catch (error) {
+      console.error(`Error rejecting public market ticket with ID ${id}:`, error); // Debug log
       return thunkAPI.rejectWithValue(error.message);
     }
   }
@@ -230,20 +285,47 @@ const publicMarketTicketingSlice = createSlice({
       })
       .addCase(deletePublicMarketTicket.fulfilled, (state, action) => {
         state.isLoading = false;
-        if (!Array.isArray(state.tickets)) {
-          state.tickets = [];
-        }
-        state.tickets = state.tickets.filter(
-          (item) => item.ID !== action.payload
+        // Don't filter out anymore, let it stay in the list with Void status
+        // We refetch in the component, but we can also update locally for immediate UX
+        const index = state.tickets.findIndex(
+          (item) => item.ID === action.payload
         );
-        if (state.currentTicket && state.currentTicket.ID === action.payload) {
-          state.currentTicket = null;
+        if (index !== -1) {
+          state.tickets[index].Status = 'Void';
         }
       })
       .addCase(deletePublicMarketTicket.rejected, (state, action) => {
         state.isLoading = false;
         state.error = action.payload || 'Failed to delete public market ticket';
         console.error('Failed to delete ticket:', state.error);
+      })
+      .addCase(approvePublicMarketTicket.pending, (state) => {
+        state.isLoading = true;
+      })
+      .addCase(approvePublicMarketTicket.fulfilled, (state, action) => {
+        state.isLoading = false;
+        const index = state.tickets.findIndex(t => t.ID === action.payload.ID);
+        if (index !== -1) {
+          state.tickets[index] = action.payload;
+        }
+      })
+      .addCase(approvePublicMarketTicket.rejected, (state, action) => {
+        state.isLoading = false;
+        state.error = action.payload;
+      })
+      .addCase(rejectPublicMarketTicket.pending, (state) => {
+        state.isLoading = true;
+      })
+      .addCase(rejectPublicMarketTicket.fulfilled, (state, action) => {
+        state.isLoading = false;
+        const index = state.tickets.findIndex(t => t.ID === action.payload.ID);
+        if (index !== -1) {
+          state.tickets[index] = action.payload;
+        }
+      })
+      .addCase(rejectPublicMarketTicket.rejected, (state, action) => {
+        state.isLoading = false;
+        state.error = action.payload;
       });
   },
 });

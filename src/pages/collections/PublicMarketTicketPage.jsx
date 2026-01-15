@@ -9,9 +9,11 @@ import PublicMarketTicketForm from '@/components/forms/PublicMarketTicketForm';
 import {
   deletePublicMarketTicket,
   fetchPublicMarketTickets,
+  approvePublicMarketTicket,
+  rejectPublicMarketTicket,
 } from '@/features/collections/PublicMarketTicketingSlice';
 import { useDispatch, useSelector } from 'react-redux';
-import { PencilIcon, Trash } from 'lucide-react';
+import { PencilIcon, Trash, CheckCircle, XCircle } from 'lucide-react';
 import { useModulePermissions } from '@/utils/useModulePremission';
 import { formatCurrency } from '@/utils/currencyFormater';
 
@@ -36,18 +38,46 @@ const PublicMarketTicketPage = () => {
     }
   }, [error]);
 
+  useEffect(() => {
+    if (tickets.length > 0) {
+      console.log('DEBUG: First row data:', tickets[0]);
+      console.log('DEBUG: Row keys:', Object.keys(tickets[0]));
+    }
+  }, [tickets]);
+
   const handleAdd = () => {
     setSelectedTicket(null);
     setIsModalOpen(true);
   };
 
   const handleDeleteTicket = async (ticket) => {
-    console.log('Deleting ticket:', ticket);
+    if (!window.confirm('Are you sure you want to void this ticket?')) return;
     try {
       await dispatch(deletePublicMarketTicket(ticket.ID)).unwrap();
-      toast.success('Ticket deleted successfully');
+      toast.success('Ticket voided successfully');
+      dispatch(fetchPublicMarketTickets());
     } catch (error) {
-      toast.error(error.message || 'Failed to delete ticket');
+      toast.error(error.message || 'Failed to void ticket');
+    }
+  };
+
+  const handleApprove = async (ticket) => {
+    try {
+      await dispatch(approvePublicMarketTicket(ticket.ID)).unwrap();
+      toast.success('Ticket approved successfully');
+      dispatch(fetchPublicMarketTickets());
+    } catch (error) {
+      toast.error(error.message || 'Failed to approve ticket');
+    }
+  };
+
+  const handleReject = async (ticket) => {
+    try {
+      await dispatch(rejectPublicMarketTicket(ticket.ID)).unwrap();
+      toast.success('Ticket rejected successfully');
+      dispatch(fetchPublicMarketTickets());
+    } catch (error) {
+      toast.error(error.message || 'Failed to reject ticket');
     }
   };
 
@@ -61,21 +91,23 @@ const PublicMarketTicketPage = () => {
       key: 'Status',
       header: 'Status',
       sortable: true,
-      render: (value) => (
-        <span
-          className={`px-2 py-1 rounded ${
-            value === 'Requested'     ? 'bg-gradient-to-r from-warning-400 via-warning-300 to-warning-500 text-error-700'
-              : value === 'Approved'  ? 'bg-gradient-to-r from-success-300 via-success-500 to-success-600 text-neutral-800'
-              : value === 'Posted'    ? 'bg-gradient-to-r from-success-800 via-success-900 to-success-999 text-success-100'
-              : value === 'Rejected'  ? 'bg-gradient-to-r from-error-700 via-error-800 to-error-999 text-neutral-100'
-              : value === 'Void'      ? 'bg-gradient-to-r from-primary-900 via-primary-999 to-tertiary-999 text-neutral-300'
-              : value === 'Cancelled' ? 'bg-gradient-to-r from-neutral-200 via-neutral-300 to-neutral-400 text-neutral-800'
-              : 'bg-gray-100 text-gray-800'
-          }`}
-        >
-          {value}
-        </span>
-      ),
+      render: (value, row) => {
+        const status = value || row.status || 'Requested';
+        return (
+          <span
+            className={`px-2 py-1 rounded ${status === 'Requested' ? 'bg-gradient-to-r from-warning-400 via-warning-300 to-warning-500 text-error-700'
+              : status === 'Approved' ? 'bg-gradient-to-r from-success-300 via-success-500 to-success-600 text-neutral-800'
+                : status === 'Posted' ? 'bg-gradient-to-r from-success-800 via-success-900 to-success-999 text-success-100'
+                  : status === 'Rejected' ? 'bg-gradient-to-r from-error-700 via-error-800 to-error-999 text-neutral-100'
+                    : status === 'Void' ? 'bg-gradient-to-r from-primary-900 via-primary-999 to-tertiary-999 text-neutral-300'
+                      : status === 'Cancelled' ? 'bg-gradient-to-r from-neutral-200 via-neutral-300 to-neutral-400 text-neutral-800'
+                        : 'bg-gray-100 text-gray-800'
+              }`}
+          >
+            {status}
+          </span>
+        );
+      },
     },
     {
       key: 'StartTime',
@@ -130,22 +162,45 @@ const PublicMarketTicketPage = () => {
     setIsModalOpen(true);
   };
   // Actions for table rows
-  const actions = [
-    Edit && {
-      icon: PencilIcon,
-      title: 'Edit',
-      onClick: handleEditTicket,
-      className:
-        'text-primary-600 hover:text-primary-900 p-1 rounded-full hover:bg-primary-50',
-    },
-    Delete && {
-      icon: Trash,
-      title: 'Delete',
-      onClick: handleDeleteTicket,
-      className:
-        'text-red-600 hover:text-red-900 p-1 rounded-full hover:bg-red-50',
-    },
-  ];
+  const actions = (row) => {
+    const list = [];
+
+    if (Edit && row.Status !== 'Void') {
+      list.push({
+        icon: PencilIcon,
+        title: 'Edit',
+        onClick: handleEditTicket,
+        className: 'text-primary-600 hover:text-primary-900 p-1 rounded-full hover:bg-primary-50',
+      });
+    }
+
+    // Add Approve/Reject buttons if status is Requested
+    if ((row.Status === 'Requested' || !row.Status) && row.Status !== 'Void') {
+      list.push({
+        icon: CheckCircle,
+        title: 'Approve',
+        onClick: handleApprove,
+        className: 'text-success-600 hover:text-success-900 p-1 rounded-full hover:bg-success-50',
+      });
+      list.push({
+        icon: XCircle,
+        title: 'Reject',
+        onClick: handleReject,
+        className: 'text-error-600 hover:text-error-900 p-1 rounded-full hover:bg-error-50',
+      });
+    }
+
+    if (Delete && row.Status !== 'Void') {
+      list.push({
+        icon: Trash,
+        title: 'Void',
+        onClick: handleDeleteTicket,
+        className: 'text-red-600 hover:text-red-900 p-1 rounded-full hover:bg-red-50',
+      });
+    }
+
+    return list;
+  };
   return (
     <>
       <div className="flex justify-between sm:items-center mb-6 page-header gap-4 max-sm:flex-col">
@@ -153,7 +208,7 @@ const PublicMarketTicketPage = () => {
           <h1 className="text-2xl font-semibold text-gray-900">
             Public Market Tickets
           </h1>
-          <p className="text-gray-600">Manage tickets of the public market.</p>          
+          <p className="text-gray-600">Manage tickets of the public market.</p>
         </div>
         {Add && (
           <Button

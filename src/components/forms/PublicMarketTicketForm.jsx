@@ -1,12 +1,13 @@
-// components/forms/PublicMarketTicketForm.js
+import { useEffect } from 'react';
 import { Formik, Form } from 'formik';
 import * as Yup from 'yup';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { toast } from 'react-hot-toast';
 import { format, parseISO } from 'date-fns';
 import FormField from '../common/FormField';
 import {
   addPublicMarketTicket,
+  updatePublicMarketTicket,
   fetchPublicMarketTickets,
 } from '@/features/collections/PublicMarketTicketingSlice';
 
@@ -38,6 +39,7 @@ const initialValues = {
 
 const PublicMarketTicketForm = ({ ticket, onClose }) => {
   const dispatch = useDispatch();
+  const { error } = useSelector((state) => state.publicMarketTicketing);
 
   const formatInitialValues = (values) => {
     if (!values) return initialValues;
@@ -70,11 +72,12 @@ const PublicMarketTicketForm = ({ ticket, onClose }) => {
         PostingPeriod: values.postingPeriod,
         AmountIssued: values.amountIssued,
         Remarks: values.remarks,
+        Status: ticket ? ticket.Status : 'Requested', // Preserve status on update, default to Requested for new
       };
 
       if (ticket) {
         await dispatch(
-          addPublicMarketTicket({
+          updatePublicMarketTicket({
             IsNew: false,
             ID: ticket.ID,
             LinkID: ticket.LinkID,
@@ -96,6 +99,13 @@ const PublicMarketTicketForm = ({ ticket, onClose }) => {
       onClose();
     }
   };
+
+  // Handle errors
+  useEffect(() => {
+    if (error) {
+      toast.error(error);
+    }
+  }, [error]);
 
   return (
     <Formik
@@ -210,9 +220,9 @@ const PublicMarketTicketForm = ({ ticket, onClose }) => {
             value={
               values.amountIssued !== '' && !isNaN(values.amountIssued)
                 ? Number(values.amountIssued).toLocaleString(undefined, {
-                    minimumFractionDigits: 2,
-                    maximumFractionDigits: 2,
-                  })
+                  minimumFractionDigits: 2,
+                  maximumFractionDigits: 2,
+                })
                 : ''
             }
             onChange={(e) => {
@@ -267,8 +277,8 @@ const PublicMarketTicketForm = ({ ticket, onClose }) => {
               {isSubmitting
                 ? 'Saving...'
                 : ticket
-                ? 'Update Ticket'
-                : 'Add Ticket'}
+                  ? 'Update Ticket'
+                  : 'Add Ticket'}
             </button>
           </div>
         </Form>
