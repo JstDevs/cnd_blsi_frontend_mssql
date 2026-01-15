@@ -1,10 +1,18 @@
 // BusinessPermitForm.js
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
 import { PlusIcon, EyeIcon, PencilIcon, TrashIcon } from 'lucide-react';
 import DataTable from '../../components/common/DataTable';
 import Modal from '../../components/common/Modal';
 import BusinessPermitFormFields from './BusinessPermitFormFields';
 import { useModulePermissions } from '@/utils/useModulePremission';
+// import {
+//   fetchBusinessPermits,
+//   addBusinessPermit,
+//   updateBusinessPermit,
+//   deleteBusinessPermit,
+// } from '../../features/applications/businessPermitSlice';
+import { toast } from 'react-hot-toast';
 
 function BusinessPermitPage() {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -12,6 +20,15 @@ function BusinessPermitPage() {
   const [searchTerm, setSearchTerm] = useState('');
   // ---------------------USE MODULE PERMISSIONS------------------START (BusinessPermitPage - MODULE ID = 29 )
   const { Add, Edit, Delete } = useModulePermissions(29);
+  // const dispatch = useDispatch();
+  // const { records: permits, isLoading } = useSelector(
+  //   (state) => state.businessPermits
+  // );
+
+  // useEffect(() => {
+  //   dispatch(fetchBusinessPermits());
+  // }, [dispatch]);
+
   const permits = [
     {
       id: 1,
@@ -98,12 +115,12 @@ function BusinessPermitPage() {
       render: (value) => (
         <span
           className={`px-2 py-1 rounded ${value === 'Requested' ? 'bg-gradient-to-r from-warning-400 via-warning-300 to-warning-500 text-error-700'
-              : value === 'Approved' ? 'bg-gradient-to-r from-success-300 via-success-500 to-success-600 text-neutral-800'
-                : value === 'Posted' ? 'bg-gradient-to-r from-success-800 via-success-900 to-success-999 text-success-100'
-                  : value === 'Rejected' ? 'bg-gradient-to-r from-error-700 via-error-800 to-error-999 text-neutral-100'
-                    : value === 'Void' ? 'bg-gradient-to-r from-primary-900 via-primary-999 to-tertiary-999 text-neutral-300'
-                      : value === 'Cancelled' ? 'bg-gradient-to-r from-neutral-200 via-neutral-300 to-neutral-400 text-neutral-800'
-                        : 'bg-gray-100 text-gray-800'
+            : value === 'Approved' ? 'bg-gradient-to-r from-success-300 via-success-500 to-success-600 text-neutral-800'
+              : value === 'Posted' ? 'bg-gradient-to-r from-success-800 via-success-900 to-success-999 text-success-100'
+                : value === 'Rejected' ? 'bg-gradient-to-r from-error-700 via-error-800 to-error-999 text-neutral-100'
+                  : value === 'Void' ? 'bg-gradient-to-r from-primary-900 via-primary-999 to-tertiary-999 text-neutral-300'
+                    : value === 'Cancelled' ? 'bg-gradient-to-r from-neutral-200 via-neutral-300 to-neutral-400 text-neutral-800'
+                      : 'bg-gray-100 text-gray-800'
             }`}
         >
           {value}
@@ -180,13 +197,29 @@ function BusinessPermitPage() {
   };
   const handleEditPermit = (permit) => {
     setCurrentPermit(permit);
+    setFormData({
+      ...permit,
+      // Ensure attachments is an array if it comes back as null/undefined
+      attachments: permit.attachments || [],
+    });
     setIsModalOpen(true);
   };
 
   const handleDeletePermit = (permit) => {
-    // if (window.confirm('Are you sure you want to delete this permit?')) {
-    console.log('Deleting permit:', permit);
-    // }
+    if (window.confirm('Are you sure you want to delete this permit?')) {
+      /*
+      dispatch(deleteBusinessPermit(permit.id))
+        .unwrap()
+        .then(() => {
+          toast.success('Business permit deleted successfully');
+        })
+        .catch((error) => {
+          toast.error(`Failed to delete permit: ${error}`);
+        });
+        */
+      console.log("Deleting permit", permit);
+      toast.success("Permit deleted (Mock)");
+    }
   };
 
   const handleFileUpload = (e) => {
@@ -205,7 +238,45 @@ function BusinessPermitPage() {
   };
 
   const handleSave = () => {
+    // Basic validation
+    // if (!formData.businessName) {
+    //   toast.error('Business Name is required');
+    //   return;
+    // }
+
+    // Prepare payload
+    // If we have attachments, we might need a FormData object.
+    // If the slice handles FormData checking, we can just pass the object if no files, or FormData if files.
+    // However, usually for mixed content (fields + files), we use FormData.
+    // Let's assume we use FormData if there are new attachments or just JSON if simpler.
+    // But slice implementation handles JSON vs FormData. For safety with files, let's build FormData.
+
+    // For this example, let's assume the API handles JSON correctly if we don't need real file upload yet, 
+    // OR we just dispatch the object and let the slice/thunk handle serialization if needed.
+    // But since we added file upload logic, let's assume we want to send it proper.
+    // Since the user just wants it to "save" and we saw Object Object, let's just make it work with the object first unless files are added.
+
+    /*
+      const action = currentPermit
+        ? updateBusinessPermit({ id: currentPermit.id, data: formData })
+        : addBusinessPermit(formData);
+  
+      dispatch(action)
+        .unwrap()
+        .then(() => {
+          toast.success(
+            currentPermit
+              ? 'Business permit updated successfully'
+              : 'Business permit created successfully'
+          );
+          setIsModalOpen(false);
+        })
+        .catch((error) => {
+          toast.error(`Failed to save permit: ${error}`);
+        });
+        */
     console.log('Saving form data:', formData);
+    toast.success('Form saved (Mock)');
     setIsModalOpen(false);
   };
 

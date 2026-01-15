@@ -90,7 +90,7 @@ const BusinessPermitFormFields = ({
         <FormField
           label="Type of Business"
           name="typeOfBusiness"
-          type="radio-group"
+          type="radio"
           options={[
             { value: 'single', label: 'Single' },
             { value: 'partnership', label: 'Partnership' },
@@ -107,7 +107,7 @@ const BusinessPermitFormFields = ({
             <FormField
               label="From"
               name="amendmentFrom"
-              type="radio-group"
+              type="radio"
               options={[
                 { value: 'single', label: 'Single' },
                 { value: 'partnership', label: 'Partnership' },
@@ -120,7 +120,7 @@ const BusinessPermitFormFields = ({
             <FormField
               label="To"
               name="amendmentTo"
-              type="radio-group"
+              type="radio"
               options={[
                 { value: 'single', label: 'Single' },
                 { value: 'partnership', label: 'Partnership' },
@@ -135,7 +135,7 @@ const BusinessPermitFormFields = ({
         <FormField
           label="Are you enjoying tax incentive from any Government Entity?"
           name="taxIncentiveFromGovEntity"
-          type="radio-group"
+          type="radio"
           options={[
             { value: 'no', label: 'No' },
             { value: 'yes', label: 'Yes' },

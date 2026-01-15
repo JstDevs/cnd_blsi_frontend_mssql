@@ -75,6 +75,7 @@ import { publicMarketTicketingReducer } from '@/features/collections/PublicMarke
 import { communityTaxReducer } from '@/features/collections/CommunityTaxSlice';
 import { corporateCommunityTaxReducer } from '@/features/collections/CoorporateCommunityTax';
 // import { publicMarketTicketingReducer } from '@/features/collections/PublicMarketTicketingSlice';
+import { businessPermitReducer } from '../features/applications/businessPermitSlice';
 
 export const store = configureStore({
   reducer: {
@@ -154,6 +155,7 @@ export const store = configureStore({
     generalReceipts: generalReceiptReducer,
     realPropertyTax: realPropertyTaxReducer,
     customers: customersReducer,
+    businessPermits: businessPermitReducer,
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware({
