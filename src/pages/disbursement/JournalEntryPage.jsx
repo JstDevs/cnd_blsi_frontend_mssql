@@ -271,49 +271,52 @@ function JournalEntryPage() {
 
   const actions = (row) => {
     const actionList = [];
+    const isVoided = row?.Status?.toLowerCase().includes('void');
 
-    if (row?.Status?.toLowerCase().includes('rejected') && Edit) {
-      actionList.push({
-        icon: PencilIcon,
-        title: 'Edit',
-        onClick: () => handleEdit(row),
-        className:
-          'text-primary-600 hover:text-primary-900 p-1 rounded-full hover:bg-primary-50',
-      });
-      actionList.push({
-        icon: TrashIcon,
-        title: 'Void',
-        onClick: () => handleDelete(row),
-        className:
-          'text-error-600 hover:text-error-900 p-1 rounded-full hover:bg-error-50',
-      });
-    } else if (row?.Status?.toLowerCase().includes('requested')) {
-      actionList.push(
-        {
-          icon: CheckLine,
-          title: 'Approve',
-          onClick: () => handleJEPAction(row, 'approve'),
+    if (!isVoided) {
+      if (row?.Status?.toLowerCase().includes('rejected') && Edit) {
+        actionList.push({
+          icon: PencilIcon,
+          title: 'Edit',
+          onClick: () => handleEdit(row),
           className:
-            'text-green-600 hover:text-green-900 p-1 rounded-full hover:bg-green-50',
-        },
-        {
-          icon: X,
-          title: 'Reject',
-          onClick: () => handleJEPAction(row, 'reject'),
+            'text-primary-600 hover:text-primary-900 p-1 rounded-full hover:bg-primary-50',
+        });
+        actionList.push({
+          icon: TrashIcon,
+          title: 'Void',
+          onClick: () => handleDelete(row),
           className:
-            'text-red-600 hover:text-red-900 p-1 rounded-full hover:bg-red-50',
-        }
-      );
-    }
+            'text-error-600 hover:text-error-900 p-1 rounded-full hover:bg-error-50',
+        });
+      } else if (row?.Status?.toLowerCase().includes('requested')) {
+        actionList.push(
+          {
+            icon: CheckLine,
+            title: 'Approve',
+            onClick: () => handleJEPAction(row, 'approve'),
+            className:
+              'text-green-600 hover:text-green-900 p-1 rounded-full hover:bg-green-50',
+          },
+          {
+            icon: X,
+            title: 'Reject',
+            onClick: () => handleJEPAction(row, 'reject'),
+            className:
+              'text-red-600 hover:text-red-900 p-1 rounded-full hover:bg-red-50',
+          }
+        );
+      }
 
-    if (row?.Status?.toLowerCase().includes('posted')) {
-      actionList.push({
-        icon: BookOpenIcon,
-        title: 'View GL',
-        onClick: () => handleViewGL(row),
-        className:
-          'text-primary-600 hover:text-primary-900 p-1 rounded-full hover:bg-primary-50',
-      });
+      if (row?.Status?.toLowerCase().includes('posted')) {
+        actionList.push({
+          icon: BookOpenIcon,
+          title: 'View GL',
+          onClick: () => handleViewGL(row),
+          className:
+            'text-primary-600 hover:text-primary-900 p-1 rounded-full hover:bg-primary-50',
+        });
+      }
     }
 
     actionList.push({
