@@ -50,7 +50,7 @@ const navigation = [
           // { name: 'Trial Balance',          href: '/reports/trial-balance',               moduleId: 81, },
           // { name: 'Financial Statements',   href: '/reports/financial-statements' }, // no mapping
           // { name: 'BIR Reports',            href: '/reports/bir',                         moduleId: 16, },
-          {name: 'Nothing'}
+          { name: 'Nothing'}
         ]
       }
     ],
@@ -72,7 +72,7 @@ const navigation = [
         submenu: [
           // { name: 'Cashbook', href: '/collections/cashbook', moduleId: 30 },
           // { name: 'Collection Report', href: '/collections/reports' },
-          {name: 'Nothing'}
+          { name: 'Nothing'}
         ]
       }
     ],
@@ -87,7 +87,6 @@ const navigation = [
       { name: 'Budget Allotment',     href: '/budget/allotment',      moduleId: 23 },
       { name: 'Budget Supplemental',  href: '/budget/supplemental',   moduleId: 26 },
       { name: 'Budget Transfer',      href: '/budget/transfer',       moduleId: 27 },
-      { name: 'Budget Summary',       href: '/budget/summary',        moduleId: 25 },
       { name: 'Fund Transfer',        href: '/budget/fund-transfer',  moduleId: 46 },
       {
         name: 'Reports',
@@ -95,7 +94,8 @@ const navigation = [
           // { name: 'Budget Report',              href: '/budget/report',                  moduleId: 24 },
           // { name: 'Statement of Comparison',    href: '/budget/statement-comparison',    moduleId: 73 },
           // { name: 'Statement of Appropriation', href: '/budget/statement-appropriation', moduleId: 72 },
-          {name: 'Nothing'}
+          { name: 'Budget Summary', href: '/budget/summary',  moduleId: 25 },
+          { name: 'And Nothing'}
         ] 
       },
     ],
