@@ -90,8 +90,10 @@ export const statusLabel = (statusString) => {
 
         return (
           <span
+            // key={idx}
+            // className={`inline-flex items-center px-3 py-1.5 rounded-full text-xs font-semibold border ${config.bg} ${config.text} ${config.border} ${config.shadow || ''} transition-all hover:scale-105`}
             key={idx}
-            className={`inline-flex items-center px-3 py-1.5 rounded-full text-xs font-semibold border ${config.bg} ${config.text} ${config.border} ${config.shadow || ''} transition-all hover:scale-105`}
+            className={`inline-flex px-2 py-1 rounded ${config.bg} ${config.text} ${config.border} ${config.shadow || ''} transition-all hover:scale-105`}
           >
             {trimmed}
           </span>

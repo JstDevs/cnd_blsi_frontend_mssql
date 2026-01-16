@@ -258,7 +258,7 @@ const BudgetSupplementalPage = () => {
       sortable: true,
       className: 'text-right font-semibold',
       render: (value) => (
-        <span className="text-right font-semibold text-blue-700">
+        <span className="text-right font-semibold text-primary-700">
           {formatCurrency(value)}
         </span>
       ),

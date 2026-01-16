@@ -136,7 +136,7 @@ function MarriageServiceReceiptPage() {
   const columns = [
     {
       key: 'InvoiceNumber',
-      header: 'Certificate No.',
+      header: 'Receipt No.',
       sortable: true,
       className: 'font-medium text-neutral-900',
     },
@@ -159,6 +159,12 @@ function MarriageServiceReceiptPage() {
         </span>
       ),
     },
+    {
+      key: 'InvoiceDate',
+      header: 'Date',
+      sortable: true,
+      render: (value) => new Date(value).toLocaleDateString(),
+    },
     // {
     //   key: 'APAR',
     //   header: 'AP/AR',
@@ -175,8 +181,12 @@ function MarriageServiceReceiptPage() {
       key: 'Total',
       header: 'Amount',
       sortable: true,
-      render: (value) => formatCurrency(value),
-      className: 'text-right font-medium',
+      className: 'text-right',
+      render: (value) => (
+        <span className="text-right font-semibold text-primary-700">
+          {formatCurrency(value)}
+        </span>
+      ),
     },
     // {
     //   key: 'AmountReceived',

@@ -97,43 +97,16 @@ function ObligationRequestPage() {
 
   // Table columns definition
   const columns = [
-    // {
-    //   key: 'Status',
-    //   header: 'Status',
-    //   sortable: true,
-    //   render: (value) => {
-    //     const status = value?.toLowerCase() || '';
-    //     const statusColors = {
-    //       requested:  'bg-gradient-to-r from-warning-400 via-warning-300 to-warning-500 text-error-700',
-    //       approved:   'bg-gradient-to-r from-success-300 via-success-500 to-success-600 text-neutral-800',
-    //       posted:     'bg-gradient-to-r from-success-800 via-success-900 to-success-999 text-success-100',
-    //       rejected:   'bg-gradient-to-r from-error-700 via-error-800 to-error-999 text-neutral-100',
-    //       void:       'bg-gradient-to-r from-primary-900 via-primary-999 to-tertiary-999 text-neutral-300',
-    //       cancelled:  'bg-gradient-to-r from-neutral-200 via-neutral-300 to-neutral-400 text-neutral-800',
-    //       'disbursement pending': 'bg-gradient-to-r from-warning-400 via-warning-300 to-warning-500 text-error-700',
-    //       'disbursement posted':  'bg-gradient-to-r from-success-800 via-success-900 to-success-999 text-success-100',
-    //       'cheque pending':       'bg-gradient-to-r from-warning-400 via-warning-300 to-warning-500 text-error-700',
-    //       'cheque posted':        'bg-gradient-to-r from-success-800 via-success-900 to-success-999 text-success-100',
-    //     };
-    //     const colorClass = statusColors[status] || 'bg-neutral-100 text-neutral-800 border-neutral-200';
-    //     return (
-    //       <span className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold border ${colorClass}`}>
-    //         {value || 'N/A'}
-    //       </span>
-    //     );
-    //   },
-    // },
+    {
+      key: 'InvoiceNumber',
+      header: 'Invoice Number',
+      sortable: true,
+    },
     {
       key: 'Status',
       header: 'Status',
       sortable: true,
-
       render: (value) => statusLabel(value),
-    },
-    {
-      key: 'ResponsibilityCenterName',
-      header: 'Responsibility Center',
-      sortable: true,
     },
     {
       key: 'InvoiceDate',
@@ -152,15 +125,20 @@ function ObligationRequestPage() {
       },
     },
     {
-      key: 'InvoiceNumber',
-      header: 'Invoice Number',
-      sortable: true,
-    },
-    {
       key: 'Total',
       header: 'Total',
       sortable: true,
-      render: (value) => formatCurrency(value),
+      className: 'text-right font-semibold',
+      render: (value) => (
+        <span className="text-right font-semibold text-primary-700">
+          {formatCurrency(value)}
+        </span>
+      ),
+    },
+    {
+      key: 'ResponsibilityCenterName',
+      header: 'Responsibility Center',
+      sortable: true,
     },
     /* {
       key: 'FiscalYearName',

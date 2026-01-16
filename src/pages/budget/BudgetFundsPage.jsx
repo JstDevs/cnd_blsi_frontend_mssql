@@ -71,24 +71,12 @@ const BudgetFundsPage = () => {
       ),
     },
     {
-      key: 'Description',
-      header: 'Description',
-      sortable: true,
-      render: (value) => (
-        <span className="text-neutral-600 max-w-md">
-          {value || (
-            <span className="text-neutral-400 italic">No description</span>
-          )}
-        </span>
-      ),
-    },
-    {
       key: 'OriginalAmount',
       header: 'Original Amount',
       sortable: true,
       className: 'text-right font-semibold',
       render: (value) => (
-        <span className="text-right font-semibold text-neutral-600">
+        <span className="text-right font-semibold text-primary-600">
           {formatCurrency(value)}
         </span>
       ),
@@ -101,6 +89,18 @@ const BudgetFundsPage = () => {
       render: (value, record) => (
         <span className="text-right font-semibold text-green-700">
           {formatCurrency(record.Balance || record.Total || record.Amount || record.balance || value)}
+        </span>
+      ),
+    },
+    {
+      key: 'Description',
+      header: 'Description',
+      sortable: true,
+      render: (value) => (
+        <span className="text-neutral-600 max-w-md">
+          {value || (
+            <span className="text-neutral-400 italic">No description</span>
+          )}
         </span>
       ),
     },

@@ -135,6 +135,12 @@ function CommunityTaxPage() {
       ),
     },
     {
+      key: 'InvoiceDate',
+      header: 'Date',
+      sortable: true,
+      render: (value) => new Date(value).toLocaleDateString(),
+    },
+    {
       key: 'CustomerName',
       header: 'Taxpayer Name',
       sortable: true,
@@ -144,21 +150,28 @@ function CommunityTaxPage() {
       key: 'Total',
       header: 'Total Amount',
       sortable: true,
-      render: (value) => formatCurrency(value),
       className: 'text-right',
+      render: (value) => (
+        <span className="text-right font-semibold text-primary-700">
+          {formatCurrency(value)}
+        </span>
+      ),
     },
     {
       key: 'AmountReceived',
       header: 'Received Amount',
       sortable: true,
-      render: (value) => formatCurrency(value),
       className: 'text-right',
+      render: (value) => (
+        <span className="text-right font-semibold text-primary-700">
+          {formatCurrency(value)}
+        </span>
+      ),
     },
     {
-      key: 'InvoiceDate',
-      header: 'Date',
+      key: 'Year',
+      header: 'Year',
       sortable: true,
-      render: (value) => new Date(value).toLocaleDateString(),
     },
     // {
     //   key: 'Employee',

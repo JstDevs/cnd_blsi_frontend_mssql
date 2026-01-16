@@ -50,7 +50,7 @@ function BurialServiceReceiptPage() {
   const columns = [
     {
       key: 'InvoiceNumber',
-      header: 'Certificate No.',
+      header: 'Receipt No.',
       sortable: true,
       className: 'font-medium text-neutral-900',
     },
@@ -74,6 +74,12 @@ function BurialServiceReceiptPage() {
       ),
     },
     {
+      key: 'InvoiceDate',
+      header: 'Date',
+      sortable: true,
+      render: (value) => new Date(value).toLocaleDateString(),
+    },
+    {
       key: 'CustomerName',
       header: 'Name',
       sortable: true,
@@ -85,12 +91,6 @@ function BurialServiceReceiptPage() {
     //   sortable: true,
     //   render: (value) => value || '—',
     // },
-    {
-      key: 'InvoiceDate',
-      header: 'Date',
-      sortable: true,
-      // render: (value) => (value ? formatDate(value) : '—'),
-    },
     // {
     //   key: 'DocumentType.Name',
     //   header: 'Service Type',
@@ -102,8 +102,12 @@ function BurialServiceReceiptPage() {
       key: 'Total',
       header: 'Amount',
       sortable: true,
-      render: (value) => formatCurrency(value || '0.00'),
-      className: 'text-right font-medium',
+      className: 'text-right',
+      render: (value) => (
+        <span className="text-right font-semibold text-primary-700">
+          {formatCurrency(value)}
+        </span>
+      ),
     },
     {
       key: 'Remarks',

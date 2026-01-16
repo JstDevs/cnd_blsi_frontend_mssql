@@ -226,25 +226,35 @@ function ChequeGeneratorPage() {
 
   const columns = [
     {
+      key: 'CheckNumber',
+      header: 'Check Number',
+      sortable: true,
+    },
+    {
       key: 'Status',
       header: 'Status',
-      render: (value) => {
-        const status = value?.toLowerCase() || '';
-        const statusColors = {
-          requested: 'bg-gradient-to-r from-warning-400 via-warning-300 to-warning-500 text-error-700',
-          approved: 'bg-gradient-to-r from-success-300 via-success-500 to-success-600 text-neutral-800',
-          posted: 'bg-gradient-to-r from-success-800 via-success-900 to-success-999 text-success-100',
-          rejected: 'bg-gradient-to-r from-error-700 via-error-800 to-error-999 text-neutral-100',
-          void: 'bg-gradient-to-r from-primary-900 via-primary-999 to-tertiary-999 text-neutral-300',
-          cancelled: 'bg-gradient-to-r from-neutral-200 via-neutral-300 to-neutral-400 text-neutral-800',
-        };
-        const colorClass = statusColors[status] || 'bg-neutral-100 text-neutral-800 border-neutral-200';
-        return (
-          <span className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold border ${colorClass}`}>
-            {value || 'N/A'}
-          </span>
-        );
-      },
+      sortable: true,
+      render: (value) => (
+        <span
+          className={`px-2 py-1 rounded ${
+            value === 'Requested'     ? 'bg-gradient-to-r from-warning-400 via-warning-300 to-warning-500 text-error-700'
+              : value === 'Approved'  ? 'bg-gradient-to-r from-success-300 via-success-500 to-success-600 text-neutral-800'
+              : value === 'Posted'    ? 'bg-gradient-to-r from-success-800 via-success-900 to-success-999 text-success-100'
+              : value === 'Rejected'  ? 'bg-gradient-to-r from-error-700 via-error-800 to-error-999 text-neutral-100'
+              : value === 'Void'      ? 'bg-gradient-to-r from-primary-900 via-primary-999 to-tertiary-999 text-neutral-300'
+              : value === 'Cancelled' ? 'bg-gradient-to-r from-neutral-200 via-neutral-300 to-neutral-400 text-neutral-800'
+              : 'bg-gray-100 text-gray-800'
+          }`}
+        >
+          {value}
+        </span>
+      ),
+    },
+    {
+      key: 'CheckDate',
+      header: 'CheckDate',
+      sortable: true,
+      render: (value) => new Date(value).toLocaleDateString(),
     },
     {
       key: 'AccountNumber',
@@ -257,11 +267,6 @@ function ChequeGeneratorPage() {
       sortable: true,
     },
     {
-      key: 'CheckNumber',
-      header: 'Check Number',
-      sortable: true,
-    },
-    {
       key: 'Payee',
       header: 'Payee',
       sortable: true,
@@ -270,8 +275,9 @@ function ChequeGeneratorPage() {
       key: 'Amount',
       header: 'Amount',
       sortable: true,
+      className: "text-right font-semibold text-primary-700",
       render: (value) => (
-        <span className="font-medium">
+        <span className="text-right font-semibold text-primary-700">
           {' '}
           {value
             ? Number(value).toLocaleString(undefined, {
@@ -282,16 +288,16 @@ function ChequeGeneratorPage() {
         </span>
       ),
     },
-    {
-      key: 'ApprovalProgress',
-      header: 'Approval Progress',
-      sortable: true,
-    },
-    {
-      key: 'ApprovalVersion',
-      header: 'Approval Version',
-      sortable: true,
-    },
+    // {
+    //   key: 'ApprovalProgress',
+    //   header: 'Approval Progress',
+    //   sortable: true,
+    // },
+    // {
+    //   key: 'ApprovalVersion',
+    //   header: 'Approval Version',
+    //   sortable: true,
+    // },
   ];
 
   // const actions = [

@@ -97,11 +97,9 @@ function GeneralReceiptPage() {
   // Table columns definition
   const columns = [
     {
-      key: 'ID',
-      header: 'Invoice',
+      key: 'InvoiceNumber',
+      header: 'Receipt No.',
       sortable: true,
-      className: 'font-medium text-neutral-900',
-      render: (value) => <div className="flex items-center gap-1">{value}</div>,
     },
     {
       key: 'Status',
@@ -127,7 +125,7 @@ function GeneralReceiptPage() {
       key: 'InvoiceDate',
       header: 'Date',
       sortable: true,
-      // render: (value) => formatDate(value),
+      render: (value) => new Date(value).toLocaleDateString(),
     },
     {
       key: 'CustomerName',
@@ -136,16 +134,15 @@ function GeneralReceiptPage() {
       render: (value) => value?.trim() || 'N/A',
     },
     {
-      key: 'InvoiceNumber',
-      header: 'Order No.',
-      sortable: true,
-    },
-    {
       key: 'Total',
       header: 'Amount',
       sortable: true,
-      render: (value) => formatCurrency(value),
-      className: 'text-right font-medium',
+      className: 'text-right',
+      render: (value) => (
+        <span className="text-right font-semibold text-primary-700">
+          {formatCurrency(value)}
+        </span>
+      ),
     },
     {
       key: 'Remarks',

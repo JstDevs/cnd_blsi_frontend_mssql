@@ -106,35 +106,80 @@ function DisbursementVoucherPage() {
 
   // Table columns definition
   const columns = [
-    // {
-    //   key: 'Status',
-    //   header: 'Status',
-    //   render: (value) => {
-    //     const status = value?.toLowerCase() || '';
-    //     const statusColors = {
-    //       requested:  'bg-gradient-to-r from-warning-400 via-warning-300 to-warning-500 text-error-700',
-    //       approved:   'bg-gradient-to-r from-success-300 via-success-500 to-success-600 text-neutral-800',
-    //       posted:     'bg-gradient-to-r from-success-800 via-success-900 to-success-999 text-success-100',
-    //       rejected:   'bg-gradient-to-r from-error-700 via-error-800 to-error-999 text-neutral-100',
-    //       void:       'bg-gradient-to-r from-primary-900 via-primary-999 to-tertiary-999 text-neutral-300',
-    //       cancelled:  'bg-gradient-to-r from-neutral-200 via-neutral-300 to-neutral-400 text-neutral-800',
-    //       'cheque pending': 'bg-gradient-to-r from-warning-400 via-warning-300 to-warning-500 text-error-700',
-    //       'cheque posted':  'bg-gradient-to-r from-success-800 via-success-900 to-success-999 text-success-100',
-    //     };
-    //     const colorClass = statusColors[status] || 'bg-neutral-100 text-neutral-800 border-neutral-200';
-    //     return (
-    //       <span className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold border ${colorClass}`}>
-    //         {value || 'N/A'}
-    //       </span>
-    //     );
-    //   },
-    // },
+    {
+      key: 'InvoiceNumber',
+      header: 'Invoice Number',
+      sortable: true,
+    },
     {
       key: 'Status',
       header: 'Status',
       sortable: true,
 
       render: (value) => statusLabel(value),
+    },
+    {
+      key: 'InvoiceDate',
+      header: 'Invoice Date',
+      sortable: true,
+      render: (value) => new Date(value).toLocaleDateString(),
+    },
+    {
+      key: 'Particulars',
+      header: 'Particulars',
+      sortable: true,
+      render: (value, row) => {
+        const linkedOBR = obligationRequests.find(
+          (obr) =>
+            (row.OBR_LinkID && obr.LinkID === row.OBR_LinkID) ||
+            (row.SourceLinkID && obr.LinkID === row.SourceLinkID) ||
+            (row.ObligationRequestNumber &&
+              obr.InvoiceNumber === row.ObligationRequestNumber) ||
+            (row.OBR_NO && obr.InvoiceNumber === row.OBR_NO) ||
+            (row.OBR_Number && obr.InvoiceNumber === row.OBR_Number)
+        );
+
+        const items =
+          row.TransactionItemsAll ||
+          row.Items ||
+          row.AccountingEntries ||
+          linkedOBR?.TransactionItemsAll ||
+          linkedOBR?.Items ||
+          [];
+
+        if (items.length > 0) {
+          const combinedText = items
+            .map(
+              (i) => i.Remarks || i.itemName || i.AccountName || i.Particulars
+            )
+            .filter(Boolean)
+            .join(', ');
+          if (combinedText) {
+            return (
+              <div className="whitespace-pre-wrap text-xs">{combinedText}</div>
+            );
+          }
+        }
+        return (
+          value ||
+          row.Particulars ||
+          row.Particular ||
+          row.Remarks ||
+          linkedOBR?.Remarks ||
+          'N/A'
+        );
+      },
+    },
+    {
+      key: 'Total',
+      header: 'Total',
+      sortable: true,
+      className: 'text-right font-semibold',
+      render: (value) => (
+        <span className="text-right font-semibold text-primary-700">
+          {formatCurrency(value)}
+        </span>
+      ),
     },
     {
       key: 'ObligationRequestNumber',
@@ -185,76 +230,19 @@ function DisbursementVoucherPage() {
         return 'N/A';
       },
     },
-    {
-      key: 'Particulars',
-      header: 'Particulars',
-      sortable: true,
-      render: (value, row) => {
-        const linkedOBR = obligationRequests.find(
-          (obr) =>
-            (row.OBR_LinkID && obr.LinkID === row.OBR_LinkID) ||
-            (row.SourceLinkID && obr.LinkID === row.SourceLinkID) ||
-            (row.ObligationRequestNumber &&
-              obr.InvoiceNumber === row.ObligationRequestNumber) ||
-            (row.OBR_NO && obr.InvoiceNumber === row.OBR_NO) ||
-            (row.OBR_Number && obr.InvoiceNumber === row.OBR_Number)
-        );
-
-        const items =
-          row.TransactionItemsAll ||
-          row.Items ||
-          row.AccountingEntries ||
-          linkedOBR?.TransactionItemsAll ||
-          linkedOBR?.Items ||
-          [];
-
-        if (items.length > 0) {
-          const combinedText = items
-            .map(
-              (i) => i.Remarks || i.itemName || i.AccountName || i.Particulars
-            )
-            .filter(Boolean)
-            .join(', ');
-          if (combinedText) {
-            return (
-              <div className="whitespace-pre-wrap text-xs">{combinedText}</div>
-            );
-          }
-        }
-        return (
-          value ||
-          row.Particulars ||
-          row.Particular ||
-          row.Remarks ||
-          linkedOBR?.Remarks ||
-          'N/A'
-        );
-      },
-    },
-    {
-      key: 'InvoiceDate',
-      header: 'Invoice Date',
-      sortable: true,
-      render: (value) => new Date(value).toLocaleDateString(),
-    },
-    {
-      key: 'InvoiceNumber',
-      header: 'Invoice Number',
-      sortable: true,
-    },
-    {
-      key: 'BillingDueDate',
-      header: 'Billing Due Date ',
-      sortable: true,
-      render: (value) => {
-        if (!value || value === '0000-00-00' || value === '0000-00-00 00:00:00') return 'N/A';
-        try {
-          return new Date(value).toLocaleDateString();
-        } catch (e) {
-          return value;
-        }
-      },
-    },
+    // {
+    //   key: 'BillingDueDate',
+    //   header: 'Billing Due Date ',
+    //   sortable: true,
+    //   render: (value) => {
+    //     if (!value || value === '0000-00-00' || value === '0000-00-00 00:00:00') return 'N/A';
+    //     try {
+    //       return new Date(value).toLocaleDateString();
+    //     } catch (e) {
+    //       return value;
+    //     }
+    //   },
+    // },
     // {
     //   key: 'Fund',
     //   header: 'Fund',
