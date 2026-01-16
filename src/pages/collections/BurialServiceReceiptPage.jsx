@@ -1,7 +1,7 @@
 import { forwardRef, useEffect, useRef, useState } from 'react';
 import React from 'react';
 import { useReactToPrint } from 'react-to-print';
-import { PlusIcon } from '@heroicons/react/24/outline';
+import { PlusIcon, CheckIcon, XMarkIcon } from '@heroicons/react/24/outline';
 import BurialServiceReceiptForm from '../../components/forms/BurialServiceReceiptForm';
 import Modal from '../../components/common/Modal';
 import DataTable from '../../components/common/DataTable';
@@ -11,6 +11,8 @@ import {
   fetchBurialRecords,
   deleteBurialRecord,
   addBurialRecord,
+  approveBurialRecord,
+  rejectBurialRecord,
 } from '@/features/collections/burialServiceSlice';
 import { PencilIcon, PrinterIcon, TrashIcon } from 'lucide-react';
 import toast from 'react-hot-toast';
@@ -174,6 +176,28 @@ function BurialServiceReceiptPage() {
     }
   };
 
+  const handleApprove = async (receipt) => {
+    if (window.confirm('Are you sure you want to approve this burial receipt?')) {
+      try {
+        await dispatch(approveBurialRecord(receipt.ID)).unwrap();
+        toast.success('Burial Receipt approved successfully');
+      } catch (error) {
+        toast.error(error.message || 'Failed to approve');
+      }
+    }
+  };
+  const handleReject = async (receipt) => {
+    const reason = window.prompt('Please enter the reason for rejection:');
+    if (reason !== null) {
+      try {
+        await dispatch(rejectBurialRecord({ id: receipt.ID, reason })).unwrap();
+        toast.success('Burial Receipt rejected successfully');
+      } catch (error) {
+        toast.error(error.message || 'Failed to reject');
+      }
+    }
+  };
+
   const handleCloseModal = () => {
     setIsModalOpen(false);
     setSelectedReceipt(null);
@@ -227,22 +251,46 @@ function BurialServiceReceiptPage() {
       handleCloseModal();
     }
   };
-  const actions = [
-    Edit && {
-      icon: PencilIcon,
-      title: 'Edit',
-      onClick: handleEdit,
-      className:
-        'text-primary-600 hover:text-primary-900 p-1 rounded-full hover:bg-primary-50',
-    },
-    Delete && {
-      icon: TrashIcon,
-      title: 'Delete',
-      onClick: handleDeleteTicket,
-      className:
-        'text-error-600 hover:text-error-900 p-1 rounded-full hover:bg-error-50',
-    },
-  ];
+    const actions = (row) => {
+    const actionList = [];
+
+    if (Edit) {
+      actionList.push({
+        icon: PencilIcon,
+        title: 'Edit',
+        onClick: handleEdit,
+        className: 'text-primary-600 hover:text-primary-900 p-1 rounded-full hover:bg-primary-50',
+      });
+    }
+
+    if (row.Status === 'Requested') {
+      actionList.push(
+        {
+          icon: CheckIcon,
+          title: 'Approve',
+          onClick: () => handleApprove(row),
+          className: 'text-green-600 hover:text-green-900 p-1 rounded-full hover:bg-green-50',
+        },
+        {
+          icon: XMarkIcon,
+          title: 'Reject',
+          onClick: () => handleReject(row),
+          className: 'text-red-600 hover:text-red-900 p-1 rounded-full hover:bg-red-50',
+        }
+      );
+    }
+
+    if (Delete) {
+      actionList.push({
+        icon: TrashIcon,
+        title: 'Delete',
+        onClick: handleDeleteTicket,
+        className: 'text-error-600 hover:text-error-900 p-1 rounded-full hover:bg-error-50',
+      });
+    }
+
+    return actionList;
+  };
   // const actionsSub = (row) => {
   //   const actionList = [];
 
