@@ -9,6 +9,7 @@ import Modal from '../../components/common/Modal';
 import Button from '../../components/common/Button';
 import { Trash2, XCircleIcon } from 'lucide-react';
 import { toast } from 'react-hot-toast';
+import { formatCurrency } from '../../utils/currencyFormater';
 import {
   BuildingOfficeIcon,
   DocumentCheckIcon,
@@ -31,10 +32,13 @@ const payeeTypes = [
 
 // Validation schema
 const disbursementVoucherSchema = Yup.object().shape({
-  obrNo: Yup.string().required('No. is required'),
+  obrNo: Yup.string(),
   obrDate: Yup.date().required('Date is required'),
   payeeType: Yup.string().required('Payee type is required'),
   payeeId: Yup.string().required('Payee selection is required'),
+  responsibilityCenter: Yup.string().required(
+    'Responsibility Center is required'
+  ),
   fund: Yup.string().required('Fund is required'),
   fiscalYear: Yup.string().required('Fiscal Year is required'),
   project: Yup.string().required('Project is required'),
@@ -58,6 +62,7 @@ function FundUtilizationForm({
   unitOptions = [],
   taxCodeOptions = [],
   budgetOptions = [],
+  formBudgets = [],
   taxCodeFull = [],
 }) {
   const dispatch = useDispatch();
@@ -110,6 +115,7 @@ function FundUtilizationForm({
     payeeAddress: initialData?.payeeAddress || '',
     officeUnitProject: initialData?.officeUnitProject || '',
     orsNumber: initialData?.orsNumber || '',
+    responsibilityCenter: initialData?.ResponsibilityCenter || '',
     requestForPayment: initialData?.requestForPayment || '',
     modeOfPayment: initialData?.modeOfPayment || '',
     items:
@@ -119,16 +125,16 @@ function FundUtilizationForm({
     taxes: Array.isArray(initialData?.taxes) ? initialData.taxes : [],
     contraAccounts:
       Array.isArray(initialData?.contraAccounts) &&
-      initialData.contraAccounts.length > 0
+        initialData.contraAccounts.length > 0
         ? initialData.contraAccounts
         : [
-            {
-              code: '',
-              account: '',
-              amount: '',
-              normalBalance: '',
-            },
-          ],
+          {
+            code: '',
+            account: '',
+            amount: '',
+            normalBalance: '',
+          },
+        ],
     accountingEntries: Array.isArray(initialData?.accountingEntries)
       ? initialData.accountingEntries
       : [],
@@ -176,16 +182,17 @@ function FundUtilizationForm({
     fd.append(
       'Payee',
       selectedPayee?.Name ||
-        selectedPayee?.FirstName +
-          ' ' +
-          selectedPayee?.MiddleName +
-          ' ' +
-          selectedPayee?.LastName ||
-        ''
+      selectedPayee?.FirstName +
+      ' ' +
+      selectedPayee?.MiddleName +
+      ' ' +
+      selectedPayee?.LastName ||
+      ''
     );
     fd.append('Address', selectedPayee?.StreetAddress || '');
     fd.append('InvoiceNumber', values.obrNo);
     fd.append('InvoiceDate', values.obrDate);
+    fd.append('ResponsibilityCenter', values.responsibilityCenter);
 
     const total = values.accountingEntries.reduce(
       (sum, e) => sum + Number(e.subtotal || 0),
@@ -297,6 +304,7 @@ function FundUtilizationForm({
             handleChange,
             handleBlur,
             setFieldValue,
+            setFieldTouched,
             isValid,
           }) => {
             const { grossAmount, totalTaxes, netAmount } = calculateTotals(
@@ -322,6 +330,7 @@ function FundUtilizationForm({
               setFieldValue('payeeAddress', '');
               setFieldValue('officeUnitProject', '');
               setFieldValue('orsNumber', '');
+              setFieldValue('responsibilityCenter', '');
             };
 
             const handlePayeeSelect = (payee) => {
@@ -472,11 +481,10 @@ function FundUtilizationForm({
                             key={type.value}
                             type="button"
                             onClick={() => handlePayeeTypeChange(type.value)}
-                            className={`w-full flex items-center px-4 py-3 text-left border rounded-lg transition-all duration-200 ${
-                              values.payeeType === type.value
-                                ? 'border-blue-500 bg-blue-50 text-blue-700'
-                                : 'border-gray-300 hover:border-gray-400 text-gray-700'
-                            }`}
+                            className={`w-full flex items-center px-4 py-3 text-left border rounded-lg transition-all duration-200 ${values.payeeType === type.value
+                              ? 'border-blue-500 bg-blue-50 text-blue-700'
+                              : 'border-gray-300 hover:border-gray-400 text-gray-700'
+                              }`}
                           >
                             <PayeeTypeIcon type={type.value} />
                             <span className="ml-3 font-medium">
@@ -532,14 +540,13 @@ function FundUtilizationForm({
                                 </div>
                                 <div className="text-sm text-gray-900">
                                   {selectedPayeeType?.label === 'Employee'
-                                    ? `${selectedPayee.FirstName || ''} ${
-                                        selectedPayee.MiddleName || ''
+                                    ? `${selectedPayee.FirstName || ''} ${selectedPayee.MiddleName || ''
                                       } ${selectedPayee.LastName || ''}`.trim()
                                     : selectedPayeeType?.label === 'Vendor'
-                                    ? selectedPayee.Name
-                                    : selectedPayeeType?.label === 'Individual'
-                                    ? selectedPayee.Name
-                                    : selectedPayee.Name}
+                                      ? selectedPayee.Name
+                                      : selectedPayeeType?.label === 'Individual'
+                                        ? selectedPayee.Name
+                                        : selectedPayee.Name}
                                 </div>
                               </div>
                               <div>
@@ -550,10 +557,10 @@ function FundUtilizationForm({
                                   {selectedPayeeType?.label === 'Employee'
                                     ? selectedPayee.StreetAddress
                                     : selectedPayeeType?.label === 'Vendor'
-                                    ? selectedPayee.StreetAddress
-                                    : selectedPayeeType?.label === 'Individual'
-                                    ? selectedPayee.StreetAddress
-                                    : selectedPayee.StreetAddress}
+                                      ? selectedPayee.StreetAddress
+                                      : selectedPayeeType?.label === 'Individual'
+                                        ? selectedPayee.StreetAddress
+                                        : selectedPayee.StreetAddress}
                                 </div>
                               </div>
                             </div>
@@ -577,7 +584,9 @@ function FundUtilizationForm({
                     onBlur={handleBlur}
                     error={errors.obrNo}
                     touched={touched.obrNo}
-                    required
+                    className="bg-gray-100"
+                    readOnly
+                    disabled
                   />
 
                   <FormField
@@ -589,14 +598,41 @@ function FundUtilizationForm({
                     onBlur={handleBlur}
                     error={errors.obrDate}
                     touched={touched.obrDate}
-                    required
                   />
                 </div>
-
                 <hr />
 
                 {/* ── Row 1: Responsibility / Fund / Fiscal Year / Project ───────────────── */}
                 <div className="grid grid-cols-1 lg:grid-cols-4 gap-6 mt-6">
+                  {/* Responsibility Center */}
+                  <div className="lg:col-span-1">
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Responsibility Center{' '}
+                      <span className="text-red-500">*</span>
+                    </label>
+                    <Select
+                      options={departmentOptions}
+                      value={
+                        departmentOptions.find(
+                          (opt) => opt.value === values.responsibilityCenter
+                        ) || null
+                      }
+                      onChange={(opt) =>
+                        setFieldValue('responsibilityCenter', opt.value)
+                      }
+                      onBlur={() =>
+                        setFieldTouched('responsibilityCenter', true)
+                      }
+                      className="react-select-container"
+                      classNamePrefix="react-select"
+                    />
+                    {errors.responsibilityCenter &&
+                      touched.responsibilityCenter && (
+                        <p className="mt-1 text-sm text-red-600">
+                          {errors.responsibilityCenter}
+                        </p>
+                      )}
+                  </div>
                   {/* Fund */}
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -679,45 +715,77 @@ function FundUtilizationForm({
                       </div>
 
                       {values.accountingEntries.length > 0 && (
-                        <div className="space-y-2">
-                          <div className="grid grid-cols-6 gap-2 font-semibold text-sm">
+                        <div className="space-y-4 mt-4">
+                          {/* Header */}
+                          <div className="hidden md:grid md:grid-cols-6 gap-2 font-semibold text-sm">
                             <span>RC</span>
                             <span>REMARKS</span>
-                            <span>ITEM</span>
+                            <span>PARTICULARS</span>
                             {/* <span>FPP</span> */}
                             <span>ACCOUNT CODE</span>
                             <span className="text-right">SUB-TOTAL</span>
+                            <span /> {/* Empty for actions */}
                           </div>
+
+                          {/* Rows */}
                           {values.accountingEntries.map((entry, idx) => (
                             <div
                               key={idx}
-                              className="grid grid-cols-6 gap-2 text-sm items-center border p-2 rounded"
+                              className="grid grid-cols-1 md:grid-cols-6 gap-2 text-sm items-center border p-2 rounded"
                             >
-                              <span>{entry.responsibilityCenterName}</span>
-                              <span>{entry.Remarks}</span>
-                              <span>{entry.itemName}</span>
-                              {/* <span>{entry.FPP}</span> */}
-                              <span>{entry.chargeAccountName}</span>
-                              <span className="text-right">
-                                {parseFloat(entry.subtotal).toFixed(2)}
+                              <span>
+                                <span className="md:hidden font-semibold">
+                                  RC:{' '}
+                                </span>
+                                {entry.responsibilityCenterName}
                               </span>
-                              <div className="col-span-1 text-right">
+                              <span>
+                                <span className="md:hidden font-semibold">
+                                  Remarks:{' '}
+                                </span>
+                                {entry.Remarks}
+                              </span>
+                              <span>
+                                <span className="md:hidden font-semibold">
+                                  Particulars:{' '}
+                                </span>
+                                {entry.itemName}
+                              </span>
+                              {/* <span>{entry.FPP}</span> */}
+                              <span>
+                                <span className="md:hidden font-semibold">
+                                  Account Code:{' '}
+                                </span>
+                                {entry.chargeAccountName}
+                              </span>
+                              <span className="text-right">
+                                <span className="md:hidden font-semibold">
+                                  Sub-total:{' '}
+                                </span>
+                                {formatCurrency(entry.subtotal)}
+                              </span>
+                              <div className="text-right">
                                 <button
                                   type="button"
                                   onClick={() => remove(idx)}
-                                  className="text-red-600 text-xs"
+                                  className="text-red-600 text-xs hover:text-red-900"
                                 >
                                   <XCircleIcon className="w-4 h-4" />
                                 </button>
                               </div>
                             </div>
                           ))}
-                          <div className="grid grid-cols-6 gap-2 font-semibold pt-2 border-t">
-                            <div className="col-span-5 text-right">Total:</div>
+
+                          {/* Footer Total */}
+                          <div className="grid grid-cols-1 md:grid-cols-6 gap-2 font-semibold pt-2 border-t">
+                            <div className="md:col-span-5 text-right">Total:</div>
                             <div className="text-right">
-                              {values.accountingEntries
-                                .reduce((sum, e) => sum + Number(e.subtotal), 0)
-                                .toFixed(2)}
+                              {formatCurrency(
+                                values.accountingEntries.reduce(
+                                  (sum, e) => sum + Number(e.subtotal),
+                                  0
+                                )
+                              )}
                             </div>
                           </div>
                         </div>
@@ -737,6 +805,7 @@ function FundUtilizationForm({
                           unitOptions={unitOptions}
                           taxCodeOptions={taxCodeOptions}
                           budgetOptions={budgetOptions}
+                          formBudgets={formBudgets}
                           taxCodeFull={taxCodeFull}
                           onClose={() => setShowEntryModal(false)}
                           onSubmit={(entry) => {
@@ -796,9 +865,8 @@ function FundUtilizationForm({
                             </div>
                           ) : (
                             <div className="flex-1 min-w-[300px]">
-                              <label className="block text-sm font-medium mb-1">{`File ${
-                                index + 1
-                              }`}</label>
+                              <label className="block text-sm font-medium mb-1">{`File ${index + 1
+                                }`}</label>
                               <input
                                 type="file"
                                 name={`Attachments[${index}].File`}

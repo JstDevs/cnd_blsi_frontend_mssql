@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useMemo } from 'react';
 import { useFormik } from 'formik';
 import * as Yup from 'yup';
 import FormField from '../../components/common/FormField';
@@ -13,18 +13,19 @@ function FundUtilizationAddItemForm({
   taxCodeOptions = [],
   taxCodeFull = [],
   budgetOptions = [],
+  formBudgets = [],
   initialData,
 }) {
   const validationSchema = Yup.object({
     ResponsibilityCenter: Yup.string().required('Required'),
     ChargeAccountID: Yup.string().required('Required'),
-    ItemID: Yup.string().required('Required'),
+    // ItemID: Yup.string().required('Required'),
     Remarks: Yup.string().required('Required'),
     // FPP: Yup.string().required('Required'),
     Price: Yup.number().required('Required'),
     Quantity: Yup.number().required('Required'),
     ItemUnitID: Yup.string().required('Required'),
-    TAXCodeID: Yup.string().required('Required'),
+    // TAXCodeID: Yup.string().required('Required'),
     // DiscountRate: Yup.number().required('Required'),
   });
 
@@ -46,39 +47,72 @@ function FundUtilizationAddItemForm({
     },
     validationSchema,
     onSubmit: (vals) => {
-      const selectedTax = taxCodeFull.find(
-        (t) => String(t.ID) === String(vals.TAXCodeID)
-      );
+      // Find a default tax if none is selected (since field is hidden)
+      let finalTaxID = vals.TAXCodeID;
+      if (!finalTaxID && taxCodeFull.length > 0) {
+        const zeroTax = taxCodeFull.find(t => parseFloat(t.Rate) === 0);
+        finalTaxID = zeroTax ? zeroTax.ID : taxCodeFull[0].ID;
+      }
 
-      const computed = obligationRequestItemsCalculator({
-        price: vals.Price,
-        quantity: vals.Quantity,
-        taxRate: selectedTax?.Rate || 0,
-        // discountPercent: vals.DiscountRate,
-        vatable: vals.Vatable,
-        ewtRate: vals.withheldEWT,
-      });
+      const selectedTax = taxCodeFull.find(
+        (t) => String(t.ID) === String(finalTaxID)
+      );
 
       const rcSelected = responsibilityOptions.find(
         (o) => String(o.value) === String(vals.ResponsibilityCenter)
       );
-      const cSelected = budgetOptions.find(
+      const cSelected = filteredBudgetOptions.find(
         (o) => String(o.value) === String(vals.ChargeAccountID)
       );
-      const itemSelected = particularsOptions.find(
-        (o) => String(o.value) === String(vals.ItemID)
-      );
+      // const itemSelected = particularsOptions.find(
+      //   (o) => String(o.value) === String(vals.ItemID)
+      // );
 
       onSubmit({
         ...vals,
-        ...computed,
+        TAXCodeID: finalTaxID,
         responsibilityCenterName: rcSelected ? rcSelected.label : '',
         chargeAccountName: cSelected ? cSelected.label : '',
-        itemName: itemSelected ? itemSelected.label : '',
+        itemName: vals.Remarks,
+        TaxName: selectedTax?.Name,
+        TaxRate: selectedTax?.Rate,
       });
       onClose();
     },
   });
+
+  // Filter budgets based on Selected Responsibility Center
+  const filteredBudgetOptions = useMemo(() => {
+    if (!formik.values.ResponsibilityCenter) return [];
+
+    // If we have raw budget data (formBudgets), filter by DepartmentID
+    if (formBudgets && formBudgets.length > 0) {
+      return formBudgets
+        .filter((b) => {
+          // Must match Responsibility Center (Department)
+          const matchesDept =
+            String(b.DepartmentID) ===
+            String(formik.values.ResponsibilityCenter);
+          return matchesDept;
+        })
+        .map((b) => ({ value: b.ID, label: b.Name }));
+    }
+
+    // Fallback if formBudgets is missing
+    return budgetOptions;
+  }, [formik.values.ResponsibilityCenter, formBudgets, budgetOptions]);
+
+  // Reset Charge Account if it's no longer in the filtered list
+  useEffect(() => {
+    if (formik.values.ResponsibilityCenter && formik.values.ChargeAccountID) {
+      const isValid = filteredBudgetOptions.some(
+        (opt) => String(opt.value) === String(formik.values.ChargeAccountID)
+      );
+      if (!isValid) {
+        formik.setFieldValue('ChargeAccountID', '');
+      }
+    }
+  }, [formik.values.ResponsibilityCenter, filteredBudgetOptions]);
 
   const prev = useRef({ ...formik.values });
 
@@ -96,7 +130,7 @@ function FundUtilizationAddItemForm({
       taxRate: selectedTax?.Rate || 0,
       // discountPercent: formik.values.DiscountRate,
       vatable: formik.values.Vatable,
-      ewtRate: formik.values.withheldEWT,
+      ewtRate: 0, // Should not pass the calculated amount back as a rate
     });
 
     if (computed.subtotal !== formik.values.subtotal) {
@@ -122,7 +156,7 @@ function FundUtilizationAddItemForm({
   return (
     <form onSubmit={formik.handleSubmit} className="space-y-6">
       {/* Row 1 */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
         <div>
           <FormField
             type="select"
@@ -144,7 +178,7 @@ function FundUtilizationAddItemForm({
             type="select"
             label="Charge Account"
             name="ChargeAccountID"
-            options={budgetOptions}
+            options={filteredBudgetOptions}
             {...formik.getFieldProps('ChargeAccountID')}
             required
             error={
@@ -153,50 +187,25 @@ function FundUtilizationAddItemForm({
             touched={formik.touched.ChargeAccountID}
           />
         </div>
+      </div>
 
+      {/* Row 2 */}
+      <div className="grid grid-cols-1 gap-4">
         <div>
           <FormField
-            type="select"
+            type="textarea"
             label="Particulars"
-            name="ItemID"
-            options={particularsOptions}
-            {...formik.getFieldProps('ItemID')}
+            name="Remarks"
+            {...formik.getFieldProps('Remarks')}
             required
-            error={formik.touched.ItemID && formik.errors.ItemID}
-            touched={formik.touched.ItemID}
+            rows={3}
+            error={formik.touched.Remarks && formik.errors.Remarks}
+            touched={formik.touched.Remarks}
           />
         </div>
       </div>
 
-      {/* <div className="grid grid-cols-1 lg:grid-cols-3 gap-4"> */}
-      {/* <div>
-          <FormField
-            type="text"
-            label="Remarks"
-            name="Remarks"
-            {...formik.getFieldProps('Remarks')}
-            required
-          />
-          {formik.touched.Remarks && formik.errors.Remarks && (
-            <p className="text-red-500 text-sm">{formik.errors.Remarks}</p>
-          )}
-        </div> */}
-
-      {/* <div>
-          <FormField
-            type="text"
-            label="FPP"
-            name="FPP"
-            {...formik.getFieldProps('FPP')}
-            required
-          />
-          {formik.touched.FPP && formik.errors.FPP && (
-            <p className="text-red-500 text-sm">{formik.errors.FPP}</p>
-          )}
-        </div> */}
-      {/* </div> */}
-
-      {/* Row 2 */}
+      {/* Row 3 */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
         <div>
           <FormField
@@ -237,7 +246,7 @@ function FundUtilizationAddItemForm({
       </div>
 
       {/* Row 4 */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+      {/* <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
         <div>
           <FormField
             type="select"
@@ -262,18 +271,6 @@ function FundUtilizationAddItemForm({
           />
         </div>
 
-        {/* <div>
-          <FormField
-            type="number"
-            label="Discount %"
-            name="DiscountRate"
-            {...formik.getFieldProps('DiscountRate')}
-            required
-          />
-          {formik.touched.DiscountRate && formik.errors.DiscountRate && (
-            <p className="text-red-500 text-sm">{formik.errors.DiscountRate}</p>
-          )}
-        </div> */}
         <FormField
           type="number"
           label="Tax Rate (%)"
@@ -281,7 +278,7 @@ function FundUtilizationAddItemForm({
           value={currentTaxRate}
           disabled
         />
-      </div>
+      </div> */}
 
       {/* Tax Rate Display */}
       {/* <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
@@ -295,16 +292,7 @@ function FundUtilizationAddItemForm({
       </div> */}
 
       {/* Vatable checkbox */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
-        <FormField
-          type="text"
-          label="Remarks"
-          name="Remarks"
-          {...formik.getFieldProps('Remarks')}
-          required
-          error={formik.touched.Remarks && formik.errors.Remarks}
-          touched={formik.touched.Remarks}
-        />
+      {/* <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
         <label className="inline-flex items-center">
           <input
             type="checkbox"
@@ -317,7 +305,7 @@ function FundUtilizationAddItemForm({
           />
           <span className="text-sm">Vatable</span>
         </label>
-      </div>
+      </div> */}
 
       {/* Subtotal */}
       <div className="font-semibold text-right">
