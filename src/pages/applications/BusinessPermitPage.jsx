@@ -1,7 +1,8 @@
 // BusinessPermitForm.js
 import { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { PlusIcon, EyeIcon, PencilIcon, TrashIcon, CheckIcon, XMarkIcon } from 'lucide-react';
+import { PlusIcon, EyeIcon, PencilIcon, TrashIcon } from 'lucide-react';
+import { CheckIcon, XMarkIcon } from '@heroicons/react/24/outline';
 import DataTable from '../../components/common/DataTable';
 import Modal from '../../components/common/Modal';
 import BusinessPermitFormFields from './BusinessPermitFormFields';
@@ -137,7 +138,8 @@ function BusinessPermitPage() {
       }
     ];
 
-    if (row.status === 'Requested') {
+    const normalizedStatus = (row.status || row.Status || '').toString().trim();
+    if (normalizedStatus === 'Requested') {
       list.push(
         {
           icon: CheckIcon,
@@ -292,9 +294,9 @@ function BusinessPermitPage() {
 
   const filteredPermits = Array.isArray(permits) ? permits.filter(
     (permit) =>
-      permit.businessName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      permit.ownerName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      permit.dtiSecCdaRegistration.includes(searchTerm)
+      (permit.businessName || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
+      (permit.ownerName || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
+      (permit.dtiSecCdaRegistrationNo || '').includes(searchTerm)
   ) : [];
 
   return (
