@@ -145,6 +145,11 @@ function FundUtilizationPage() {
   // Table columns definition
   const columns = [
     {
+      key: 'InvoiceNumber',
+      header: 'Invoice Number',
+      sortable: true,
+    },
+    {
       key: 'Status',
       header: 'Status',
       sortable: true,
@@ -158,30 +163,46 @@ function FundUtilizationPage() {
       render: (value) => new Date(value).toLocaleDateString(),
     },
     {
-      key: 'InvoiceNumber',
-      header: 'Invoice Number',
+      key: 'Remarks',
+      header: 'Particular',
       sortable: true,
+      render: (_, row) => {
+        const items = row.TransactionItemsAll || row.Items || [];
+        const combinedText = items.map((i) => i.Remarks || i.itemName).join(', ');
+        return <div className="whitespace-pre-wrap">{combinedText}</div>;
+      },
     },
     {
       key: 'Total',
       header: 'Total',
       sortable: true,
+      className: 'text-right font-semibold',
+      render: (value) => (
+        <span className="text-right font-semibold text-primary-700">
+          {formatCurrency(value)}
+        </span>
+      ),
     },
     {
-      key: 'FiscalYearName',
-      header: 'Fiscal Year',
+      key: 'ResponsibilityCenterName',
+      header: 'Responsibility Center',
       sortable: true,
     },
-    {
-      key: 'ProjectName',
-      header: 'Project',
-      sortable: true,
-    },
-    {
-      key: 'CustomerID',
-      header: 'CustomerID',
-      sortable: true,
-    },
+    // {
+    //   key: 'FiscalYearName',
+    //   header: 'Fiscal Year',
+    //   sortable: true,
+    // },
+    // {
+    //   key: 'ProjectName',
+    //   header: 'Project',
+    //   sortable: true,
+    // },
+    // {
+    //   key: 'CustomerID',
+    //   header: 'CustomerID',
+    //   sortable: true,
+    // },
   ];
 
   // Actions for table rows
