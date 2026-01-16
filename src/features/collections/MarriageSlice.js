@@ -142,49 +142,49 @@ export const deleteMarriageRecord = createAsyncThunk(
 
 export const approveMarriageRecord = createAsyncThunk(
   'marriageRecords/approveMarriageRecord',
-  async (id, thunkAPI ) => {
+  async (id, thunkAPI) => {
     try {
-      const token = sessionStorage.getItem( 'token' );
-      const response = await fetch( `${ API_URL }/marriagerecord/approve`, {
+      const token = sessionStorage.getItem('token');
+      const response = await fetch(`${API_URL}/marriagerecord/approve`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          Authorization: `Bearer ${ token }`,
+          Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify( { ID: id } ),
-      } );
+        body: JSON.stringify({ ID: id }),
+      });
 
       const res = await response.json();
-      if ( !response.ok ) throw new Error( res.message || 'Failed to approve marriage record' );
+      if (!response.ok) throw new Error(res.message || 'Failed to approve marriage record');
 
       return { id };
-     } catch ( error ) {
-        return thunkAPI.rejectWithValue( error.message ); 
-      }
+    } catch (error) {
+      return thunkAPI.rejectWithValue(error.message);
     }
+  }
 );
 
 export const rejectMarriageRecord = createAsyncThunk(
   'marriageRecords/rejectMarriageRecord',
-  async ( { id, reason }, thunkAPI ) => {
+  async ({ id, reason }, thunkAPI) => {
     try {
-      const token = sessionStorage.getItem( 'token' );
-      const response = await fetch( `${ API_URL }/marriagerecord/reject`, {
+      const token = sessionStorage.getItem('token');
+      const response = await fetch(`${API_URL}/marriagerecord/reject`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          Authorization: `Bearer ${ token }`, 
+          Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify( { ID: id, reason } ),
+        body: JSON.stringify({ ID: id, reason }),
       });
 
       const res = await response.json();
-      if (!response.ok) throw new Error( res.message || 'Failed to reject marriage record' );
+      if (!response.ok) throw new Error(res.message || 'Failed to reject marriage record');
       return { id };
-    } catch ( error ) {
-      return thunkAPI.rejectWithValue( error.message );
+    } catch (error) {
+      return thunkAPI.rejectWithValue(error.message);
+    }
   }
-}
 );
 
 
@@ -211,7 +211,7 @@ const marriageRecordsSlice = createSlice({
         state.isLoading = false;
         const index = state.records.findIndex(r => r.ID === action.payload.id);
         if (index !== -1) {
-          state.records[index].Status = 'Approved';
+          state.records[index].Status = 'Posted';
         }
       })
       .addCase(rejectMarriageRecord.fulfilled, (state, action) => {

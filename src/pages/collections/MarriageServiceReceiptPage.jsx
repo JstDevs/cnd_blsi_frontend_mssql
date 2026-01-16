@@ -108,7 +108,7 @@ function MarriageServiceReceiptPage() {
     if (!window.confirm('Are you sure you want to approve this record?')) return;
     try {
       await dispatch(approveMarriageRecord(record.ID)).unwrap();
-      toast.success('Marriage Receipt Approved');
+      toast.success('Marriage Receipt Approved and Posted');
     } catch (error) {
       toast.error(error.message || 'Failed to approve');
     }
@@ -145,15 +145,14 @@ function MarriageServiceReceiptPage() {
       sortable: true,
       render: (value) => (
         <span
-          className={`px-2 py-1 rounded ${
-            value === 'Requested'     ? 'bg-gradient-to-r from-warning-400 via-warning-300 to-warning-500 text-error-700'
-              : value === 'Approved'  ? 'bg-gradient-to-r from-success-300 via-success-500 to-success-600 text-neutral-800'
-              : value === 'Posted'    ? 'bg-gradient-to-r from-success-800 via-success-900 to-success-999 text-success-100'
-              : value === 'Rejected'  ? 'bg-gradient-to-r from-error-700 via-error-800 to-error-999 text-neutral-100'
-              : value === 'Void'      ? 'bg-gradient-to-r from-primary-900 via-primary-999 to-tertiary-999 text-neutral-300'
-              : value === 'Cancelled' ? 'bg-gradient-to-r from-neutral-200 via-neutral-300 to-neutral-400 text-neutral-800'
-              : 'bg-gray-100 text-gray-800'
-          }`}
+          className={`px-2 py-1 rounded ${value === 'Requested' ? 'bg-gradient-to-r from-warning-400 via-warning-300 to-warning-500 text-error-700'
+              : value === 'Approved' ? 'bg-gradient-to-r from-success-300 via-success-500 to-success-600 text-neutral-800'
+                : value === 'Posted' ? 'bg-gradient-to-r from-success-800 via-success-900 to-success-999 text-success-100'
+                  : value === 'Rejected' ? 'bg-gradient-to-r from-error-700 via-error-800 to-error-999 text-neutral-100'
+                    : value === 'Void' ? 'bg-gradient-to-r from-primary-900 via-primary-999 to-tertiary-999 text-neutral-300'
+                      : value === 'Cancelled' ? 'bg-gradient-to-r from-neutral-200 via-neutral-300 to-neutral-400 text-neutral-800'
+                        : 'bg-gray-100 text-gray-800'
+            }`}
         >
           {value}
         </span>
@@ -245,64 +244,64 @@ function MarriageServiceReceiptPage() {
   // Actions for table rows
   const actions = (row) => {
     const list = [];
-  const status = row.Status;
-  // Show Approve/Reject ONLY if status is "Requested"
-  if (status === 'Requested') {
-    list.push(
-      {
-        icon: CheckIcon,
-        title: 'Approve',
-        onClick: () => handleApprove(row),
-        className: 'text-success-600 hover:text-success-900 p-1 rounded-full hover:bg-success-50',
-      },
-      {
-        icon: XMarkIcon,
-        title: 'Reject',
-        onClick: () => handleReject(row),
+    const status = row.Status;
+    // Show Approve/Reject ONLY if status is "Requested"
+    if (status === 'Requested') {
+      list.push(
+        {
+          icon: CheckIcon,
+          title: 'Approve',
+          onClick: () => handleApprove(row),
+          className: 'text-success-600 hover:text-success-900 p-1 rounded-full hover:bg-success-50',
+        },
+        {
+          icon: XMarkIcon,
+          title: 'Reject',
+          onClick: () => handleReject(row),
+          className: 'text-error-600 hover:text-error-900 p-1 rounded-full hover:bg-error-50',
+        }
+      );
+    }
+    // Always show Edit and Delete (or you can add logic here too)
+    if (Edit) {
+      list.push({
+        icon: PencilIcon,
+        title: 'Edit',
+        onClick: () => handleEdit(row),
+        className: 'text-primary-600 hover:text-primary-900 p-1 rounded-full hover:bg-primary-50',
+      });
+    }
+    if (Delete) {
+      list.push({
+        icon: TrashIcon,
+        title: 'Delete',
+        onClick: () => handleDeleteReceipt(row),
         className: 'text-error-600 hover:text-error-900 p-1 rounded-full hover:bg-error-50',
-      }
-    );
-  }
-  // Always show Edit and Delete (or you can add logic here too)
-  if (Edit) {
-    list.push({
-      icon: PencilIcon,
-      title: 'Edit',
-      onClick: () => handleEdit(row),
-      className: 'text-primary-600 hover:text-primary-900 p-1 rounded-full hover:bg-primary-50',
-    });
-  }
-  if (Delete) {
-    list.push({
-      icon: TrashIcon,
-      title: 'Delete',
-      onClick: () => handleDeleteReceipt(row),
-      className: 'text-error-600 hover:text-error-900 p-1 rounded-full hover:bg-error-50',
-    });
-  }
-  return list;
-  // [
-  //   // {
-  //   //   icon: EyeIcon,
-  //   //   title: 'View',
-  //   //   onClick: handleViewReceipt,
-  //   //   className:
-  //   //     'text-primary-600 hover:text-primary-900 p-1 rounded-full hover:bg-primary-50',
-  //   // },
-  //   Edit && {
-  //     icon: PencilIcon,
-  //     title: 'Edit',
-  //     onClick: handleEdit,
-  //     className:
-  //       'text-primary-600 hover:text-primary-900 p-1 rounded-full hover:bg-primary-50',
-  //   },
-  //   Delete && {
-  //     icon: TrashIcon,
-  //     title: 'Delete',
-  //     onClick: handleDeleteReceipt,
-  //     className:
-  //       'text-error-600 hover:text-error-900 p-1 rounded-full hover:bg-error-50',
-  //   },
+      });
+    }
+    return list;
+    // [
+    //   // {
+    //   //   icon: EyeIcon,
+    //   //   title: 'View',
+    //   //   onClick: handleViewReceipt,
+    //   //   className:
+    //   //     'text-primary-600 hover:text-primary-900 p-1 rounded-full hover:bg-primary-50',
+    //   // },
+    //   Edit && {
+    //     icon: PencilIcon,
+    //     title: 'Edit',
+    //     onClick: handleEdit,
+    //     className:
+    //       'text-primary-600 hover:text-primary-900 p-1 rounded-full hover:bg-primary-50',
+    //   },
+    //   Delete && {
+    //     icon: TrashIcon,
+    //     title: 'Delete',
+    //     onClick: handleDeleteReceipt,
+    //     className:
+    //       'text-error-600 hover:text-error-900 p-1 rounded-full hover:bg-error-50',
+    //   },
   };
 
   return (

@@ -154,7 +154,7 @@ export const approveBurialRecord = createAsyncThunk(
       });
       const res = await response.json();
       if (!response.ok) throw new Error(res.error || 'Failed to approve');
-      return { id, status: 'Approved' };
+      return { id, status: 'Posted' };
     } catch (error) {
       return thunkAPI.rejectWithValue(error.message);
     }
