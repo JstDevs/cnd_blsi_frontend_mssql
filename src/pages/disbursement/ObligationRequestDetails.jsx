@@ -273,7 +273,7 @@ function ObligationRequestDetails({ or, onBack, onEdit }) {
                   return items.map((item, index) => (
                     <tr key={index} className="hover:bg-neutral-50 transition-colors duration-200">
                       <td className="px-6 py-4 text-sm text-neutral-900">
-                        {item.responsibilityCenterName || item.RC || item.ResponsibilityCenterName || item.DepartmentName || item.departmentName || or.ResponsibilityCenterName}
+                        {item.ChargeAccount?.Department?.Name || item.responsibilityCenterName || item.RC || item.ResponsibilityCenterName || item.DepartmentName || item.departmentName || or.ResponsibilityCenterName}
                       </td>
                       <td className="px-6 py-4 text-sm text-neutral-900">
                         {item.itemName || item.Remarks || item.Particulars || item.item_name}
@@ -281,8 +281,10 @@ function ObligationRequestDetails({ or, onBack, onEdit }) {
                       <td className="px-6 py-4 text-sm text-neutral-600 font-mono tracking-tight">
                         {(() => {
                           const account = chartOfAccounts?.find(a => String(a.ID) === String(item.ChartofAccountsID || item.AccountID || item.Account_ID));
-                          const accountCode = item.chargeAccountName || item.Account || item.AccountCode || account?.AccountCode;
-                          const accountName = item.AccountName || account?.Name;
+                          // Prefer specific backend data if available, then top-level props, then Redux lookup
+                          const accountCode = item.ChargeAccount?.ChartofAccounts?.AccountCode || item.chargeAccountName || item.Account || item.AccountCode || account?.AccountCode;
+                          const accountName = item.ChargeAccount?.ChartofAccounts?.Name || item.AccountName || account?.Name;
+
                           if (accountCode && accountName) return `${accountCode} - ${accountName}`;
                           return accountCode || accountName || 'N/A';
                         })()}
