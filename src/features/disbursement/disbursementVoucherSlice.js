@@ -20,9 +20,9 @@ export const fetchRequestOptions = createAsyncThunk(
 
       const url =
         `${API_URL}/disbursementVoucher/selectListForDV` +
-        `?type=${encodeURIComponent(payeeType)}` +
+        `?type=${encodeURIComponent(payeeType || '')}` +
         `&requestType=${encodeURIComponent(requestType)}` +
-        `&id=${payeeId}`;
+        `&id=${payeeId || ''}`;
 
       const response = await fetch(url, {
         headers: { Authorization: `Bearer ${token}` },

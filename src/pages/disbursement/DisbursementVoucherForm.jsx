@@ -436,19 +436,73 @@ function DisbursementVoucherForm({
               return;
             }
 
-            if (values.payeeType && values.payeeId && type) {
-              dispatch(
-                fetchRequestOptions({
-                  requestType: type,
-                  payeeType: values.payeeType,
-                  payeeId: values.payeeId,
-                })
-              );
-            }
+            dispatch(
+              fetchRequestOptions({
+                requestType: type,
+                payeeType: values.payeeType || '',
+                payeeId: values.payeeId || '',
+              })
+            );
           };
 
           const handleRequestSelect = (option) => {
             setSelectedRequest(option);
+
+            // Auto-populate payee if not already set or differs (can be refined to always overwrite)
+            // Logic: Check which payee ID is present in the option
+            let newPayeeType = '';
+            let newPayeeId = '';
+            let newPayeeName = '';
+            let newPayeeAddress = '';
+
+            if (option?.raw?.EmployeeID) {
+              newPayeeType = 'Employee';
+              newPayeeId = option.raw.EmployeeID;
+              newPayeeName = `${option.raw.Employee?.FirstName || ''} ${option.raw.Employee?.MiddleName || ''} ${option.raw.Employee?.LastName || ''}`.trim();
+              newPayeeAddress = option.raw.Employee?.StreetAddress || '';
+            } else if (option?.raw?.VendorID) {
+              newPayeeType = 'Vendor';
+              newPayeeId = option.raw.VendorID;
+              newPayeeName = option.raw.Vendor?.Name || '';
+              newPayeeAddress = option.raw.Vendor?.StreetAddress || '';
+            } else if (option?.raw?.CustomerID) {
+              newPayeeType = 'Individual';
+              newPayeeId = option.raw.CustomerID;
+              newPayeeName = option.raw.Customer?.Name || '';
+              newPayeeAddress = option.raw.Customer?.StreetAddress || '';
+            }
+
+            // Update form values for payee
+            if (newPayeeType && newPayeeId) {
+              setFieldValue('payeeType', newPayeeType);
+              setFieldValue('payeeId', newPayeeId);
+              setFieldValue('payeeName', newPayeeName);
+              setFieldValue('payeeAddress', newPayeeAddress);
+
+              // Also update local state for display if needed
+              // We might need to fetch the full object from the respective data arrays if we want strict consistency 
+              // but for display purposes here we have the data from the option.
+              // Ideally, handlePayeeSelect would be called, but we don't have the full object here easily unless we search.
+              // Search in the data arrays:
+              let selectedItem = null;
+              switch (newPayeeType) {
+                case 'Employee':
+                  selectedItem = employeeData.find((item) => item.ID === newPayeeId);
+                  break;
+                case 'Vendor':
+                  selectedItem = vendorData.find((item) => item.ID === newPayeeId);
+                  break;
+                case 'Individual':
+                  selectedItem = individualData.find((item) => item.ID === newPayeeId);
+                  break;
+                default:
+                  break;
+              }
+              if (selectedItem) {
+                setSelectedPayee(selectedItem);
+              }
+            }
+
 
             const entriesFromRequest = option?.raw?.TransactionItemsAll || [];
 
@@ -781,24 +835,35 @@ function DisbursementVoucherForm({
                         options={requestOptions.map((opt) => {
                           let fullName = '';
 
-                          // Conditionally build fullName based on payeeType
-                          if (values.payeeType === 'Employee') {
+                          // Conditionally build fullName
+                          if (opt.EmployeeID) {
                             fullName = `${opt.Employee?.FirstName || ''} ${opt.Employee?.MiddleName || ''
                               } ${opt.Employee?.LastName || ''}`.trim();
-                          } else if (values.payeeType === 'Individual') {
-                            if (
-                              !opt.Employee?.FirstName &&
-                              !opt.Employee?.MiddleName &&
-                              !opt.Employee?.LastName
-                            ) {
-                              fullName = opt.Name || 'N/A';
-                            } else {
+                          } else if (opt.CustomerID) {
+                            fullName = opt.Customer?.Name || 'N/A';
+                          } else if (opt.VendorID) {
+                            fullName = opt.Vendor?.Name || 'N/A';
+                          } else {
+                            // If filtered by payeeType but no ID, try to use generic Name or fallback
+                            if (values.payeeType === 'Employee') {
                               fullName = `${opt.Employee?.FirstName || ''} ${opt.Employee?.MiddleName || ''
                                 } ${opt.Employee?.LastName || ''}`.trim();
+                            } else if (values.payeeType === 'Individual') {
+                              if (
+                                !opt.Employee?.FirstName &&
+                                !opt.Employee?.MiddleName &&
+                                !opt.Employee?.LastName
+                              ) {
+                                fullName = opt.Name || 'N/A';
+                              } else {
+                                fullName = `${opt.Employee?.FirstName || ''} ${opt.Employee?.MiddleName || ''
+                                  } ${opt.Employee?.LastName || ''}`.trim();
+                              }
+                            } else if (values.payeeType === 'Vendor') {
+                              fullName = opt.Name || 'N/A';
                             }
-                          } else if (values.payeeType === 'Vendor') {
-                            fullName = opt.Name || 'N/A';
                           }
+
 
                           return {
                             value: opt.ID,
