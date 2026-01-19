@@ -111,7 +111,7 @@ function FundUtilizationPage() {
         payload.Reason = reason;
       }
 
-      const response = await axiosInstance.post(`/fundUtilizationRequest/${action}`, payload);
+      const response = await axiosInstance.post(`/fundUtilizationRequest/${action}`, payload, { timeout: 30000 });
       toast.success(`Fund Utilization Request ${actionPast} successfully`);
       dispatch(fetchFundUtilizations());
     } catch (error) {
@@ -188,6 +188,32 @@ function FundUtilizationPage() {
       key: 'ResponsibilityCenterName',
       header: 'Responsibility Center',
       sortable: true,
+      render: (value, row) => {
+        // 0. Try grabbing from the first Item (prioritize Item's Department)
+        const items = row.TransactionItemsAll || row.Items || [];
+        if (items.length > 0) {
+          const firstItem = items[0];
+          const itemDeptName = firstItem.ChargeAccount?.Department?.Name || firstItem.responsibilityCenterName;
+          if (itemDeptName) return itemDeptName;
+        }
+
+        // 1. Fallback to direct value
+        const rcName = value || row.ResponsibilityCenter || row.ResponsibilityCenterName;
+
+        if (rcName && typeof rcName === 'string' && isNaN(rcName)) return rcName;
+
+        // 2. Try Department lookup by ID
+        const deptID =
+          row.DepartmentID ||
+          row.ResponsibilityCenterID ||
+          (!isNaN(rcName) ? Number(rcName) : null);
+        const dept = departments.find(
+          (d) => String(d.ID) === String(deptID)
+        );
+        if (dept) return dept.Name;
+
+        return 'N/A';
+      },
     },
     // {
     //   key: 'FiscalYearName',
@@ -415,8 +441,8 @@ function FundUtilizationPage() {
                   <p>View fund utilization request details</p>
                 </div>
               </div>
-              
-               {/* Optional: Add Edit button here too if you want, but likely handled inside Details component */}
+
+              {/* Optional: Add Edit button here too if you want, but likely handled inside Details component */}
             </div>
           </div>
           <div className="mt-4">

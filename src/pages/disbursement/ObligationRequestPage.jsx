@@ -282,7 +282,8 @@ function ObligationRequestPage() {
     try {
       const { data } = await axiosInstance.post(
         `/obligationRequest/${config.endpoint}`,
-        config.payload
+        config.payload,
+        { timeout: 30000 }
       );
 
       console.log(`${action} response:`, data);

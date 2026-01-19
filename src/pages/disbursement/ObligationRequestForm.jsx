@@ -742,10 +742,6 @@ function ObligationRequestForm({
                             console.log('Adding entry:', entry);
                             push(entry);
                             setShowEntryModal(false);
-                            // Auto-set Header RC to match the Item's RC
-                            if (entry.ResponsibilityCenter) {
-                              setFieldValue('responsibilityCenter', entry.ResponsibilityCenter);
-                            }
                           }}
                         />
                       </Modal>
