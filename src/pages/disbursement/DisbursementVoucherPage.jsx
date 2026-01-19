@@ -24,7 +24,7 @@ import { fetchTaxCodes } from '@/features/settings/taxCodeSlice';
 import { fetchBudgets } from '@/features/budget/budgetSlice';
 import { fetchAccounts } from '../../features/settings/chartOfAccountsSlice';
 import { statusLabel } from '../userProfile';
-import { CheckLine, X } from 'lucide-react';
+import { CheckLine, TrashIcon, X } from 'lucide-react';
 import axiosInstance from '@/utils/axiosInstance';
 import toast from 'react-hot-toast';
 import { useModulePermissions } from '@/utils/useModulePremission';
@@ -295,6 +295,19 @@ function DisbursementVoucherPage() {
       setApprovalLoading(false);
     }
   };
+
+  const handleDelete = async (row) => {
+    if (!window.confirm('Are you sure you want to void this Disbursement Voucher? This will mark it as void.')) return;
+    try {
+      await axiosInstance.delete(`/disbursementVoucher/${row.ID}`);
+      toast.success('Disbursement Voucher voided successfully');
+      dispatch(fetchDisbursementVouchers());
+      dispatch(fetchObligationRequests()); // To update linked OBR status
+    } catch (error) {
+      console.error('Error voiding DV:', error);
+      toast.error(error.response?.data?.error || 'Error voiding DV');
+    }
+  };
   return (
     <div>
       {currentView === 'list' && (
@@ -333,7 +346,9 @@ function DisbursementVoucherPage() {
                     className:
                       'text-primary-600 hover:text-primary-900 p-1 rounded-full hover:bg-primary-50',
                   });
-                } else if (row.Status === 'Requested') {
+                }
+
+                if (row.Status === 'Requested') {
                   actionList.push(
                     {
                       icon: CheckLine,
@@ -352,6 +367,16 @@ function DisbursementVoucherPage() {
                   );
                 }
 
+                if (Delete && !row.Status.toLowerCase().includes('void') && !row.Status.toLowerCase().includes('posted')) {
+                  actionList.push({
+                    icon: TrashIcon,
+                    title: 'Void',
+                    onClick: () => handleDelete(row),
+                    className:
+                      'text-error-600 hover:text-error-900 p-1 rounded-full hover:bg-error-50',
+                  });
+                }
+
                 actionList.push({
                   icon: EyeIcon,
                   title: 'View',
@@ -361,7 +386,8 @@ function DisbursementVoucherPage() {
                 });
 
                 return actionList;
-              }}
+              }
+              }
               loading={isLoading || approvalLoading}
             // onRowClick={handleViewOR}
             />
