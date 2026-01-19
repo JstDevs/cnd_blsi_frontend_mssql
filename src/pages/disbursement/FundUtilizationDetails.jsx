@@ -11,10 +11,12 @@ import Modal from '../../components/common/Modal';
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchGeneralLedgers } from '../../features/reports/generalLedgerSlice';
 import { useState } from 'react';
+
 function FundUtilizationDetails({ or, onBack, onEdit }) {
   const dispatch = useDispatch();
   const [showGLModal, setShowGLModal] = useState(false);
   const { generalLedgers, isLoading: isGLLoading } = useSelector((state) => state.generalLedger);
+
   // Lookups
   const { employees } = useSelector((state) => state.employees);
   const { customers } = useSelector((state) => state.customers);
@@ -22,6 +24,7 @@ function FundUtilizationDetails({ or, onBack, onEdit }) {
   const { funds } = useSelector((state) => state.funds);
   const { accounts: chartOfAccounts } = useSelector((state) => state.chartOfAccounts);
   const { departments } = useSelector((state) => state.departments);
+
   const handleViewGeneralLedger = () => {
     setShowGLModal(true);
     dispatch(fetchGeneralLedgers({
@@ -30,10 +33,13 @@ function FundUtilizationDetails({ or, onBack, onEdit }) {
       CutOffDate: or.InvoiceDate || new Date().toISOString().split('T')[0]
     }));
   };
+
   const handleCloseGLModal = () => {
     setShowGLModal(false);
   };
+
   if (!or) return null;
+
   // Format date
   const formatDate = (dateString) => {
     return new Date(dateString).toLocaleDateString('en-PH', {
@@ -42,11 +48,13 @@ function FundUtilizationDetails({ or, onBack, onEdit }) {
       day: 'numeric',
     });
   };
+
   // Get status badge color
   const getStatusBadge = (status) => {
     let bgColor = 'bg-neutral-100 text-neutral-800';
     if (!status) return bgColor;
     const lowerStatus = status.toLowerCase();
+
     if (lowerStatus.includes('requested')) bgColor = 'bg-gradient-to-r from-warning-400 via-warning-300 to-warning-500 text-error-700';
     else if (lowerStatus.includes('approved') || lowerStatus.includes('posted')) bgColor = 'bg-gradient-to-r from-success-300 via-success-500 to-success-600 text-neutral-800';
     else if (lowerStatus.includes('rejected')) bgColor = 'bg-gradient-to-r from-error-700 via-error-800 to-error-999 text-neutral-100';
@@ -54,15 +62,17 @@ function FundUtilizationDetails({ or, onBack, onEdit }) {
 
     return bgColor;
   };
+
   return (
     <div className="space-y-6">
       {/* Status and actions header */}
       <div className="flex flex-wrap items-center justify-between gap-4">
         <span
-          className={`px - 3 py - 1 inline - flex text - sm font - semibold rounded - full ${getStatusBadge(or.Status || or.Transaction?.Status)} `}
+          className={`px-3 py-1 inline-flex text-sm font-semibold rounded-full ${getStatusBadge(or.Status || or.Transaction?.Status)}`}
         >
           {or.Status || or.Transaction?.Status}
         </span>
+
         <div className="flex space-x-2">
           {onEdit && (
             <button
@@ -78,6 +88,7 @@ function FundUtilizationDetails({ or, onBack, onEdit }) {
             <PrinterIcon className="h-4 w-4 mr-2" />
             Print
           </button>
+
           <button
             type="button"
             className="btn btn-outline flex items-center"
@@ -89,12 +100,14 @@ function FundUtilizationDetails({ or, onBack, onEdit }) {
           </button>
         </div>
       </div>
+
       {/* Main details */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 p-4 rounded-lg bg-neutral-50 border border-neutral-200">
         <div>
           <h3 className="text-lg font-medium text-neutral-900 mb-4">
             Request Details
           </h3>
+
           <dl className="space-y-2">
             <div className="grid grid-cols-3 gap-4">
               <dt className="text-sm font-medium text-neutral-500">Invoice Number</dt>
@@ -124,6 +137,7 @@ function FundUtilizationDetails({ or, onBack, onEdit }) {
             </div>
           </dl>
         </div>
+
         <div>
           <h3 className="text-lg font-medium text-neutral-900 mb-4">
             Payee Information
@@ -139,7 +153,7 @@ function FundUtilizationDetails({ or, onBack, onEdit }) {
                 if (or.EmployeeID) {
                   const emp = employees.find(e => String(e.ID) === String(or.EmployeeID));
                   if (emp) {
-                    payeeName = `${emp.FirstName} ${emp.MiddleName ? emp.MiddleName + ' ' : ''}${emp.LastName} `;
+                    payeeName = `${emp.FirstName} ${emp.MiddleName ? emp.MiddleName + ' ' : ''}${emp.LastName}`;
                     payeeType = 'Employee';
                     payeeAddress = emp.StreetAddress || emp.Address;
                   }
@@ -153,7 +167,7 @@ function FundUtilizationDetails({ or, onBack, onEdit }) {
                 } else if (or.CustomerID) {
                   const customer = customers.find(c => String(c.ID) === String(or.CustomerID));
                   if (customer) {
-                    payeeName = customer.Name || `${customer.FirstName} ${customer.LastName} `;
+                    payeeName = customer.Name || `${customer.FirstName} ${customer.LastName}`;
                     payeeType = 'Customer/Individual';
                     payeeAddress = customer.StreetAddress || customer.Address;
                   }
@@ -180,6 +194,7 @@ function FundUtilizationDetails({ or, onBack, onEdit }) {
           </dl>
         </div>
       </div>
+
       {/* Items */}
       <div>
         <h3 className="text-lg font-medium text-neutral-900 mb-3">Items</h3>
@@ -228,6 +243,7 @@ function FundUtilizationDetails({ or, onBack, onEdit }) {
           </table>
         </div>
       </div>
+
       {/* Amounts Summary */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <div className="p-5 rounded-xl bg-white border border-neutral-200 shadow-sm">
@@ -274,7 +290,7 @@ function FundUtilizationDetails({ or, onBack, onEdit }) {
                   </tr>
                 ))}
                 {(!generalLedgers || generalLedgers.length === 0) && (
-                  <tr><td colSpan="3" className="px-6 py-4 text-center text-sm text-sm text-neutral-500">No entries found</td></tr>
+                  <tr><td colSpan="3" className="px-6 py-4 text-center text-sm text-neutral-500">No entries found</td></tr>
                 )}
               </tbody>
             </table>
