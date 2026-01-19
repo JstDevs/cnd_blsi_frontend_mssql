@@ -27,6 +27,7 @@ import { fetchTaxCodes } from '@/features/settings/taxCodeSlice';
 import { fetchBudgets } from '@/features/budget/budgetSlice';
 import { statusLabel } from '../userProfile';
 import { useModulePermissions } from '@/utils/useModulePremission';
+import FundUtilizationDetails from './FundUtilizationDetails';
 
 function FundUtilizationPage() {
   const dispatch = useDispatch();
@@ -397,6 +398,37 @@ function FundUtilizationPage() {
           </div>
         </div>
       )}
+
+      {currentView === 'details' && currentObligationRequest && (
+        <div>
+          <div className="page-header">
+            <div className="flex justify-between items-center">
+              <div className="flex items-center">
+                <button
+                  onClick={handleBackToList}
+                  className="mr-4 p-1 rounded-full hover:bg-neutral-100"
+                >
+                  <ArrowLeftIcon className="h-5 w-5 text-neutral-600" />
+                </button>
+                <div>
+                  <h1>Request Details</h1>
+                  <p>View fund utilization request details</p>
+                </div>
+              </div>
+              
+               {/* Optional: Add Edit button here too if you want, but likely handled inside Details component */}
+            </div>
+          </div>
+          <div className="mt-4">
+            <FundUtilizationDetails
+              or={currentObligationRequest}
+              onBack={handleBackToList}
+              onEdit={handleEditOR}
+            />
+          </div>
+        </div>
+      )}
+
     </div>
   );
 }
