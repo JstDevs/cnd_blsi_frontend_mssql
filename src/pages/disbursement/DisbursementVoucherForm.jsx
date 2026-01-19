@@ -425,6 +425,7 @@ function DisbursementVoucherForm({
           };
 
           const handleRequestTypeChange = async (type) => {
+            const wasRequestSelected = !!selectedRequest;
             setSelectedRequest(null);
             setFieldValue('requestType', type);
             console.log('Selected Request Type:', type);
@@ -436,13 +437,34 @@ function DisbursementVoucherForm({
               return;
             }
 
-            dispatch(
-              fetchRequestOptions({
-                requestType: type,
-                payeeType: values.payeeType || '',
-                payeeId: values.payeeId || '',
-              })
-            );
+            // If a request was previously selected, we assume the payee might have been auto-populated
+            // or the user wants to reset the context for the new request type.
+            // We clear the payee fields to allow fetching ALL requests for the new type.
+            if (wasRequestSelected) {
+              setFieldValue('payeeType', '');
+              setFieldValue('payeeId', '');
+              setFieldValue('payeeName', '');
+              setFieldValue('payeeAddress', '');
+              setSelectedPayee(null);
+
+              dispatch(
+                fetchRequestOptions({
+                  requestType: type,
+                  payeeType: '',
+                  payeeId: '',
+                })
+              );
+            } else {
+              // If no request was selected, we might be in "Payee First" mode or "Request First (initial)" mode.
+              // We respect the current payee selection if it exists.
+              dispatch(
+                fetchRequestOptions({
+                  requestType: type,
+                  payeeType: values.payeeType || '',
+                  payeeId: values.payeeId || '',
+                })
+              );
+            }
           };
 
           const handleRequestSelect = (option) => {
