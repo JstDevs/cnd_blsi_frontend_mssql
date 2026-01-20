@@ -25,6 +25,8 @@ import {
 } from '../../features/disbursement/travelOrderSlice';
 import { useModulePermissions } from '@/utils/useModulePremission';
 import { CheckLine, Eye, View, X } from 'lucide-react';
+import axiosInstance from '@/utils/axiosInstance';
+
 
 function TravelOrderPage() {
   const dispatch = useDispatch();
@@ -137,15 +139,14 @@ function TravelOrderPage() {
       sortable: true,
       render: (value) => (
         <span
-          className={`px-2 py-1 rounded ${
-            value === 'Requested'     ? 'bg-gradient-to-r from-warning-400 via-warning-300 to-warning-500 text-error-700'
-              : value === 'Approved'  ? 'bg-gradient-to-r from-success-300 via-success-500 to-success-600 text-neutral-800'
-              : value === 'Posted'    ? 'bg-gradient-to-r from-success-800 via-success-900 to-success-999 text-success-100'
-              : value === 'Rejected'  ? 'bg-gradient-to-r from-error-700 via-error-800 to-error-999 text-neutral-100'
-              : value === 'Void'      ? 'bg-gradient-to-r from-primary-900 via-primary-999 to-tertiary-999 text-neutral-300'
-              : value === 'Cancelled' ? 'bg-gradient-to-r from-neutral-200 via-neutral-300 to-neutral-400 text-neutral-800'
-              : 'bg-gray-100 text-gray-800'
-          }`}
+          className={`px-2 py-1 rounded ${value === 'Requested' ? 'bg-gradient-to-r from-warning-400 via-warning-300 to-warning-500 text-error-700'
+            : value === 'Approved' ? 'bg-gradient-to-r from-success-300 via-success-500 to-success-600 text-neutral-800'
+              : value === 'Posted' ? 'bg-gradient-to-r from-success-800 via-success-900 to-success-999 text-success-100'
+                : value === 'Rejected' ? 'bg-gradient-to-r from-error-700 via-error-800 to-error-999 text-neutral-100'
+                  : value === 'Void' ? 'bg-gradient-to-r from-primary-900 via-primary-999 to-tertiary-999 text-neutral-300'
+                    : value === 'Cancelled' ? 'bg-gradient-to-r from-neutral-200 via-neutral-300 to-neutral-400 text-neutral-800'
+                      : 'bg-gray-100 text-gray-800'
+            }`}
         >
           {value}
         </span>
@@ -195,12 +196,12 @@ function TravelOrderPage() {
     const getStatusColor = (status) => {
       switch (status) {
         case 'Requested': return 'bg-gradient-to-r from-warning-400 via-warning-300 to-warning-500 text-error-700';
-        case 'Approved':  return 'bg-gradient-to-r from-success-300 via-success-500 to-success-600 text-neutral-800';
-        case 'Posted':    return 'bg-gradient-to-r from-success-800 via-success-900 to-success-999 text-success-100';
-        case 'Rejected':  return 'bg-gradient-to-r from-error-700 via-error-800 to-error-999 text-neutral-100';
-        case 'Void':      return 'bg-gradient-to-r from-primary-900 via-primary-999 to-primary-999 text-neutral-300';
+        case 'Approved': return 'bg-gradient-to-r from-success-300 via-success-500 to-success-600 text-neutral-800';
+        case 'Posted': return 'bg-gradient-to-r from-success-800 via-success-900 to-success-999 text-success-100';
+        case 'Rejected': return 'bg-gradient-to-r from-error-700 via-error-800 to-error-999 text-neutral-100';
+        case 'Void': return 'bg-gradient-to-r from-primary-900 via-primary-999 to-primary-999 text-neutral-300';
         case 'Cancelled': return 'bg-gradient-to-r from-neutral-200 via-neutral-300 to-neutral-400 text-neutral-800';
-        default:          return 'bg-gray-100 text-gray-800 border-gray-200';
+        default: return 'bg-gray-100 text-gray-800 border-gray-200';
       }
     };
 
@@ -414,63 +415,63 @@ function TravelOrderPage() {
         {((travelOrder.TravelDocuments &&
           travelOrder.TravelDocuments.length > 0) ||
           (travelOrder.Attachments && travelOrder.Attachments.length > 0)) && (
-          <div className="mt-6 bg-white border border-gray-200 rounded-lg p-6">
-            <h3 className="flex items-center text-lg font-semibold text-gray-900 mb-4">
-              <DocumentArrowDownIcon className="w-5 h-5 mr-2 text-primary-600" />
-              Documents & Attachments
-            </h3>
+            <div className="mt-6 bg-white border border-gray-200 rounded-lg p-6">
+              <h3 className="flex items-center text-lg font-semibold text-gray-900 mb-4">
+                <DocumentArrowDownIcon className="w-5 h-5 mr-2 text-primary-600" />
+                Documents & Attachments
+              </h3>
 
-            {/* Travel Documents */}
-            {travelOrder.TravelDocuments &&
-              travelOrder.TravelDocuments.length > 0 && (
-                <div className="mb-4">
+              {/* Travel Documents */}
+              {travelOrder.TravelDocuments &&
+                travelOrder.TravelDocuments.length > 0 && (
+                  <div className="mb-4">
+                    <label className="text-sm font-medium text-gray-500 mb-2 block">
+                      Travel Documents
+                    </label>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+                      {travelOrder.TravelDocuments.map((doc, index) => (
+                        <div
+                          key={index}
+                          className="flex items-center p-3 border border-gray-200 rounded-lg"
+                        >
+                          <DocumentTextIcon className="w-5 h-5 text-gray-400 mr-3" />
+                          <span className="text-gray-900 truncate">
+                            {doc.Name}
+                          </span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+              {/* Attachments */}
+              {travelOrder.Attachments && travelOrder.Attachments.length > 0 && (
+                <div>
                   <label className="text-sm font-medium text-gray-500 mb-2 block">
-                    Travel Documents
+                    Attachments
                   </label>
                   <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-                    {travelOrder.TravelDocuments.map((doc, index) => (
+                    {travelOrder.Attachments.map((attachment, index) => (
                       <div
                         key={index}
-                        className="flex items-center p-3 border border-gray-200 rounded-lg"
+                        className="flex items-center p-3 border border-gray-200 rounded-lg hover:bg-gray-50 cursor-pointer"
                       >
-                        <DocumentTextIcon className="w-5 h-5 text-gray-400 mr-3" />
-                        <span className="text-gray-900 truncate">
-                          {doc.Name}
-                        </span>
+                        <DocumentArrowDownIcon className="w-5 h-5 text-gray-400 mr-3" />
+                        <div className="min-w-0 flex-1">
+                          <p className="text-gray-900 truncate">
+                            {attachment.DataName}
+                          </p>
+                          <p className="text-xs text-gray-500">
+                            {attachment.DataType}
+                          </p>
+                        </div>
                       </div>
                     ))}
                   </div>
                 </div>
               )}
-
-            {/* Attachments */}
-            {travelOrder.Attachments && travelOrder.Attachments.length > 0 && (
-              <div>
-                <label className="text-sm font-medium text-gray-500 mb-2 block">
-                  Attachments
-                </label>
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-                  {travelOrder.Attachments.map((attachment, index) => (
-                    <div
-                      key={index}
-                      className="flex items-center p-3 border border-gray-200 rounded-lg hover:bg-gray-50 cursor-pointer"
-                    >
-                      <DocumentArrowDownIcon className="w-5 h-5 text-gray-400 mr-3" />
-                      <div className="min-w-0 flex-1">
-                        <p className="text-gray-900 truncate">
-                          {attachment.DataName}
-                        </p>
-                        <p className="text-xs text-gray-500">
-                          {attachment.DataType}
-                        </p>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
-          </div>
-        )}
+            </div>
+          )}
 
         {/* Action Buttons */}
         <div className="flex flex-col sm:flex-row justify-end gap-3 mt-6 pt-6 border-t border-gray-200">
@@ -488,16 +489,15 @@ function TravelOrderPage() {
     );
   };
 
-  const handleTOPAction = async (dv, action) => {
+  const handleTOPAction = async (row, action) => {
     setIsTOPActionLoading(true);
     try {
-      // TODO : add action
-      // const response = await axiosInstance.post(
-      //   `/disbursementVoucher/${action}`,
-      //   { ID: dv.ID }
-      // );
+      const response = await axiosInstance.post(
+        `/travelorder/${action}`,
+        { ID: row.ID }
+      );
       console.log(`${action}d:`, response.data);
-      // dispatch(fetchGeneralServiceReceipts());
+      dispatch(fetchTravelOrders());
       toast.success(`Travel Order ${action}d successfully`);
     } catch (error) {
       console.error(`Error ${action}ing Travel Order:`, error);
