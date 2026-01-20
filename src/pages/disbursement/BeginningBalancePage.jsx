@@ -125,6 +125,15 @@ function BeginningBalancePage() {
     }
   };
 
+  // Format amount as currency with commas
+  const formatCurrency = (amount) => {
+    if (!amount && amount !== 0) return '—';
+    return new Intl.NumberFormat('en-PH', {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2,
+    }).format(amount);
+  };
+
   // Table columns definition
   const columns = [
     {
@@ -146,6 +155,12 @@ function BeginningBalancePage() {
       key: 'BeginningBalance',
       header: 'Beginning Balance',
       sortable: true,
+      className: 'text-right',
+      render: (value) => (
+        <span className="font-semibold text-primary-700">
+          {formatCurrency(value)}
+        </span>
+      ),
     },
   ];
   const actions = [
@@ -192,7 +207,7 @@ function BeginningBalancePage() {
           onSubmit={handleSubmit}
           onAddClick={handleAdd}
           onTransferClick={() => setShowTransferModal(true)}
-          onClose={() => {}}
+          onClose={() => { }}
           Add={Add}
         />
       </div>
@@ -215,10 +230,12 @@ function BeginningBalancePage() {
             value: item.ID,
             label: item.Name,
           }))}
-          fundsOptions={funds.map((item) => ({
-            value: item.ID,
-            label: item.Name,
-          }))}
+          fundsOptions={funds
+            .filter((fund) => Number(fund.Active) === 1)
+            .map((item) => ({
+              value: item.ID,
+              label: item.Name,
+            }))}
           onClose={() => setShowAddModal(false)}
           chartOfAccountsOptions={chartOfAccounts.map((item) => ({
             value: item.ID,
