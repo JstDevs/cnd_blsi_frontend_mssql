@@ -274,10 +274,10 @@ const RealPropertyTaxForm = ({
   }, [values.ownerId, values.basicGeneralYearID, dispatch, setFieldValue]);
 
   const tdNumberOptions = tdNumber
-    ? tdNumber.map((item) => ({
-        value: item.T_D_No,
-        label: item.T_D_No,
-      }))
+    ? [...new Set(tdNumber.map((item) => item.T_D_No))].map((tn) => ({
+      value: tn,
+      label: tn,
+    }))
     : [];
 
   const handleAddTaxDeclaration = async () => {
@@ -291,7 +291,9 @@ const RealPropertyTaxForm = ({
       })
     );
     try {
-      await dispatch(addButtonTDNumber(values.T_D_No, selectedYear)).unwrap();
+      await dispatch(
+        addButtonTDNumber({ tdNumber: values.T_D_No, selectedYear })
+      ).unwrap();
     } catch (error) {
       console.error('Failed to add tax declaration:', error);
       toast.error('Failed to add tax declaration. ' + error.message);
@@ -618,9 +620,8 @@ const RealPropertyTaxForm = ({
 
         {/* Previous Balance Land Values Section */}
         <div
-          className={`bg-white rounded-lg shadow-lg ${
-            !isBasicInfoComplete ? 'opacity-50 pointer-events-none' : ''
-          }`}
+          className={`bg-white rounded-lg shadow-lg ${!isBasicInfoComplete ? 'opacity-50 pointer-events-none' : ''
+            }`}
         >
           <div className="bg-gray-100 p-4 rounded-t-lg">
             <h3 className="text-lg font-semibold text-gray-700">
@@ -721,9 +722,8 @@ const RealPropertyTaxForm = ({
 
         {/* Present Year Balance Section */}
         <div
-          className={`bg-white rounded-lg shadow-lg ${
-            !isBasicInfoComplete ? 'opacity-50 pointer-events-none' : ''
-          }`}
+          className={`bg-white rounded-lg shadow-lg ${!isBasicInfoComplete ? 'opacity-50 pointer-events-none' : ''
+            }`}
         >
           <div className="bg-gray-100 p-4 rounded-t-lg">
             <h3 className="text-lg font-semibold text-gray-700">

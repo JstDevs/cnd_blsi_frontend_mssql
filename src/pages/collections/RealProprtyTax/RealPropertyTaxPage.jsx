@@ -275,13 +275,14 @@ function RealPropertyTaxPage() {
       customer.Name ||
       `${customer.FirstName} ${customer.MiddleName} ${customer.LastName}`,
   }));
-  const generalRevisionsOptions = generalRevisions?.map((revision) => ({
-    value: revision.ID,
-    label: revision.General_Revision_Date_Year,
-  }));
+  const generalRevisionsOptions = generalRevisions
+    ? [...new Map(generalRevisions.map(item => [item.General_Revision_Date_Year, item])).values()].map((revision) => ({
+      value: revision.ID,
+      label: revision.General_Revision_Date_Year,
+    }))
+    : [];
   // console.log('individualOptions', isViewModalOpen);
 
-  console.log('currentProperty', currentProperty);
   return (
     <>
       {currentView === 'list' && (
