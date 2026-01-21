@@ -116,8 +116,10 @@ const CTCForm = ({
   onBack,
   onSubmitSuccess,
   readOnly,
+  isNewVendor = false,
+  newVendorName = '',
 }) => {
-  const [activeTab, setActiveTab] = useState('certificate');
+  const [activeTab, setActiveTab] = useState(isNewVendor ? 'company' : 'certificate');
 
   const organizationOptions = [
     { value: 'Corporation', label: 'Corporation' },
@@ -127,6 +129,16 @@ const CTCForm = ({
   // console.log('Selected Vendors CTC:', selectedVendor, initialData);
   const customerSource = initialData?.Customer || selectedVendor;
   console.log('Customer Source:', customerSource);
+
+  // Force update when newVendorName changes to ensure fields are populated
+  useEffect(() => {
+    if (isNewVendor && newVendorName) {
+      if (formik.values.Name !== newVendorName) {
+        formik.setFieldValue('Name', newVendorName);
+      }
+    }
+  }, [newVendorName, isNewVendor]);
+
   const formik = useFormik({
     initialValues: {
       // BASIC INFO
@@ -135,7 +147,7 @@ const CTCForm = ({
       DateIssued: initialData?.InvoiceDate || '',
       CCNumber: initialData?.InvoiceNumber || '',
       // COMPANY INFO
-      Name: selectedVendor?.Name || initialData?.CustomerName || '', // COMPANY FULL NAME
+      Name: selectedVendor?.Name || initialData?.CustomerName || newVendorName || '', // COMPANY FULL NAME
       TIN: selectedVendor?.TIN || initialData?.TIN || '',
       Address: customerSource?.StreetAddress || '',
       dateOfRegistration: customerSource?.DateofRegistration || '',
@@ -160,23 +172,24 @@ const CTCForm = ({
       Remarks: initialData?.Remarks || '',
       AmountinWords: initialData?.AmountinWords || '',
     },
+    enableReinitialize: true,
     validationSchema: validationSchema,
     onSubmit: (values) => {
       const isEdit = Boolean(initialData);
       const payload = isEdit
         ? {
-            IsNew: 'false',
-            IsSelectedFromIndividual: 'true',
-            CustomerID: initialData?.CustomerID,
-            ID: initialData.ID,
-            ...transformValues(values),
-          }
+          IsNew: 'false',
+          IsSelectedFromIndividual: 'true',
+          CustomerID: initialData?.CustomerID,
+          ID: initialData.ID,
+          ...transformValues(values),
+        }
         : {
-            IsNew: 'true',
-            IsSelectedFromIndividual: 'true',
-            CustomerID: selectedVendor?.ID,
-            ...transformValues(values),
-          };
+          IsNew: 'true',
+          IsSelectedFromIndividual: isNewVendor ? 'false' : 'true',
+          CustomerID: isNewVendor ? null : selectedVendor?.ID,
+          ...transformValues(values),
+        };
       console.log('Submitted values:', payload);
       onSubmitSuccess(payload);
     },
@@ -229,11 +242,10 @@ const CTCForm = ({
             <button
               type="button"
               onClick={() => setActiveTab('certificate')}
-              className={`px-6 py-3 font-medium border-b-2 transition-colors ${
-                activeTab === 'certificate'
-                  ? 'border-blue-600 text-blue-600'
-                  : 'border-transparent text-gray-600 hover:text-gray-900'
-              }`}
+              className={`px-6 py-3 font-medium border-b-2 transition-colors ${activeTab === 'certificate'
+                ? 'border-blue-600 text-blue-600'
+                : 'border-transparent text-gray-600 hover:text-gray-900'
+                }`}
             >
               <div className="flex items-center gap-2">
                 <Calendar className="h-5 w-5" />
@@ -243,11 +255,10 @@ const CTCForm = ({
             <button
               type="button"
               onClick={() => setActiveTab('company')}
-              className={`px-6 py-3 font-medium border-b-2 transition-colors ${
-                activeTab === 'company'
-                  ? 'border-blue-600 text-blue-600'
-                  : 'border-transparent text-gray-600 hover:text-gray-900'
-              }`}
+              className={`px-6 py-3 font-medium border-b-2 transition-colors ${activeTab === 'company'
+                ? 'border-blue-600 text-blue-600'
+                : 'border-transparent text-gray-600 hover:text-gray-900'
+                }`}
             >
               <div className="flex items-center gap-2">
                 <Building className="h-5 w-5" />
@@ -257,11 +268,10 @@ const CTCForm = ({
             <button
               type="button"
               onClick={() => setActiveTab('tax')}
-              className={`px-6 py-3 font-medium border-b-2 transition-colors ${
-                activeTab === 'tax'
-                  ? 'border-blue-600 text-blue-600'
-                  : 'border-transparent text-gray-600 hover:text-gray-900'
-              }`}
+              className={`px-6 py-3 font-medium border-b-2 transition-colors ${activeTab === 'tax'
+                ? 'border-blue-600 text-blue-600'
+                : 'border-transparent text-gray-600 hover:text-gray-900'
+                }`}
             >
               <div className="flex items-center gap-2">
                 <CreditCard className="h-5 w-5" />
@@ -271,11 +281,10 @@ const CTCForm = ({
             <button
               type="button"
               onClick={() => setActiveTab('review')}
-              className={`px-6 py-3 font-medium border-b-2 transition-colors ${
-                activeTab === 'review'
-                  ? 'border-blue-600 text-blue-600'
-                  : 'border-transparent text-gray-600 hover:text-gray-900'
-              }`}
+              className={`px-6 py-3 font-medium border-b-2 transition-colors ${activeTab === 'review'
+                ? 'border-blue-600 text-blue-600'
+                : 'border-transparent text-gray-600 hover:text-gray-900'
+                }`}
             >
               <div className="flex items-center gap-2">
                 <CheckCircle className="h-5 w-5" />
@@ -287,211 +296,211 @@ const CTCForm = ({
 
         {/* Certificate Header Info Tab */}
         {activeTab === 'certificate' && (
-        <div className="rounded-lg border bg-white text-card-foreground shadow-lg bg-white/80 backdrop-blur-sm">
-          <div className="flex flex-col space-y-1.5 p-6 bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-t-lg">
-            <h3 className="text-2xl font-semibold leading-none tracking-tight flex items-center gap-2">
-              <Calendar className="h-5 w-5" />
-              Certificate Information
-            </h3>
-          </div>
-          <div className="p-2 sm:p-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
-              <div>
-                <FormField
-                  label="Year"
-                  name="Year"
-                  value={formik.values.Year}
-                  onChange={formik.handleChange}
-                  onBlur={formik.handleBlur}
-                  disabled={readOnly}
-                  required
-                  error={formik.touched.Year && formik.errors.Year}
-                  touched={formik.touched.Year}
-                  className="border-blue-200 focus:border-blue-500 focus:ring-blue-500"
-                />
-              </div>
-              <div>
-                <FormField
-                  label="Place of Issue (City/Mun/Province)"
-                  name="PlaceIssued"
-                  value={formik.values.PlaceIssued}
-                  onChange={formik.handleChange}
-                  disabled={readOnly}
-                  error={
-                    formik.touched.PlaceIssued && formik.errors.PlaceIssued
-                  }
-                  required
-                  touched={formik.touched.PlaceIssued}
-                  className="border-blue-200 focus:border-blue-500 focus:ring-blue-500"
-                />
-              </div>
-              <div>
-                <FormField
-                  label="Date Issued"
-                  name="DateIssued"
-                  type="date"
-                  value={formik.values.DateIssued}
-                  onChange={formik.handleChange}
-                  disabled={readOnly}
-                  required
-                  error={formik.touched.DateIssued && formik.errors.DateIssued}
-                  touched={formik.touched.DateIssued}
-                  className="border-blue-200 focus:border-blue-500 focus:ring-blue-500"
-                />
-              </div>
-              <div>
-                <FormField
-                  label="Certificate No."
-                  name="CCNumber"
-                  value={formik.values.CCNumber}
-                  onChange={formik.handleChange}
-                  disabled={readOnly}
-                  required
-                  className="border-blue-200 focus:border-blue-500 focus:ring-blue-500 font-bold text-blue-600"
-                  error={formik.touched.CCNumber && formik.errors.CCNumber}
-                  touched={formik.touched.CCNumber}
-                />
-              </div>
+          <div className="rounded-lg border bg-white text-card-foreground shadow-lg bg-white/80 backdrop-blur-sm">
+            <div className="flex flex-col space-y-1.5 p-6 bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-t-lg">
+              <h3 className="text-2xl font-semibold leading-none tracking-tight flex items-center gap-2">
+                <Calendar className="h-5 w-5" />
+                Certificate Information
+              </h3>
             </div>
+            <div className="p-2 sm:p-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
+                <div>
+                  <FormField
+                    label="Year"
+                    name="Year"
+                    value={formik.values.Year}
+                    onChange={formik.handleChange}
+                    onBlur={formik.handleBlur}
+                    disabled={readOnly}
+                    required
+                    error={formik.touched.Year && formik.errors.Year}
+                    touched={formik.touched.Year}
+                    className="border-blue-200 focus:border-blue-500 focus:ring-blue-500"
+                  />
+                </div>
+                <div>
+                  <FormField
+                    label="Place of Issue (City/Mun/Province)"
+                    name="PlaceIssued"
+                    value={formik.values.PlaceIssued}
+                    onChange={formik.handleChange}
+                    disabled={readOnly}
+                    error={
+                      formik.touched.PlaceIssued && formik.errors.PlaceIssued
+                    }
+                    required
+                    touched={formik.touched.PlaceIssued}
+                    className="border-blue-200 focus:border-blue-500 focus:ring-blue-500"
+                  />
+                </div>
+                <div>
+                  <FormField
+                    label="Date Issued"
+                    name="DateIssued"
+                    type="date"
+                    value={formik.values.DateIssued}
+                    onChange={formik.handleChange}
+                    disabled={readOnly}
+                    required
+                    error={formik.touched.DateIssued && formik.errors.DateIssued}
+                    touched={formik.touched.DateIssued}
+                    className="border-blue-200 focus:border-blue-500 focus:ring-blue-500"
+                  />
+                </div>
+                <div>
+                  <FormField
+                    label="Certificate No."
+                    name="CCNumber"
+                    value={formik.values.CCNumber}
+                    onChange={formik.handleChange}
+                    disabled={readOnly}
+                    required
+                    className="border-blue-200 focus:border-blue-500 focus:ring-blue-500 font-bold text-blue-600"
+                    error={formik.touched.CCNumber && formik.errors.CCNumber}
+                    touched={formik.touched.CCNumber}
+                  />
+                </div>
+              </div>
 
-            <div className="text-right mb-4">
-              <span className="bg-gray-100 px-3 py-1 text-sm font-medium">
-                TAXPAYER'S COPY
-              </span>
+              <div className="text-right mb-4">
+                <span className="bg-gray-100 px-3 py-1 text-sm font-medium">
+                  TAXPAYER'S COPY
+                </span>
+              </div>
             </div>
           </div>
-        </div>
         )}
 
         {/* Company Information Tab */}
         {activeTab === 'company' && (
-        <div className="rounded-lg border bg-white text-card-foreground shadow-lg bg-white/80 backdrop-blur-sm">
-          <div className="flex flex-col space-y-1.5 p-6 bg-gradient-to-r from-blue-600 to-blue-700 text-white">
-            <h3 className="text-2xl font-semibold leading-none tracking-tight flex items-center gap-2">
-              <Building className="h-5 w-5" />
-              Company Information
-            </h3>
-          </div>
-          <div className="p-2 sm:p-6">
-            <div className="space-y-6">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div>
-                  <FormField
-                    label="Company's Full Name"
-                    name="Name"
-                    value={formik.values.Name}
-                    onChange={formik.handleChange}
-                    disabled={readOnly}
-                    required
-                    error={formik.touched.Name && formik.errors.Name}
-                    touched={formik.touched.Name}
-                    className="border-blue-200 focus:border-blue-500 focus:ring-blue-500"
-                  />
+          <div className="rounded-lg border bg-white text-card-foreground shadow-lg bg-white/80 backdrop-blur-sm">
+            <div className="flex flex-col space-y-1.5 p-6 bg-gradient-to-r from-blue-600 to-blue-700 text-white">
+              <h3 className="text-2xl font-semibold leading-none tracking-tight flex items-center gap-2">
+                <Building className="h-5 w-5" />
+                {newVendorName ? `Creating: ${newVendorName}` : 'Company Information'}
+              </h3>
+            </div>
+            <div className="p-2 sm:p-6">
+              <div className="space-y-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div>
+                    <FormField
+                      label="Company's Full Name"
+                      name="Name"
+                      value={formik.values.Name}
+                      onChange={formik.handleChange}
+                      disabled={readOnly}
+                      required
+                      error={formik.touched.Name && formik.errors.Name}
+                      touched={formik.touched.Name}
+                      className="border-blue-200 focus:border-blue-500 focus:ring-blue-500"
+                    />
+                  </div>
+                  <div>
+                    <FormField
+                      label="TIN (if Any)"
+                      name="TIN"
+                      value={formik.values.TIN}
+                      onChange={formik.handleChange}
+                      disabled={readOnly}
+                      onBlur={formik.handleBlur}
+                      className="border-blue-200 focus:border-blue-500 focus:ring-blue-500"
+                      error={formik.touched.TIN && formik.errors.TIN}
+                      touched={formik.touched.TIN}
+                    />
+                  </div>
                 </div>
-                <div>
-                  <FormField
-                    label="TIN (if Any)"
-                    name="TIN"
-                    value={formik.values.TIN}
-                    onChange={formik.handleChange}
-                    disabled={readOnly}
-                    onBlur={formik.handleBlur}
-                    className="border-blue-200 focus:border-blue-500 focus:ring-blue-500"
-                    error={formik.touched.TIN && formik.errors.TIN}
-                    touched={formik.touched.TIN}
-                  />
-                </div>
-              </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div>
-                  <FormField
-                    label={
-                      // <span className="flex items-center gap-2">
-                      // {/* <MapPin className="h-4 w-4" /> */}
-                      ' Address of Principal Place of Business'
-                      // </span>
-                    }
-                    name="Address"
-                    value={formik.values.Address}
-                    onChange={formik.handleChange}
-                    disabled={readOnly}
-                    required
-                    className="border-blue-200 focus:border-blue-500 focus:ring-blue-500"
-                    error={formik.touched.Address && formik.errors.Address}
-                    touched={formik.touched.Address}
-                  />
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div>
+                    <FormField
+                      label={
+                        // <span className="flex items-center gap-2">
+                        // {/* <MapPin className="h-4 w-4" /> */}
+                        ' Address of Principal Place of Business'
+                        // </span>
+                      }
+                      name="Address"
+                      value={formik.values.Address}
+                      onChange={formik.handleChange}
+                      disabled={readOnly}
+                      required
+                      className="border-blue-200 focus:border-blue-500 focus:ring-blue-500"
+                      error={formik.touched.Address && formik.errors.Address}
+                      touched={formik.touched.Address}
+                    />
+                  </div>
+                  <div>
+                    <FormField
+                      label="Date of Registration/Incorporation"
+                      name="dateOfRegistration"
+                      type="date"
+                      value={formik.values.dateOfRegistration}
+                      onChange={formik.handleChange}
+                      disabled={readOnly}
+                      required
+                      className="border-blue-200 focus:border-blue-500 focus:ring-blue-500"
+                      error={
+                        formik.touched.dateOfRegistration &&
+                        formik.errors.dateOfRegistration
+                      }
+                      touched={formik.touched.dateOfRegistration}
+                    />
+                  </div>
                 </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div>
+                    <FormField
+                      label="Kind of Organization"
+                      name="KindofOrganization"
+                      type="radio"
+                      value={formik.values.KindofOrganization}
+                      onChange={formik.handleChange}
+                      options={organizationOptions}
+                      disabled={readOnly}
+                      error={
+                        formik.touched.KindofOrganization &&
+                        formik.errors.KindofOrganization
+                      }
+                      touched={formik.touched.KindofOrganization}
+                    />
+                  </div>
+                  <div>
+                    <FormField
+                      label="Place of Incorporation"
+                      name="PlaceofIncorporation"
+                      value={formik.values.PlaceofIncorporation}
+                      onChange={formik.handleChange}
+                      disabled={readOnly}
+                      className="border-blue-200 focus:border-blue-500 focus:ring-blue-500"
+                      error={
+                        formik.touched.PlaceofIncorporation &&
+                        formik.errors.PlaceofIncorporation
+                      }
+                      touched={formik.touched.PlaceofIncorporation}
+                    />
+                  </div>
+                </div>
+
                 <div>
                   <FormField
-                    label="Date of Registration/Incorporation"
-                    name="dateOfRegistration"
-                    type="date"
-                    value={formik.values.dateOfRegistration}
+                    label="Kind/Nature of Business"
+                    name="NatureOfOrganization"
+                    value={formik.values.NatureOfOrganization}
                     onChange={formik.handleChange}
                     disabled={readOnly}
-                    required
                     className="border-blue-200 focus:border-blue-500 focus:ring-blue-500"
                     error={
-                      formik.touched.dateOfRegistration &&
-                      formik.errors.dateOfRegistration
+                      formik.touched.NatureOfOrganization &&
+                      formik.errors.NatureOfOrganization
                     }
-                    touched={formik.touched.dateOfRegistration}
+                    touched={formik.touched.NatureOfOrganization}
                   />
                 </div>
-              </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div>
-                  <FormField
-                    label="Kind of Organization"
-                    name="KindofOrganization"
-                    type="radio"
-                    value={formik.values.KindofOrganization}
-                    onChange={formik.handleChange}
-                    options={organizationOptions}
-                    disabled={readOnly}
-                    error={
-                      formik.touched.KindofOrganization &&
-                      formik.errors.KindofOrganization
-                    }
-                    touched={formik.touched.KindofOrganization}
-                  />
-                </div>
-                <div>
-                  <FormField
-                    label="Place of Incorporation"
-                    name="PlaceofIncorporation"
-                    value={formik.values.PlaceofIncorporation}
-                    onChange={formik.handleChange}
-                    disabled={readOnly}
-                    className="border-blue-200 focus:border-blue-500 focus:ring-blue-500"
-                    error={
-                      formik.touched.PlaceofIncorporation &&
-                      formik.errors.PlaceofIncorporation
-                    }
-                    touched={formik.touched.PlaceofIncorporation}
-                  />
-                </div>
-              </div>
-
-              <div>
-                <FormField
-                  label="Kind/Nature of Business"
-                  name="NatureOfOrganization"
-                  value={formik.values.NatureOfOrganization}
-                  onChange={formik.handleChange}
-                  disabled={readOnly}
-                  className="border-blue-200 focus:border-blue-500 focus:ring-blue-500"
-                  error={
-                    formik.touched.NatureOfOrganization &&
-                    formik.errors.NatureOfOrganization
-                  }
-                  touched={formik.touched.NatureOfOrganization}
-                />
-              </div>
-
-              {/* <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {/* <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
                   <FormField
                     label="Taxable Amount"
@@ -525,30 +534,30 @@ const CTCForm = ({
                   ) : null}
                 </div>
               </div> */}
+              </div>
             </div>
           </div>
-        </div>
         )}
 
         {/* Tax Information Tab */}
         {activeTab === 'tax' && (
-        <div className="rounded-lg border bg-white text-card-foreground shadow-lg bg-white/80 backdrop-blur-sm">
-          <div className="flex flex-col space-y-1.5 p-6 bg-gradient-to-r from-blue-600 to-blue-700 text-white">
-            <h3 className="text-2xl font-semibold leading-none tracking-tight flex items-center gap-2">
-              <CreditCard className="h-5 w-5" />
-              Tax Assessment
-            </h3>
-          </div>
-          <div className="p-2 sm:p-6">
-            <div className="space-y-6">
-              {/* Basic Community Tax */}
-              <div className="bg-blue-50 p-4 rounded-lg">
-                <h3 className="font-semibold text-lg text-blue-900 mb-4">
-                  A. BASIC COMMUNITY TAX (₱ 500.00)
-                </h3>
+          <div className="rounded-lg border bg-white text-card-foreground shadow-lg bg-white/80 backdrop-blur-sm">
+            <div className="flex flex-col space-y-1.5 p-6 bg-gradient-to-r from-blue-600 to-blue-700 text-white">
+              <h3 className="text-2xl font-semibold leading-none tracking-tight flex items-center gap-2">
+                <CreditCard className="h-5 w-5" />
+                Tax Assessment
+              </h3>
+            </div>
+            <div className="p-2 sm:p-6">
+              <div className="space-y-6">
+                {/* Basic Community Tax */}
+                <div className="bg-blue-50 p-4 rounded-lg">
+                  <h3 className="font-semibold text-lg text-blue-900 mb-4">
+                    A. BASIC COMMUNITY TAX (₱ 500.00)
+                  </h3>
 
-                <div className="flex justify-end gap-3">
-                  {/* <div>
+                  <div className="flex justify-end gap-3">
+                    {/* <div>
                     <FormField
                       name="basicCommunityTax"
                       value={formik.values.basicCommunityTax}
@@ -564,110 +573,111 @@ const CTCForm = ({
                       </div>
                     ) : null}
                   </div> */}
-                  <div>
-                    <FormField
-                      name="BasicTax"
-                      label="Community Due Amount:"
-                      value={formik.values.BasicTax}
-                      onChange={formik.handleChange}
-                      disabled={readOnly}
-                      className="w-32 text-right font-mono border-blue-200 focus:border-blue-500"
-                      error={formik.touched.BasicTax && formik.errors.BasicTax}
-                      touched={formik.touched.BasicTax}
-                    />
+                    <div>
+                      <FormField
+                        name="BasicTax"
+                        label="Community Due Amount:"
+                        value={formik.values.BasicTax}
+                        onChange={formik.handleChange}
+                        disabled={readOnly}
+                        className="w-32 text-right font-mono border-blue-200 focus:border-blue-500"
+                        error={formik.touched.BasicTax && formik.errors.BasicTax}
+                        touched={formik.touched.BasicTax}
+                      />
+                    </div>
                   </div>
                 </div>
-              </div>
 
-              {/* Additional Community Tax */}
-              <div className="bg-blue-50 p-4 rounded-lg">
-                <h3 className="font-semibold text-lg text-blue-900 mb-4">
-                  B. ADDITIONAL COMMUNITY TAX (tax not exceed ₱10,000.00)
-                </h3>
-                <div className="space-y-4">
-                  <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 items-center py-3 border-b border-blue-200">
-                    <div className="lg:col-span-2">
-                      <p className="text-sm text-gray-700">
-                        1. ASSESSED VALUE OF REAL PROPERTY OWNED IN THE
-                        PHILIPPINES (₱2.00 FOR EVERY ₱5,000.00)
-                      </p>
-                    </div>
-                    <div className="flex gap-3 max-sm:flex-col">
-                      <div>
-                        <FormField
-                          name="assessedValueRealProperty"
-                          value={formik.values.assessedValueRealProperty}
-                          onChange={formik.handleChange}
-                          label="Taxable Amount:"
-                          disabled={readOnly}
-                          className="text-right font-mono border-blue-200 focus:border-blue-500"
-                          placeholder="Amount"
-                          error={
-                            formik.touched.assessedValueRealProperty &&
-                            formik.errors.assessedValueRealProperty
-                          }
-                          touched={formik.touched.assessedValueRealProperty}
-                        />
+                {/* Additional Community Tax */}
+                <div className="bg-blue-50 p-4 rounded-lg">
+                  <h3 className="font-semibold text-lg text-blue-900 mb-4">
+                    B. ADDITIONAL COMMUNITY TAX (tax not exceed ₱10,000.00)
+                  </h3>
+                  <div className="space-y-4">
+                    <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 items-center py-3 border-b border-blue-200">
+                      <div className="lg:col-span-2">
+                        <p className="text-sm text-gray-700">
+                          1. ASSESSED VALUE OF REAL PROPERTY OWNED IN THE
+                          PHILIPPINES (₱2.00 FOR EVERY ₱5,000.00)
+                        </p>
                       </div>
-                      <div>
-                        <FormField
-                          name="assessedValueTax"
-                          value={formik.values.assessedValueTax}
-                          onChange={formik.handleChange}
-                          label="Community Due Amount:"
-                          disabled={readOnly}
-                          className="w-24 text-right font-mono border-blue-200 focus:border-blue-500"
-                          placeholder="Tax"
-                          error={
-                            formik.touched.assessedValueTax &&
-                            formik.errors.assessedValueTax
-                          }
-                          touched={formik.touched.assessedValueTax}
-                        />
+                      <div className="flex gap-3 max-sm:flex-col">
+                        <div>
+                          <FormField
+                            name="assessedValueRealProperty"
+                            value={formik.values.assessedValueRealProperty}
+                            onChange={formik.handleChange}
+                            label="Taxable Amount:"
+                            disabled={readOnly}
+                            className="text-right font-mono border-blue-200 focus:border-blue-500"
+                            placeholder="Amount"
+                            error={
+                              formik.touched.assessedValueRealProperty &&
+                              formik.errors.assessedValueRealProperty
+                            }
+                            touched={formik.touched.assessedValueRealProperty}
+                          />
+                        </div>
+                        <div>
+                          <FormField
+                            name="assessedValueTax"
+                            value={formik.values.assessedValueTax}
+                            onChange={formik.handleChange}
+                            label="Community Due Amount:"
+                            disabled={readOnly}
+                            className="w-24 text-right font-mono border-blue-200 focus:border-blue-500"
+                            placeholder="Tax"
+                            error={
+                              formik.touched.assessedValueTax &&
+                              formik.errors.assessedValueTax
+                            }
+                            touched={formik.touched.assessedValueTax}
+                          />
+                        </div>
                       </div>
                     </div>
-                  </div>
 
-                  <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 items-center py-3 border-b border-blue-200">
-                    <div className="lg:col-span-2">
-                      <p className="text-sm text-gray-700">
-                        2. GROSS RECEIPTS, INCLUDING DIVIDENDS/EARNINGS DERIVED
-                        FROM BUSINESS IN THE PHIL. DURING THE PRECEDING YEAR
-                        (₱2.00 FOR EVERY ₱5,000.00)
-                      </p>
-                    </div>
-                    <div className="flex gap-3 max-sm:flex-col">
-                      <div>
-                        <FormField
-                          name="grossReceipts"
-                          value={formik.values.grossReceipts}
-                          onChange={formik.handleChange}
-                          label="Taxable Amount:"
-                          disabled={readOnly}
-                          className="text-right font-mono border-blue-200 focus:border-blue-500"
-                          placeholder="Amount"
-                          error={
-                            formik.touched.grossReceipts &&
-                            formik.errors.grossReceipts
-                          }
-                          touched={formik.touched.grossReceipts}
-                        />
+                    <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 items-center py-3 border-b border-blue-200">
+                      <div className="lg:col-span-2">
+                        <p className="text-sm text-gray-700">
+                          2. GROSS RECEIPTS, INCLUDING DIVIDENDS/EARNINGS DERIVED
+                          FROM BUSINESS IN THE PHIL. DURING THE PRECEDING YEAR
+                          (₱2.00 FOR EVERY ₱5,000.00)
+                        </p>
                       </div>
-                      <div>
-                        <FormField
-                          name="grossReceiptsTax"
-                          value={formik.values.grossReceiptsTax}
-                          onChange={formik.handleChange}
-                          label="Community Due Amount:"
-                          disabled={readOnly}
-                          className="w-24 text-right font-mono border-blue-200 focus:border-blue-500"
-                          placeholder="Tax"
-                          error={
-                            formik.touched.grossReceiptsTax &&
-                            formik.errors.grossReceiptsTax
-                          }
-                          touched={formik.touched.grossReceiptsTax}
-                        />
+                      <div className="flex gap-3 max-sm:flex-col">
+                        <div>
+                          <FormField
+                            name="grossReceipts"
+                            value={formik.values.grossReceipts}
+                            onChange={formik.handleChange}
+                            label="Taxable Amount:"
+                            disabled={readOnly}
+                            className="text-right font-mono border-blue-200 focus:border-blue-500"
+                            placeholder="Amount"
+                            error={
+                              formik.touched.grossReceipts &&
+                              formik.errors.grossReceipts
+                            }
+                            touched={formik.touched.grossReceipts}
+                          />
+                        </div>
+                        <div>
+                          <FormField
+                            name="grossReceiptsTax"
+                            value={formik.values.grossReceiptsTax}
+                            onChange={formik.handleChange}
+                            label="Community Due Amount:"
+                            disabled={readOnly}
+                            className="w-24 text-right font-mono border-blue-200 focus:border-blue-500"
+                            placeholder="Tax"
+                            error={
+                              formik.touched.grossReceiptsTax &&
+                              formik.errors.grossReceiptsTax
+                            }
+                            touched={formik.touched.grossReceiptsTax}
+                          />
+                        </div>
                       </div>
                     </div>
                   </div>
@@ -675,119 +685,118 @@ const CTCForm = ({
               </div>
             </div>
           </div>
-        </div>
         )}
 
         {/* Tax Information Tab */}
         {activeTab === 'review' && (
-        <div className="rounded-lg border bg-white text-card-foreground shadow-lg bg-white/80 backdrop-blur-sm">
-          <div className="flex flex-col space-y-1.5 p-6 bg-gradient-to-r from-blue-600 to-blue-700 text-white">
-            <h3 className="text-2xl font-semibold leading-none tracking-tight flex items-center gap-2">
-              <CheckCircle className="h-5 w-5" />
-              Review & Finalize
-            </h3>
-          </div>
-          <div className="p-2 sm:p-6">
-            <div className="space-y-6">
-              {/* Summary */}
-              <div className="bg-gradient-to-r from-blue-600 to-blue-700 text-white p-4 rounded-lg shadow-lg">
-                <div className="flex flex-col md:flex-row md:items-end gap-6">
-                  {/* Left Section - Input Fields */}
-                  <div className="md:w-1/3 space-y-4">
-                    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-1 gap-4">
-                      <div className="space-y-2">
-                        <label className="font-medium block">TOTAL</label>
-                        <FormField
-                          name="Total"
-                          value={formik.values.Total}
-                          onChange={formik.handleChange}
-                          disabled={readOnly}
-                          className="w-full px-3 py-2 rounded bg-white/20 border border-white/30 text-right font-mono text-white focus:ring-2 focus:ring-white/50 focus:outline-none"
-                          placeholder="Total"
-                          error={formik.touched.Total && formik.errors.Total}
-                          touched={formik.touched.Total}
-                        />
-                      </div>
+          <div className="rounded-lg border bg-white text-card-foreground shadow-lg bg-white/80 backdrop-blur-sm">
+            <div className="flex flex-col space-y-1.5 p-6 bg-gradient-to-r from-blue-600 to-blue-700 text-white">
+              <h3 className="text-2xl font-semibold leading-none tracking-tight flex items-center gap-2">
+                <CheckCircle className="h-5 w-5" />
+                Review & Finalize
+              </h3>
+            </div>
+            <div className="p-2 sm:p-6">
+              <div className="space-y-6">
+                {/* Summary */}
+                <div className="bg-gradient-to-r from-blue-600 to-blue-700 text-white p-4 rounded-lg shadow-lg">
+                  <div className="flex flex-col md:flex-row md:items-end gap-6">
+                    {/* Left Section - Input Fields */}
+                    <div className="md:w-1/3 space-y-4">
+                      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-1 gap-4">
+                        <div className="space-y-2">
+                          <label className="font-medium block">TOTAL</label>
+                          <FormField
+                            name="Total"
+                            value={formik.values.Total}
+                            onChange={formik.handleChange}
+                            disabled={readOnly}
+                            className="w-full px-3 py-2 rounded bg-white/20 border border-white/30 text-right font-mono text-white focus:ring-2 focus:ring-white/50 focus:outline-none"
+                            placeholder="Total"
+                            error={formik.touched.Total && formik.errors.Total}
+                            touched={formik.touched.Total}
+                          />
+                        </div>
 
+                        <div className="space-y-2">
+                          <label className="font-medium block">INTEREST %</label>
+                          <FormField
+                            name="Interest"
+                            value={formik.values.Interest}
+                            onChange={formik.handleChange}
+                            disabled={readOnly}
+                            className="w-full px-3 py-2 rounded bg-white/20 border border-white/30 text-right font-mono text-white focus:ring-2 focus:ring-white/50 focus:outline-none"
+                            placeholder="%"
+                            error={
+                              formik.touched.Interest && formik.errors.Interest
+                            }
+                            touched={formik.touched.Interest}
+                          />
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Middle Section - Total Amount */}
+                    <div className="md:w-1/3">
                       <div className="space-y-2">
-                        <label className="font-medium block">INTEREST %</label>
+                        <label className="font-bold text-lg block">
+                          TOTAL AMOUNT PAID
+                        </label>
                         <FormField
-                          name="Interest"
-                          value={formik.values.Interest}
+                          name="AmountPaid"
+                          value={formik.values.AmountPaid}
                           onChange={formik.handleChange}
                           disabled={readOnly}
-                          className="w-full px-3 py-2 rounded bg-white/20 border border-white/30 text-right font-mono text-white focus:ring-2 focus:ring-white/50 focus:outline-none"
-                          placeholder="%"
+                          // required
                           error={
-                            formik.touched.Interest && formik.errors.Interest
+                            formik.touched.AmountPaid && formik.errors.AmountPaid
                           }
-                          touched={formik.touched.Interest}
+                          touched={formik.touched.AmountPaid}
+                          className="w-full px-3 py-2 rounded bg-white/20 border border-white/30 text-right font-mono font-bold text-lg text-white focus:ring-2 focus:ring-white/50 focus:outline-none"
                         />
                       </div>
                     </div>
-                  </div>
 
-                  {/* Middle Section - Total Amount */}
-                  <div className="md:w-1/3">
-                    <div className="space-y-2">
-                      <label className="font-bold text-lg block">
-                        TOTAL AMOUNT PAID
-                      </label>
-                      <FormField
-                        name="AmountPaid"
-                        value={formik.values.AmountPaid}
-                        onChange={formik.handleChange}
-                        disabled={readOnly}
-                        // required
-                        error={
-                          formik.touched.AmountPaid && formik.errors.AmountPaid
-                        }
-                        touched={formik.touched.AmountPaid}
-                        className="w-full px-3 py-2 rounded bg-white/20 border border-white/30 text-right font-mono font-bold text-lg text-white focus:ring-2 focus:ring-white/50 focus:outline-none"
-                      />
-                    </div>
-                  </div>
-
-                  {/* Right Section - In Words */}
-                  <div className="md:w-1/3 flex justify-center md:justify-end">
-                    <div className="text-center md:text-right w-full md:w-auto">
-                      <p className="text-sm text-white/80 mb-1">(in words)</p>
-                      <p className="font-bold text-lg bg-white/10 px-3 py-2 rounded-lg inline-block w-full md:w-auto">
-                        {convertAmountToWords(formik.values.AmountPaid) || '-'}
-                      </p>
+                    {/* Right Section - In Words */}
+                    <div className="md:w-1/3 flex justify-center md:justify-end">
+                      <div className="text-center md:text-right w-full md:w-auto">
+                        <p className="text-sm text-white/80 mb-1">(in words)</p>
+                        <p className="font-bold text-lg bg-white/10 px-3 py-2 rounded-lg inline-block w-full md:w-auto">
+                          {convertAmountToWords(formik.values.AmountPaid) || '-'}
+                        </p>
+                      </div>
                     </div>
                   </div>
                 </div>
-              </div>
 
-              {/* Remarks */}
-              <div>
-                <FormField
-                  label="Remarks"
-                  name="Remarks"
-                  type="textarea"
-                  value={formik.values.Remarks}
-                  onChange={formik.handleChange}
-                  disabled={readOnly}
-                  className="min-h-24 border-blue-200 focus:border-blue-500 focus:ring-blue-500"
-                  placeholder="Enter any additional Remarks here..."
-                  rows={3}
-                  error={formik.touched.Remarks && formik.errors.Remarks}
-                  touched={formik.touched.Remarks}
-                />
+                {/* Remarks */}
+                <div>
+                  <FormField
+                    label="Remarks"
+                    name="Remarks"
+                    type="textarea"
+                    value={formik.values.Remarks}
+                    onChange={formik.handleChange}
+                    disabled={readOnly}
+                    className="min-h-24 border-blue-200 focus:border-blue-500 focus:ring-blue-500"
+                    placeholder="Enter any additional Remarks here..."
+                    rows={3}
+                    error={formik.touched.Remarks && formik.errors.Remarks}
+                    touched={formik.touched.Remarks}
+                  />
+                </div>
               </div>
-            </div>
-            <div className="flex flex-col sm:flex-row gap-4 justify-center pb-8">
-              <Button
-                type="submit"
-                className="bg-blue-600 hover:bg-blue-700 text-white text-lg rounded-md transition-colors"
-                disabled={formik.isSubmitting}
-              >
-                {formik.isSubmitting ? 'Generating...' : 'Generate Certificate'}
-              </Button>
+              <div className="flex flex-col sm:flex-row gap-4 justify-center pb-8">
+                <Button
+                  type="submit"
+                  className="bg-blue-600 hover:bg-blue-700 text-white text-lg rounded-md transition-colors"
+                  disabled={formik.isSubmitting}
+                >
+                  {formik.isSubmitting ? 'Generating...' : 'Generate Certificate'}
+                </Button>
+              </div>
             </div>
           </div>
-        </div>
         )}
 
         {/* Action Buttons */}

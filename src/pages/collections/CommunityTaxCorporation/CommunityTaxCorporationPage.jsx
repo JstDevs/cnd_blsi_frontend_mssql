@@ -31,6 +31,8 @@ function CommunityTaxCorporationPage() {
   const [showListModal, setShowListModal] = useState(false);
   const [selectedVendor, setSelectedVendor] = useState(null);
   const [isLoadingCTCActions, setIsLoadingCTCActions] = useState(false);
+  const [isNewVendor, setIsNewVendor] = useState(false);
+  const [newVendorName, setNewVendorName] = useState('');
   // ---------------------USE MODULE PERMISSIONS------------------START (CommunityTaxCorporationPage - MODULE ID =  35 )
   const { Add, Edit, Delete, Print } = useModulePermissions(35);
   const { records: certificates, isLoading: certificatesLoading } = useSelector(
@@ -54,6 +56,9 @@ function CommunityTaxCorporationPage() {
   const handleCreateCertificate = () => {
     setCurrentCertificate(null);
     setCurrentView('form');
+    setIsNewVendor(false);
+    setNewVendorName('');
+    setSelectedVendor(null);
   };
 
   const handleViewCertificate = (certificate) => {
@@ -63,6 +68,7 @@ function CommunityTaxCorporationPage() {
 
   const handleEditCertificate = (certificate) => {
     setCurrentCertificate(certificate);
+    setIsNewVendor(false);
     console.log('Edit certificate:', certificate);
     handleVendorChange(certificate.CustomerID);
     setCurrentView('form');
@@ -77,6 +83,8 @@ function CommunityTaxCorporationPage() {
     setCurrentView('list');
     setCurrentCertificate(null);
     setSelectedVendor(null);
+    setIsNewVendor(false);
+    setNewVendorName('');
   };
   // Updated columns definition to match the image
   const columns = [
@@ -92,15 +100,14 @@ function CommunityTaxCorporationPage() {
       sortable: true,
       render: (value) => (
         <span
-          className={`px-2 py-1 rounded ${
-            value === 'Requested'     ? 'bg-gradient-to-r from-warning-400 via-warning-300 to-warning-500 text-error-700'
-              : value === 'Approved'  ? 'bg-gradient-to-r from-success-300 via-success-500 to-success-600 text-neutral-800'
-              : value === 'Posted'    ? 'bg-gradient-to-r from-success-800 via-success-900 to-success-999 text-success-100'
-              : value === 'Rejected'  ? 'bg-gradient-to-r from-error-700 via-error-800 to-error-999 text-neutral-100'
-              : value === 'Void'      ? 'bg-gradient-to-r from-primary-900 via-primary-999 to-tertiary-999 text-neutral-300'
-              : value === 'Cancelled' ? 'bg-gradient-to-r from-neutral-200 via-neutral-300 to-neutral-400 text-neutral-800'
-              : 'bg-gray-100 text-gray-800'
-          }`}
+          className={`px-2 py-1 rounded ${value === 'Requested' ? 'bg-gradient-to-r from-warning-400 via-warning-300 to-warning-500 text-error-700'
+            : value === 'Approved' ? 'bg-gradient-to-r from-success-300 via-success-500 to-success-600 text-neutral-800'
+              : value === 'Posted' ? 'bg-gradient-to-r from-success-800 via-success-900 to-success-999 text-success-100'
+                : value === 'Rejected' ? 'bg-gradient-to-r from-error-700 via-error-800 to-error-999 text-neutral-100'
+                  : value === 'Void' ? 'bg-gradient-to-r from-primary-900 via-primary-999 to-tertiary-999 text-neutral-300'
+                    : value === 'Cancelled' ? 'bg-gradient-to-r from-neutral-200 via-neutral-300 to-neutral-400 text-neutral-800'
+                      : 'bg-gray-100 text-gray-800'
+            }`}
         >
           {value}
         </span>
@@ -116,6 +123,7 @@ function CommunityTaxCorporationPage() {
       key: 'CustomerName',
       header: 'Customer Name',
       sortable: true,
+      className: 'text-right',
     },
     {
       key: 'Total',
@@ -143,6 +151,7 @@ function CommunityTaxCorporationPage() {
       key: 'Year',
       header: 'Year',
       sortable: true,
+      className: 'text-right',
     },
   ];
 
@@ -169,12 +178,12 @@ function CommunityTaxCorporationPage() {
     let bgColor = 'bg-neutral-100 text-neutral-800';
 
     switch (value) {
-      case 'Requested': bgColor = 'bg-gradient-to-r from-warning-400 via-warning-300 to-warning-500 text-error-700';    break;
-      case 'Approved':  bgColor = 'bg-gradient-to-r from-success-300 via-success-500 to-success-600 text-neutral-800';  break;
-      case 'Posted':    bgColor = 'bg-gradient-to-r from-success-800 via-success-900 to-success-999 text-success-100';  break;
-      case 'Rejected':  bgColor = 'bg-gradient-to-r from-error-700 via-error-800 to-error-999 text-neutral-100';        break;
-      case 'Void':      bgColor = 'bg-gradient-to-r from-primary-900 via-primary-999 to-tertiary-999 text-neutral-300'; break;
-      case 'Cancelled': bgColor = 'bg-gradient-to-r from-neutral-200 via-neutral-300 to-neutral-400 text-neutral-800';  break;
+      case 'Requested': bgColor = 'bg-gradient-to-r from-warning-400 via-warning-300 to-warning-500 text-error-700'; break;
+      case 'Approved': bgColor = 'bg-gradient-to-r from-success-300 via-success-500 to-success-600 text-neutral-800'; break;
+      case 'Posted': bgColor = 'bg-gradient-to-r from-success-800 via-success-900 to-success-999 text-success-100'; break;
+      case 'Rejected': bgColor = 'bg-gradient-to-r from-error-700 via-error-800 to-error-999 text-neutral-100'; break;
+      case 'Void': bgColor = 'bg-gradient-to-r from-primary-900 via-primary-999 to-tertiary-999 text-neutral-300'; break;
+      case 'Cancelled': bgColor = 'bg-gradient-to-r from-neutral-200 via-neutral-300 to-neutral-400 text-neutral-800'; break;
       default: break;
     }
 
@@ -320,9 +329,19 @@ function CommunityTaxCorporationPage() {
     }
   };
   const handleVendorChange = (value) => {
-    const selectedVendor = vendorDetails.find((vendor) => vendor.ID === value);
-    setSelectedVendor(selectedVendor);
-    console.log('Selected vendor:', selectedVendor);
+    // Check if the value is an ID (number) or a custom string (new name)
+    const isCustom = typeof value === 'string' && !vendorDetails.find((c) => c.ID === value);
+    if (isCustom) {
+      setSelectedVendor(null);
+      setIsNewVendor(true);
+      setNewVendorName(value);
+    } else {
+      const selectedVendor = vendorDetails.find((vendor) => vendor.ID === value);
+      setSelectedVendor(selectedVendor);
+      setIsNewVendor(false);
+      setNewVendorName('');
+    }
+    // console.log('Selected vendor:', selectedVendor);
   };
   return (
     <>
@@ -393,9 +412,9 @@ function CommunityTaxCorporationPage() {
                       value: vendors.ID,
                     })) || []
                   }
-                  selectedValue={selectedVendor?.ID}
+                  selectedValue={isNewVendor ? newVendorName : selectedVendor?.ID}
                   label="Choose Vendor"
-                  placeholder="Choose Vendor"
+                  placeholder="Choose Vendor or Type New Name"
                   onSelect={handleVendorChange}
                   required
                 />
@@ -425,18 +444,20 @@ function CommunityTaxCorporationPage() {
           </div>
 
           <div className="bg-white rounded-lg shadow-md p-2 sm:p-6">
-            {selectedVendor ? (
+            {selectedVendor || isNewVendor ? (
               <CTCForm
-                key={selectedVendor?.ID}
+                key={selectedVendor?.ID || (isNewVendor ? newVendorName : 'new-vendor')}
                 selectedVendor={selectedVendor}
                 initialData={currentCertificate}
                 onCancel={handleBackToList}
                 onSubmitSuccess={handleCTCSubmitSuccess}
                 readOnly={false}
+                isNewVendor={isNewVendor}
+                newVendorName={newVendorName}
               />
             ) : (
-              <h2 className="text-2xl font-bold text-gray-800 text-center h-[50vh]">
-                Please select a Vendor first to start{' '}
+              <h2 className="text-2xl font-bold text-gray-800 text-center h-[50vh] flex items-center justify-center">
+                Please select a Vendor or Type New Name to start{' '}
               </h2>
             )}
           </div>
