@@ -43,6 +43,8 @@ function CommunityTaxPage() {
   const [showListModal, setShowListModal] = useState(false);
   const [selectedCustomer, setSelectedCustomer] = useState({});
   const [isLoadingCTCActions, setIsLoadingCTCActions] = useState(false);
+  const [isNewIndividual, setIsNewIndividual] = useState(false);
+  const [newOwnerName, setNewOwnerName] = useState('');
   const printRef = useRef();
   useEffect(() => {
     dispatch(fetchCommunityTaxes());
@@ -52,6 +54,7 @@ function CommunityTaxPage() {
   const handleCreateCertificate = () => {
     setCurrentCertificate(null);
     setCurrentView('form');
+    setIsNewIndividual(false);
     dispatch(communityTaxGetCurrentNumber());
   };
 
@@ -120,15 +123,14 @@ function CommunityTaxPage() {
       sortable: true,
       render: (value) => (
         <span
-          className={`px-2 py-1 rounded ${
-            value === 'Requested'     ? 'bg-gradient-to-r from-warning-400 via-warning-300 to-warning-500 text-error-700'
-              : value === 'Approved'  ? 'bg-gradient-to-r from-success-300 via-success-500 to-success-600 text-neutral-800'
-              : value === 'Posted'    ? 'bg-gradient-to-r from-success-800 via-success-900 to-success-999 text-success-100'
-              : value === 'Rejected'  ? 'bg-gradient-to-r from-error-700 via-error-800 to-error-999 text-neutral-100'
-              : value === 'Void'      ? 'bg-gradient-to-r from-primary-900 via-primary-999 to-tertiary-999 text-neutral-300'
-              : value === 'Cancelled' ? 'bg-gradient-to-r from-neutral-200 via-neutral-300 to-neutral-400 text-neutral-800'
-              : 'bg-gray-100 text-gray-800'
-          }`}
+          className={`px-2 py-1 rounded ${value === 'Requested' ? 'bg-gradient-to-r from-warning-400 via-warning-300 to-warning-500 text-error-700'
+            : value === 'Approved' ? 'bg-gradient-to-r from-success-300 via-success-500 to-success-600 text-neutral-800'
+              : value === 'Posted' ? 'bg-gradient-to-r from-success-800 via-success-900 to-success-999 text-success-100'
+                : value === 'Rejected' ? 'bg-gradient-to-r from-error-700 via-error-800 to-error-999 text-neutral-100'
+                  : value === 'Void' ? 'bg-gradient-to-r from-primary-900 via-primary-999 to-tertiary-999 text-neutral-300'
+                    : value === 'Cancelled' ? 'bg-gradient-to-r from-neutral-200 via-neutral-300 to-neutral-400 text-neutral-800'
+                      : 'bg-gray-100 text-gray-800'
+            }`}
         >
           {value}
         </span>
@@ -191,12 +193,12 @@ function CommunityTaxPage() {
     let bgColor = 'bg-neutral-100 text-neutral-800';
 
     switch (value) {
-      case 'Requested': bgColor = 'bg-gradient-to-r from-warning-400 via-warning-300 to-warning-500 text-error-700';    break;
-      case 'Approved':  bgColor = 'bg-gradient-to-r from-success-300 via-success-500 to-success-600 text-neutral-800';  break;
-      case 'Posted':    bgColor = 'bg-gradient-to-r from-success-800 via-success-900 to-success-999 text-success-100';  break;
-      case 'Rejected':  bgColor = 'bg-gradient-to-r from-error-700 via-error-800 to-error-999 text-neutral-100';        break;
-      case 'Void':      bgColor = 'bg-gradient-to-r from-primary-900 via-primary-999 to-tertiary-999 text-neutral-300'; break;
-      case 'Cancelled': bgColor = 'bg-gradient-to-r from-neutral-200 via-neutral-300 to-neutral-400 text-neutral-800';  break;
+      case 'Requested': bgColor = 'bg-gradient-to-r from-warning-400 via-warning-300 to-warning-500 text-error-700'; break;
+      case 'Approved': bgColor = 'bg-gradient-to-r from-success-300 via-success-500 to-success-600 text-neutral-800'; break;
+      case 'Posted': bgColor = 'bg-gradient-to-r from-success-800 via-success-900 to-success-999 text-success-100'; break;
+      case 'Rejected': bgColor = 'bg-gradient-to-r from-error-700 via-error-800 to-error-999 text-neutral-100'; break;
+      case 'Void': bgColor = 'bg-gradient-to-r from-primary-900 via-primary-999 to-tertiary-999 text-neutral-300'; break;
+      case 'Cancelled': bgColor = 'bg-gradient-to-r from-neutral-200 via-neutral-300 to-neutral-400 text-neutral-800'; break;
       default: break;
     }
 
@@ -310,6 +312,7 @@ function CommunityTaxPage() {
       // console.log('Form data to save:', formData);
       await dispatch(addCommunityTax(formData)).unwrap();
       dispatch(fetchCommunityTaxes());
+      dispatch(fetchCustomers());
       toast.success('Certificate saved successfully.');
     } catch (error) {
       console.error('Error saving certificate:', error);
@@ -318,10 +321,24 @@ function CommunityTaxPage() {
       handleBackToList();
     }
   };
-  const handleCustomerChange = (customerID) => {
-    const selectedCustomer = customers.find((c) => c.ID === customerID);
-    // console.log('Selected customer:', selectedCustomer, customer);
-    setSelectedCustomer(selectedCustomer);
+  const handleCustomerChange = (val) => {
+    // Check if the value is an ID (number) or a custom string (new name)
+    const isCustom = typeof val === 'string' && !customers.find((c) => c.ID === val);
+
+    if (isCustom) {
+      // Logic for new individual
+      // console.log('Creating new individual:', val);
+      setSelectedCustomer(null);
+      setIsNewIndividual(true);
+      setNewOwnerName(val);
+    } else {
+      // Logic for existing customer
+      const customer = customers.find((c) => c.ID === val);
+      if (customer) {
+        setSelectedCustomer(customer);
+        setIsNewIndividual(false);
+      }
+    }
   };
   return (
     <>
@@ -382,21 +399,7 @@ function CommunityTaxPage() {
             </div>
             <div className="flex flex-wrap sm:flex-nowrap items-start sm:items-center justify-end gap-2 w-full">
               <div className="w-full sm:w-auto">
-                <SearchableDropdown
-                  options={
-                    customers?.map((customer) => ({
-                      label:
-                        customer.Name ||
-                        `${customer.FirstName} ${customer.MiddleName} ${customer.LastName}`,
-                      value: customer.ID,
-                    })) || []
-                  }
-                  placeholder="Choose Individual"
-                  selectedValue={selectedCustomer?.ID}
-                  onSelect={handleCustomerChange}
-                  label="Choose Individual"
-                  required
-                />
+                {/* SearchableDropdown moved to main content area */}
               </div>
 
               <div className="flex flex-wrap sm:flex-nowrap gap-2 w-full sm:w-auto">
@@ -420,18 +423,38 @@ function CommunityTaxPage() {
           </div>
 
           <div className="bg-white rounded-lg shadow-md p-2 sm:p-6">
-            {selectedCustomer ? (
+            <div className="mb-4">
+              <SearchableDropdown
+                options={
+                  customers?.map((customer) => ({
+                    label:
+                      customer.Name ||
+                      `${customer.FirstName} ${customer.MiddleName} ${customer.LastName}`,
+                    value: customer.ID,
+                  })) || []
+                }
+                placeholder="Choose Individual or Type New Name"
+                selectedValue={isNewIndividual ? newOwnerName : selectedCustomer?.ID}
+                onSelect={handleCustomerChange}
+                label="Choose Individual"
+                required={!isNewIndividual}
+              />
+            </div>
+
+            {selectedCustomer || isNewIndividual ? (
               <CommunityTaxForm
-                key={selectedCustomer?.ID}
+                key={selectedCustomer?.ID || (isNewIndividual ? newOwnerName : 'new-individual')}
                 selectedCustomer={selectedCustomer}
                 initialData={currentCertificate}
                 onCancel={handleBackToList}
                 onSubmitForm={handleFormSubmit}
                 currentCertificateNumber={currentNumber}
+                isNewIndividual={isNewIndividual}
+                newOwnerName={newOwnerName}
               />
             ) : (
-              <h2 className="text-2xl font-bold text-gray-800 text-center h-[50vh]">
-                Please select a Individual first to start{' '}
+              <h2 className="text-2xl font-bold text-gray-800 text-center h-[50vh] flex items-center justify-center">
+                Please select an Individual or click "New Individual" to start
               </h2>
             )}
           </div>

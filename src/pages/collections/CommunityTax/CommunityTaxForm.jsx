@@ -145,8 +145,10 @@ const CommunityTaxForm = ({
   onSubmitForm,
   isReadOnly = false,
   currentCertificateNumber = null,
+  isNewIndividual = false,
+  newOwnerName = '',
 }) => {
-  const [activeTab, setActiveTab] = useState('certificate');
+  const [activeTab, setActiveTab] = useState(isNewIndividual ? 'personal' : 'certificate');
 
   const citizenshipOptions = [
     { value: 'Afghan', label: 'Afghan' },
@@ -183,6 +185,19 @@ const CommunityTaxForm = ({
     // Determine the source of customer data (priority: initialData > selectedCustomer)
     const customerSource = initialData?.Customer || selectedCustomer;
 
+    // Logic to split newOwnerName if provided
+    let newFirstName = '';
+    let newLastName = '';
+    if (newOwnerName) {
+      const parts = newOwnerName.trim().split(' ');
+      if (parts.length > 1) {
+        newLastName = parts.pop();
+        newFirstName = parts.join(' ');
+      } else {
+        newFirstName = parts[0] || '';
+      }
+    }
+
     const initialValues = {
       // BASIC INFO
       Year: initialData?.Year || '',
@@ -194,9 +209,9 @@ const CommunityTaxForm = ({
         '',
       TIN: initialData?.TIN || customerSource?.TIN || '', // Check both sources for TIN
 
-      // PERSONAL INFO (from either initialData.Customer or selectedCustomer)
-      LastName: customerSource?.LastName || '',
-      FirstName: customerSource?.FirstName || '',
+      // PERSONAL INFO (from either initialData.Customer or selectedCustomer, OR newOwnerName)
+      LastName: customerSource?.LastName || newLastName,
+      FirstName: customerSource?.FirstName || newFirstName,
       MiddleName: customerSource?.MiddleName || '',
       Address: customerSource?.StreetAddress || '',
       Citizenship: customerSource?.Citizenship || '',
@@ -235,6 +250,7 @@ const CommunityTaxForm = ({
 
   const formik = useFormik({
     initialValues: getInitialValues(),
+    enableReinitialize: true,
     validationSchema,
     onSubmit: (values) => {
       const isEdit = Boolean(initialData);
@@ -250,8 +266,8 @@ const CommunityTaxForm = ({
         }
         : {
           IsNew: 'true', // Create mode
-          IsSelectedFromIndividual: 'true', // selected from individual list...!!!!
-          CustomerID: selectedCustomer?.ID,
+          IsSelectedFromIndividual: isNewIndividual ? 'false' : 'true', // 'false' means creating new individual
+          CustomerID: isNewIndividual ? null : selectedCustomer?.ID,
           ...transformValues(values),
         };
 
@@ -370,6 +386,25 @@ const CommunityTaxForm = ({
   //   const totalAmountInWords = numToWords(totalAmountValue);
   //   formik.setFieldValue('AmountinWords', totalAmountInWords);
   // };
+  // Force update when newOwnerName changes to ensure fields are populated
+  useEffect(() => {
+    if (isNewIndividual && newOwnerName) {
+      const parts = newOwnerName.trim().split(' ');
+      let newFirstName = '';
+      let newLastName = '';
+
+      if (parts.length > 1) {
+        newLastName = parts.pop();
+        newFirstName = parts.join(' ');
+      } else {
+        newFirstName = parts[0] || '';
+      }
+
+      if (formik.values.FirstName !== newFirstName) formik.setFieldValue('FirstName', newFirstName);
+      if (formik.values.LastName !== newLastName) formik.setFieldValue('LastName', newLastName);
+    }
+  }, [newOwnerName, isNewIndividual]);
+
   // console.log('Form errors:', formik.errors);
   return (
     <div className="min-h-screen">
@@ -383,11 +418,10 @@ const CommunityTaxForm = ({
             <button
               type="button"
               onClick={() => setActiveTab('certificate')}
-              className={`px-6 py-3 font-medium border-b-2 transition-colors ${
-                activeTab === 'certificate'
-                  ? 'border-blue-600 text-blue-600'
-                  : 'border-transparent text-gray-600 hover:text-gray-900'
-              }`}
+              className={`px-6 py-3 font-medium border-b-2 transition-colors ${activeTab === 'certificate'
+                ? 'border-blue-600 text-blue-600'
+                : 'border-transparent text-gray-600 hover:text-gray-900'
+                }`}
             >
               <div className="flex items-center gap-2">
                 <Calendar className="h-5 w-5" />
@@ -397,11 +431,10 @@ const CommunityTaxForm = ({
             <button
               type="button"
               onClick={() => setActiveTab('personal')}
-              className={`px-6 py-3 font-medium border-b-2 transition-colors ${
-                activeTab === 'personal'
-                  ? 'border-blue-600 text-blue-600'
-                  : 'border-transparent text-gray-600 hover:text-gray-900'
-              }`}
+              className={`px-6 py-3 font-medium border-b-2 transition-colors ${activeTab === 'personal'
+                ? 'border-blue-600 text-blue-600'
+                : 'border-transparent text-gray-600 hover:text-gray-900'
+                }`}
             >
               <div className="flex items-center gap-2">
                 <User className="h-5 w-5" />
@@ -411,11 +444,10 @@ const CommunityTaxForm = ({
             <button
               type="button"
               onClick={() => setActiveTab('tax')}
-              className={`px-6 py-3 font-medium border-b-2 transition-colors ${
-                activeTab === 'tax'
-                  ? 'border-blue-600 text-blue-600'
-                  : 'border-transparent text-gray-600 hover:text-gray-900'
-              }`}
+              className={`px-6 py-3 font-medium border-b-2 transition-colors ${activeTab === 'tax'
+                ? 'border-blue-600 text-blue-600'
+                : 'border-transparent text-gray-600 hover:text-gray-900'
+                }`}
             >
               <div className="flex items-center gap-2">
                 <CreditCard className="h-5 w-5" />
@@ -425,11 +457,10 @@ const CommunityTaxForm = ({
             <button
               type="button"
               onClick={() => setActiveTab('review')}
-              className={`px-6 py-3 font-medium border-b-2 transition-colors ${
-                activeTab === 'review'
-                  ? 'border-blue-600 text-blue-600'
-                  : 'border-transparent text-gray-600 hover:text-gray-900'
-              }`}
+              className={`px-6 py-3 font-medium border-b-2 transition-colors ${activeTab === 'review'
+                ? 'border-blue-600 text-blue-600'
+                : 'border-transparent text-gray-600 hover:text-gray-900'
+                }`}
             >
               <div className="flex items-center gap-2">
                 <CheckCircle className="h-5 w-5" />
@@ -526,7 +557,7 @@ const CommunityTaxForm = ({
             <div className="flex flex-col space-y-1.5 sm:p-6 p-3 bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-t-lg">
               <h3 className="text-2xl font-semibold leading-none tracking-tight flex items-center gap-2">
                 <User className="h-5 w-5" />
-                Personal Information
+                {newOwnerName ? `Creating: ${newOwnerName}` : 'Personal Information'}
               </h3>
             </div>
             <div className="sm:p-6 p-3 pt-2">
