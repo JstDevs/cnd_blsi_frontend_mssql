@@ -29,7 +29,7 @@ const generalServiceReceiptSchema = Yup.object().shape({
   Agency: Yup.string().required('Agency is required'),
   PaymentMethodID: Yup.number().required('Payment method is required'),
   Total: Yup.number().required('Total amount is required'),
-  CustomerID: Yup.number().required('Customer is required'),
+  CustomerID: Yup.number().nullable(),
   CustomerName: Yup.string().required('Customer name is required'),
   Remarks: Yup.string(),
   TransactionItemsAll: Yup.array()
@@ -122,6 +122,7 @@ function GeneralServiceReceiptModal({
     Attachments: selectedReceipt?.Attachments || [],
 
     PaymentMethodID: 2,
+    PayorType: 'Individual',
     TransactionItemsAll: selectedReceipt?.TransactionItemsAll || [
       {
         ItemID: '',
@@ -374,11 +375,10 @@ function GeneralServiceReceiptModal({
                         setFieldValue('PayorType', 'Individual');
                         setFieldValue('PayorName', '');
                       }}
-                      className={`px-4 py-2 rounded-md ${
-                        payorType === 'Individual'
-                          ? 'bg-blue-600 text-white'
-                          : 'bg-gray-200 text-gray-700'
-                      }`}
+                      className={`px-4 py-2 rounded-md ${payorType === 'Individual'
+                        ? 'bg-blue-600 text-white'
+                        : 'bg-gray-200 text-gray-700'
+                        }`}
                     >
                       Individual
                     </button>
@@ -389,11 +389,10 @@ function GeneralServiceReceiptModal({
                         setFieldValue('PayorType', 'Corporation');
                         setFieldValue('PayorName', '');
                       }}
-                      className={`px-4 py-2 rounded-md ${
-                        payorType === 'Corporation'
-                          ? 'bg-blue-600 text-white'
-                          : 'bg-gray-200 text-gray-700'
-                      }`}
+                      className={`px-4 py-2 rounded-md ${payorType === 'Corporation'
+                        ? 'bg-blue-600 text-white'
+                        : 'bg-gray-200 text-gray-700'
+                        }`}
                     >
                       Corporation
                     </button>
@@ -410,20 +409,31 @@ function GeneralServiceReceiptModal({
                       : vendorOptions
                   }
                   required
-                  placeholder="Select Payor"
+                  placeholder={
+                    payorType === 'Individual'
+                      ? 'Select Individual or Type New Name'
+                      : 'Select Corporation or Type New Name'
+                  }
                   onSelect={(value) => {
                     const selectedOption =
                       payorType === 'Individual'
                         ? individualOptions.find(
-                            (option) => option.value === value
-                          )
+                          (option) => option.value === value
+                        )
                         : vendorOptions.find(
-                            (option) => option.value === value
-                          );
-                    setFieldValue('CustomerName', selectedOption?.label || '');
-                    setFieldValue('CustomerID', selectedOption?.value || '');
+                          (option) => option.value === value
+                        );
+
+                    if (selectedOption) {
+                      setFieldValue('CustomerName', selectedOption.label);
+                      setFieldValue('CustomerID', selectedOption.value);
+                    } else {
+                      // Logic for NEW entry (not in list)
+                      setFieldValue('CustomerName', value);
+                      setFieldValue('CustomerID', null);
+                    }
                   }}
-                  selectedValue={values.CustomerID}
+                  selectedValue={values.CustomerID || values.CustomerName}
                   error={errors.CustomerName}
                   touched={touched.CustomerName}
                 />
@@ -611,17 +621,15 @@ function GeneralServiceReceiptModal({
                         onClick={() =>
                           setFieldValue('PaymentMethodID', method.value)
                         }
-                        className={`px-2 py-1 sm:px-4 sm:py-2 text-xs sm:text-sm font-medium border ${
-                          values.PaymentMethodID === method.value
-                            ? 'bg-blue-600 text-white border-blue-600'
-                            : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50'
-                        } ${
-                          index === 0
+                        className={`px-2 py-1 sm:px-4 sm:py-2 text-xs sm:text-sm font-medium border ${values.PaymentMethodID === method.value
+                          ? 'bg-blue-600 text-white border-blue-600'
+                          : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50'
+                          } ${index === 0
                             ? 'rounded-l-md'
                             : index === 3
-                            ? 'rounded-r-md'
-                            : 'border-l-0'
-                        }`}
+                              ? 'rounded-r-md'
+                              : 'border-l-0'
+                          }`}
                       >
                         {method.label}
                       </button>

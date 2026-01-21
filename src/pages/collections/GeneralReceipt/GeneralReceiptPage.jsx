@@ -15,6 +15,8 @@ import {
   getGeneralServiceReceiptCurrentNumber,
 } from '@/features/collections/generalReceiptSlice';
 import GeneralServiceReceiptModal from './GeneralServiceReceiptModal';
+import { fetchVendorDetails } from '@/features/settings/vendorDetailsSlice';
+import { fetchCustomers } from '@/features/settings/customersSlice';
 
 import toast from 'react-hot-toast';
 import { CheckLine, TrashIcon, X } from 'lucide-react';
@@ -107,15 +109,14 @@ function GeneralReceiptPage() {
       sortable: true,
       render: (value) => (
         <span
-          className={`px-2 py-1 rounded ${
-            value === 'Requested'     ? 'bg-gradient-to-r from-warning-400 via-warning-300 to-warning-500 text-error-700'
-              : value === 'Approved'  ? 'bg-gradient-to-r from-success-300 via-success-500 to-success-600 text-neutral-800'
-              : value === 'Posted'    ? 'bg-gradient-to-r from-success-800 via-success-900 to-success-999 text-success-100'
-              : value === 'Rejected'  ? 'bg-gradient-to-r from-error-700 via-error-800 to-error-999 text-neutral-100'
-              : value === 'Void'      ? 'bg-gradient-to-r from-primary-900 via-primary-999 to-tertiary-999 text-neutral-300'
-              : value === 'Cancelled' ? 'bg-gradient-to-r from-neutral-200 via-neutral-300 to-neutral-400 text-neutral-800'
-              : 'bg-gray-100 text-gray-800'
-          }`}
+          className={`px-2 py-1 rounded ${value === 'Requested' ? 'bg-gradient-to-r from-warning-400 via-warning-300 to-warning-500 text-error-700'
+            : value === 'Approved' ? 'bg-gradient-to-r from-success-300 via-success-500 to-success-600 text-neutral-800'
+              : value === 'Posted' ? 'bg-gradient-to-r from-success-800 via-success-900 to-success-999 text-success-100'
+                : value === 'Rejected' ? 'bg-gradient-to-r from-error-700 via-error-800 to-error-999 text-neutral-100'
+                  : value === 'Void' ? 'bg-gradient-to-r from-primary-900 via-primary-999 to-tertiary-999 text-neutral-300'
+                    : value === 'Cancelled' ? 'bg-gradient-to-r from-neutral-200 via-neutral-300 to-neutral-400 text-neutral-800'
+                      : 'bg-gray-100 text-gray-800'
+            }`}
         >
           {value}
         </span>
@@ -263,6 +264,9 @@ function GeneralReceiptPage() {
       console.log('Operation successful:', result, values);
 
       dispatch(fetchGeneralServiceReceipts());
+      // Refresh options lists to include any newly created customers/vendors
+      dispatch(fetchCustomers());
+      dispatch(fetchVendorDetails());
 
       toast.success('Receipt saved successfully.');
     } catch (error) {
@@ -344,8 +348,8 @@ function GeneralReceiptPage() {
                       <dd className="text-sm text-neutral-900 col-span-2">
                         {currentReceipt.InvoiceDate
                           ? new Date(
-                              currentReceipt.InvoiceDate
-                            ).toLocaleDateString()
+                            currentReceipt.InvoiceDate
+                          ).toLocaleDateString()
                           : 'N/A'}
                       </dd>
                     </div>
@@ -357,8 +361,8 @@ function GeneralReceiptPage() {
                         {currentReceipt.FundsID === 1
                           ? 'General Fund'
                           : currentReceipt.FundsID === 2
-                          ? 'Special Education Fund'
-                          : currentReceipt.FundsID || 'N/A'}
+                            ? 'Special Education Fund'
+                            : currentReceipt.FundsID || 'N/A'}
                       </dd>
                     </div>
                     <div className="grid grid-cols-3 gap-4">
@@ -370,8 +374,8 @@ function GeneralReceiptPage() {
                           (currentReceipt.CheckNumber
                             ? 'Check'
                             : currentReceipt.MoneyOrder
-                            ? 'Money Order'
-                            : 'Cash')}
+                              ? 'Money Order'
+                              : 'Cash')}
                       </dd>
                     </div>
                     <div className="grid grid-cols-3 gap-4">
@@ -380,15 +384,14 @@ function GeneralReceiptPage() {
                       </dt>
                       <dd className="text-sm text-neutral-900 col-span-2">
                         <span
-                          className={`px-2 py-1 rounded text-xs ${
-                            currentReceipt.Status === 'Requested'     ? 'bg-gradient-to-r from-warning-400 via-warning-300 to-warning-500 text-error-700'
-                              : currentReceipt.Status === 'Approved'  ? 'bg-gradient-to-r from-success-300 via-success-500 to-success-600 text-neutral-800'
-                              : currentReceipt.Status === 'Posted'    ? 'bg-gradient-to-r from-success-800 via-success-900 to-success-999 text-success-100'
-                              : currentReceipt.Status === 'Rejected'  ? 'bg-gradient-to-r from-error-700 via-error-800 to-error-999 text-neutral-100'
-                              : currentReceipt.Status === 'Void'      ? 'bg-gradient-to-r from-primary-900 via-primary-999 to-tertiary-999 text-neutral-300'
-                              : currentReceipt.Status === 'Cancelled' ? 'bg-gradient-to-r from-neutral-200 via-neutral-300 to-neutral-400 text-neutral-800'
-                              : 'bg-gray-100 text-gray-800'
-                          }`}
+                          className={`px-2 py-1 rounded text-xs ${currentReceipt.Status === 'Requested' ? 'bg-gradient-to-r from-warning-400 via-warning-300 to-warning-500 text-error-700'
+                            : currentReceipt.Status === 'Approved' ? 'bg-gradient-to-r from-success-300 via-success-500 to-success-600 text-neutral-800'
+                              : currentReceipt.Status === 'Posted' ? 'bg-gradient-to-r from-success-800 via-success-900 to-success-999 text-success-100'
+                                : currentReceipt.Status === 'Rejected' ? 'bg-gradient-to-r from-error-700 via-error-800 to-error-999 text-neutral-100'
+                                  : currentReceipt.Status === 'Void' ? 'bg-gradient-to-r from-primary-900 via-primary-999 to-tertiary-999 text-neutral-300'
+                                    : currentReceipt.Status === 'Cancelled' ? 'bg-gradient-to-r from-neutral-200 via-neutral-300 to-neutral-400 text-neutral-800'
+                                      : 'bg-gray-100 text-gray-800'
+                            }`}
                         >
                           {currentReceipt.Status}
                         </span>
@@ -425,8 +428,8 @@ function GeneralReceiptPage() {
                       <dd className="text-sm text-neutral-900 col-span-2">
                         {currentReceipt.BillingDueDate
                           ? new Date(
-                              currentReceipt.BillingDueDate
-                            ).toLocaleDateString()
+                            currentReceipt.BillingDueDate
+                          ).toLocaleDateString()
                           : 'N/A'}
                       </dd>
                     </div>
