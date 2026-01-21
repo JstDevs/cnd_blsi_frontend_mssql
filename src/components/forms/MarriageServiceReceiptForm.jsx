@@ -6,6 +6,7 @@ import { Paperclip, Trash2, TrashIcon } from 'lucide-react';
 import { DocumentIcon } from '@heroicons/react/24/outline';
 import SearchableDropdown from '../common/SearchableDropdown';
 import toast from 'react-hot-toast';
+import { set } from 'date-fns';
 const API_URL = import.meta.env.VITE_API_URL;
 const MARRIAGE_SERVICE_RECEIPT_SCHEMA = Yup.object().shape({
   InvoiceNumber: Yup.string().required('Invoice number is required'),
@@ -250,10 +251,15 @@ function MarriageServiceReceiptForm({
                   const selectedOption = individualOptions.find(
                     (option) => option.value === value
                   );
-                  setFieldValue('CustomerName', selectedOption?.label || '');
-                  setFieldValue('CustomerID', selectedOption?.value || '');
+                  if (selectedOption) {
+                    setFieldValue('CustomerName', selectedOption?.label);
+                    setFieldValue('CustomerID', selectedOption?.value);
+                  } else {
+                    setFieldValue('CustomerName', value);
+                    setFieldValue('CustomerID', null);
+                  }
                 }}
-                selectedValue={values.CustomerID}
+                selectedValue={values.CustomerID || values.CustomerName}
                 error={errors.CustomerName}
                 touched={touched.CustomerName}
               />
@@ -326,10 +332,15 @@ function MarriageServiceReceiptForm({
                   const selectedOption = individualOptions.find(
                     (option) => option.value === value
                   );
-                  setFieldValue('MarrytoName', selectedOption?.label || '');
-                  setFieldValue('MarrytoID', selectedOption?.value || '');
+                  if (selectedOption) {
+                    setFieldValue('MarrytoName', selectedOption?.label);
+                    setFieldValue('MarrytoID', selectedOption?.value);
+                  } else {
+                    setFieldValue('MarrytoName', value);
+                    setFieldValue('MarrytoID', null);
+                  }
                 }}
-                selectedValue={values.MarrytoID}
+                selectedValue={values.MarrytoID || values.MarrytoName}
                 error={errors.MarrytoName}
                 touched={touched.MarrytoName}
               />

@@ -82,6 +82,7 @@ function MarriageServiceReceiptPage() {
         ? toast.success('Marriage Receipt Updated Successfully')
         : toast.success('Marriage Receipt Added Successfully');
       dispatch(fetchMarriageRecords());
+            dispatch(fetchCustomers());
     } catch (error) {
       toast.error(error.message || 'Something went wrong');
     } finally {
