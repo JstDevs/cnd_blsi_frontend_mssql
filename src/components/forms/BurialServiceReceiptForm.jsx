@@ -11,9 +11,9 @@ import toast from 'react-hot-toast';
 
 const BURIAL_RECEIPT_SCHEMA = Yup.object().shape({
   CustomerName: Yup.string().required('Name is required'),
-  CustomerID: Yup.number(),
+  CustomerID: Yup.number().nullable(),
   DeceasedCustomerName: Yup.string().required('Deceased name is required'),
-  DeceasedCustomerID: Yup.number(),
+  DeceasedCustomerID: Yup.number().nullable(),
 
   Nationality: Yup.string().required('Nationality is required'),
   NationalityID: Yup.number().required('Nationality is required'),
@@ -226,10 +226,15 @@ function BurialServiceReceiptForm({
                   const selectedOption = individualOptions.find(
                     (option) => option.value === value
                   );
+                  if (selectedOption) {
                   setFieldValue('CustomerName', selectedOption?.label || '');
                   setFieldValue('CustomerID', selectedOption?.value || '');
+                  } else {
+                    setFieldValue('CustomerName', value);
+                    setFieldValue('CustomerID', null);
+                  }
                 }}
-                selectedValue={values.CustomerID}
+                selectedValue={values.CustomerID || values.CustomerName}
                 error={errors.CustomerName}
                 touched={touched.CustomerName}
               />
@@ -248,16 +253,15 @@ function BurialServiceReceiptForm({
                   const selectedOption = individualOptions.find(
                     (option) => option.value === value
                   );
-                  setFieldValue(
-                    'DeceasedCustomerName',
-                    selectedOption?.label || ''
-                  );
-                  setFieldValue(
-                    'DeceasedCustomerID',
-                    selectedOption?.value || ''
-                  );
+                  if (selectedOption) {
+                    setFieldValue('DeceasedCustomerName', selectedOption.label);
+                    setFieldValue('DeceasedCustomerID', selectedOption.value); 
+                  } else {
+                    setFieldValue('DeceasedCustomerName', value);
+                    setFieldValue('DeceasedCustomerID', null);
+                  }
                 }}
-                selectedValue={values.DeceasedCustomerID}
+                selectedValue={values.DeceasedCustomerID || values.DeceasedCustomerName}
                 error={errors.DeceasedCustomerName}
                 touched={touched.DeceasedCustomerName}
               />

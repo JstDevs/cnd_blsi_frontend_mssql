@@ -248,6 +248,7 @@ function BurialServiceReceiptPage() {
         ? toast.success('Burial Receipt Updated Successfully')
         : toast.success('Burial Receipt Added Successfully');
       dispatch(fetchBurialRecords());
+      dispatch(fetchCustomers());
     } catch (error) {
       toast.error(error.message || 'Something went wrong');
     } finally {
