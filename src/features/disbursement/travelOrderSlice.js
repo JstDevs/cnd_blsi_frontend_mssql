@@ -211,7 +211,10 @@ const travelOrdersSlice = createSlice({
         if (!Array.isArray(state.travelOrders)) {
           state.travelOrders = [];
         }
-        state.travelOrders = state.travelOrders.filter(item => item.ID !== action.payload);
+        const index = state.travelOrders.findIndex(item => item.ID === action.payload);
+        if (index !== -1) {
+          state.travelOrders[index].TransactionStatus = 'Void';
+        }
       })
       .addCase(deleteTravelOrder.rejected, (state, action) => {
         state.isLoading = false;

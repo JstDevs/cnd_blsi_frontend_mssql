@@ -33,7 +33,7 @@ function TravelOrderPage() {
   const { travelOrders, isLoading } = useSelector(
     (state) => state.travelOrders
   );
-  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [isVoidModalOpen, setIsVoidModalOpen] = useState(false);
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [isViewModalOpen, setIsViewModalOpen] = useState(false);
   const [currentTravelOrder, setCurrentTravelOrder] = useState(null);
@@ -79,21 +79,21 @@ function TravelOrderPage() {
     setIsCreateModalOpen(true);
   };
 
-  const handleDelete = (travelOrder) => {
+  const handleVoid = (travelOrder) => {
     setCurrentTravelOrder(travelOrder);
-    setIsDeleteModalOpen(true);
+    setIsVoidModalOpen(true);
   };
 
-  const confirmDelete = async () => {
+  const confirmVoid = async () => {
     if (currentTravelOrder) {
       try {
         await dispatch(deleteTravelOrder(currentTravelOrder.ID)).unwrap();
-        toast.success('Deleted');
+        toast.success('Voided');
       } catch (error) {
-        console.error('Failed to delete travel order:', error);
-        toast.error('Failed to delete travel order');
+        console.error('Failed to void travel order:', error);
+        toast.error('Failed to void travel order');
       } finally {
-        setIsDeleteModalOpen(false);
+        setIsVoidModalOpen(false);
         setCurrentTravelOrder(null);
       }
     }
@@ -520,8 +520,8 @@ function TravelOrderPage() {
       });
       actionList.push({
         icon: TrashIcon,
-        title: 'Delete',
-        onClick: () => handleDelete(row),
+        title: 'Void',
+        onClick: () => handleVoid(row),
         className:
           'text-error-600 hover:text-error-900 p-1 rounded-full hover:bg-error-50',
       });
@@ -615,35 +615,35 @@ function TravelOrderPage() {
         )}
       </Modal>
 
-      {/* Delete Confirmation Modal */}
+      {/* Void Confirmation Modal */}
       <Modal
-        isOpen={isDeleteModalOpen}
-        onClose={() => setIsDeleteModalOpen(false)}
-        title="Confirm Delete"
+        isOpen={isVoidModalOpen}
+        onClose={() => setIsVoidModalOpen(false)}
+        title="Confirm Void"
       >
         <div className="py-3">
           <p className="text-neutral-700">
-            Are you sure you want to delete the travel order "
+            Are you sure you want to void the travel order "
             {currentTravelOrder?.InvoiceNumber}"?
           </p>
           <p className="text-sm text-neutral-500 mt-2">
-            This action cannot be undone.
+            This action will mark the document as void and cannot be reversed.
           </p>
         </div>
         <div className="flex justify-end space-x-3 pt-4 border-t border-neutral-200">
           <button
             type="button"
-            onClick={() => setIsDeleteModalOpen(false)}
+            onClick={() => setIsVoidModalOpen(false)}
             className="btn btn-outline"
           >
             Cancel
           </button>
           <button
             type="button"
-            onClick={confirmDelete}
+            onClick={confirmVoid}
             className="btn btn-danger"
           >
-            Delete
+            Void
           </button>
         </div>
       </Modal>
