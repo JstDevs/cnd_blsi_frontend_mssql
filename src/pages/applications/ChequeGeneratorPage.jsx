@@ -60,6 +60,7 @@ function ChequeGeneratorPage() {
   const [isLoadingBAPAction, setIsLoadingBAPAction] = useState(false);
   const [isViewOnly, setIsViewOnly] = useState(false);
   const [activeTab, setActiveTab] = useState('input'); // 'input' or 'list'
+  const [pendingDVs, setPendingDVs] = useState([]);
 
   const dispatch = useDispatch();
   const { banks, isLoading } = useSelector((state) => state.banks);
@@ -103,7 +104,17 @@ function ChequeGeneratorPage() {
     dispatch(fetchBanks());
     dispatch(fetchEmployees());
     fetchChequeList();
+    fetchPendingDVs();
   }, []);
+
+  const fetchPendingDVs = async () => {
+    try {
+      const response = await axiosInstance('/disbursementVoucher/pending-cheque');
+      setPendingDVs(response.data);
+    } catch (error) {
+      console.error('Error fetching pending DVs:', error);
+    }
+  };
 
   const fetchChequeList = async () => {
     try {
@@ -617,16 +628,43 @@ function ChequeGeneratorPage() {
                   )}
                 </div>
 
-                <FormField
-                  type="text"
-                  label={'DV'}
-                  value={formik.values.dv}
-                  onChange={formik.handleChange}
-                  name="dv"
-                  error={formik.touched.dv && formik.errors.dv}
-                  touched={formik.touched.dv}
-                  disabled={isViewOnly}
-                />
+                <div>
+                  <SearchableDropdown
+                    options={pendingDVs.map((dv) => ({
+                      value: dv.LinkID,
+                      label: `${dv.InvoiceNumber} - ${dv.Payee || (dv.Vendor?.Name || dv.Employee?.FirstName + ' ' + dv.Employee?.LastName || dv.Customer?.Name)}`,
+                      raw: dv
+                    }))}
+                    label={'DV'}
+                    placeholder="Select Disbursement Voucher"
+                    name="dv"
+                    selectedValue={formik.values.dv}
+                    onSelect={(value, option) => {
+                      formik.setFieldValue('dv', value);
+                      if (option && option.raw) {
+                        const dv = option.raw;
+                        // Auto-fill logic
+                        const payeeName = dv.Payee || (dv.Vendor?.Name || (dv.Employee ? `${dv.Employee.FirstName} ${dv.Employee.LastName}` : (dv.Customer?.Name || '')));
+                        formik.setFieldValue('payee', payeeName);
+                        formik.setFieldValue('amount', dv.Total);
+                        if (dv.BankID) {
+                          formik.setFieldValue('bank', dv.BankID.toString());
+                        }
+                        if (dv.Remarks) {
+                          formik.setFieldValue('particulars', dv.Remarks);
+                        }
+                        // If DV has OBR, maybe we can auto-fill that too if the field exists
+                        if (dv.ObligationRequestNumber) {
+                          formik.setFieldValue('obr', dv.ObligationRequestNumber);
+                        }
+                      }
+                    }}
+                    error={formik.touched.dv && formik.errors.dv}
+                    touched={formik.touched.dv}
+                    required
+                    isDisabled={isViewOnly}
+                  />
+                </div>
               </div>
               {/* Attachments Section */}
               <div className="my-4">
@@ -1008,11 +1046,11 @@ function ChequeGeneratorPage() {
               <div className="flex justify-between items-center mb-4">
                 <h2 className="text-lg font-medium">Cheque Preview</h2>
                 <span className={`px-3 py-1 rounded text-sm font-medium ${currentCheck.Status === 'Requested' ? 'bg-gradient-to-r from-warning-400 via-warning-300 to-warning-500 text-error-700'
-                    : currentCheck.Status === 'Approved' ? 'bg-gradient-to-r from-success-300 via-success-500 to-success-600 text-neutral-800'
-                      : currentCheck.Status === 'Posted' ? 'bg-gradient-to-r from-success-800 via-success-900 to-success-999 text-success-100'
-                        : currentCheck.Status === 'Rejected' ? 'bg-gradient-to-r from-error-700 via-error-800 to-error-999 text-neutral-100'
-                          : currentCheck.Status === 'Void' ? 'bg-gradient-to-r from-primary-900 via-primary-999 to-tertiary-999 text-neutral-300'
-                            : 'bg-gray-100 text-gray-800'
+                  : currentCheck.Status === 'Approved' ? 'bg-gradient-to-r from-success-300 via-success-500 to-success-600 text-neutral-800'
+                    : currentCheck.Status === 'Posted' ? 'bg-gradient-to-r from-success-800 via-success-900 to-success-999 text-success-100'
+                      : currentCheck.Status === 'Rejected' ? 'bg-gradient-to-r from-error-700 via-error-800 to-error-999 text-neutral-100'
+                        : currentCheck.Status === 'Void' ? 'bg-gradient-to-r from-primary-900 via-primary-999 to-tertiary-999 text-neutral-300'
+                          : 'bg-gray-100 text-gray-800'
                   }`}>
                   {currentCheck.Status}
                 </span>
