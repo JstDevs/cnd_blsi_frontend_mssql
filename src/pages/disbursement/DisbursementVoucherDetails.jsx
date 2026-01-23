@@ -125,8 +125,8 @@ function DisbursementVoucherDetails({ dv, linkedOBR, onClose, onEdit }) {
               <dd className="text-sm text-neutral-900 col-span-2 flex items-center gap-2">
                 {dv.modeOfPayment}
                 {(dv.modeOfPayment === 'Check' || dv.ModeOfPayment === 'Check') && (
-                  <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800 border border-blue-200">
-                    Check Requested
+                  <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-gradient-to-r from-warning-400 via-warning-300 to-warning-500 text-error-700 border border-warning-200">
+                    Cheque Pending
                   </span>
                 )}
               </dd>

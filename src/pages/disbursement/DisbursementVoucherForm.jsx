@@ -23,6 +23,8 @@ import {
   DocumentCheckIcon,
   PlusIcon,
   TrashIcon,
+  ArrowPathIcon,
+  CheckCircleIcon,
 } from '@heroicons/react/24/outline';
 import {
   createDisbursementVoucher,
@@ -1393,9 +1395,9 @@ function DisbursementVoucherForm({
                       />
 
                       <div className="flex items-center md:col-span-1 mt-6">
-                        <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800 border border-blue-200">
-                          <CheckCircleIcon className="w-3 h-3 mr-1" />
-                          Check Requested
+                        <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gradient-to-r from-warning-400 via-warning-300 to-warning-500 text-error-700 border border-warning-200">
+                          <ArrowPathIcon className="w-3 h-3 mr-1" />
+                          Cheque Pending
                         </span>
                       </div>
                     </>
