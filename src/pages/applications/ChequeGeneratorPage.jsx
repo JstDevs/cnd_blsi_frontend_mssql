@@ -60,7 +60,7 @@ function ChequeGeneratorPage() {
   const [isLoadingBAPAction, setIsLoadingBAPAction] = useState(false);
   const [isViewOnly, setIsViewOnly] = useState(false);
   const [activeTab, setActiveTab] = useState('input'); // 'input' or 'list'
-  const [pendingDVs, setPendingDVs] = useState([]);
+  const [allPendingDVs, setAllPendingDVs] = useState([]);
 
   const dispatch = useDispatch();
   const { banks, isLoading } = useSelector((state) => state.banks);
@@ -110,11 +110,15 @@ function ChequeGeneratorPage() {
   const fetchPendingDVs = async () => {
     try {
       const response = await axiosInstance('/disbursementVoucher/pending-cheque');
-      setPendingDVs(response.data);
+      setAllPendingDVs(response.data);
     } catch (error) {
       console.error('Error fetching pending DVs:', error);
     }
   };
+
+  const filteredPendingDVs = allPendingDVs.filter(dv =>
+    !chequeList.some(check => check.DisbursementID === dv.LinkID && check.Status !== 'Void')
+  );
 
   const fetchChequeList = async () => {
     try {
@@ -197,6 +201,7 @@ function ChequeGeneratorPage() {
 
       toast.success('Cheque saved successfully');
       fetchChequeList();
+      fetchPendingDVs();
       resetForm();
       setActiveTab('list'); // Switch to list tab after save
     } catch (error) {
@@ -630,7 +635,7 @@ function ChequeGeneratorPage() {
 
                 <div>
                   <SearchableDropdown
-                    options={pendingDVs.map((dv) => ({
+                    options={filteredPendingDVs.map((dv) => ({
                       value: dv.LinkID,
                       label: `${dv.InvoiceNumber} - ${dv.Payee || (dv.Vendor?.Name || dv.Employee?.FirstName + ' ' + dv.Employee?.LastName || dv.Customer?.Name)}`,
                       raw: dv
@@ -642,7 +647,7 @@ function ChequeGeneratorPage() {
                     onSelect={(value) => {
                       formik.setFieldValue('dv', value);
 
-                      const selectedDV = pendingDVs.find(d => d.LinkID === value);
+                      const selectedDV = allPendingDVs.find(d => d.LinkID === value);
 
                       if (selectedDV) {
                         const payeeName = selectedDV.Payee || (selectedDV.Vendor?.Name || (selectedDV.Employee ? `${selectedDV.Employee.FirstName} ${selectedDV.Employee.LastName}` : (selectedDV.Customer?.Name || '')));
