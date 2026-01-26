@@ -603,7 +603,7 @@ function DisbursementVoucherForm({
               );
               formikRef.current.setFieldValue(
                 'responsibilityCenter',
-                option?.raw?.ResponsibilityCenterID || ''
+                option?.raw?.ResponsibilityCenterID || option?.raw?.ResponsibilityCenter || ''
               );
             }
           };

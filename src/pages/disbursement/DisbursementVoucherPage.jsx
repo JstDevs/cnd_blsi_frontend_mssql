@@ -11,6 +11,7 @@ import DisbursementVoucherForm from './DisbursementVoucherForm';
 import DisbursementVoucherDetails from './DisbursementVoucherDetails';
 import { fetchDisbursementVouchers } from '@/features/disbursement/disbursementVoucherSlice';
 import { fetchObligationRequests } from '@/features/disbursement/obligationRequestSlice';
+import { fetchFundUtilizations } from '@/features/disbursement/fundUtilizationSlice';
 import { fetchEmployees } from '../../features/settings/employeeSlice';
 import { fetchCustomers } from '@/features/settings/customersSlice';
 import { fetchVendorDetails } from '@/features/settings/vendorDetailsSlice';
@@ -38,6 +39,9 @@ function DisbursementVoucherPage() {
   const { obligationRequests } = useSelector(
     (state) => state.obligationRequests
   );
+  const { fundUtilizations } = useSelector(
+    (state) => state.fundUtilizations
+  );
   // ---------------------USE MODULE PERMISSIONS------------------START (DisbursementVoucherPage - MODULE ID = 40 )
   const { Add, Edit, Delete } = useModulePermissions(40);
 
@@ -64,6 +68,7 @@ function DisbursementVoucherPage() {
   useEffect(() => {
     dispatch(fetchDisbursementVouchers());
     dispatch(fetchObligationRequests());
+    dispatch(fetchFundUtilizations());
     dispatch(fetchEmployees());
     dispatch(fetchCustomers());
     dispatch(fetchVendorDetails());
@@ -142,12 +147,22 @@ function DisbursementVoucherPage() {
             (row.OBR_Number && obr.InvoiceNumber === row.OBR_Number)
         );
 
+        const linkedFURS = !linkedOBR ? fundUtilizations.find(
+          (furs) =>
+            (row.OBR_LinkID && furs.LinkID === row.OBR_LinkID) ||
+            (row.SourceLinkID && furs.LinkID === row.SourceLinkID) ||
+            (row.ObligationRequestNumber &&
+              furs.InvoiceNumber === row.ObligationRequestNumber)
+        ) : null;
+
         const items =
           row.TransactionItemsAll ||
           row.Items ||
           row.AccountingEntries ||
           linkedOBR?.TransactionItemsAll ||
           linkedOBR?.Items ||
+          linkedFURS?.TransactionItemsAll ||
+          linkedFURS?.Items ||
           [];
 
         if (items.length > 0) {
@@ -169,6 +184,7 @@ function DisbursementVoucherPage() {
           row.Particular ||
           row.Remarks ||
           linkedOBR?.Remarks ||
+          linkedFURS?.Remarks ||
           'N/A'
         );
       },
@@ -214,7 +230,7 @@ function DisbursementVoucherPage() {
           if (itemDeptName) return itemDeptName;
         }
 
-        // 1. Try OBR join FIRST (Strictly by LinkID or OBR Number)
+        // 1. Try OBR/FURS join FIRST (Strictly by LinkID or OBR Number)
         const linkedOBR = obligationRequests.find(
           (obr) =>
             (row.OBR_LinkID && obr.LinkID === row.OBR_LinkID) ||
@@ -227,6 +243,24 @@ function DisbursementVoucherPage() {
 
         if (linkedOBR && linkedOBR.ResponsibilityCenterName) {
           return linkedOBR.ResponsibilityCenterName;
+        }
+
+        const linkedFURS = !linkedOBR ? fundUtilizations.find(
+          (furs) =>
+            (row.OBR_LinkID && furs.LinkID === row.OBR_LinkID) ||
+            (row.SourceLinkID && furs.LinkID === row.SourceLinkID) ||
+            (row.ObligationRequestNumber &&
+              furs.InvoiceNumber === row.ObligationRequestNumber)
+        ) : null;
+
+        if (linkedFURS) {
+          // Check department lookup if ResponsibilityCenter is an ID
+          const rcVal = linkedFURS.ResponsibilityCenter;
+          if (!isNaN(rcVal) && departments.length > 0) {
+            const dept = departments.find(d => String(d.ID) === String(rcVal));
+            if (dept) return dept.Name;
+          }
+          if (rcVal && isNaN(rcVal)) return rcVal;
         }
 
         // 2. Fallback to direct value if it's a name
