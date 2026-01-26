@@ -16,6 +16,7 @@ import {
   PrinterIcon,
   CheckLine,
   X,
+  Loader2,
   FileText,
   List,
 } from 'lucide-react';
@@ -498,8 +499,16 @@ function ChequeGeneratorPage() {
                     className="btn btn-primary max-sm:w-full"
                     disabled={formik.isSubmitting}
                   >
-                    <SaveIcon className="h-5 w-5 mr-2" />
-                    Save
+                    {formik.isSubmitting ? (
+                      <>
+                        <Loader2 className="h-5 w-5 mr-2 animate-spin" />
+                        Processing...
+                      </>
+                    ) : (
+                      <>
+                      <SaveIcon className="h-5 w-5 mr-2" />
+                      Save
+                    </> )}
                   </button>
                 )}
                 {/* ?? EDIT BUTTON  */}
@@ -513,8 +522,17 @@ function ChequeGeneratorPage() {
                       className="btn btn-primary max-sm:w-full"
                       disabled={formik.isSubmitting}
                     >
-                      <EditIcon className="h-5 w-5 mr-2" />
-                      Edit
+                       {formik.isSubmitting ? (
+                        <>
+                          <Loader2 className="h-5 w-5 mr-2 animate-spin" />
+                          Updating...
+                        </>
+                      ) : (
+                        <>
+                          <EditIcon className="h-5 w-5 mr-2" />
+                          Edit
+                        </>
+                      )}
                     </button>
                   )}
                 {currentCheck &&
