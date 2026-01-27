@@ -7,6 +7,7 @@ import {
   ArrowLeftIcon,
 } from '@heroicons/react/24/outline';
 import DataTable from '../../components/common/DataTable';
+import Modal from '../../components/common/Modal';
 import DisbursementVoucherForm from './DisbursementVoucherForm';
 import DisbursementVoucherDetails from './DisbursementVoucherDetails';
 import { fetchDisbursementVouchers } from '@/features/disbursement/disbursementVoucherSlice';
@@ -460,7 +461,7 @@ function DisbursementVoucherPage() {
                     'text-primary-600 hover:text-primary-900 p-1 rounded-full hover:bg-primary-50',
                 });
 
-                if (row.Status === 'Posted') {
+                if (row.Status && row.Status.toLowerCase().includes('posted')) {
                   actionList.push({
                     icon: BookOpenIcon,
                     title: 'View GL',
