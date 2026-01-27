@@ -5,6 +5,7 @@ import {
   EyeIcon,
   PencilIcon,
   PrinterIcon,
+  ArrowPathIcon,
 } from '@heroicons/react/24/outline';
 import DataTable from '@/components/common/DataTable';
 import Modal from '@/components/common/Modal';
@@ -22,7 +23,7 @@ import toast from 'react-hot-toast';
 import { CheckLine, TrashIcon, X } from 'lucide-react';
 import { useModulePermissions } from '@/utils/useModulePremission';
 import { fetchGeneralLedgers } from '@/features/reports/generalLedgerSlice';
-import { BookOpenIcon, ArrowPathIcon } from 'lucide-react';
+import { BookOpenIcon } from 'lucide-react';
 import axiosInstance from '@/utils/axiosInstance';
 
 function GeneralReceiptPage() {
