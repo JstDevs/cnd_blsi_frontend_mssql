@@ -12,6 +12,7 @@ import DataTable from '../../components/common/DataTable';
 // import { fetchUserDocumentsList } from '../../api/profileApi'; // adjust path as needed
 import { toast } from 'react-hot-toast';
 import { fetchUserDocumentsList, fetchUserProfile } from './profileUtil';    // }
+import { formatCurrency } from '@/utils/currencyFormater';
 
 export const statusLabel = (statusString) => {
   const statusConfig = {
@@ -139,21 +140,48 @@ const UserProfilePage = () => {
   };
   // console.log('summary', documentsList);
   const columns = [
+    { key: 'InvoiceNumber', header: 'Invoice No', sortable: true },
     {
       key: 'Status',
       header: 'Status',
       render: (value) => statusLabel(value),
     },
-    { key: 'InvoiceNumber', header: 'Invoice No', sortable: true },
-    { key: 'APAR', header: 'APAR Type', sortable: true },
-    { key: 'InvoiceDate', header: 'Invoice Date', sortable: true },
+    {
+      key: 'InvoiceDate',
+      header: 'Invoice Date',
+      sortable: true,
+      render: (value) => {
+        if (!value) return <span className="text-neutral-400">N/A</span>;
+        const date = new Date(value);
+        return (
+          <span className="text-neutral-700">
+            {date.toLocaleDateString('en-US', {
+              month: '2-digit',
+              day: '2-digit',
+              year: 'numeric',
+            })}
+          </span>
+        );
+      },
+    },
+    { key: 'APAR', header: 'Transaction Type', sortable: true },
+    {
+      key: 'Total',
+      header: 'Amount',
+      sortable: true,
+      className: 'text-right font-semibold',
+      render: (value) => (
+        <span className="text-right font-semibold text-primary-700">
+          {formatCurrency(value)}
+        </span>
+      ),
+    },
     {
       key: 'Funds',
       header: 'Funds',
       sortable: true,
       render: (value) => value?.Name || '—',
     },
-    { key: 'Total', header: 'Amount', sortable: true },
   ];
 
   // const actions = [
@@ -201,7 +229,7 @@ const UserProfilePage = () => {
             </button>
           </Link>
           <Link to="/collection-dashboard">
-            <button className="px-4 py-2 bg-secondary-600 text-white rounded hover:bg-secondary-700 text-sm">
+            <button className="px-4 py-2 bg-warning-600 text-white rounded hover:bg-warning-700 text-sm">
               Collection
             </button>
           </Link>

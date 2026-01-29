@@ -18,7 +18,21 @@ import {
   ReceiptPercentIcon,
 } from '@heroicons/react/24/outline';
 import { ChevronRightIcon } from '@heroicons/react/20/solid';
-import { CalculatorIcon, ChartBar, CoinsIcon, Ellipsis, LayoutDashboardIcon, ReceiptTextIcon, BanknoteIcon, Settings, HandCoinsIcon, ClipboardListIcon, FileChartColumnIcon, FileChartColumnIncreasingIcon } from 'lucide-react';
+import { 
+  CalculatorIcon, 
+  ChartBar, 
+  CoinsIcon, 
+  Ellipsis, 
+  LayoutDashboardIcon, 
+  ReceiptTextIcon, 
+  BanknoteIcon,   
+  Settings, 
+  HandCoinsIcon, 
+  ClipboardListIcon, 
+  FileChartColumnIcon, 
+  FileChartColumnIncreasingIcon, 
+  UserRoundIcon 
+} from 'lucide-react';
 
 const DashboardIcon = LayoutDashboardIcon;
 const DisbursementIcon = BanknoteIcon;
@@ -232,6 +246,7 @@ const navigation = [
       },
     ],
   },
+  { name: 'Profile', href: '/profile', icon: UserRoundIcon }, // public, no moduleId
 ];
 
 function SidebarMenu({
