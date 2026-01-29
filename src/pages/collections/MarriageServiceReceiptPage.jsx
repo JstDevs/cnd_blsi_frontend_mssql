@@ -19,6 +19,8 @@ function MarriageServiceReceiptPage() {
   const [selectedReceipt, setSelectedReceipt] = useState(null);
   const [showGLModal, setShowGLModal] = useState(false);
   const { generalLedgers, isLoading: isGLLoading } = useSelector((state) => state.generalLedger);
+  const [isVoidModalOpen, setIsVoidModalOpen] = useState(false);
+  const [recordToVoid, setRecordToVoid] = useState(null);
   const location = useLocation();
   const dispatch = useDispatch();
   const { records: marriageRecords, isLoading } = useSelector(
@@ -121,16 +123,35 @@ function MarriageServiceReceiptPage() {
     }
   };
 
-  const handleDeleteReceipt = async (record) => {
-    if (window.confirm('Are you sure you want to void this marriage record? This action cannot be undone.')) {
-      try {
-        await dispatch(deleteMarriageRecord(record.ID)).unwrap();
-        toast.success('Marriage record voided successfully');
-      } catch (error) {
-        toast.error(error.message || 'Failed to void');
-      }
+  // const handleDeleteReceipt = async (record) => {
+  //   if (window.confirm('Are you sure you want to void this marriage record? This action cannot be undone.')) {
+  //     try {
+  //       await dispatch(deleteMarriageRecord(record.ID)).unwrap();
+  //       toast.success('Marriage record voided successfully');
+  //     } catch (error) {
+  //       toast.error(error.message || 'Failed to void');
+  //     }
+  //   }
+  // };
+
+  const handleDeleteReceipt = (record) => {
+    setRecordToVoid(record);
+    setIsVoidModalOpen(true);
+  }
+
+  const confirmVoid = async () => {
+    if (!recordToVoid) return;
+
+    try {
+      await dispatch(deleteMarriageRecord(recordToVoid.ID)).unwrap();
+      toast.success('Marriage record Voided Successfully');      
+    } catch (error) {
+      toast.error(error.message || 'Failed to void');
+    } finally {
+      setIsVoidModalOpen(false);
+      setRecordToVoid(null);
     }
-  };
+  }
 
   const handleEdit = (receipt) => {
     setSelectedReceipt(receipt);
@@ -526,6 +547,39 @@ function MarriageServiceReceiptPage() {
       <div style={{ display: 'none' }}>
         <MarriageServiceReceiptPrint ref={printRef} receipt={selectedReceipt} />
       </div>
+
+      {/* Modal Heree */}
+
+          <Modal
+            isOpen={isVoidModalOpen}
+            onClose={() => setIsVoidModalOpen(false)}
+            title="Confirm Void"
+            size="sm"
+          >
+
+            <div className="space-y-4">
+              <p className="text-neutral-600">
+                Are you sure you want to void this marriage record? This action cannot be undone.
+              </p>
+
+            <div className="flex justify-end gap-3 mt-6">
+              <button
+                type="button"
+                className="px-4 py-2 text-sm font-medium text-neutral-700 bg-white border
+                  border-neutral-300 rounded-md hover:bg-neutral-50"
+                  onClick={() => setIsVoidModalOpen(false)} >
+                    Cancel
+              </button>
+              <button
+              type="button"
+              className="px-4 py-2 text-sm font-medium text-white bg-red-600 rounded-md hover:bg-red-700"
+              onClick={confirmVoid}
+            >
+              Void Record
+            </button>   
+          </div>
+        </div>
+          </Modal>
     </>
   );
 }
