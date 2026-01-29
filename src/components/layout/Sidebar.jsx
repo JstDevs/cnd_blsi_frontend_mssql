@@ -421,7 +421,7 @@ function Sidebar() {
   return (
     <div className="h-full flex flex-col border-r border-neutral-200 bg-white">
       <div className="flex items-center justify-center h-20 border-b border-neutral-200 bg-primary-800">
-        <h1 className="text-white text-xl font-bold px-4">CND System</h1>
+        <h1 className="text-white text-xl font-bold px-4 text-center">Collection and Disbursement System</h1>
       </div>
 
       <div className="flex-1 overflow-y-auto py-4">

@@ -182,7 +182,7 @@ const UserProfilePage = () => {
 
             {user?.Position?.Name && (
               <p className="text-sm text-gray-500">
-                Position: {user.Position.Name}
+                {user.Position.Name}
               </p>
             )}
 
@@ -196,18 +196,18 @@ const UserProfilePage = () => {
 
         <div className="flex flex-wrap gap-2">
           <Link to="/budget-dashboard">
-            <button className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 text-sm">
+            <button className="px-4 py-2 bg-primary-600 text-white rounded hover:bg-primary-700 text-sm">
               Budget
             </button>
           </Link>
-          <Link to="/disbursement-dashboard">
-            <button className="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700 text-sm">
-              Disbursement
+          <Link to="/collection-dashboard">
+            <button className="px-4 py-2 bg-secondary-600 text-white rounded hover:bg-secondary-700 text-sm">
+              Collection
             </button>
           </Link>
-          <Link to="/collection-dashboard">
-            <button className="px-4 py-2 bg-purple-600 text-white rounded hover:bg-purple-700 text-sm">
-              Collection
+          <Link to="/disbursement-dashboard">
+            <button className="px-4 py-2 bg-tertiary-500 text-white rounded hover:bg-tertiary-600 text-sm">
+              Disbursement
             </button>
           </Link>
         </div>

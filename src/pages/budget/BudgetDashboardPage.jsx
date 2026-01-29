@@ -10,6 +10,8 @@ import {
   fetchBudgetAPARList,
   fetchBudgetList,
 } from '../userProfile/profileUtil';
+import {  ArrowLeftIcon,  } from '@heroicons/react/24/outline';
+import { Link } from 'react-router-dom';
 
 function BudgetDashboardPage() {
   const dispatch = useDispatch();
@@ -98,9 +100,16 @@ function BudgetDashboardPage() {
 
   return (
     <div>
-      <div className="page-header">
-        <h1>Budget Dashboard</h1>
-        <p>Analyze department-wise budget allocations and expenses.</p>
+      <div className="flex sm:items-center gap-4 max-sm:flex-col"> 
+        <Link to="/profile">
+          <button className="mr-4 p-1 rounded-full hover:bg-neutral-100 w-fit">
+            <ArrowLeftIcon className="h-5 w-5 text-neutral-600" />
+          </button>
+        </Link>
+        <div className="page-header">
+          <h1>Budget Dashboard</h1>
+          <p>Analyze department-wise budget allocations and expenses.</p>
+        </div>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
