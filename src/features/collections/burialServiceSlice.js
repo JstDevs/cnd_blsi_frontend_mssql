@@ -183,12 +183,34 @@ export const rejectBurialRecord = createAsyncThunk(
   }
 );
 
+export const getBurialRecordCurrentNumber = createAsyncThunk(
+  'burialRecords/getBurialRecordCurrentNumber',
+  async (_, thunkAPI) => {
+    try {
+      const token = sessionStorage.getItem('token');
+      const response = await fetch(`${API_URL}/burialrecord/getCurrentNumber`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      const res = await response.json();
+      if (!response.ok) throw new Error(res.message || 'Failed to fetch current number');
+      return res.CurrentNumber;
+    } catch (error) {
+      return thunkAPI.rejectWithValue(error.message);
+    }
+  }
+);
+
 const burialRecordsSlice = createSlice({
   name: 'burialRecords',
   initialState: {
     records: [],
     currentRecord: null,
     isLoading: false,
+    currentNumber: null,
     error: null,
   },
   reducers: {
@@ -310,6 +332,18 @@ const burialRecordsSlice = createSlice({
         state.isLoading = false;
         state.error = action.payload || 'Failed to delete burial record';
         console.error('Failed to delete burial record:', state.error);
+      })
+      .addCase(getBurialRecordCurrentNumber.pending, (state) => {
+        state.isLoading = true;
+        state.error = null;
+      })
+      .addCase(getBurialRecordCurrentNumber.fulfilled, (state, action) => {
+        state.isLoading = false;
+        state.currentNumber = action.payload;
+      })
+      .addCase(getBurialRecordCurrentNumber.rejected, (state, action) => {
+        state.isLoading = false;
+        state.error = action.payload || 'Failed to fetch current number';
       });
   },
 });

@@ -15,6 +15,7 @@ import {
   addBurialRecord,
   approveBurialRecord,
   rejectBurialRecord,
+  getBurialRecordCurrentNumber,
 } from '@/features/collections/burialServiceSlice';
 import { fetchGeneralLedgers } from '../../features/reports/generalLedgerSlice';
 import { PencilIcon, PrinterIcon, TrashIcon, BookOpenIcon } from 'lucide-react';
@@ -34,7 +35,7 @@ function BurialServiceReceiptPage() {
   const { nationalities, isLoading: nationalityLoading } = useSelector(
     (state) => state.nationalities
   );
-  const { records: burialRecord, isLoading } = useSelector(
+  const { records: burialRecord, isLoading, currentNumber } = useSelector(
     (state) => state.burialRecords
   );
 
@@ -213,6 +214,7 @@ function BurialServiceReceiptPage() {
 
   const handleAdd = () => {
     setSelectedReceipt(null);
+    dispatch(getBurialRecordCurrentNumber());
     setIsModalOpen(true);
   };
 
@@ -490,6 +492,7 @@ function BurialServiceReceiptPage() {
           onSubmit={handleFormSubmit}
           nationalities={nationalities}
           customers={customers}
+          currentNumber={currentNumber}
         />
       </Modal>
 

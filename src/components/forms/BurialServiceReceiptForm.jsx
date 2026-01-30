@@ -44,10 +44,11 @@ function BurialServiceReceiptForm({
   onSubmit,
   nationalities,
   customers,
+  currentNumber,
 }) {
   const [showAdditionalFields, setShowAdditionalFields] = useState(false);
   const initialValues = {
-    InvoiceNumber: initialData?.InvoiceNumber || '',
+    InvoiceNumber: initialData?.InvoiceNumber || currentNumber || '',
     Name: initialData?.Name || '',
     DeceasedCustomerName: initialData?.DeceasedCustomerName || '',
     DeceasedCustomerID: initialData?.DeceasedCustomerID || '',
@@ -208,7 +209,7 @@ function BurialServiceReceiptForm({
               <FormField
                 name="InvoiceNumber"
                 type="text"
-                value={values.InvoiceNumber || 'BU-RE-36AL-CEIPT'}
+                value={values.InvoiceNumber}
                 readOnly
                 className="font-bold text-center"
               />
@@ -227,8 +228,8 @@ function BurialServiceReceiptForm({
                     (option) => option.value === value
                   );
                   if (selectedOption) {
-                  setFieldValue('CustomerName', selectedOption?.label || '');
-                  setFieldValue('CustomerID', selectedOption?.value || '');
+                    setFieldValue('CustomerName', selectedOption?.label || '');
+                    setFieldValue('CustomerID', selectedOption?.value || '');
                   } else {
                     setFieldValue('CustomerName', value);
                     setFieldValue('CustomerID', null);
@@ -255,7 +256,7 @@ function BurialServiceReceiptForm({
                   );
                   if (selectedOption) {
                     setFieldValue('DeceasedCustomerName', selectedOption.label);
-                    setFieldValue('DeceasedCustomerID', selectedOption.value); 
+                    setFieldValue('DeceasedCustomerID', selectedOption.value);
                   } else {
                     setFieldValue('DeceasedCustomerName', value);
                     setFieldValue('DeceasedCustomerID', null);
