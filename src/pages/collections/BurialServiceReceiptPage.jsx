@@ -5,6 +5,7 @@ import { useLocation } from 'react-router-dom';
 import { PlusIcon, CheckIcon, XMarkIcon } from '@heroicons/react/24/outline';
 import BurialServiceReceiptForm from '../../components/forms/BurialServiceReceiptForm';
 import Modal from '../../components/common/Modal';
+import ConfirmationModal from '../../components/common/ConfirmationModal';
 import DataTable from '../../components/common/DataTable';
 import { fetchNationalities } from '../../features/settings/nationalitiesSlice';
 import { useDispatch, useSelector } from 'react-redux';
@@ -41,6 +42,20 @@ function BurialServiceReceiptPage() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedReceipt, setSelectedReceipt] = useState(null);
   const [showGLModal, setShowGLModal] = useState(false);
+
+  // Confirmation modal states
+  const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
+  const [confirmConfig, setConfirmConfig] = useState({
+    title: '',
+    message: '',
+    onConfirm: () => { },
+    isDestructive: false
+  });
+
+  // Rejection modal states
+  const [isRejectModalOpen, setIsRejectModalOpen] = useState(false);
+  const [rejectionReason, setRejectionReason] = useState('');
+  const [pendingReceipt, setPendingReceipt] = useState(null);
   const { generalLedgers, isLoading: isGLLoading } = useSelector((state) => state.generalLedger);
 
   useEffect(() => {
@@ -206,35 +221,62 @@ function BurialServiceReceiptPage() {
     setIsModalOpen(true);
   };
 
-  const handleDeleteTicket = async (ticket) => {
-    console.log('Deleting ticket:', ticket);
-    try {
-      await dispatch(deleteBurialRecord(ticket.ID)).unwrap();
-      toast.success('Burial Receipt deleted successfully');
-    } catch (error) {
-      toast.error(error.message || 'Failed to delete Burial Receipt');
-    }
+  const handleDeleteTicket = (ticket) => {
+    setConfirmConfig({
+      title: 'Delete Burial Receipt',
+      message: 'Are you sure you want to delete this burial receipt? This action cannot be undone.',
+      isDestructive: true,
+      onConfirm: async () => {
+        try {
+          await dispatch(deleteBurialRecord(ticket.ID)).unwrap();
+          toast.success('Burial Receipt deleted successfully');
+          setIsConfirmModalOpen(false);
+          dispatch(fetchBurialRecords());
+        } catch (error) {
+          toast.error(error.message || 'Failed to delete Burial Receipt');
+        }
+      }
+    });
+    setIsConfirmModalOpen(true);
   };
 
-  const handleApprove = async (receipt) => {
-    if (window.confirm('Are you sure you want to approve this burial receipt?')) {
-      try {
-        await dispatch(approveBurialRecord(receipt.ID)).unwrap();
-        toast.success('Burial Receipt approved and posted successfully');
-      } catch (error) {
-        toast.error(error.message || 'Failed to approve');
+  const handleApprove = (receipt) => {
+    setConfirmConfig({
+      title: 'Approve Burial Receipt',
+      message: 'Are you sure you want to approve this burial receipt?',
+      isDestructive: false,
+      onConfirm: async () => {
+        try {
+          await dispatch(approveBurialRecord(receipt.ID)).unwrap();
+          toast.success('Burial Receipt approved and posted successfully');
+          setIsConfirmModalOpen(false);
+          dispatch(fetchBurialRecords());
+        } catch (error) {
+          toast.error(error.message || 'Failed to approve');
+        }
       }
-    }
+    });
+    setIsConfirmModalOpen(true);
   };
-  const handleReject = async (receipt) => {
-    const reason = window.prompt('Please enter the reason for rejection:');
-    if (reason !== null) {
-      try {
-        await dispatch(rejectBurialRecord({ id: receipt.ID, reason })).unwrap();
-        toast.success('Burial Receipt rejected successfully');
-      } catch (error) {
-        toast.error(error.message || 'Failed to reject');
-      }
+
+  const handleReject = (receipt) => {
+    setPendingReceipt(receipt);
+    setRejectionReason('');
+    setIsRejectModalOpen(true);
+  };
+
+  const submitRejection = async () => {
+    if (!rejectionReason.trim()) {
+      toast.error('Please enter a reason for rejection');
+      return;
+    }
+    try {
+      await dispatch(rejectBurialRecord({ id: pendingReceipt.ID, reason: rejectionReason })).unwrap();
+      toast.success('Burial Receipt rejected successfully');
+      setIsRejectModalOpen(false);
+      dispatch(fetchBurialRecords());
+    } catch (error) {
+      toast.error(error.message || 'Failed to reject');
     }
   };
 
@@ -549,6 +591,54 @@ function BurialServiceReceiptPage() {
           </button>
         </div>
       </Modal>
+
+      {/* Confirmation Modal for Delete/Approve */}
+      <ConfirmationModal
+        isOpen={isConfirmModalOpen}
+        onClose={() => setIsConfirmModalOpen(false)}
+        title={confirmConfig.title}
+        message={confirmConfig.message}
+        onConfirm={confirmConfig.onConfirm}
+        isDestructive={confirmConfig.isDestructive}
+      />
+
+      {/* Rejection Reason Modal */}
+      <Modal
+        isOpen={isRejectModalOpen}
+        onClose={() => setIsRejectModalOpen(false)}
+        title="Reject Burial Receipt"
+        size="md"
+      >
+        <div className="p-4">
+          <label className="block text-sm font-medium text-neutral-700 mb-2">
+            Reason for Rejection
+          </label>
+          <textarea
+            className="w-full border border-neutral-300 rounded-lg p-3 focus:ring-primary-500 focus:border-primary-500 text-sm"
+            rows="4"
+            value={rejectionReason}
+            onChange={(e) => setRejectionReason(e.target.value)}
+            placeholder="Please provide a reason for rejecting this receipt..."
+          />
+          <div className="mt-6 flex justify-end gap-3">
+            <button
+              type="button"
+              className="btn btn-secondary px-4 py-2"
+              onClick={() => setIsRejectModalOpen(false)}
+            >
+              Cancel
+            </button>
+            <button
+              type="button"
+              className="px-4 py-2 rounded-md text-sm font-semibold text-white bg-error-600 hover:bg-error-700 shadow-sm transition-colors"
+              onClick={submitRejection}
+            >
+              Confirm Reject
+            </button>
+          </div>
+        </div>
+      </Modal>
+
       <div style={{ display: 'none' }}>
         <BurialServiceReceiptPrint ref={printRef} receipt={selectedReceipt} />
       </div>

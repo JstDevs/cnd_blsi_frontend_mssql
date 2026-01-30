@@ -9,6 +9,7 @@ import {
 } from '@heroicons/react/24/outline';
 import DataTable from '@/components/common/DataTable';
 import Modal from '@/components/common/Modal';
+import ConfirmationModal from '@/components/common/ConfirmationModal';
 import {
   createGeneralServiceReceipt,
   deleteGeneralServiceReceipt,
@@ -43,6 +44,15 @@ function GeneralReceiptPage() {
   const [isLoadingReceipt, setIsLoadingReceipt] = useState(false);
   const [showGLModal, setShowGLModal] = useState(false);
   const { generalLedgers, isLoading: isGLLoading } = useSelector((state) => state.generalLedger);
+
+  // Confirmation modal states
+  const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
+  const [confirmConfig, setConfirmConfig] = useState({
+    title: '',
+    message: '',
+    onConfirm: () => { },
+    isDestructive: false
+  });
 
   useEffect(() => {
     dispatch(fetchGeneralServiceReceipts());
@@ -105,15 +115,24 @@ function GeneralReceiptPage() {
       currency: 'PHP',
     }).format(amount);
   };
-  const handleDeleteReceipt = async (selectedReceipt) => {
-    try {
-      await dispatch(deleteGeneralServiceReceipt(selectedReceipt.ID)).unwrap();
-      dispatch(fetchGeneralServiceReceipts());
-      toast.success('Receipt deleted successfully.');
-    } catch (error) {
-      console.error('Error deleting receipt:', error);
-      toast.error('Failed to delete receipt.');
-    }
+  const handleDeleteReceipt = (selectedReceipt) => {
+    setConfirmConfig({
+      title: 'Delete Service Invoice',
+      message: 'Are you sure you want to delete this service invoice? This action cannot be undone.',
+      isDestructive: true,
+      onConfirm: async () => {
+        try {
+          await dispatch(deleteGeneralServiceReceipt(selectedReceipt.ID)).unwrap();
+          toast.success('Receipt deleted successfully.');
+          setIsConfirmModalOpen(false);
+          dispatch(fetchGeneralServiceReceipts());
+        } catch (error) {
+          console.error('Error deleting receipt:', error);
+          toast.error('Failed to delete receipt.');
+        }
+      }
+    });
+    setIsConfirmModalOpen(true);
   };
   // Table columns definition
   const columns = [
@@ -672,6 +691,16 @@ function GeneralReceiptPage() {
           </button>
         </div>
       </Modal>
+
+      {/* Confirmation Modal for Delete */}
+      <ConfirmationModal
+        isOpen={isConfirmModalOpen}
+        onClose={() => setIsConfirmModalOpen(false)}
+        title={confirmConfig.title}
+        message={confirmConfig.message}
+        onConfirm={confirmConfig.onConfirm}
+        isDestructive={confirmConfig.isDestructive}
+      />
     </div>
   );
 }
