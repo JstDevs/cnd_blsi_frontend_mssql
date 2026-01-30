@@ -26,7 +26,7 @@ export const fetchBudgetAPARList = (budgetId) => {
 // ------------------DISBURSMENT-----------------------
 // 1. Disbursement Amounts
 export const fetchDisbursementAmounts = (
-  dateRange = 'Day',
+  dateRange = 'Year',
   aparType = 'Disbursement Voucher',
   selectedDepartmentID = ''
 ) => {
@@ -40,7 +40,7 @@ export const fetchDisbursementAmounts = (
 
 export const fetchDisbursementCounts = (options = {}) => {
   const {
-    dateRange = 'Day',
+    dateRange = 'Year',
     aparType = 'Disbursement Voucher',
     startDate,
     endDate,
@@ -60,7 +60,7 @@ export const fetchDisbursementCounts = (options = {}) => {
 
 // 2. Obligation Chart
 export const fetchObligationChart = (
-  dateRange = 'Day',
+  dateRange = 'Year',
   selectedDepartmentID = null
 ) => {
   const params = {
@@ -72,7 +72,7 @@ export const fetchObligationChart = (
 
 // 3. Travel Order Chart
 export const fetchTravelOrderChart = (
-  dateRange = 'Day',
+  dateRange = 'Year',
   selectedDepartmentID = null
 ) => {
   const params = {
@@ -117,14 +117,14 @@ export const fetchDisbursementList = (options = {}) => {
 // Accepts either a simple dateRange string OR an options object:
 // - string: 'Day' | 'Month' | 'Year'
 // - object: { dateRange?, startDate?, endDate?, categories?[] }
-export const fetchCollectionTotals = (options = 'Day') => {
+export const fetchCollectionTotals = (options = 'Year') => {
   let params = {};
 
   if (typeof options === 'string') {
     params.dateRange = options;
   } else if (options && typeof options === 'object') {
     const {
-      dateRange = 'Day',
+      dateRange = 'Year',
       startDate,
       endDate,
       categories,
