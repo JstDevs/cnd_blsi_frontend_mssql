@@ -55,7 +55,7 @@ import Customer from './pages/settings/Customer';
 // Setting --> real Prohject
 
 // Report Settings
-import SignatoriesPage from './pages/settings/DepartmentPage';
+import SignatoriesPage from './pages/settings/SignatoriesPage';
 import LogoImagesPage from './pages/settings/LogoImagesPage';
 import WatermarksPage from './pages/settings/WatermarksPage';
 import DataSourcePage from './pages/settings/DataSourcePage';
