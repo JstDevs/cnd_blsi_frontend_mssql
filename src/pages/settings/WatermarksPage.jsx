@@ -114,9 +114,11 @@ const Watermarks = () => {
                 <th className="px-6 py-3 text-left text-xs font-medium text-neutral-500 uppercase tracking-wide">
                   Document Type
                 </th>
+                {/* 
                 <th className="px-6 py-3 text-left text-xs font-medium text-neutral-500 uppercase tracking-wide">
                   Document ID
-                </th>
+                </th> 
+                */}
                 <th className="px-6 py-3 text-center text-xs font-medium text-neutral-500 uppercase tracking-wide">
                   Watermark Status
                 </th>
@@ -137,17 +139,19 @@ const Watermarks = () => {
                         </span>
                       </div>
                     </td>
+                    {/* 
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-neutral-500">
                       {item.DocumentID}
-                    </td>
+                    </td> 
+                    */}
                     <td className="px-6 py-4 whitespace-nowrap text-center">
                       {item.Confidential === 1 ? (
-                        <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                        <span className="inline-flex items-center px-2 py-1 rounded text-xs font-medium bg-gradient-to-r from-success-600 via-success-900 to-success-999 text-success-100">
                           <CheckCircle2 className="h-3 w-3 mr-1" />
                           Enabled
                         </span>
                       ) : (
-                        <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-neutral-100 text-neutral-800">
+                        <span className="inline-flex items-center px-2 py-1 rounded text-xs font-medium bg-gradient-to-r from-neutral-200 via-neutral-300 to-neutral-400 text-neutral-800">
                           <XCircle className="h-3 w-3 mr-1" />
                           Disabled
                         </span>

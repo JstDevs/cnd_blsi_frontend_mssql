@@ -188,13 +188,13 @@ const SignatoriesPage = () => {
             <thead className="bg-neutral-50/50">
               <tr>
                 <th className="px-6 py-4 text-left text-xs font-bold text-neutral-500 uppercase tracking-wider w-[250px]">
-                  Document / Form
+                  Document / Report
                 </th>
-                <th className="px-3 py-4 text-left text-xs font-bold text-neutral-500 uppercase tracking-wider">Signatory 1</th>
-                <th className="px-3 py-4 text-left text-xs font-bold text-neutral-500 uppercase tracking-wider">Signatory 2</th>
-                <th className="px-3 py-4 text-left text-xs font-bold text-neutral-500 uppercase tracking-wider">Signatory 3</th>
-                <th className="px-3 py-4 text-left text-xs font-bold text-neutral-500 uppercase tracking-wider">Signatory 4</th>
-                <th className="px-3 py-4 text-left text-xs font-bold text-neutral-500 uppercase tracking-wider">Signatory 5</th>
+                <th className="px-3 py-4 text-left text-xs font-bold text-neutral-500 uppercase tracking-wider">Signatory One   </th>
+                <th className="px-3 py-4 text-left text-xs font-bold text-neutral-500 uppercase tracking-wider">Signatory Two   </th>
+                <th className="px-3 py-4 text-left text-xs font-bold text-neutral-500 uppercase tracking-wider">Signatory Three </th>
+                <th className="px-3 py-4 text-left text-xs font-bold text-neutral-500 uppercase tracking-wider">Signatory Four  </th>
+                <th className="px-3 py-4 text-left text-xs font-bold text-neutral-500 uppercase tracking-wider">Signatory Five  </th>
                 <th className="px-6 py-4 text-right text-xs font-bold text-neutral-500 uppercase tracking-wider">Action</th>
               </tr>
             </thead>
@@ -211,7 +211,7 @@ const SignatoriesPage = () => {
                           <div className="text-sm font-bold text-neutral-900 leading-tight">
                             {item.DocumentType?.Name || 'Unknown Document'}
                           </div>
-                          <div className="text-[10px] text-neutral-400 font-medium">ID: {item.DocumentTypeID}</div>
+                          {/* <div className="text-[10px] text-neutral-400 font-medium">ID: {item.DocumentTypeID}</div> */}
                         </div>
                       </div>
                     </td>
