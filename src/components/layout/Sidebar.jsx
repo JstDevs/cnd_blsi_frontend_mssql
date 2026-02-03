@@ -347,7 +347,7 @@ function SidebarMenu({
                 className={clsx(
                   'group flex items-center px-3 py-2 text-sm font-medium rounded-md transition-colors',
                   isActive(item.href)
-                    ? 'bg-primary-600 text-primary-50 border-l-4 border-secondary-300'
+                    ? 'bg-primary-600 text-primary-50 border-l-4 border-primary-600'
                     : 'text-neutral-700 hover:bg-neutral-100 hover:text-neutral-900',
                   level > 0 && 'pl-2' // Adjust padding for nested items
                 )}
