@@ -1,5 +1,6 @@
 // components/print/StatementComparisonPrintView.jsx
 import React, { forwardRef } from 'react';
+import toast from 'react-hot-toast';
 
 const StatementComparisonPrintView = forwardRef(({ data, fiscalYear }, ref) => {
   // Calculate totals
@@ -19,6 +20,8 @@ const StatementComparisonPrintView = forwardRef(({ data, fiscalYear }, ref) => {
     totals.Difference2 += Number(row.Difference2) || 0;
   });
 
+  toast.success("THE THING IS A " + "row.Actual[0]")
+
   return (
     <div ref={ref} className="p-6 text-black text-sm">
       <h2 className="text-center">
@@ -31,60 +34,61 @@ const StatementComparisonPrintView = forwardRef(({ data, fiscalYear }, ref) => {
         For the Year Ended [{fiscalYear?.Name} - MMMM dd, yyyy]
       </p>
 
-      <table className="w-full border-collapse border text-xs">
+      {/* <table className="w-full border-collapse border text-xs"> */}
+      <table className="w-full text-xs border-collapse border border-white">
         <thead>
           <tr>
-            <th className="border p-2">Code             </th>
-            <th className="border p-2">Major Group      </th>
-            <th className="border p-2">Original Budget  </th>
-            <th className="border p-2">Final Budget     </th>
-            <th className="border p-2">Difference       </th>
-            <th className="border p-2">Actual Amounts   </th>
-            <th className="border p-2">Difference       </th>
+            <th className="border border-white p-0.5">Particular       </th>
+            <th className="border border-white p-0.5">Notes            </th>
+            <th className="border border-white p-0.5">Original Budget  </th>
+            <th className="border border-white p-0.5">Final Budget     </th>
+            <th className="border border-white p-0.5">Difference       </th>
+            <th className="border border-white p-0.5">Actual Amounts   </th>
+            <th className="border border-white p-0.5">Difference       </th>
           </tr>
         </thead>
         <tbody>
           {data.map((row, idx) => (
             <tr key={idx}>
-              <td className="border p-2">{row.Category}</td>
-              <td className="border p-2">{row.Subtype}</td>
-              <td className="border p-2 text-right">
-                {Number(row.Original || 0).toLocaleString('en-PH', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+              <td className="border border-white p-0.5">{row.ChartOfAccounts}</td>
+              <td className="border border-white p-0.5"> </td>
+              <td className="border border-white p-0.5 text-right">
+                {Number(row.Original || 0).toLocaleString('en-PH', { minimumFractionDigits: 2 })}
               </td>
-              <td className="border p-2 text-right">
-                {Number(row.Final || 0).toLocaleString('en-PH', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+              <td className="border border-white p-0.5 text-right">
+                {Number(row.Final || 0).toLocaleString('en-PH', { minimumFractionDigits: 2 })}
               </td>
-              <td className="border p-2 text-right">
-                {Number(row.Difference || 0).toLocaleString('en-PH', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+              <td className="border border-white p-0.5 text-right">
+                {Number(row.Difference || 0).toLocaleString('en-PH', { minimumFractionDigits: 2 })}
               </td>
-              <td className="border p-2 text-right">
-                {Number(row.Actual || 0).toLocaleString('en-PH', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+              <td className="border border-white p-0.5 text-right">
+                {Number(row.Actual || 0).toLocaleString('en-PH', { minimumFractionDigits: 2 })}
               </td>
-              <td className="border p-2 text-right">
-                {Number(row.Difference2 || 0).toLocaleString('en-PH', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+              <td className="border border-white p-0.5 text-right">
+                {Number(row.Difference2 || 0).toLocaleString('en-PH', { minimumFractionDigits: 2 })}
               </td>
             </tr>
           ))}
 
           {/* Totals */}
           <tr className="font-bold">
-            <td className="border p-2 text-right" colSpan={2}>
+            <td className="border border-white p-0.5 text-right" colSpan={2}>
               Total Appropriationersssss
             </td>
-            <td className="border p-2 text-right">
-              {totals.Original.toLocaleString('en-PH', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+            <td className="border border-white p-0.5 text-right">
+              {totals.Original.toLocaleString('en-PH', { minimumFractionDigits: 2 })}
             </td>
-            <td className="border p-2 text-right">
-              {totals.Final.toLocaleString('en-PH', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+            <td className="border border-white p-0.5 text-right">
+              {totals.Final.toLocaleString('en-PH', { minimumFractionDigits: 2 })}
             </td>
-            <td className="border p-2 text-right">
-              {totals.Difference.toLocaleString('en-PH', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+            <td className="border border-white p-0.5 text-right">
+              {totals.Difference.toLocaleString('en-PH', { minimumFractionDigits: 2 })}
             </td>
-            <td className="border p-2 text-right">
-              {totals.Actual.toLocaleString('en-PH', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+            <td className="border border-white p-0.5 text-right">
+              {totals.Actual.toLocaleString('en-PH', { minimumFractionDigits: 2 })}
             </td>
-            <td className="border p-2 text-right">
-              {totals.Difference2.toLocaleString('en-PH', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+            <td className="border border-white p-0.5 text-right">
+              {totals.Difference2.toLocaleString('en-PH', { minimumFractionDigits: 2 })}
             </td>
           </tr>
         </tbody>
