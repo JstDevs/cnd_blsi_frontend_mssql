@@ -11,6 +11,8 @@ const StatementComparisonPrintView = forwardRef(({ data, fiscalYear }, ref) => {
     Actual: 0,
     Difference2: 0,
   };
+  const lguValue = "LGU"
+  const yearValue = "MMMM dd, yyyy"
 
   data.forEach((row) => {
     totals.Original += Number(row.Original) || 0;
@@ -18,20 +20,25 @@ const StatementComparisonPrintView = forwardRef(({ data, fiscalYear }, ref) => {
     totals.Difference += Number(row.Difference) || 0;
     totals.Actual += Number(row.Actual) || 0;
     totals.Difference2 += Number(row.Difference2) || 0;
+
+    // lgu = row.Municipality
+
+    toast.success("THE THING IS A " + row.Actual)
+
   });
 
-  toast.success("THE THING IS A " + "row.Actual[0]")
+  // toast.success(data[0].Actual[0])
 
   return (
     <div ref={ref} className="p-6 text-black text-sm">
       <h2 className="text-center">
-        Municipality of [LGU]
+        Municipality of {lguValue}
       </h2>
       <h3 className="text-center font-bold">
         Statement of Comparison of Budget and Actual Amounts
       </h3>
       <p className="text-center mb-4">
-        For the Year Ended [{fiscalYear?.Name} - MMMM dd, yyyy]
+        For the Year Ended [{fiscalYear?.Name} - {yearValue}]
       </p>
 
       {/* <table className="w-full border-collapse border text-xs"> */}
