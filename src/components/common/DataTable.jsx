@@ -174,7 +174,7 @@ function DataTable({
       <div className="overflow-x-auto w-full" style={{ WebkitOverflowScrolling: 'touch', overflowY: 'visible' }}>
         <table className="min-w-full divide-y divide-neutral-200" style={{ width: '100%', minWidth: 'max-content' }}>
           <thead>
-            <tr className="bg-gradient-to-r from-slate-50 via-gray-50 to-slate-50 border-b-2 border-gray-200">
+            <tr className="bg-neutral-50 border-b-2 border-gray-200">
               {columns.map((column) => (
                 <th
                   key={column.key}
@@ -210,7 +210,7 @@ function DataTable({
               {hasActions && (
                 <th
                   scope="col"
-                  className="px-6 py-4 text-right text-xs font-bold text-gray-700 uppercase tracking-wide whitespace-nowrap sticky right-0 bg-gradient-to-r from-slate-50 via-gray-50 to-slate-50 z-10 border-l border-gray-200 shadow-sm"
+                  className="px-6 py-4 text-right text-xs font-bold text-gray-700 uppercase tracking-wide whitespace-nowrap sticky right-0 bg-neutral-50 z-20 border-l border-gray-200 shadow-sm"
                 >
                   <span>Actions</span>
                 </th>
@@ -247,7 +247,7 @@ function DataTable({
                       <td
                         className={`px-4 py-3 whitespace-nowrap text-right text-sm font-medium space-x-1.5 sticky right-0 z-10 border-l border-neutral-200 shadow-[2px_0_4px_rgba(0,0,0,0.05)] ${(rowIndex + (currentPage - 1) * rowsPerPage) % 2 === 0
                           ? 'bg-white'
-                          : 'bg-neutral-50/30'
+                          : 'bg-neutral-50'
                           } ${selectedRow && selectedRow?.ID === row.ID ? 'bg-blue-50' : ''
                           }`}
                       >
@@ -282,7 +282,7 @@ function DataTable({
                     <td
                       className={`px-4 py-3 whitespace-nowrap text-right text-sm font-medium space-x-1.5 sticky right-0 z-10 border-l border-neutral-200 shadow-[2px_0_4px_rgba(0,0,0,0.05)] ${(rowIndex + (currentPage - 1) * rowsPerPage) % 2 === 0
                         ? 'bg-white'
-                        : 'bg-neutral-50/30'
+                        : 'bg-neutral-50'
                         } ${selectedRow && selectedRow?.ID === row.ID ? 'bg-blue-50' : ''
                         }`}
                     >
