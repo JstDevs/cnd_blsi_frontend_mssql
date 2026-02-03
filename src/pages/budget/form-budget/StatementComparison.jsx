@@ -32,11 +32,11 @@ function StatementComparison() {
     documentTitle: 'Statement Comparison Report',
   });
   const columns = [
-    { key: 'Type',              header: 'Type',               sortable: true },
     // { key: 'SubID',             header: 'Sub ID',             sortable: true },
-    { key: 'Subtype',           header: 'Subtype',            sortable: true },
-    { key: 'Category',          header: 'Category',           sortable: true },
-    { key: 'ChartOfAccounts',   header: 'Chart of Accounts',  sortable: true },
+    { key: 'Type',              header: 'Account Group',            sortable: true },
+    { key: 'Subtype',           header: 'Major Account Group',      sortable: true },
+    { key: 'Category',          header: 'Sub-Major Account Group',  sortable: true },
+    { key: 'ChartOfAccounts',   header: 'Chart of Accounts',        sortable: true },
     { 
       key: 'AccountCode',       
       header: 'Account Code',       
