@@ -147,13 +147,15 @@ function SubsidiaryLedger() {
       <div className="mt-4 p-3 sm:p-6 bg-white rounded-md shadow">
         <SubsidiaryLedgerForm
           funds={funds}
-          accountOptions={accounts.map((acc) => ({
-            value: acc.ID,
+          accountOptions={Array.from(
+            new Map(accounts.map((acc) => [acc.AccountCode, acc])).values()
+          ).map((acc) => ({
+            value: acc.AccountCode,
             label: `${acc.AccountCode} - ${acc.Name}`,
           }))}
           onExportExcel={handleExport}
           onView={handleView}
-          onClose={() => {}}
+          onClose={() => { }}
         />
       </div>
 

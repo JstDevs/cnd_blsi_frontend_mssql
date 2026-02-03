@@ -29,7 +29,7 @@ export const fetchSubsidiaryLedgers = createAsyncThunk(
       const res = await response.json();
 
       if (!response.ok) {
-        throw new Error(res.error || res.message || 'Failed to fetch');
+        throw new Error(res.message || res.error || 'Failed to fetch');
       }
 
       return res;
