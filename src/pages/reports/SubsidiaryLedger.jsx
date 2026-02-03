@@ -21,6 +21,9 @@ function SubsidiaryLedger() {
 
   // Format currency for display
   const formatCurrency = (amount) => {
+    if (amount === null || amount === undefined) {
+      amount = 0;
+    }
     return new Intl.NumberFormat('en-PH', {
       style: 'currency',
       currency: 'PHP',
