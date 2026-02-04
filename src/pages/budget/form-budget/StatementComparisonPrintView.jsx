@@ -10,9 +10,10 @@ const StatementComparisonPrintView = forwardRef(({ data, fiscalYear }, ref) => {
     Difference: 0,
     Actual: 0,
     Difference2: 0,
+
   };
-  const lguValue = "LGU"
-  const yearValue = "MMMM dd, yyyy"
+  let lguValue = "LGU"
+  let yearValue = "MMMM dd, yyyy"
 
   data.forEach((row) => {
     totals.Original += Number(row.Original) || 0;
@@ -21,16 +22,14 @@ const StatementComparisonPrintView = forwardRef(({ data, fiscalYear }, ref) => {
     totals.Actual += Number(row.Actual) || 0;
     totals.Difference2 += Number(row.Difference2) || 0;
 
-    // lgu = row.Municipality
-
-    toast.success("THE THING IS A " + row.Actual)
+    // toast.success("THE THING IS A " + row.Period);
 
   });
-
-  // toast.success(data[0].Actual[0])
+  yearValue = data?.[0]?.Period
+  lguValue = data?.[0]?.Municipality
 
   return (
-    <div ref={ref} className="p-6 text-black text-sm">
+    <div ref={ref} className="p-6 text-black text-[9px]">
       <h2 className="text-center">
         Municipality of {lguValue}
       </h2>
@@ -38,68 +37,89 @@ const StatementComparisonPrintView = forwardRef(({ data, fiscalYear }, ref) => {
         Statement of Comparison of Budget and Actual Amounts
       </h3>
       <p className="text-center mb-4">
-        For the Year Ended [{fiscalYear?.Name} - {yearValue}]
+        For the Year Ended {yearValue}
       </p>
 
       {/* <table className="w-full border-collapse border text-xs"> */}
-      <table className="w-full text-xs border-collapse border border-white">
+      <table className="w-full text-xs">
         <thead>
           <tr>
-            <th className="border border-white p-0.5">Particular       </th>
-            <th className="border border-white p-0.5">Notes            </th>
-            <th className="border border-white p-0.5">Original Budget  </th>
-            <th className="border border-white p-0.5">Final Budget     </th>
-            <th className="border border-white p-0.5">Difference       </th>
-            <th className="border border-white p-0.5">Actual Amounts   </th>
-            <th className="border border-white p-0.5">Difference       </th>
+            <th className="text-[9px] w-[24%]">Particular       </th>
+            <th className="text-[9px] w-[16%] text-right">Notes </th>
+            <th className="text-[9px] w-[12%]">Original Budget  </th>
+            <th className="text-[9px] w-[12%]">Final Budget     </th>
+            <th className="text-[9px] w-[12%]">Budget Difference</th>
+            <th className="text-[9px] w-[12%]">Actual Amounts   </th>
+            <th className="text-[9px] w-[12%]">Final Difference </th>
           </tr>
         </thead>
         <tbody>
           {data.map((row, idx) => (
-            <tr key={idx}>
-              <td className="border border-white p-0.5" colSpan={2}>
-                {row.ChartOfAccounts}
-              </td>
-              {/* 
-              <td className="border border-white p-0.5"> 
+            // if NOT data?.[idx]?.Type = data?.[idx]?.Type THEN display row.Type on specified place ELSE PASS
+
+
+            // this is the specified place
+            // <tr>
+            //   <td>
+            //      {row.Type}
+            //   </td>
+            // </tr>
+
+            <tr>
+              <td className="text-[9px] leading-tight">
+                {/* {row.Type} - {row.Subtype} - {row.Category} - {row.ChartOfAccounts}  */}
+                {row.ChartOfAccounts}                
+              </td>              
+              <td className="text-[9px]"> 
                 
-              </td> */}
-              <td className="border border-white p-0.5 text-right">
+              </td>
+              <td className="text-[9px] text-right">
                 {Number(row.Original || 0).toLocaleString('en-PH', { minimumFractionDigits: 2 })}
               </td>
-              <td className="border border-white p-0.5 text-right">
+              <td className="text-[9px] text-right">
                 {Number(row.Final || 0).toLocaleString('en-PH', { minimumFractionDigits: 2 })}
               </td>
-              <td className="border border-white p-0.5 text-right">
+              <td className="text-[9px] text-right">
                 {Number(row.Difference || 0).toLocaleString('en-PH', { minimumFractionDigits: 2 })}
               </td>
-              <td className="border border-white p-0.5 text-right">
+              <td className="text-[9px] text-right">
                 {Number(row.Actual || 0).toLocaleString('en-PH', { minimumFractionDigits: 2 })}
               </td>
-              <td className="border border-white p-0.5 text-right">
+              <td className="text-[9px] text-right">
                 {Number(row.Difference2 || 0).toLocaleString('en-PH', { minimumFractionDigits: 2 })}
               </td>
             </tr>
           ))}
 
+          {/* Blank Space */}
+          <tr>
+            <td className="border border-white p-1"></td>
+            <td className="border border-white p-1"></td>
+            <td className="border border-white p-1"></td>
+            <td className="border border-white p-1"></td>
+            <td className="border border-white p-1"></td>
+            <td className="border border-white p-1"></td>
+            <td className="border border-white p-1"></td>
+          </tr>
+
           {/* Totals */}
           <tr className="font-bold">
-            <td className="border border-white p-0.5 text-right" colSpan={2}>
+            <td className="text-[9px] text-left" colSpan={2}>
               Total Appropriations
             </td>
-            <td className="border border-white p-0.5 text-right">
+            <td className="text-[9px] text-right">
               {totals.Original.toLocaleString('en-PH', { minimumFractionDigits: 2 })}
             </td>
-            <td className="border border-white p-0.5 text-right">
+            <td className="text-[9px] text-right">
               {totals.Final.toLocaleString('en-PH', { minimumFractionDigits: 2 })}
             </td>
-            <td className="border border-white p-0.5 text-right">
+            <td className="text-[9px] text-right">
               {totals.Difference.toLocaleString('en-PH', { minimumFractionDigits: 2 })}
             </td>
-            <td className="border border-white p-0.5 text-right">
+            <td className="text-[9px] text-right">
               {totals.Actual.toLocaleString('en-PH', { minimumFractionDigits: 2 })}
             </td>
-            <td className="border border-white p-0.5 text-right">
+            <td className="text-[9px] text-right">
               {totals.Difference2.toLocaleString('en-PH', { minimumFractionDigits: 2 })}
             </td>
           </tr>

@@ -80,7 +80,7 @@ function StatementComparison() {
     //   sortable: true,
     //   className: 'text-right',
     // },
-    // { key: 'Period', header: 'Period', sortable: true },
+    { key: 'Period', header: 'Period', sortable: true },
     {
       key: 'Original_Sum',
       header: 'Original Budget',
