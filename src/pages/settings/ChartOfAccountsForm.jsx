@@ -84,8 +84,8 @@ const accountSchema = Yup.object().shape({
     .required('Account title is required')
     .max(100, 'Account title must be at most 100 characters'),
   Description: Yup.string().max(
-    1000,
-    'Description must be at most 1000 characters'
+    2500,
+    'Description must be at most 2500 characters'
   ),
   AccountTypeID: Yup.string().required('Account group is required'),
   AccountSubTypeID: Yup.string().required('Major account group is required'),
@@ -115,15 +115,15 @@ function ChartOfAccountsForm({ initialData, onClose }) {
   const initialValues = initialData
     ? { ...initialData }
     : {
-        AccountCode: '',
-        Code: '',
-        Name: '',
-        Description: '',
-        AccountTypeID: '',
-        AccountSubTypeID: '',
-        AccountCategoryID: '',
-        NormalBalance: '',
-      };
+      AccountCode: '',
+      Code: '',
+      Name: '',
+      Description: '',
+      AccountTypeID: '',
+      AccountSubTypeID: '',
+      AccountCategoryID: '',
+      NormalBalance: '',
+    };
 
   const handleSubmit = async (values) => {
     setIsSubmitting(true);
