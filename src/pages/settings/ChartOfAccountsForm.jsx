@@ -84,8 +84,8 @@ const accountSchema = Yup.object().shape({
     .required('Account title is required')
     .max(100, 'Account title must be at most 100 characters'),
   Description: Yup.string().max(
-    250,
-    'Description must be at most 250 characters'
+    1000,
+    'Description must be at most 1000 characters'
   ),
   AccountTypeID: Yup.string().required('Account group is required'),
   AccountSubTypeID: Yup.string().required('Major account group is required'),

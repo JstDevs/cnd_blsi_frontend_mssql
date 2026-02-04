@@ -752,9 +752,11 @@ const BudgetDetailsPage = () => {
             value: subDept.ID,
             label: subDept.Name,
           }))}
-          chartOfAccountsOptions={accounts.map((account) => ({
-            value: account.ID,
-            label: account.Name,
+          chartOfAccountsOptions={[...accounts]
+            .sort((a, b) => (a.AccountCode || '').localeCompare(b.AccountCode || ''))
+            .map((account) => ({
+              value: account.ID,
+              label: `${account.AccountCode} - ${account.Name}`,
           }))}
           fundOptions={funds.map((fund) => ({
             value: fund.ID,
