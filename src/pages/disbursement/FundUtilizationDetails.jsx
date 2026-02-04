@@ -221,7 +221,7 @@ function FundUtilizationDetails({ or, onBack, onEdit }) {
                       </td>
                       <td className="px-6 py-4 text-sm text-neutral-900">{item.itemName || item.Remarks}</td>
                       <td className="px-6 py-4 text-sm text-neutral-600 font-mono">
-                        {item.chargeAccountName || item.AccountCode}
+                        {item.ChargeAccount?.ChartofAccounts?.AccountCode || item.AccountCode || ''}
                       </td>
                       <td className="px-6 py-4 text-sm text-right text-neutral-900 font-medium whitespace-nowrap">
                         {formatCurrency(item.subtotal || item.amount || 0)}
