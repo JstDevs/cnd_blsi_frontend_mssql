@@ -64,9 +64,19 @@ function FundUtilizationAddItemForm({
       const cSelected = filteredBudgetOptions.find(
         (o) => String(o.value) === String(vals.ChargeAccountID)
       );
-      // const itemSelected = particularsOptions.find(
-      //   (o) => String(o.value) === String(vals.ItemID)
-      // );
+
+      // Budget Validation
+      const sBudget = formBudgets.find(b => String(b.ID) === String(vals.ChargeAccountID));
+      if (sBudget) {
+        const allotmentBalance = parseFloat(sBudget.AllotmentBalance || 0);
+        const used = parseFloat(sBudget.PreEncumbrance || 0);
+        const available = allotmentBalance - used;
+
+        if (parseFloat(vals.subtotal) > available) {
+          alert(`Insufficient budget! You only have ${Number(available).toLocaleString('en-US', { minimumFractionDigits: 2 })} remaining.`);
+          return;
+        }
+      }
 
       onSubmit({
         ...vals,
@@ -153,6 +163,19 @@ function FundUtilizationAddItemForm({
     taxCodeFull.find((t) => String(t.ID) === String(formik.values.TAXCodeID))
       ?.Rate ?? '';
 
+  const selectedBudget = useMemo(() => {
+    if (!formik.values.ChargeAccountID || !formBudgets) return null;
+    return formBudgets.find(b => String(b.ID) === String(formik.values.ChargeAccountID));
+  }, [formik.values.ChargeAccountID, formBudgets]);
+
+  const availableBalance = useMemo(() => {
+    if (!selectedBudget) return 0;
+    const allotmentBalance = parseFloat(selectedBudget.AllotmentBalance || 0);
+    const preEncumbrance = parseFloat(selectedBudget.PreEncumbrance || 0);
+
+    return allotmentBalance - preEncumbrance;
+  }, [selectedBudget]);
+
   return (
     <form onSubmit={formik.handleSubmit} className="space-y-6">
       {/* Row 1 */}
@@ -186,6 +209,13 @@ function FundUtilizationAddItemForm({
             }
             touched={formik.touched.ChargeAccountID}
           />
+          {selectedBudget && (
+            <div className="text-xs mt-1 text-gray-600">
+              Available Balance: <span className={`font-semibold ${availableBalance < formik.values.subtotal ? 'text-red-600' : 'text-green-600'}`}>
+                {Number(availableBalance).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+              </span>
+            </div>
+          )}
         </div>
       </div>
 
