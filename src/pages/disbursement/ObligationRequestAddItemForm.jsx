@@ -185,7 +185,7 @@ function ObligationRequestAddItemForm({
 
   // Reset Charge Account if the selected one is no longer in the filtered list
   useEffect(() => {
-    if (formik.values.ChargeAccountID && filteredBudgetOptions.length > 0) {
+    if (formik.values.ChargeAccountID) {
       const exists = filteredBudgetOptions.some(
         (opt) => String(opt.value) === String(formik.values.ChargeAccountID)
       );
