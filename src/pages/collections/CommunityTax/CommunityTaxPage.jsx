@@ -38,7 +38,7 @@ function CommunityTaxPage() {
   );
   const { generalLedgers, isLoading: isGLLoading } = useSelector((state) => state.generalLedger);
   // ---------------------USE MODULE PERMISSIONS------------------START (CommunityTaxPage - MODULE ID =  34 )
-  const { Add, Edit, Delete, Print } = useModulePermissions(34);
+  const { Add, Edit, Delete, Print } = useModulePermissions(9);
   // console.log({ certificates, customers });
   const [currentView, setCurrentView] = useState('list'); // 'list', 'form', 'details'
   const [currentCertificate, setCurrentCertificate] = useState(null);

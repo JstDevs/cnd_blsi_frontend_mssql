@@ -35,6 +35,7 @@ const LogoImagesPage = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
   const [uploadingField, setUploadingField] = useState(null);
+  const [failedImages, setFailedImages] = useState({});
 
   useEffect(() => {
     fetchLogoImages();
@@ -167,6 +168,7 @@ const LogoImagesPage = () => {
     if (value && !value.startsWith('http')) {
       displayUrl = `${import.meta.env.VITE_API_URL.replace('/api', '')}/uploads/${value}`;
     }
+    const isFailed = failedImages[fieldName];
 
     return (
       <div key={fieldName} className="bg-white rounded-xl border border-neutral-200 shadow-sm overflow-hidden flex flex-col">
@@ -194,16 +196,22 @@ const LogoImagesPage = () => {
         </div>
 
         <div className="flex-1 p-6 flex flex-col items-center justify-center min-h-[200px] bg-neutral-50/30">
-          {value ? (
+          {value && !isFailed ? (
             <div className="relative group w-full h-full flex items-center justify-center">
               <img
                 src={displayUrl}
                 alt={label}
                 className="max-h-[150px] object-contain rounded-lg shadow-sm transition-transform group-hover:scale-105"
-                onError={(e) => {
-                  e.target.src = 'https://via.placeholder.com/150?text=Error+Loading+Image';
+                onError={() => {
+                  setFailedImages(prev => ({ ...prev, [fieldName]: true }));
                 }}
               />
+            </div>
+          ) : value && isFailed ? (
+            <div className="flex flex-col items-center text-neutral-400">
+              <ImageIcon className="h-12 w-12 mb-2 stroke-[1.5px] opacity-50" />
+              <span className="text-xs font-medium">Error loading image</span>
+              <p className="text-[10px] mt-1 opacity-70">Check server connection</p>
             </div>
           ) : (
             <div className="flex flex-col items-center text-neutral-400">
@@ -230,16 +238,16 @@ const LogoImagesPage = () => {
   };
 
   const imageFields = [
-    { name: 'ImageOne',   label: 'Image One'  },
-    { name: 'ImageTwo',   label: 'Image Two'  },
-    { name: 'ImageThree', label: 'Image Three'},
-    { name: 'ImageFour',  label: 'Image Four' },
-    { name: 'ImageFive',  label: 'Image Five' },
-    { name: 'ImageSix',   label: 'Image Six'  },
-    { name: 'ImageSeven', label: 'Image Seven'},
-    { name: 'ImageEight', label: 'Image Eight'},
-    { name: 'ImageNine',  label: 'Image Nine' },
-    { name: 'ImageTen',   label: 'Image Ten'  },
+    { name: 'ImageOne', label: 'Image One' },
+    { name: 'ImageTwo', label: 'Image Two' },
+    { name: 'ImageThree', label: 'Image Three' },
+    { name: 'ImageFour', label: 'Image Four' },
+    { name: 'ImageFive', label: 'Image Five' },
+    { name: 'ImageSix', label: 'Image Six' },
+    { name: 'ImageSeven', label: 'Image Seven' },
+    { name: 'ImageEight', label: 'Image Eight' },
+    { name: 'ImageNine', label: 'Image Nine' },
+    { name: 'ImageTen', label: 'Image Ten' },
   ];
 
   if (isLoading && !isEditing) {

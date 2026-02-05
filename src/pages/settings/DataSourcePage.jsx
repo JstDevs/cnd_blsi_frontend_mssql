@@ -39,8 +39,12 @@ const DataSourcePage = () => {
         throw new Error('Failed to fetch Data Source info');
       }
       const data = await response.json();
-      console.log('Data Source info received:', data); // Debug log
-      setDatasource(prev => ({ ...prev, ...data }));
+      const sanitizedData = {};
+      Object.keys(data).forEach(key => {
+        sanitizedData[key] = data[key] === null ? '' : data[key];
+      });
+      console.log('Data Source info received (sanitized):', sanitizedData);
+      setDatasource(prev => ({ ...prev, ...sanitizedData }));
     } catch (error) {
       console.error('Error loading Data Source info:', error);
       toast.error('Failed to load Data Source info');
@@ -76,9 +80,12 @@ const DataSourcePage = () => {
       }
 
       const updated = await response.json();
-      console.log('Update response:', updated); // Debug log
-
-      setDatasource(updated);
+      const sanitizedUpdated = {};
+      Object.keys(updated).forEach(key => {
+        sanitizedUpdated[key] = updated[key] === null ? '' : updated[key];
+      });
+      console.log('Update response (sanitized):', sanitizedUpdated);
+      setDatasource(sanitizedUpdated);
       return true;
     } catch (error) {
       console.error('Update error:', error);

@@ -52,10 +52,15 @@ const LGUMaintenance = () => {
       }
       const data = await response.json();
       console.log('LGU Data received:', data); // Debug log
-      const extratedData = extraData(data);
 
+      if (!data || Object.keys(data).length === 0) {
+        console.log('No LGU data found, keeping defaults');
+        return;
+      }
+
+      const extratedData = extraData(data);
       setLgu(extratedData);
-      
+
       // Construct image URL properly - check both Logo and LogoUrl fields
       let imageUrl = 'https://placehold.co/150x150?text=LGU+Logo';
       const logoData = data.Logo || data.LogoUrl || data.logo || data.logoUrl;
@@ -75,7 +80,7 @@ const LGUMaintenance = () => {
           } else {
             imageUrl = logoData;
           }
-        } 
+        }
         // If Logo is a relative path or filename, construct full URL
         else if (logoData.startsWith('/')) {
           // Use proxy in development
@@ -149,7 +154,7 @@ const LGUMaintenance = () => {
       const token = sessionStorage.getItem('token');
 
       const formData = new FormData();
-      
+
       // Append fields (but skip Logo field if we have a new file)
       Object.entries(values).forEach(([key, val]) => {
         if (val !== null && val !== undefined) {
@@ -198,9 +203,9 @@ const LGUMaintenance = () => {
 
       const updated = await response.json();
       console.log('Update response:', updated); // Debug log
-      
+
       setLgu(updated);
-      
+
       // Construct image URL properly after update - check both Logo and LogoUrl fields
       let imageUrl = 'https://placehold.co/150x150?text=LGU+Logo';
       const logoData = updated.Logo || updated.LogoUrl || updated.logo || updated.logoUrl;
@@ -220,7 +225,7 @@ const LGUMaintenance = () => {
           } else {
             imageUrl = logoData;
           }
-        } 
+        }
         // If Logo is a relative path or filename, construct full URL
         else if (logoData.startsWith('/')) {
           // Use proxy in development

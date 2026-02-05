@@ -46,7 +46,7 @@ function DisbursementVoucherPage() {
     (state) => state.fundUtilizations
   );
   // ---------------------USE MODULE PERMISSIONS------------------START (DisbursementVoucherPage - MODULE ID = 40 )
-  const { Add, Edit, Delete } = useModulePermissions(40);
+  const { Add, Edit, Delete } = useModulePermissions(2);
 
   const { employees } = useSelector((state) => state.employees);
   const { customers } = useSelector((state) => state.customers);

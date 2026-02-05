@@ -174,7 +174,7 @@ function FormField({
               placeholder={placeholder}
               disabled={disabled}
               readOnly={readOnly}
-              value={value}
+              value={value || ''}
               onChange={onChange}
               onBlur={onBlur}
               className={clsx(

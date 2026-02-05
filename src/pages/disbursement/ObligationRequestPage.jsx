@@ -51,7 +51,7 @@ function ObligationRequestPage() {
     useState(null);
   const [isLoadingORPAction, setIsLoadingORPAction] = useState(false);
   // ---------------------USE MODULE PERMISSIONS------------------START (DisbursementVoucherPage - MODULE ID = 40 )
-  const { Add, Edit, Delete } = useModulePermissions(62);
+  const { Add, Edit, Delete } = useModulePermissions(1);
   useEffect(() => {
     dispatch(fetchObligationRequests());
     dispatch(fetchEmployees());

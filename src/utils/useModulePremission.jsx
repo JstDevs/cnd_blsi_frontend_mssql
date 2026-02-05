@@ -5,7 +5,7 @@ export function useModulePermissions(moduleId) {
   const { selectedRole } = useSelector((state) => state.auth);
   //   console.log('selectedRole', selectedRole);
   const perms = useMemo(() => {
-    if (!selectedRole || selectedRole.Description === 'Administration') {
+    if (!selectedRole || selectedRole.Description === 'Administrator') {
       return {
         View: true,
         Add: true,

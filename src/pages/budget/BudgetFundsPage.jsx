@@ -29,7 +29,7 @@ const BudgetFundsPage = () => {
   const [activeRow, setActiveRow] = useState(null);
   const [isReadOnly, setIsReadOnly] = useState(false);
   // ---------------------USE MODULE PERMISSIONS------------------START (BudgetSubFundsPage - MODULE ID =  48 )
-  const { Add, Edit, Delete } = useModulePermissions(48);
+  const { Add, Edit, Delete } = useModulePermissions(17);
 
   const activeFunds = useMemo(() => {
     return funds?.filter((fund) => Number(fund.Active) === 1) || [];
