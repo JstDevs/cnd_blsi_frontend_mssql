@@ -204,6 +204,7 @@ const LGUMaintenance = () => {
       const updated = await response.json();
       console.log('Update response:', updated); // Debug log
 
+      // Update the whole LGU object including the real ID from DB
       setLgu(updated);
 
       // Construct image URL properly after update - check both Logo and LogoUrl fields
