@@ -42,7 +42,7 @@ function DepartmentPage() {
 
         const duplicate = departments.some(
           (dept) =>
-            dept.Code.trim().toLowerCase() === value.trim().toLowerCase() &&
+            dept.Code?.trim().toLowerCase() === value.trim().toLowerCase() &&
             (!currentDepartment || dept.ID !== currentDepartment.ID)
         );
         return !duplicate;
@@ -55,7 +55,7 @@ function DepartmentPage() {
 
         const duplicate = departments.some(
           (dept) =>
-            dept.Name.trim().toLowerCase() === value.trim().toLowerCase() &&
+            dept.Name?.trim().toLowerCase() === value.trim().toLowerCase() &&
             (!currentDepartment || dept.ID !== currentDepartment.ID)
         );
         return !duplicate;
