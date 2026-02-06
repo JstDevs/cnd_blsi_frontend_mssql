@@ -134,7 +134,7 @@ function BudgetSupplementalForm({
     }
   };
   const handleBudgetSelect = (value, setValues, currentValues) => {
-    const selected = budgetList?.find((item) => item.ID === parseInt(value));
+    const selected = budgetList?.find((item) => item.ID == value);
     if (selected) {
       setValues({
         ...currentValues,

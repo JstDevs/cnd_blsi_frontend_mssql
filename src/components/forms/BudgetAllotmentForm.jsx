@@ -139,7 +139,7 @@ function BudgetAllotmentForm({
   };
 
   const handleBudgetSelect = (value, setValues, currentValues) => {
-    const selected = allotmentList?.find((item) => item.ID === parseInt(value));
+    const selected = allotmentList?.find((item) => item.ID == value);
     if (selected) {
       setValues({
         ...currentValues,

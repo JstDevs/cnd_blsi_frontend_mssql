@@ -313,6 +313,7 @@ function BudgetForm({
                     setFieldValue('Appropriation', sum);
                     setFieldValue('TotalAmount', sum);
                     setFieldValue('AppropriationBalance', sum);
+                    setFieldValue('AllotmentBalance', sum);
                   }}
                   onBlur={handleBlur}
                   value={formatForInput(values[month])}
