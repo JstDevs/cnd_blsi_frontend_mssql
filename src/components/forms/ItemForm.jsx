@@ -184,7 +184,7 @@ const ItemForm = ({ item, onClose }) => {
 
                 // Find selected code and update rate
                 const selectedCode = taxCodes.find(
-                  (code) => code.ID === Number(selectedId)
+                  (code) => String(code.ID) === String(selectedId)
                 );
                 if (selectedCode) {
                   setFieldValue('TaxRate', selectedCode.Rate); // auto-set tax rate

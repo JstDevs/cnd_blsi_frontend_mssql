@@ -129,7 +129,7 @@ function BudgetForm({
         setFieldValue,
       }) => (
         <Form className="space-y-6">
-          
+
           {/* Section 1: Budget Information */}
           <div className="bg-white p-5 rounded-xl border border-neutral-200 shadow-sm">
             <h3 className="text-lg font-semibold text-neutral-800 mb-4 flex items-center gap-2 border-b border-neutral-100 pb-2">
@@ -151,7 +151,7 @@ function BudgetForm({
                   className="bg-gray-50 focus:bg-white transition-colors font-medium"
                 />
               </div>
-              
+
               <SearchableDropdown
                 label="Chart of Accounts"
                 options={chartOfAccountsOptions}
@@ -160,7 +160,7 @@ function BudgetForm({
                   setFieldValue('ChartofAccountsID', value);
                   const selected = chartOfAccountsOptions.find(opt => opt.value === value);
                   if (selected) {
-                    setFieldValue('Name', selected.label.split(' - ')[1] || selected.label);
+                    setFieldValue('Name', selected.label.split(' - ').slice(1).join(' - ') || selected.label);
                   }
                 }}
                 error={errors.ChartofAccountsID}
@@ -206,7 +206,7 @@ function BudgetForm({
                 options={subDepartmentOptions}
                 required
               />
-              
+
               <FormField
                 label="Fund"
                 name="FundID"
@@ -296,20 +296,20 @@ function BudgetForm({
                   onChange={(e) => {
                     const rawValue = e.target.value.replace(/[^0-9.]/g, '');
                     const numericValue = rawValue === '' ? '' : rawValue;
-                    
+
                     handleChange({ target: { name: month, value: numericValue } });
-                    
+
                     const updatedMonths = { ...values, [month]: numericValue };
                     const monthsList = [
                       'January', 'February', 'March', 'April', 'May', 'June',
                       'July', 'August', 'September', 'October', 'November', 'December'
                     ];
-                    
+
                     const sum = monthsList.reduce(
                       (total, m) => total + (Number(updatedMonths[m]) || 0),
                       0
                     );
-                    
+
                     setFieldValue('Appropriation', sum);
                     setFieldValue('TotalAmount', sum);
                     setFieldValue('AppropriationBalance', sum);
