@@ -80,7 +80,7 @@ function SubdepartmentPage() {
   const enrichedSubdepartments = subdepartments.map((sub) => ({
     ...sub,
     departmentName:
-      departments.find((d) => d.ID === sub.DepartmentID)?.Name || 'N/A',
+      departments.find((d) => d.ID == sub.DepartmentID)?.Name || 'N/A',
   }));
 
   const handleAddSubdepartment = () => {
@@ -104,7 +104,7 @@ function SubdepartmentPage() {
         // Check if subdepartment is used in budget before deletion
         const API_URL = import.meta.env.VITE_API_URL;
         const token = sessionStorage.getItem('token');
-        
+
         const budgetResponse = await fetch(`${API_URL}/budget`, {
           method: 'GET',
           headers: {
@@ -116,7 +116,7 @@ function SubdepartmentPage() {
         if (budgetResponse.ok) {
           const budgetData = await budgetResponse.json();
           const budgets = budgetData?.items || [];
-          
+
           // Check if any budget uses this subdepartment
           const isUsedInBudget = budgets.some(
             (budget) => budget.SubDepartmentID === subdepartmentToDelete.ID
