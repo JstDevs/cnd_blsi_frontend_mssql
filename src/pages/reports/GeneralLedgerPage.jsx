@@ -15,6 +15,7 @@ import Modal from '../../components/common/Modal';
 import JournalEntryForm from '../../components/forms/JournalEntryForm';
 import { EyeIcon } from 'lucide-react';
 import toast from 'react-hot-toast';
+import { formatDate } from 'date-fns';
 const API_URL = import.meta.env.VITE_API_URL;
 
 function GeneralLedgerPage() {
@@ -40,10 +41,12 @@ function GeneralLedgerPage() {
     { label: 'Collection', value: 'Collection' },
     { label: 'Others', value: 'Others' },
   ];
-  const fundOptions = [
-    { label: 'General Fund', value: '1' },
-    { label: 'Trust Fund', value: '2' },
-    { label: 'Special Education Fund', value: '3' },
+  const fundsOptions = [
+    { value: 'all', label: 'All Funds' },
+    ...(funds?.map((item) => ({
+      value: item.ID,
+      label: item.Name,
+    })) || []),
   ];
 
   // Format currency for display
@@ -63,82 +66,114 @@ function GeneralLedgerPage() {
 
   // Table columns definition
   const columns = [
+    // {
+    //   key: 'ID',
+    //   header: 'ID',
+    //   sortable: true,
+    // },
+    // {
+    //   key: 'AP AR',
+    //   header: 'Transaction Type',
+    //   sortable: true,
+    // },
     {
-      key: 'id',
-      header: 'ID',
-      sortable: true,
-    },
-    {
-      key: 'ap_ar',
-      header: 'AP AR',
-      sortable: true,
-    },
-    {
-      key: 'fund',
-      header: 'Fund',
-      sortable: true,
-    },
-    {
-      key: 'account_name',
-      header: 'Account Name',
-      sortable: true,
-    },
-    {
-      key: 'account_code',
-      header: 'Account Code',
-      sortable: true,
-    },
-    {
-      key: 'date',
-      header: 'Date',
-      sortable: true,
-    },
-    {
-      key: 'ledger_item',
-      header: 'Ledger Item',
-      sortable: true,
-    },
-    {
-      key: 'invoice_number',
+      key: 'Invoice Number',
       header: 'Invoice Number',
       sortable: true,
     },
     {
-      key: 'account_code_display',
-      header: 'Account Code Display',
+      key: 'Fund Name',
+      header: 'Fund',
       sortable: true,
     },
     {
-      key: 'account_name_display',
-      header: 'Account Name Display',
+      key: 'Account Name',
+      header: 'Account Name',
       sortable: true,
     },
     {
-      key: 'debit',
+      key: 'Account Code',
+      header: 'Account Code',
+      sortable: true,
+      className: 'text-left font-bold',
+      render: (value) => (
+        <span className="text-center font-bold">
+          {value}
+        </span>
+      ),
+    },
+    {
+      key: 'Invoice Date',
+      header: 'Date',
+      sortable: true,
+      render: (value) => (
+        <span className="text-right font-semibold">
+          {formatDate(value, "MMMM d, yyyy")}
+        </span>
+      ),
+    },
+    // {
+    //   key: 'Ledger Item',
+    //   header: 'Ledger Item',
+    //   sortable: true,
+    // },
+    // {
+    //   key: 'account_code_display',
+    //   header: 'Account Code Display',
+    //   sortable: true,
+    // },
+    // {
+    //   key: 'account_name_display',
+    //   header: 'Account Name Display',
+    //   sortable: true,
+    // },
+    {
+      key: 'Debit',
       header: 'Debit',
       sortable: true,
-      render: (value) => formatCurrency(value),
-      className: 'text-right',
+      className: 'text-right font-semibold',
+      render: (value) => (
+        <span className="text-right font-semibold text-primary-700">
+          {value < 0 ? "(" + formatCurrency(value * -1) + ")" : formatCurrency(value)} 
+          {/* {formatCurrency(value)} */}
+        </span>
+      ),
     },
     {
-      key: 'credit',
+      key: 'Credit',
       header: 'Credit',
       sortable: true,
-      render: (value) => formatCurrency(value),
-      className: 'text-right',
+      className: 'text-right font-semibold',
+      render: (value) => (
+        <span className="text-right font-semibold text-accent-700">
+          {value < 0 ? "(" + formatCurrency(value * -1) + ")" : formatCurrency(value)} 
+          {/* {formatCurrency(value)} */}
+        </span>
+      ),
     },
     {
-      key: 'balance',
+      key: 'Balance',
       header: 'Balance',
       sortable: true,
-      render: (value) => formatCurrency(value),
-      className: 'text-right',
+      className: 'text-right font-semibold',
+      render: (value) => (
+        <span className="text-right font-semibold text-secondary-700">
+          {value < 0 ? "(" + formatCurrency(value * -1) + ")" : formatCurrency(value)} 
+          {/* {formatCurrency(value)} */}
+        </span>
+      ),
     },
-    {
-      key: 'municipality',
-      header: 'Municipality',
-      sortable: true,
-    },
+    // {
+    //   key: 'Normal Balance',
+    //   header: 'Normal Balance',
+    //   sortable: true,
+    //   className: "text-left font-semibold"
+    // },
+    // {
+    //   key: 'Municipality',
+    //   header: 'Municipality',
+    //   sortable: true,
+    // },
   ];
 
   const actions = (row) => {
@@ -229,7 +264,7 @@ function GeneralLedgerPage() {
     <div>
       <div className="page-header">
         <h1>General Ledger</h1>
-        <p>Generate general ledger reports.</p>
+        <p>Review the accounts' general ledger disbursement records.</p>
       </div>
 
       <div className="mt-4 p-3 sm:p-6 bg-white rounded-md shadow">
@@ -257,7 +292,7 @@ function GeneralLedgerPage() {
         <DataTable
           columns={columns}
           data={generalLedgers}
-          actions={actions}
+          // actions={actions}
           loading={isLoading}
           pagination={true}
         />

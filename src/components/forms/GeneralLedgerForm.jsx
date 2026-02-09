@@ -27,6 +27,14 @@ function GeneralLedgerForm({
     FundID: '',
   };
 
+  const fundsOptions = [
+    { value: '%', label: 'All Funds' },
+    ...(funds?.map((item) => ({
+      value: item.ID,
+      label: item.Name,
+    })) || []),
+  ];
+
   const handleSubmit = (values, { setSubmitting }) => {
     const action = submitAction.current;
 
@@ -112,10 +120,7 @@ function GeneralLedgerForm({
               type="select"
               label="Fund"
               name="FundID"
-              options={funds.map((item) => ({
-                value: item.ID,
-                label: item.Name,
-              }))}
+              options={fundsOptions}
               value={values.FundID}
               onChange={handleChange}
               onBlur={handleBlur}
@@ -129,7 +134,7 @@ function GeneralLedgerForm({
           <div className="flex justify-end gap-3 max-sm:flex-col pt-4 border-t border-neutral-200">
             <button
               type="submit"
-              className="btn btn-primary"
+              className="btn btn-secondary"
               disabled={isSubmitting}
               onClick={() => (submitAction.current = 'view')}
             >
@@ -137,15 +142,15 @@ function GeneralLedgerForm({
             </button>
             <button
               type="button"
-              className="btn btn-secondary"
+              className="btn btn-primary"
               disabled={isSubmitting}
             // onClick={() => (submitAction.current = 'generate')}
             >
-              Generate Ledger
+              Generate Report
             </button>
             <button
               type="submit"
-              className="btn btn-outline"
+              className="btn btn-success"
               disabled={isSubmitting}
               onClick={() => (submitAction.current = 'export')}
             >
