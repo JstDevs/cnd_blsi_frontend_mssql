@@ -202,7 +202,7 @@ function ApprovalMatrixPage() {
 
   const columns = [
     { key: 'DocumentTypeName', header: 'Document Type', sortable: true, width: '25%' },
-    { key: 'sequencesCount', header: 'Levels', sortable: true, width: '10%', render: (row) => <span className="px-3">{row.sequencesCount}</span> },
+    { key: 'sequencesCount', header: 'Levels', sortable: true, width: '10%', render: (value) => <span className="px-3">{value}</span> },
     {
       key: 'detailedFlow',
       header: 'Approval Flow',
