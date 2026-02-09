@@ -1,6 +1,6 @@
 import { useEffect, useState, useMemo } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { PlusIcon, PencilIcon, TrashIcon } from '@heroicons/react/24/outline';
+import { PlusIcon, PencilIcon, TrashIcon, UserIcon, UserGroupIcon, IdentificationIcon } from '@heroicons/react/24/outline';
 import DataTable from '../../components/common/DataTable';
 import Modal from '../../components/common/Modal';
 import ApprovalMatrixForm from './ApprovalMatrixForm';
@@ -9,6 +9,9 @@ import {
   bulkUpdateApprovalMatrix,
   deleteApprovalMatrix,
 } from '../../features/settings/approvalMatrixSlice';
+import { fetchPositions } from '../../features/settings/positionSlice';
+import { fetchEmployees } from '../../features/settings/employeeSlice';
+import { fetchUserroles } from '../../features/settings/userrolesSlice';
 import toast from 'react-hot-toast';
 import { useModulePermissions } from '@/utils/useModulePremission';
 
@@ -17,6 +20,10 @@ function ApprovalMatrixPage() {
   const { approvalMatrix, isLoading, error } = useSelector(
     (state) => state.approvalMatrix
   );
+  const { positions } = useSelector((state) => state.positions);
+  const { employees } = useSelector((state) => state.employees);
+  const { userroles } = useSelector((state) => state.userroles);
+
   // ---------------------USE MODULE PERMISSIONS------------------START ( Approval Matrix  - MODULE ID = 17 )
   const { Add, Edit, Delete } = useModulePermissions(17);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -26,7 +33,37 @@ function ApprovalMatrixPage() {
 
   useEffect(() => {
     dispatch(fetchApprovalMatrix());
+    dispatch(fetchPositions());
+    dispatch(fetchEmployees());
+    dispatch(fetchUserroles());
   }, [dispatch]);
+
+  const getApproverDetails = (type, id) => {
+    if (!id) return { name: 'Unknown', typeLabel: type };
+
+    let result = { name: 'Unknown', typeLabel: type, icon: UserIcon };
+
+    if (type === 'Position' && Array.isArray(positions)) {
+      const pos = positions.find(p => p.ID == id);
+      if (pos) {
+        result.name = pos.Name;
+        result.icon = IdentificationIcon;
+      }
+    } else if (type === 'Employee' && Array.isArray(employees)) {
+      const emp = employees.find(e => e.ID == id);
+      if (emp) {
+        result.name = `${emp.FirstName} ${emp.LastName}`;
+        result.icon = UserIcon;
+      }
+    } else if (type === 'User Access' && Array.isArray(userroles)) {
+      const role = userroles.find(r => r.ID == id);
+      if (role) {
+        result.name = role.Description || role.RoleName || role.Name;
+        result.icon = UserGroupIcon;
+      }
+    }
+    return result;
+  };
 
   // Grouping logic
   const groupedMatrices = useMemo(() => {
@@ -45,15 +82,28 @@ function ApprovalMatrixPage() {
       return acc;
     }, {});
 
-    return Object.values(groups).map(group => ({
-      ...group,
+    return Object.values(groups).map(group => {
       // Sort sequences by level
-      sequences: group.sequences.sort((a, b) => Number(a.SequenceLevel) - Number(b.SequenceLevel)),
-      sequencesCount: group.sequences.length,
-      // Create a summary of approvers for the first level or total
-      approverSummary: group.sequences.map(s => `Seq ${s.SequenceLevel} (${s.Approvers?.length || 0})`).join(' → ')
-    }));
-  }, [approvalMatrix]);
+      const sortedSequences = group.sequences.sort((a, b) => Number(a.SequenceLevel) - Number(b.SequenceLevel));
+
+      return {
+        ...group,
+        sequences: sortedSequences,
+        sequencesCount: group.sequences.length,
+        // Detailed approver summary for display
+        detailedFlow: sortedSequences.map(seq => ({
+          level: seq.SequenceLevel,
+          approvers: (seq.Approvers || []).map(app => ({
+            ...getApproverDetails(app.PositionorEmployee, app.PositionorEmployeeID),
+            amountFrom: app.AmountFrom,
+            amountTo: app.AmountTo
+          })),
+          rule: seq.AllorMajority,
+          required: seq.NumberofApprover
+        }))
+      };
+    });
+  }, [approvalMatrix, positions, employees, userroles]);
 
   const handleAdd = () => {
     setCurrentMatrix(null);
@@ -88,10 +138,6 @@ function ApprovalMatrixPage() {
   const confirmDelete = async () => {
     if (matrixToDelete) {
       try {
-        // Since we are deleting the whole "group", and current delete API is by ID,
-        // we might need to delete all IDs in the group.
-        // However, if the user wants to delete the setup, usually they expect a single action.
-        // I will delete all IDs associated with this document type.
         const deletePromises = matrixToDelete.sequences.map(seq =>
           dispatch(deleteApprovalMatrix(seq.ID)).unwrap()
         );
@@ -121,10 +167,49 @@ function ApprovalMatrixPage() {
     }
   };
 
+  // Custom cell renderer for the flow
+  const FlowCell = ({ detailedFlow }) => (
+    <div className="flex flex-col space-y-2 py-2">
+      {Array.isArray(detailedFlow) && detailedFlow.map((seq, idx) => (
+        <div key={idx} className="flex items-start">
+          <div className="mr-3 mt-1 flex-shrink-0">
+            <span className="bg-primary-100 text-primary-700 text-xs font-bold px-2 py-1 rounded-full border border-primary-200">
+              Seq {seq.level}
+            </span>
+          </div>
+          <div className="flex-1">
+            <div className="flex flex-wrap gap-2">
+              {seq.approvers.map((app, aIdx) => {
+                const Icon = app.icon;
+                return (
+                  <div key={aIdx} className="flex items-center bg-white border border-neutral-200 rounded-md px-2 py-1 shadow-sm text-sm">
+                    <Icon className="h-3.5 w-3.5 text-neutral-500 mr-1.5" />
+                    <span className="text-neutral-700 font-medium">{app.name}</span>
+                  </div>
+                );
+              })}
+            </div>
+            {seq.rule === 'Majority' && (
+              <div className="mt-1 text-xs text-neutral-500 italic">
+                * Requires {seq.required} approval(s)
+              </div>
+            )}
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+
   const columns = [
-    { key: 'DocumentTypeName', header: 'Document Type', sortable: true },
-    { key: 'sequencesCount', header: 'Sequence Levels', sortable: true },
-    { key: 'approverSummary', header: 'Approval Flow Summary', sortable: false },
+    { key: 'DocumentTypeName', header: 'Document Type', sortable: true, width: '25%' },
+    { key: 'sequencesCount', header: 'Levels', sortable: true, width: '10%', render: (row) => <span className="px-3">{row.sequencesCount}</span> },
+    {
+      key: 'detailedFlow',
+      header: 'Approval Flow',
+      sortable: false,
+      width: '65%',
+      render: (detailedFlow) => <FlowCell detailedFlow={detailedFlow} />
+    },
   ];
 
   const actions = [
