@@ -751,13 +751,14 @@ const BudgetDetailsPage = () => {
           subDepartmentOptions={subdepartments.map((subDept) => ({
             value: subDept.ID,
             label: subDept.Name,
+            departmentID: subDept.DepartmentID, // Add DepartmentID for filtering
           }))}
           chartOfAccountsOptions={[...accounts]
             .sort((a, b) => (a.AccountCode || '').localeCompare(b.AccountCode || ''))
             .map((account) => ({
               value: account.ID,
               label: `${account.AccountCode} - ${account.Name}`,
-          }))}
+            }))}
           fundOptions={funds.map((fund) => ({
             value: fund.ID,
             label: fund.Name,
