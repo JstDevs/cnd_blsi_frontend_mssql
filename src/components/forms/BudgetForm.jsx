@@ -131,23 +131,14 @@ function BudgetForm({
         // Filter subdepartments based on selected department
         // IMPORTANT: This must be inside the Formik render function to access live values
         const filteredSubDepartmentOptions = useMemo(() => {
-          console.log('🔍 Filtering subdepartments...');
-          console.log('Selected DepartmentID:', values.DepartmentID, typeof values.DepartmentID);
-          console.log('All subDepartmentOptions:', subDepartmentOptions);
-
           if (!values.DepartmentID) {
-            console.log('❌ No department selected');
             return []; // No department selected, show empty list
           }
 
-          const filtered = subDepartmentOptions.filter(subDept => {
-            const match = Number(subDept.departmentID) === Number(values.DepartmentID);
-            console.log(`Checking ${subDept.label}: departmentID=${subDept.departmentID} (${typeof subDept.departmentID}) vs selected=${values.DepartmentID} (${typeof values.DepartmentID}) => ${match}`);
-            return match;
-          });
-
-          console.log('✅ Filtered result:', filtered);
-          return filtered;
+          // Convert both to numbers to handle string/number type mismatch
+          return subDepartmentOptions.filter(subDept =>
+            Number(subDept.departmentID) === Number(values.DepartmentID)
+          );
         }, [values.DepartmentID, subDepartmentOptions]);
 
         return (
