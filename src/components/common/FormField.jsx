@@ -33,7 +33,7 @@ function FormField({
             placeholder={placeholder}
             disabled={disabled}
             readOnly={readOnly}
-            value={value}
+            value={value || ''}
             onChange={onChange}
             onBlur={onBlur}
             rows={props.rows || 3}
@@ -82,7 +82,7 @@ function FormField({
             id={name}
             name={name}
             disabled={disabled}
-            value={value}
+            value={value || ''}
             onChange={onChange}
             onBlur={onBlur}
             className={clsx(
@@ -213,7 +213,7 @@ function FormField({
             placeholder={placeholder}
             disabled={disabled}
             readOnly={readOnly}
-            value={value}
+            value={value || ''}
             onChange={onChange}
             onBlur={onBlur}
             className={clsx(

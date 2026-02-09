@@ -263,13 +263,15 @@ const RealPropertyTaxForm = ({
       const selectedYear = generalRevisionsOptions?.find(
         (item) => item.value === Number(values.basicGeneralYearID)
       )?.label;
-      dispatch(
-        getTdNumber({
-          ownerId: values.ownerId,
-          generalRevision: selectedYear,
-        })
-      );
-      setFieldValue('AdvancedYear', selectedYear);
+      if (selectedYear) {
+        dispatch(
+          getTdNumber({
+            ownerId: values.ownerId,
+            generalRevision: selectedYear,
+          })
+        );
+        setFieldValue('AdvancedYear', selectedYear);
+      }
     }
   }, [values.ownerId, values.basicGeneralYearID, dispatch, setFieldValue]);
 
@@ -284,12 +286,14 @@ const RealPropertyTaxForm = ({
     const selectedYear = generalRevisionsOptions?.find(
       (item) => item.value === Number(values.basicGeneralYearID)
     )?.label;
-    dispatch(
-      getTdNumber({
-        ownerId: values.ownerId,
-        generalRevision: selectedYear,
-      })
-    );
+    if (selectedYear) {
+      dispatch(
+        getTdNumber({
+          ownerId: values.ownerId,
+          generalRevision: selectedYear,
+        })
+      );
+    }
     try {
       await dispatch(
         addButtonTDNumber({ tdNumber: values.T_D_No, selectedYear })
