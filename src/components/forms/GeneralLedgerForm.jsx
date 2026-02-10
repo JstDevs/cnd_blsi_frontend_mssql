@@ -12,6 +12,7 @@ function GeneralLedgerForm({
   onView,
   onGenerateJournal,
   onExportExcel,
+  onGenerateReport,
 }) {
   const submitAction = useRef(null);
 
@@ -44,6 +45,8 @@ function GeneralLedgerForm({
       onGenerateJournal(values);
     } else if (action === 'export') {
       onExportExcel(values);
+    } else if (action === 'report') {
+      onGenerateReport && onGenerateReport(values);
     }
 
     setSubmitting(false);
@@ -141,10 +144,10 @@ function GeneralLedgerForm({
               View
             </button>
             <button
-              type="button"
+              type="submit"
               className="btn btn-primary"
               disabled={isSubmitting}
-            // onClick={() => (submitAction.current = 'generate')}
+              onClick={() => (submitAction.current = 'report')}
             >
               Generate Report
             </button>

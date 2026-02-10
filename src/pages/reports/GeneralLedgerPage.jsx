@@ -260,6 +260,18 @@ function GeneralLedgerPage() {
     dispatch(fetchGeneralLedgers(values));
   };
 
+  // Handle generate report - opens crystal report file
+  const handleGenerateReport = (values) => {
+    try {
+      // Open the crystal report file
+      const reportPath = '/resources/reports/General_Ledger.rpt';
+      window.open(reportPath, '_blank');
+    } catch (err) {
+      toast.error('Failed to open report');
+      console.error(err);
+    }
+  };
+
   return (
     <div>
       <div className="page-header">
@@ -278,6 +290,7 @@ function GeneralLedgerPage() {
           }))}
           onExportExcel={handleExport}
           onView={handleView}
+          onGenerateReport={handleGenerateReport}
           onClose={() => { }}
         />
       </div>
