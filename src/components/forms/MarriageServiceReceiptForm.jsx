@@ -333,11 +333,20 @@ function MarriageServiceReceiptForm({
                     (option) => option.value === value
                   );
                   if (selectedOption) {
-                    setFieldValue('MarrytoName', selectedOption?.label);
-                    setFieldValue('MarrytoID', selectedOption?.value);
+                    setFieldValue('MarrytoName', selectedOption.label);
+                    setFieldValue('MarrytoID', selectedOption.value);
                   } else {
-                    setFieldValue('MarrytoName', value);
-                    setFieldValue('MarrytoID', null);
+                    // Check if the typed value matches an existing option label
+                    const matchedOption = individualOptions.find(
+                      (option) => option.label.toLowerCase() === value.toLowerCase()
+                    );
+                    if (matchedOption) {
+                      setFieldValue('MarrytoName', matchedOption.label);
+                      setFieldValue('MarrytoID', matchedOption.value);
+                    } else {
+                      setFieldValue('MarrytoName', value);
+                      setFieldValue('MarrytoID', null);
+                    }
                   }
                 }}
                 selectedValue={values.MarrytoID || values.MarrytoName}
