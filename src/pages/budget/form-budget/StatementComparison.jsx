@@ -32,7 +32,7 @@ function StatementComparison() {
     documentTitle: 'Statement Comparison Report',
   });
 
-  
+
   const columns = [
     { key: 'Type',              header: 'Account Group',        sortable: true },
     { key: 'Subtype',           header: 'Major Group',          sortable: true },
@@ -49,7 +49,6 @@ function StatementComparison() {
         </span>
       ),
     },
-    // { key: 'Period', header: 'Period', sortable: true },
     {
       key: 'Original_Sum',
       header: 'Original Budget',
@@ -110,7 +109,8 @@ function StatementComparison() {
         </span>
       ),
     },
-
+    
+    // { key: 'Period', header: 'Period', sortable: true },
     // { key: 'SubID',             header: 'Sub ID',             sortable: true },
     // { 
     //   key: 'Original',          
