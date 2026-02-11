@@ -23,10 +23,10 @@ function MarriageServiceReceiptPage() {
   const [isVoidModalOpen, setIsVoidModalOpen] = useState(false);
   const [recordToVoid, setRecordToVoid] = useState(null);
   const [isApproveModalOpen, setIsApproveModalOpen] = useState(false);
-    const [recordToApprove, setRecordToApprove] = useState(null);
-    const [isRejectModalOpen, setIsRejectModalOpen] = useState(false);
-    const [recordToReject, setRecordToReject] = useState(null);
-    const [rejectionReason, setRejectionReason] = useState('');
+  const [recordToApprove, setRecordToApprove] = useState(null);
+  const [isRejectModalOpen, setIsRejectModalOpen] = useState(false);
+  const [recordToReject, setRecordToReject] = useState(null);
+  const [rejectionReason, setRejectionReason] = useState('');
   const location = useLocation();
   const dispatch = useDispatch();
   const { records: marriageRecords, isLoading } = useSelector(
@@ -150,7 +150,7 @@ function MarriageServiceReceiptPage() {
 
     try {
       await dispatch(deleteMarriageRecord(recordToVoid.ID)).unwrap();
-      toast.success('Marriage record Voided Successfully');      
+      toast.success('Marriage record Voided Successfully');
     } catch (error) {
       toast.error(error.message || 'Failed to void');
     } finally {
@@ -184,7 +184,8 @@ function MarriageServiceReceiptPage() {
       setIsApproveModalOpen(false);
       setRecordToApprove(null);
     } catch (error) {
-      toast.error(error.message || 'Failed to approve');
+      console.error('Approve Error:', error);
+      toast.error(error?.error || error?.message || 'Failed to approve. Please try again.');
     }
   };
 
@@ -205,8 +206,8 @@ function MarriageServiceReceiptPage() {
   const confirmReject = async () => {
     if (!recordToReject) return;
     if (!rejectionReason.trim()) {
-        toast.error("Reason is required");
-        return;
+      toast.error("Reason is required");
+      return;
     }
     try {
       await dispatch(rejectMarriageRecord({ id: recordToReject.ID, reason: rejectionReason })).unwrap();
@@ -214,7 +215,8 @@ function MarriageServiceReceiptPage() {
       setIsRejectModalOpen(false);
       setRecordToReject(null);
     } catch (error) {
-      toast.error(error.message || 'Failed to reject');
+      console.error('Reject Error:', error);
+      toast.error(error?.error || error?.message || 'Failed to reject. Please try again.');
     }
   };
 
@@ -587,36 +589,101 @@ function MarriageServiceReceiptPage() {
 
       {/* Modal Heree */}
 
-          <Modal
-            isOpen={isVoidModalOpen}
-            onClose={() => setIsVoidModalOpen(false)}
-            title="Confirm Void"
-            size="sm"
-          >
+      <Modal
+        isOpen={isVoidModalOpen}
+        onClose={() => setIsVoidModalOpen(false)}
+        title="Confirm Void"
+        size="sm"
+      >
 
-            <div className="space-y-4">
-              <p className="text-neutral-600">
-                Are you sure you want to void this marriage record? This action cannot be undone.
-              </p>
+        <div className="space-y-4">
+          <p className="text-neutral-600">
+            Are you sure you want to void this marriage record? This action cannot be undone.
+          </p>
 
-            <div className="flex justify-end gap-3 mt-6">
-              <button
-                type="button"
-                className="px-4 py-2 text-sm font-medium text-neutral-700 bg-white border
+          <div className="flex justify-end gap-3 mt-6">
+            <button
+              type="button"
+              className="px-4 py-2 text-sm font-medium text-neutral-700 bg-white border
                   border-neutral-300 rounded-md hover:bg-neutral-50"
-                  onClick={() => setIsVoidModalOpen(false)} >
-                    Cancel
-              </button>
-              <button
+              onClick={() => setIsVoidModalOpen(false)} >
+              Cancel
+            </button>
+            <button
               type="button"
               className="px-4 py-2 text-sm font-medium text-white bg-red-600 rounded-md hover:bg-red-700"
               onClick={confirmVoid}
             >
               Void Record
-            </button>   
+            </button>
           </div>
         </div>
-          </Modal>
+      </Modal>
+
+      {/* Approve Confirmation Modal */}
+      <Modal
+        isOpen={isApproveModalOpen}
+        onClose={() => setIsApproveModalOpen(false)}
+        title="Confirm Approval"
+        size="sm"
+      >
+        <div className="space-y-4">
+          <p className="text-neutral-600">
+            Are you sure you want to approve this record?
+          </p>
+          <div className="flex justify-end gap-3 mt-6">
+            <button
+              onClick={() => setIsApproveModalOpen(false)}
+              className="px-4 py-2 text-sm font-medium text-neutral-700 bg-white border border-neutral-300 rounded-md hover:bg-neutral-50"
+            >
+              Cancel
+            </button>
+            <button
+              onClick={confirmApprove}
+              className="px-4 py-2 text-sm font-medium text-white bg-success-600 rounded-md hover:bg-success-700"
+            >
+              Approve
+            </button>
+          </div>
+        </div>
+      </Modal>
+
+      {/* Reject Reason Modal */}
+      <Modal
+        isOpen={isRejectModalOpen}
+        onClose={() => setIsRejectModalOpen(false)}
+        title="Reject Record"
+        size="sm"
+      >
+        <div className="space-y-4">
+          <div className="space-y-2">
+            <label className="text-sm font-medium text-neutral-700">
+              Reason for Rejection <span className="text-red-500">*</span>
+            </label>
+            <textarea
+              className="w-full rounded-md border-neutral-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 sm:text-sm"
+              rows={3}
+              value={rejectionReason}
+              onChange={(e) => setRejectionReason(e.target.value)}
+              placeholder="Enter reason..."
+            />
+          </div>
+          <div className="flex justify-end gap-3 mt-6">
+            <button
+              onClick={() => setIsRejectModalOpen(false)}
+              className="px-4 py-2 text-sm font-medium text-neutral-700 bg-white border border-neutral-300 rounded-md hover:bg-neutral-50"
+            >
+              Cancel
+            </button>
+            <button
+              onClick={confirmReject}
+              className="px-4 py-2 text-sm font-medium text-white bg-error-600 rounded-md hover:bg-error-700"
+            >
+              Reject
+            </button>
+          </div>
+        </div>
+      </Modal>
     </>
   );
 }
