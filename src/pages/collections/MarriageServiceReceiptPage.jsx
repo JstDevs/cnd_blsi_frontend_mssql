@@ -21,6 +21,11 @@ function MarriageServiceReceiptPage() {
   const { generalLedgers, isLoading: isGLLoading } = useSelector((state) => state.generalLedger);
   const [isVoidModalOpen, setIsVoidModalOpen] = useState(false);
   const [recordToVoid, setRecordToVoid] = useState(null);
+  const [isApproveModalOpen, setIsApproveModalOpen] = useState(false);
+    const [recordToApprove, setRecordToApprove] = useState(null);
+    const [isRejectModalOpen, setIsRejectModalOpen] = useState(false);
+    const [recordToReject, setRecordToReject] = useState(null);
+    const [rejectionReason, setRejectionReason] = useState('');
   const location = useLocation();
   const dispatch = useDispatch();
   const { records: marriageRecords, isLoading } = useSelector(
