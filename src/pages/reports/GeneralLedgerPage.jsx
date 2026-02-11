@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import GeneralLedgerForm from '../../components/forms/GeneralLedgerForm';
@@ -16,6 +16,8 @@ import JournalEntryForm from '../../components/forms/JournalEntryForm';
 import { EyeIcon } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { formatDate } from 'date-fns';
+import { useReactToPrint } from 'react-to-print';
+import GeneralLedgerPrintView from './GeneralLedgerPrintView';
 const API_URL = import.meta.env.VITE_API_URL;
 
 function GeneralLedgerPage() {
@@ -33,6 +35,13 @@ function GeneralLedgerPage() {
   const { departments } = useSelector((state) => state.departments);
 
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [filterValues, setFilterValues] = useState(null);
+  const componentRef = useRef();
+
+  const handlePrint = useReactToPrint({
+    contentRef: componentRef,
+    documentTitle: 'General Ledger Report',
+  });
 
   // hardcoded in old software (copied from JournalEntryPage)
   const typeOptions = [
@@ -134,7 +143,7 @@ function GeneralLedgerPage() {
       className: 'text-right font-semibold',
       render: (value) => (
         <span className="text-right font-semibold text-primary-700">
-          {value < 0 ? "(" + formatCurrency(value * -1) + ")" : formatCurrency(value)} 
+          {value < 0 ? "(" + formatCurrency(value * -1) + ")" : formatCurrency(value)}
           {/* {formatCurrency(value)} */}
         </span>
       ),
@@ -146,7 +155,7 @@ function GeneralLedgerPage() {
       className: 'text-right font-semibold',
       render: (value) => (
         <span className="text-right font-semibold text-accent-700">
-          {value < 0 ? "(" + formatCurrency(value * -1) + ")" : formatCurrency(value)} 
+          {value < 0 ? "(" + formatCurrency(value * -1) + ")" : formatCurrency(value)}
           {/* {formatCurrency(value)} */}
         </span>
       ),
@@ -158,7 +167,7 @@ function GeneralLedgerPage() {
       className: 'text-right font-semibold',
       render: (value) => (
         <span className="text-right font-semibold text-secondary-700">
-          {value < 0 ? "(" + formatCurrency(value * -1) + ")" : formatCurrency(value)} 
+          {value < 0 ? "(" + formatCurrency(value * -1) + ")" : formatCurrency(value)}
           {/* {formatCurrency(value)} */}
         </span>
       ),
@@ -257,19 +266,17 @@ function GeneralLedgerPage() {
 
   // Handle view to Excel
   const handleView = (values) => {
+    setFilterValues(values);
     dispatch(fetchGeneralLedgers(values));
   };
 
   // Handle generate report - opens crystal report file
   const handleGenerateReport = (values) => {
-    try {
-      // Open the crystal report file
-      const reportPath = '/resources/reports/General_Ledger.rpt';
-      window.open(reportPath, '_blank');
-    } catch (err) {
-      toast.error('Failed to open report');
-      console.error(err);
+    if (!generalLedgers || generalLedgers.length === 0) {
+      toast.error('Please view the report first before generating.');
+      return;
     }
+    handlePrint();
   };
 
   return (
@@ -308,6 +315,14 @@ function GeneralLedgerPage() {
           // actions={actions}
           loading={isLoading}
           pagination={true}
+        />
+      </div>
+
+      <div style={{ display: 'none' }}>
+        <GeneralLedgerPrintView
+          ref={componentRef}
+          data={generalLedgers}
+          filters={filterValues}
         />
       </div>
 
