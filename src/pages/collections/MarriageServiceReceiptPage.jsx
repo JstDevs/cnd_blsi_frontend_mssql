@@ -13,6 +13,7 @@ import { useModulePermissions } from '@/utils/useModulePremission';
 import { useReactToPrint } from 'react-to-print';
 import { PrinterIcon, BookOpenIcon } from 'lucide-react';
 import { ArrowPathIcon } from '@heroicons/react/24/outline';
+import { set } from 'date-fns';
 
 function MarriageServiceReceiptPage() {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -164,27 +165,58 @@ function MarriageServiceReceiptPage() {
   };
 
   const handleApprove = async (record) => {
-    if (!window.confirm('Are you sure you want to approve this record?')) return;
+    // if (!window.confirm('Are you sure you want to approve this record?')) return;
+    // try {
+    //   await dispatch(approveMarriageRecord(record.ID)).unwrap();
+    //   toast.success('Marriage Receipt Approved and Posted');
+    // } catch (error) {
+    //   toast.error(error.message || 'Failed to approve');
+    // }
+    setRecordToApprove(record);
+    setIsApproveModalOpen(true);
+  };
+
+  const confirmApprove = async () => {
+    if (!recordToApprove) return;
     try {
-      await dispatch(approveMarriageRecord(record.ID)).unwrap();
+      await dispatch(approveMarriageRecord(recordToApprove.ID)).unwrap();
       toast.success('Marriage Receipt Approved and Posted');
+      setIsApproveModalOpen(false);
+      setRecordToApprove(null);
     } catch (error) {
       toast.error(error.message || 'Failed to approve');
     }
   };
 
-
   const handleReject = async (record) => {
-    const reason = window.prompt('Enter rejection reason:');
-    if (reason === null) return; // User cancelled
+    // const reason = window.prompt('Enter rejection reason:');
+    // if (reason === null) return; // User cancelled
+    // try {
+    //   await dispatch(rejectMarriageRecord({ id: record.ID, reason })).unwrap();
+    //   toast.success('Marriage Receipt Rejected');
+    // } catch (error) {
+    //   toast.error(error.message || 'Failed to reject');
+    // }
+    setRecordToReject(record);
+    setRejectionReason('');
+    setIsRejectModalOpen(true);
+  };
+
+  const confirmReject = async () => {
+    if (!recordToReject) return;
+    if (!rejectionReason.trim()) {
+        toast.error("Reason is required");
+        return;
+    }
     try {
-      await dispatch(rejectMarriageRecord({ id: record.ID, reason })).unwrap();
+      await dispatch(rejectMarriageRecord({ id: recordToReject.ID, reason: rejectionReason })).unwrap();
       toast.success('Marriage Receipt Rejected');
+      setIsRejectModalOpen(false);
+      setRecordToReject(null);
     } catch (error) {
       toast.error(error.message || 'Failed to reject');
     }
   };
-
 
   const handleCloseModal = () => {
     setSelectedReceipt(null);
