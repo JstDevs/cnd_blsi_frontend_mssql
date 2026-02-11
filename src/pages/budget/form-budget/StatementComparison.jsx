@@ -31,15 +31,16 @@ function StatementComparison() {
     contentRef: printRef,
     documentTitle: 'Statement Comparison Report',
   });
+
+  
   const columns = [
-    // { key: 'SubID',             header: 'Sub ID',             sortable: true },
-    { key: 'Type',              header: 'Account Group',            sortable: true },
-    { key: 'Subtype',           header: 'Major Account Group',      sortable: true },
-    { key: 'Category',          header: 'Sub-Major Account Group',  sortable: true },
-    { key: 'ChartOfAccounts',   header: 'Chart of Accounts',        sortable: true },
-    { 
-      key: 'AccountCode',       
-      header: 'Account Code',       
+    { key: 'Type',              header: 'Account Group',        sortable: true },
+    { key: 'Subtype',           header: 'Major Group',          sortable: true },
+    { key: 'Category',          header: 'Sub-Major Group',      sortable: true },
+    { key: 'Chart of Accounts', header: 'Chart of Accounts',    sortable: true },
+    {
+      key: 'Account Code',
+      header: 'Account Code',
       sortable: true,
       className: 'text-left font-bold',
       render: (value) => (
@@ -48,6 +49,69 @@ function StatementComparison() {
         </span>
       ),
     },
+    // { key: 'Period', header: 'Period', sortable: true },
+    {
+      key: 'Original_Sum',
+      header: 'Original Budget',
+      sortable: true,
+      className: 'text-right font-semibold',
+      render: (value) => (
+        <span className="text-right font-semibold text-primary-700">
+          {value < 0 ? "(" + formatCurrency(value * -1) + ")" : formatCurrency(value)} 
+          {/* {formatCurrency(value)} */}
+        </span>
+      ),
+    },
+    {
+      key: 'Final_Sum',
+      header: 'Final Budget',
+      sortable: true,
+      className: 'text-right font-semibold',
+      render: (value) => (
+        <span className="text-right font-semibold text-primary-700">
+          {value < 0 ? "(" + formatCurrency(value * -1) + ")" : formatCurrency(value)} 
+          {/* {formatCurrency(value)} */}
+        </span>
+      ),
+    },
+    {
+      key: 'Difference_Sum',
+      header: 'Difference',
+      sortable: true,
+      className: 'text-right font-semibold',
+      render: (value) => (
+        <span className="text-right font-semibold text-accent-700">
+          {value < 0 ? "(" + formatCurrency(value * -1) + ")" : formatCurrency(value)} 
+          {/* {formatCurrency(value)} */}
+        </span>
+      ),
+    },
+    {
+      key: 'Actual_Sum',
+      header: 'Actual Amount',
+      sortable: true,
+      className: 'text-right font-semibold',
+      render: (value) => (
+        <span className="text-right font-semibold text-primary-800">
+          {value < 0 ? "(" + formatCurrency(value * -1) + ")" : formatCurrency(value)} 
+          {/* {formatCurrency(value)} */}
+        </span>
+      ),
+    },
+    {
+      key: 'Difference2_Sum',
+      header: 'Final Difference ',
+      sortable: true,
+      className: 'text-right font-semibold',
+      render: (value) => (
+        <span className="text-right font-semibold text-accent-700">
+          {value < 0 ? "(" + formatCurrency(value * -1) + ")" : formatCurrency(value)} 
+          {/* {formatCurrency(value)} */}
+        </span>
+      ),
+    },
+
+    // { key: 'SubID',             header: 'Sub ID',             sortable: true },
     // { 
     //   key: 'Original',          
     //   header: 'Original',           
@@ -80,62 +144,6 @@ function StatementComparison() {
     //   sortable: true,
     //   className: 'text-right',
     // },
-    { key: 'Period', header: 'Period', sortable: true },
-    {
-      key: 'Original_Sum',
-      header: 'Original Budget',
-      sortable: true,
-      className: 'text-right font-semibold',
-      render: (value) => (
-        <span className="text-right font-semibold text-primary-700">
-          {formatCurrency(value)}
-        </span>
-      ),
-    },
-    {
-      key: 'Final_Sum',
-      header: 'Final Budget',
-      sortable: true,
-      className: 'text-right font-semibold',
-      render: (value) => (
-        <span className="text-right font-semibold text-primary-700">
-          {formatCurrency(value)}
-        </span>
-      ),
-    },
-    {
-      key: 'Difference_Sum',
-      header: 'Difference',
-      sortable: true,
-      className: 'text-right font-semibold',
-      render: (value) => (
-        <span className="text-right font-semibold text-accent-700">
-          {formatCurrency(value)}
-        </span>
-      ),
-    },
-    {
-      key: 'Actual_Sum',
-      header: 'Actual Amount',
-      sortable: true,
-      className: 'text-right font-semibold',
-      render: (value) => (
-        <span className="text-right font-semibold text-primary-700">
-          {formatCurrency(value)}
-        </span>
-      ),
-    },
-    {
-      key: 'Difference2_Sum',
-      header: 'Difference ',
-      sortable: true,
-      className: 'text-right font-semibold',
-      render: (value) => (
-        <span className="text-right font-semibold text-accent-700">
-          {formatCurrency(value)}
-        </span>
-      ),
-    },
     // { key: 'Municipality', header: 'Municipality', sortable: true },
     // { key: 'Province', header: 'Province', sortable: true },
   ];
