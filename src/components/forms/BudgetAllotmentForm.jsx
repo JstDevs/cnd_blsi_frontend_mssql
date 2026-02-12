@@ -5,6 +5,7 @@ import FormField from '../common/FormField';
 import SearchableDropdown from '../common/SearchableDropdown';
 import { Paperclip, Trash2 } from 'lucide-react';
 import { formatCurrency, formatForInput } from '@/utils/currencyFormater';
+import toast from 'react-hot-toast';
 const API_URL = import.meta.env.VITE_API_URL;
 const validationSchema = Yup.object().shape({
   BudgetID: Yup.string().required('Budget is required'),
@@ -127,6 +128,16 @@ function BudgetAllotmentForm({
         formData.append('IsNew', false);
       } else {
         formData.append('IsNew', true);
+      }
+
+      // Validation: Ensure Allotment does not exceed Available Balance
+      const availableBalance = parseFloat(values.balance || 0);
+      const allotmentAmount = parseFloat(values.allotment || 0);
+
+      if (allotmentAmount > availableBalance) {
+        toast.error(`Allotment amount (${allotmentAmount}) exceeds the available appropriation balance (${availableBalance})`);
+        setSubmitting(false);
+        return;
       }
 
       // Call onSubmit with the prepared formData
