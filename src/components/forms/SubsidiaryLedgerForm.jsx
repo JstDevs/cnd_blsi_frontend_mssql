@@ -133,7 +133,7 @@ function SubsidiaryLedgerForm({
           <div className="flex justify-end gap-3 max-sm:flex-col pt-4 border-t border-neutral-200">
             <button
               type="submit"
-              className="btn btn-primary"
+              className="btn btn-secondary"
               disabled={isSubmitting}
               onClick={() => (submitAction.current = 'view')}
             >
@@ -141,15 +141,15 @@ function SubsidiaryLedgerForm({
             </button>
             <button
               type="button"
-              className="btn btn-secondary"
+              className="btn btn-primary"
               disabled={isSubmitting}
               // onClick={() => (submitAction.current = 'generate')}
             >
-              Generate Ledger
+              Generate Journal
             </button>
             <button
               type="submit"
-              className="btn btn-outline"
+              className="btn btn-success"
               disabled={isSubmitting}
               onClick={() => (submitAction.current = 'export')}
             >

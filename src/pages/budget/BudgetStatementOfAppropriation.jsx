@@ -254,29 +254,32 @@ const BudgetStatementOfAppropriation = () => {
       <div className="pt-4 border-t border-neutral-200 flex flex-wrap justify-end gap-3 mb-6">
         <button
           onClick={() => handleFetchData('appropriations')}
-          className="btn btn-primary"
+          className="btn btn-secondary"
         >
           View SAAOB
         </button>
         <button
           onClick={() => handleFetchData('viewSAO')}
-          className="btn btn-primary"
+          className="btn btn-secondary"
         >
           View SAO
         </button>
         <button
-          className="btn btn-secondary"
+          className="btn btn-primary"
           onClick={() => handleGenerate('saaob')}
         >
           Generate SAAOB
         </button>
         <button
-          className="btn btn-secondary"
+          className="btn btn-primary"
           onClick={() => handleGenerate('sao')}
         >
           Generate SAO
         </button>
-        <button className="btn btn-outline" onClick={handleExport}>
+        <button 
+          className="btn btn-success" 
+          onClick={handleExport}
+        >
           Export to Excel
         </button>
       </div>

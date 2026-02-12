@@ -131,7 +131,7 @@ function TrialBalanceForm({
           <div className="flex justify-end gap-3 pt-4 border-t border-neutral-200 max-sm:flex-col">
             <button
               type="submit"
-              className="btn btn-primary"
+              className="btn btn-secondary"
               disabled={isSubmitting}
               onClick={() => (submitAction.current = 'view')}
             >
@@ -139,15 +139,15 @@ function TrialBalanceForm({
             </button>
             <button
               type="button"
-              className="btn btn-secondary"
+              className="btn btn-primary"
               disabled={isSubmitting}
               // onClick={() => (submitAction.current = 'generate')}
             >
-              Generate Cashbook
+              Generate Journal
             </button>
             <button
               type="submit"
-              className="btn btn-outline"
+              className="btn btn-success"
               disabled={isSubmitting}
               onClick={() => (submitAction.current = 'export')}
             >

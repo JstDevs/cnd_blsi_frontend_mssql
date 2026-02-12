@@ -101,21 +101,21 @@ function CashbookForm({ onSubmit }) {
             <button
               type="submit"
               onClick={() => setFieldValue('action', 'view')}
-              className="btn btn-primary"
+              className="btn btn-secondary"
             >
               View
             </button>
             <button
               type="submit"
               onClick={() => setFieldValue('action', 'generate')}
-              className="btn btn-secondary"
+              className="btn btn-primary"
             >
               Generate Cashbook
             </button>
             <button
               type="submit"
               onClick={() => setFieldValue('action', 'export')}
-              className="btn btn-outline"
+              className="btn btn-success"
             >
               Export to Excel
             </button>

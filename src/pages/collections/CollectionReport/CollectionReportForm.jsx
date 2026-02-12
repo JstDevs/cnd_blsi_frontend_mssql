@@ -368,7 +368,7 @@ function CollectionReportForm({
                 handleSubmit();
                 setErrors({}); // Clear all form errors
               }}
-              className="btn btn-primary sm:w-auto w-full"
+              className="btn btn-secondary sm:w-auto w-full"
             >
               View
             </button>
@@ -378,7 +378,7 @@ function CollectionReportForm({
                 setFieldValue('action', 'generate');
                 handleSubmit();
               }}
-              className="btn btn-secondary sm:w-auto w-full"
+              className="btn btn-primary sm:w-auto w-full"
             >
               Generate Journal
             </button>
@@ -388,7 +388,7 @@ function CollectionReportForm({
                 setFieldValue('action', 'export');
                 handleSubmit();
               }}
-              className="btn btn-outline sm:w-auto w-full"
+              className="btn btn-success sm:w-auto w-full"
             >
               Export to Excel
             </button>

@@ -110,8 +110,8 @@ function StatementComparison() {
       ),
     },
     
-    // { key: 'Period', header: 'Period', sortable: true },
-    // { key: 'SubID',             header: 'Sub ID',             sortable: true },
+    // { key: 'Period',  header: 'Period', sortable: true },
+    // { key: 'SubID',   header: 'Sub ID', sortable: true },
     // { 
     //   key: 'Original',          
     //   header: 'Original',           
