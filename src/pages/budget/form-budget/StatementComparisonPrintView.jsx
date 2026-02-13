@@ -65,13 +65,13 @@ const StatementComparisonPrintView = forwardRef(({ data, fiscalYear }, ref) => {
             //   </td>
             // </tr>
 
-            <tr>
+            <tr key={idx}>
               <td className="text-[9px] leading-tight">
                 {/* {row.Type} - {row.Subtype} - {row.Category} - {row.ChartOfAccounts}  */}
-                {row.ChartOfAccounts}                
-              </td>              
-              <td className="text-[9px]"> 
-                
+                {row.ChartOfAccounts}
+              </td>
+              <td className="text-[9px]">
+
               </td>
               <td className="text-[9px] text-right">
                 {Number(row.Original || 0).toLocaleString('en-PH', { minimumFractionDigits: 2 })}
