@@ -8,6 +8,7 @@ function PostClosingForm({
     employees = [],
     fiscalYears = [],
     onView,
+    onGenerateJournal,
     onExportExcel,
 }) {
     const submitAction = useRef(null);
@@ -33,6 +34,8 @@ function PostClosingForm({
 
         if (action === 'view') {
             onView(values);
+        } else if (action === 'generate') {
+            onGenerateJournal(values);
         } else if (action === 'export') {
             onExportExcel(values);
         }
@@ -135,6 +138,14 @@ function PostClosingForm({
                             onClick={() => (submitAction.current = 'view')}
                         >
                             View
+                        </button>
+                        <button
+                            type="submit"
+                            className="btn btn-primary"
+                            disabled={isSubmitting}
+                            onClick={() => (submitAction.current = 'generate')}
+                        >
+                            Generate Journal
                         </button>
                         <button
                             type="submit"

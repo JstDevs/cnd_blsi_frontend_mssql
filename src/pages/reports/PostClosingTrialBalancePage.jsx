@@ -10,6 +10,9 @@ import { fetchFunds } from '../../features/budget/fundsSlice';
 import { fetchEmployees } from '@/features/settings/employeeSlice';
 import { fetchFiscalYears } from '@/features/settings/fiscalYearSlice';
 import toast from 'react-hot-toast';
+import { useRef, useState } from 'react';
+import { useReactToPrint } from 'react-to-print';
+import PostClosingPrintView from './PostClosingPrintView';
 
 function PostClosingTrialBalancePage() {
     const API_URL = import.meta.env.VITE_API_URL;
@@ -21,6 +24,14 @@ function PostClosingTrialBalancePage() {
     const { funds } = useSelector((state) => state.funds);
     const { employees } = useSelector((state) => state.employees);
     const { fiscalYears } = useSelector((state) => state.fiscalYears);
+
+    const [formValues, setFormValues] = useState(null);
+    const printRef = useRef();
+
+    const handlePrint = useReactToPrint({
+        contentRef: printRef,
+        documentTitle: 'Post-Closing Trial Balance',
+    });
 
     const formatCurrency = (amount) => {
         return new Intl.NumberFormat('en-PH', {
@@ -109,7 +120,17 @@ function PostClosingTrialBalancePage() {
     };
 
     const handleView = (values) => {
+        setFormValues(values);
         dispatch(fetchPostClosingData(values));
+    };
+
+    const handleGenerateJournal = (values) => {
+        if (!postClosingData || postClosingData.length === 0) {
+            toast.error('No data to generate journal. Please view the report first.');
+            return;
+        }
+        setFormValues(values);
+        handlePrint();
     };
 
     return (
@@ -128,6 +149,7 @@ function PostClosingTrialBalancePage() {
                     fiscalYears={fiscalYears}
                     onExportExcel={handleExport}
                     onView={handleView}
+                    onGenerateJournal={handleGenerateJournal}
                 />
             </div>
 
@@ -146,6 +168,21 @@ function PostClosingTrialBalancePage() {
                     data={postClosingData}
                     loading={isLoading}
                     pagination={true}
+                />
+            </div>
+
+            {/* Print View (Hidden) */}
+            <div className="hidden">
+                <PostClosingPrintView
+                    ref={printRef}
+                    data={postClosingData}
+                    formValues={formValues}
+                    fiscalYearName={fiscalYears.find(fy => fy.ID === formValues?.fiscalYearID)?.Name}
+                    fundName={funds.find(f => f.ID === formValues?.fundID)?.Name}
+                    approverName={(() => {
+                        const emp = employees.find(e => e.ID === formValues?.approverID);
+                        return emp ? `${emp.FirstName} ${emp.LastName}` : '';
+                    })()}
                 />
             </div>
         </div>
