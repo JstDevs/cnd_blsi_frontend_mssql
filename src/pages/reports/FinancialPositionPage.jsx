@@ -121,7 +121,7 @@ function FinancialPositionPage() {
     };
 
     const handlePrint = useReactToPrint({
-        content: () => printRef.current,
+        contentRef: printRef,
         documentTitle: 'Statement_of_Financial_Position',
     });
 
