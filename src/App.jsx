@@ -141,6 +141,8 @@ import CollectionReportPage from './pages/collections/CollectionReport/Collectio
 import CashbookPage from './pages/collections/Cashbook/CashbookPage';
 import FinancialPositionPage from './pages/reports/FinancialPositionPage';
 import FinancialPerformancePage from './pages/reports/FinancialPerformancePage';
+import CashFlowPage from './pages/reports/CashFlowPage';
+
 
 
 
@@ -303,6 +305,8 @@ function App() {
           <Route path="/reports/post-closing" element={<PostClosingTrialBalancePage />} />
           <Route path="/reports/financial-position" element={<FinancialPositionPage />} />
           <Route path="/reports/financial-performance" element={<FinancialPerformancePage />} />
+          <Route path="/reports/cash-flow" element={<CashFlowPage />} />
+
 
 
 

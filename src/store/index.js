@@ -70,6 +70,8 @@ import postClosingReducer from '../features/reports/postClosingSlice';
 import financialStatementReportsReducer from '../features/reports/financialStatementSlice';
 import financialPositionReducer from '../features/reports/financialPositionSlice';
 import financialPerformanceReducer from '../features/reports/financialPerformanceSlice';
+import cashFlowReducer from '../features/reports/cashFlowSlice';
+
 
 
 import realPropertyTaxReducer from '../features/collections/realPropertyTaxSlice';
@@ -145,7 +147,9 @@ export const store = configureStore({
     financialStatementsReports: financialStatementReportsReducer,
     financialPosition: financialPositionReducer,
     financialPerformance: financialPerformanceReducer,
+    cashFlow: cashFlowReducer,
     postClosing: postClosingReducer,
+
 
 
     // ----------------BUDGET SLICES---------------------
