@@ -139,6 +139,8 @@ import BudgetSubFundsPage from './pages/budget/BudgetSubFundsPage';
 import BudgetFundTransferPage from './pages/budget/BudgetFundTransferPage';
 import CollectionReportPage from './pages/collections/CollectionReport/CollectionReportPage';
 import CashbookPage from './pages/collections/Cashbook/CashbookPage';
+import FinancialPositionPage from './pages/reports/FinancialPositionPage';
+
 
 function App() {
   const { isAuthenticated, isLoading } = useSelector((state) => state.auth);
@@ -297,6 +299,8 @@ function App() {
           <Route path="/reports/bir" element={<BirReportPage />} />
           <Route path="/reports/trial-balance" element={<TrialBalancePage />} />
           <Route path="/reports/post-closing" element={<PostClosingTrialBalancePage />} />
+          <Route path="/reports/financial-position" element={<FinancialPositionPage />} />
+
 
 
           {/*------------------------ Collection module----------------------- */}

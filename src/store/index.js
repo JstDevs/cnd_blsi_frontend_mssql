@@ -68,6 +68,8 @@ import statementComparisonReducer from '../features/budget/statementComparisonSl
 import subsidiaryLedgerReducer from '../features/reports/subsidiaryLedgerSlice';
 import postClosingReducer from '../features/reports/postClosingSlice';
 import financialStatementReportsReducer from '../features/reports/financialStatementSlice';
+import financialPositionReducer from '../features/reports/financialPositionSlice';
+
 import realPropertyTaxReducer from '../features/collections/realPropertyTaxSlice';
 import budgetReducer from '../features/budget/budgetSlice';
 import { burialRecordsReducer } from '@/features/collections/burialServiceSlice';
@@ -139,7 +141,9 @@ export const store = configureStore({
     statementComparison: statementComparisonReducer,
     subsidiaryLedger: subsidiaryLedgerReducer,
     financialStatementsReports: financialStatementReportsReducer,
+    financialPosition: financialPositionReducer,
     postClosing: postClosingReducer,
+
     // ----------------BUDGET SLICES---------------------
     fundTransfer: fundTransferReducer,
     budgetTransfer: budgetTransferReducer,
