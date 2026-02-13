@@ -140,6 +140,8 @@ import BudgetFundTransferPage from './pages/budget/BudgetFundTransferPage';
 import CollectionReportPage from './pages/collections/CollectionReport/CollectionReportPage';
 import CashbookPage from './pages/collections/Cashbook/CashbookPage';
 import FinancialPositionPage from './pages/reports/FinancialPositionPage';
+import FinancialPerformancePage from './pages/reports/FinancialPerformancePage';
+
 
 
 function App() {
@@ -300,6 +302,8 @@ function App() {
           <Route path="/reports/trial-balance" element={<TrialBalancePage />} />
           <Route path="/reports/post-closing" element={<PostClosingTrialBalancePage />} />
           <Route path="/reports/financial-position" element={<FinancialPositionPage />} />
+          <Route path="/reports/financial-performance" element={<FinancialPerformancePage />} />
+
 
 
 
