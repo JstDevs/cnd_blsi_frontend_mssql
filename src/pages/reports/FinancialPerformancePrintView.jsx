@@ -1,82 +1,6 @@
 import React, { forwardRef } from 'react';
 
-// ------------------------------------ OLD VERSION ------------------------------------
-
-// const FinancialPerformancePrintView = forwardRef(({ data, formValues, fiscalYearName, fundName, approverName }, ref) => {
-
-//     const formatCurrency = (amount) => {
-//         return Number(amount || 0).toLocaleString('en-PH', {
-//             minimumFractionDigits: 2,
-//             maximumFractionDigits: 2
-//         });
-//     };
-
-//     return (
-//         <div ref={ref} className="p-8 text-black bg-white min-h-screen">
-//             {/* Header */}
-//             <div className="text-center mb-8">
-//                 <h1 className="text-xl font-bold uppercase">Republic of the Philippines</h1>
-//                 <h2 className="text-lg font-bold">Municipality of {data?.[0]?.Municipality || 'LGU'}</h2>
-//                 <div className="mt-4">
-//                     <h3 className="text-xl font-bold uppercase underline">Statement of Financial Performance</h3>
-//                     <p className="text-sm">As of {formValues?.dateTo || 'N/A'}</p>
-//                 </div>
-//             </div>
-
-//             {/* Meta Info */}
-//             <div className="mb-6 grid grid-cols-2 gap-4 text-sm">
-//                 <div>
-//                     <p><span className="font-semibold">Fund:</span> {fundName || 'N/A'}</p>
-//                     <p><span className="font-semibold">Fiscal Year:</span> {fiscalYearName || 'N/A'}</p>
-//                 </div>
-//                 <div className="text-right">
-//                     <p><span className="font-semibold">Date Range:</span> {formValues?.dateFrom} to {formValues?.dateTo}</p>
-//                 </div>
-//             </div>
-
-//             {/* Table */}
-//             <table className="w-full border-collapse border border-black mb-8 text-xs">
-//                 <thead>
-//                     <tr className="bg-gray-100 uppercase">
-//                         <th className="border border-black p-2 text-left">Account Code</th>
-//                         <th className="border border-black p-2 text-left">Account Name</th>
-//                         <th className="border border-black p-2 text-right">Amount</th>
-//                     </tr>
-//                 </thead>
-//                 <tbody>
-//                     {data.map((item, index) => (
-//                         <tr key={index}>
-//                             <td className="border border-black p-2">{item.AccountCode}</td>
-//                             <td className="border border-black p-2">{item.AccountName}</td>
-//                             <td className="border border-black p-2 text-right">
-//                                 {formatCurrency(item.Amount)}
-//                             </td>
-//                         </tr>
-//                     ))}
-//                 </tbody>
-//             </table>
-
-//             {/* Signatories */}
-//             <div className="mt-12 grid grid-cols-1 gap-8 max-w-xs ml-auto">
-//                 <div className="text-center">
-//                     <p className="mb-12">Approved by:</p>
-//                     <p className="font-bold border-b border-black inline-block px-8">{approverName || '____________________'}</p>
-//                     <p className="text-xs uppercase">{data?.[0]?.Position || 'Position'}</p>
-//                 </div>
-//             </div>
-
-//             {/* Footer */}
-//             <div className="mt-12 text-[10px] text-gray-500 italic">
-//                 <p>Printed on: {new Date().toLocaleString()}</p>
-//             </div>
-//         </div>
-//     );
-// });
-
-// FinancialPerformancePrintView.displayName = 'FinancialPerformancePrintView';
-
-
-// ------------------------------------- NEW VERSION ------------------------------------
+// ------------------------------------- FINANCIAL PERFORMANCE PRINT VIEW ------------------------------------
 
 const FinancialPerformancePrintView = forwardRef(({ data, formValues, fiscalYearName, fundName, approverName }, ref) => {
     const formatCurrency = (amount) => {
@@ -91,10 +15,109 @@ const FinancialPerformancePrintView = forwardRef(({ data, formValues, fiscalYear
     const categorizedData = (data || []).reduce((acc, item) => {
         const firstDigit = String(item.AccountCode)[0];
         const category = item.Category || 'Other';
-    })
 
+        if (firstDigit === '4') {
+            if (!acc.revenue[category]) acc.revenue[category] = [];
+            acc.revenue[category].push(item);
+        } else if (firstDigit === '5') {
+            if (category.toLowerCase().includes('transfers')) {
+                if (!acc.transfers[category]) acc.transfers[category] = [];
+                acc.transfers[category].push(item);
+            } else {
+                if (!acc.expenses[category]) acc.expenses[category] = [];
+                acc.expenses[category].push(item);
+            }
+        }
+        return acc;
+    }, { revenue: {}, expenses: {}, transfers: {} });
 
+    const calculateGroupTotal = (group) => {
+        return Object.values(group).flat().reduce((sum, item) => sum + (Number(item.Amount) || 0), 0);
+    };
+
+    const totalRevenue = calculateGroupTotal(categorizedData.revenue);
+    const totalExpenses = calculateGroupTotal(categorizedData.expenses);
+    const surplusFromOperations = totalRevenue - totalExpenses;
+    const totalTransfers = calculateGroupTotal(categorizedData.transfers);
+    const netSurplus = surplusFromOperations - totalTransfers;
+
+    return (
+        <div ref={ref} className="p-12 text-black bg-white min-h-screen font-serif text-sm print:p-8">
+            {/* Boxed Header */}
+            <div className="border border-orange-300 p-4 text-center mb-10 mx-auto max-w-2xl rounded-lg">
+                <h1 className="text-base font-bold uppercase tracking-wider">Municipality of {data?.[0]?.Municipality || 'LGU'}</h1>
+                <h2 className="text-base font-bold uppercase tracking-wider">Statement of Financial Performance</h2>
+                <h3 className="text-base font-bold uppercase tracking-wider">{fundName || 'General Fund'}</h3>
+                <p className="mt-2">For the Year Ended {formValues?.dateTo ? new Date(formValues.dateTo).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' }) : 'December 31, 2025'}</p>
+                <p className="italic">(In thousands of Pesos)</p>
+            </div>
+            <div className="w-full max-w-4xl mx-auto">
+                <div className="flex justify-end mb-4 pr-4 border-b border-black">
+                    <span className="font-bold">{fiscalYearName || '2024'}</span>
+                </div>
+                {/* Revenue Section */}
+                <div className="mb-6">
+                    <h4 className="font-bold mb-2">Revenue</h4>
+                    {Object.entries(categorizedData.revenue).map(([cat, items]) => (
+                        <div key={cat} className="flex justify-between pl-8 py-0.5">
+                            <span>{cat}</span>
+                            <span className="pr-4">{formatCurrency(items.reduce((s, i) => s + (Number(i.Amount) || 0), 0))}</span>
+                        </div>
+                    ))}
+                    <div className="flex justify-between font-bold mt-1 border-t border-black pt-1">
+                        <span className="uppercase">Total Revenue</span>
+                        <span className="pr-4 border-b-2 border-black">{formatCurrency(totalRevenue)}</span>
+                    </div>
+                </div>
+                {/* Expenses Section */}
+                <div className="mb-6">
+                    <h4 className="font-bold mb-2">Less: Current Operating Expenses</h4>
+                    {Object.entries(categorizedData.expenses).map(([cat, items]) => (
+                        <div key={cat} className="flex justify-between pl-8 py-0.5">
+                            <span>{cat}</span>
+                            <span className="pr-4">{formatCurrency(items.reduce((s, i) => s + (Number(i.Amount) || 0), 0))}</span>
+                        </div>
+                    ))}
+                    <div className="flex justify-between font-bold mt-1 border-t border-black pt-1">
+                        <span className="uppercase">Current Operating Expenses</span>
+                        <span className="pr-4 border-b-2 border-black">{formatCurrency(totalExpenses)}</span>
+                    </div>
+                </div>
+                {/* Surplus from Operations */}
+                <div className="mb-6 flex justify-between font-bold text-base">
+                    <span className="uppercase">Surplus (Deficit) from Current Operations</span>
+                    <span className="pr-4">{formatCurrency(surplusFromOperations)}</span>
+                </div>
+                {/* Transfers Section */}
+                <div className="mb-6">
+                    <h4 className="italic pl-4 text-xs mb-1">Add (Deduct):</h4>
+                    {Object.entries(categorizedData.transfers).map(([cat, items]) => (
+                        <div key={cat} className="flex justify-between pl-12 py-0.5">
+                            <span>{cat}</span>
+                            <span className="pr-4">{formatCurrency(items.reduce((s, i) => s + (Number(i.Amount) || 0), 0))}</span>
+                        </div>
+                    ))}
+                </div>
+                {/* Net Surplus */}
+                <div className="mb-10 flex justify-between font-bold border-t border-black pt-2">
+                    <span className="uppercase">Surplus (Deficit) for the period</span>
+                    <span className="pr-4 border-b-4 border-double border-black">{formatCurrency(netSurplus)}</span>
+                </div>
+                {/* Signatories */}
+                <div className="mt-20">
+                    <div className="flex flex-col items-end mr-12">
+                        <div className="text-left">
+                            <p className="mb-4">Certified Correct:</p>
+                            <p className="font-bold uppercase mt-2 mb-0">{approverName || 'ACCOUNTING S. HEAD'}</p>
+                            <p className="italic text-xs">Accounting Head</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    );
 
 });
 
+FinancialPerformancePrintView.displayName = 'FinancialPerformancePrintView';
 export default FinancialPerformancePrintView;
