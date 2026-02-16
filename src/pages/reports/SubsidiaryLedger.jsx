@@ -1,5 +1,6 @@
 import React, { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
+import { useReactToPrint } from 'react-to-print';
 import SubsidiaryLedgerForm from '../../components/forms/SubsidiaryLedgerForm';
 import DataTable from '../../components/common/DataTable';
 import {
@@ -9,6 +10,7 @@ import {
 import { fetchFunds } from '../../features/budget/fundsSlice';
 import { fetchAccounts } from '../../features/settings/chartOfAccountsSlice';
 import toast from 'react-hot-toast';
+import SubsidiaryLedgerPrintView from './SubsidiaryLedgerPrintView';
 
 function SubsidiaryLedger() {
   const API_URL = import.meta.env.VITE_API_URL;
@@ -18,6 +20,14 @@ function SubsidiaryLedger() {
   );
   const { funds } = useSelector((state) => state.funds);
   const { accounts } = useSelector((state) => state.chartOfAccounts);
+
+  const [filterValues, setFilterValues] = React.useState(null);
+  const componentRef = React.useRef();
+
+  const handlePrint = useReactToPrint({
+    contentRef: componentRef,
+    documentTitle: 'Subsidiary Ledger Report',
+  });
 
   // Format currency for display
   const formatCurrency = (amount) => {
@@ -62,6 +72,7 @@ function SubsidiaryLedger() {
       key: 'date',
       header: 'Date',
       sortable: true,
+      render: (value) => value ? new Date(value).toLocaleDateString('en-PH', { month: 'short', day: 'numeric', year: 'numeric' }) : '',
     },
     {
       key: 'ledger_item',
@@ -135,9 +146,18 @@ function SubsidiaryLedger() {
     }
   };
 
-  // Handle view to Excel
+  // Handle view to excel
   const handleView = (values) => {
+    setFilterValues(values);
     dispatch(fetchSubsidiaryLedgers(values));
+  };
+
+  const handleGenerateJournal = (values) => {
+    if (!subsidiaryLedgers || subsidiaryLedgers.length === 0) {
+      toast.error('Please view the report first before generating.');
+      return;
+    }
+    handlePrint();
   };
 
   return (
@@ -158,6 +178,7 @@ function SubsidiaryLedger() {
           }))}
           onExportExcel={handleExport}
           onView={handleView}
+          onGenerateJournal={handleGenerateJournal}
           onClose={() => { }}
         />
       </div>
@@ -174,6 +195,16 @@ function SubsidiaryLedger() {
           data={subsidiaryLedgers}
           loading={isLoading}
           pagination={true}
+        />
+      </div>
+
+      <div style={{ display: 'none' }}>
+        <SubsidiaryLedgerPrintView
+          ref={componentRef}
+          data={subsidiaryLedgers}
+          formValues={filterValues}
+          chartOfAccounts={accounts}
+          fundName={funds.find(f => String(f.ID) === String(filterValues?.FundID))?.Name}
         />
       </div>
     </div>
