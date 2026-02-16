@@ -204,7 +204,19 @@ function TrialBalancePage() {
           funds={funds}
           approver={
             filterValues?.approverID
-              ? employees.find(e => e.ID === filterValues.approverID)?.FirstName + ' ' + employees.find(e => e.ID === filterValues.approverID)?.LastName
+              ? (() => {
+                const emp = employees.find(e => e.ID === filterValues.approverID);
+                return emp ? `${emp.FirstName} ${emp.MiddleName ? emp.MiddleName[0] + '.' : ''} ${emp.LastName}` : '';
+              })()
+              : ''
+          }
+          approverPosition={
+            filterValues?.approverID
+              ? (() => {
+                const emp = employees.find(e => e.ID === filterValues.approverID);
+                const position = emp?.Position;
+                return typeof position === 'object' ? position?.Name : (position || '');
+              })()
               : ''
           }
         />

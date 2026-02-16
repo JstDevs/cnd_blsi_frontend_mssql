@@ -1,6 +1,6 @@
 import React from 'react';
 
-const TrialBalancePrintView = React.forwardRef(({ data, formValues, approver, funds }, ref) => {
+const TrialBalancePrintView = React.forwardRef(({ data, formValues, approver, funds, approverPosition }, ref) => {
 
     const formatCurrency = (amount) => {
         return Number(amount || 0).toLocaleString('en-US', {
@@ -27,13 +27,19 @@ const TrialBalancePrintView = React.forwardRef(({ data, formValues, approver, fu
             {/* Header */}
             <div className="text-center mb-8">
                 <h1 className="text-lg font-bold uppercase underline decoration-2 underline-offset-4 mb-2">TRIAL BALANCE</h1>
-                <h2 className="text-base font-bold uppercase underline decoration-2 underline-offset-4 mb-2">MUNICIPALITY OF {filteredData?.[0]?.Municipality || 'LUCENA'}</h2>
+                <h2 className="text-base font-bold uppercase underline decoration-2 underline-offset-4 mb-2">MUNICIPALITY OF {filteredData?.[0]?.Municipality || 'LGU'}</h2>
                 <p className="italic font-bold">As of {formValues?.endDate ? new Date(formValues.endDate).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' }) : '_________________'}</p>
             </div>
 
             {/* Fund Name */}
             <div className="mb-2">
-                <h3 className="font-bold text-base">{formValues?.fundID ? funds?.find(f => f.ID === formValues.fundID)?.Name : (filteredData?.[0]?.Funds || 'General Fund')}</h3>
+                <h3 className="font-bold text-base">
+                    {formValues?.fundID
+                        ? funds?.find(f => f.ID === formValues.fundID)?.Name
+                        : (typeof filteredData?.[0]?.Funds === 'object'
+                            ? filteredData?.[0]?.Funds?.Name
+                            : (filteredData?.[0]?.Funds || 'General Fund'))}
+                </h3>
             </div>
 
             {/* Table */}
@@ -80,10 +86,10 @@ const TrialBalancePrintView = React.forwardRef(({ data, formValues, approver, fu
             <div className="mt-16 flex justify-end">
                 <div className="text-center w-64">
                     <p className="mb-8 text-left text-xs">Certified Correct:</p>
-                    <div className="border-t border-black pt-1">
+                    <div className="inline-block border-b border-black pb-1 mb-1">
                         <p className="font-bold uppercase text-sm">{approver || 'CEDRIC A. ENTAC'}</p>
-                        <p className="text-xs">Treasury Head</p>
                     </div>
+                    <p className="text-xs">{approverPosition || 'Treasury Head'}</p>
                 </div>
             </div>
         </div>
