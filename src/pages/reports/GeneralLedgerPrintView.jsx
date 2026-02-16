@@ -1,104 +1,100 @@
 import React, { forwardRef } from 'react';
-import { formatDate } from 'date-fns';
 
-const GeneralLedgerPrintView = forwardRef(({ data, filters }, ref) => {
-    // Calculate totals
-    const totals = {
-        Debit: 0,
-        Credit: 0,
-        Balance: 0,
-    };
+// ------------------------------------- GENERAL LEDGER PRINT VIEW ------------------------------------
 
-    data.forEach((row) => {
-        totals.Debit += Number(row.Debit) || 0;
-        totals.Credit += Number(row.Credit) || 0;
-        totals.Balance += Number(row.Balance) || 0;
-    });
+const GeneralLedgerPrintView = forwardRef(({ data, formValues, fiscalYearName, fundName, approverName }, ref) => {
 
     const formatCurrency = (amount) => {
-        return new Intl.NumberFormat('en-PH', {
-            style: 'currency',
-            currency: 'PHP',
+        if (amount === 0) return '0.00';
+        if (!amount) return '-';
+        return Number(amount).toLocaleString('en-PH', {
             minimumFractionDigits: 2,
-        }).format(amount);
+            maximumFractionDigits: 2
+        });
     };
 
+    const totals = (data || []).reduce(
+        (acc, item) => ({
+            debit: acc.debit + (Number(item.Debit || item.debit) || 0),
+            credit: acc.credit + (Number(item.Credit || item.credit) || 0),
+        }),
+        { debit: 0, credit: 0 }
+    );
+
+    // Get info from first row if available
+    const firstRow = data?.[0] || {};
+
     return (
-        <div ref={ref} className="p-6 text-black text-[10px] w-full">
-            <div className="text-center mb-6">
-                <h2 className="font-bold text-sm">Municipality of {data?.[0]?.Municipality || 'LGU'}</h2>
-                <h3 className="font-bold text-lg">General Ledger</h3>
-                {filters?.CutOffDate && (
-                    <p className="text-xs">
-                        As of {formatDate(filters.CutOffDate, "MMMM d, yyyy")}
+        <div ref={ref} className="p-12 text-black bg-white min-h-screen font-serif text-[11px] print:p-8">
+            {/* Header Title */}
+            <div className="text-center mb-8">
+                <h1 className="text-xl font-bold uppercase tracking-widest">GENERAL LEDGER</h1>
+                <div className="mt-2 border-t-2 border-black w-1/3 mx-auto pt-1">
+                    <p className="font-bold flex justify-center items-center">
+                        Municipality of
+                        <span className="ml-2 uppercase">{firstRow.Municipality || 'LGU'}</span>
                     </p>
-                )}
+                </div>
             </div>
 
-            <table className="w-full border-collapse border border-gray-300">
-                <thead>
-                    <tr className="bg-gray-100">
-                        <th className="border border-gray-300 p-1 text-left">Date</th>
-                        <th className="border border-gray-300 p-1 text-left">Ref Number</th>
-                        <th className="border border-gray-300 p-1 text-left">Particulars</th>
-                        <th className="border border-gray-300 p-1 text-left">Account Code</th>
-                        <th className="border border-gray-300 p-1 text-left">Account Name</th>
-                        <th className="border border-gray-300 p-1 text-right">Debit</th>
-                        <th className="border border-gray-300 p-1 text-right">Credit</th>
-                        <th className="border border-gray-300 p-1 text-right">Balance</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {data.map((row, idx) => (
-                        <tr key={idx} className={idx % 2 === 0 ? 'bg-white' : 'bg-gray-50'}>
-                            <td className="border border-gray-300 p-1">
-                                {row['Invoice Date'] ? formatDate(new Date(row['Invoice Date']), "MMM d, yyyy") : '-'}
+            {/* Info Section */}
+            <div className="w-full max-w-5xl mx-auto mb-4 flex justify-between font-bold">
+                <div className="space-y-1">
+                    <p>Fund: <span className="font-normal border-b border-black min-w-[150px] inline-block ml-1">{fundName || firstRow['Fund Name'] || firstRow.Fund || firstRow.fund || '________________'}</span></p>
+                    <p>Account Title: <span className="font-normal border-b border-black min-w-[200px] inline-block ml-1">{firstRow['Account Name'] || firstRow.AccountName || firstRow.account_name || '________________'}</span></p>
+                </div>
+                <div className="flex items-end">
+                    <p>Account Code: <span className="font-normal border-b border-black min-w-[150px] inline-block ml-1 text-center">{firstRow['Account Code'] || firstRow.AccountCode || firstRow.account_code || '________________'}</span></p>
+                </div>
+            </div>
+
+            <div className="w-full max-w-5xl mx-auto">
+                {/* Table */}
+                <table className="w-full border-collapse border-t-2 border-b-2 border-black">
+                    <thead>
+                        <tr className="uppercase text-center">
+                            <th className="border border-black p-2 w-[12%]" rowSpan={2}>Date</th>
+                            <th className="border border-black p-2 w-[35%]" rowSpan={2}>Particular</th>
+                            <th className="border border-black p-2 w-[8%]" rowSpan={2}>Ref.</th>
+                            <th className="border border-black p-2" colSpan={3}>Amount</th>
+                        </tr>
+                        <tr className="uppercase text-center">
+                            <th className="border border-black p-1 w-[15%]">Debit</th>
+                            <th className="border border-black p-1 w-[15%]">Credit</th>
+                            <th className="border border-black p-1 w-[15%]">Balance</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {(data || []).map((item, index) => (
+                            <tr key={index} className="border-b border-gray-200 last:border-black last:border-b-2">
+                                <td className="border-x border-black px-2 py-1 text-center font-bold">
+                                    {(item['Invoice Date'] || item.Date || item.date) ? new Date(item['Invoice Date'] || item.Date || item.date).toLocaleDateString('en-PH', { month: '2-digit', day: '2-digit', year: 'numeric' }) : ''}
+                                </td>
+                                <td className="border-x border-black px-2 py-1">{item.Particular || item['Ledger Item'] || item.ledger_item}</td>
+                                <td className="border-x border-black px-2 py-1 text-center">{item.Ref || item['Invoice Number'] || item.invoice_number}</td>
+                                <td className="border-x border-black px-2 py-1 text-right">{formatCurrency(item.Debit || item.debit)}</td>
+                                <td className="border-x border-black px-2 py-1 text-right">{formatCurrency(item.Credit || item.credit)}</td>
+                                <td className="border-x border-black px-2 py-1 text-right font-semibold">{formatCurrency(item.Balance || item.balance)}</td>
+                            </tr>
+                        ))}
+                        {/* Summary Total Row */}
+                        <tr className="font-bold uppercase">
+                            <td className="border border-black px-4 py-2" colSpan={3}>
+                                Total
                             </td>
-                            <td className="border border-gray-300 p-1">{row['Invoice Number']}</td>
-                            <td className="border border-gray-300 p-1">{row['Ledger Item'] || '-'}</td>
-                            <td className="border border-gray-300 p-1">{row['Account Code']}</td>
-                            <td className="border border-gray-300 p-1">{row['Account Name']}</td>
-                            <td className="border border-gray-300 p-1 text-right">
-                                {row.Debit ? formatCurrency(row.Debit) : '-'}
+                            <td className="border border-black px-4 py-2 text-right">
+                                {formatCurrency(totals.debit)}
                             </td>
-                            <td className="border border-gray-300 p-1 text-right">
-                                {row.Credit ? formatCurrency(row.Credit) : '-'}
+                            <td className="border border-black px-4 py-2 text-right">
+                                {formatCurrency(totals.credit)}
                             </td>
-                            <td className="border border-gray-300 p-1 text-right font-semibold">
-                                {row.Balance ? formatCurrency(row.Balance) : '-'}
+                            <td className="border border-black px-4 py-2 text-right">
+                                {/* Balance total depends on accounting logic, usually the last balance */}
+                                {formatCurrency(data?.[data.length - 1]?.Balance || data?.[data.length - 1]?.balance)}
                             </td>
                         </tr>
-                    ))}
-
-                    {/* Totals Row */}
-                    <tr className="font-bold bg-gray-200">
-                        <td className="border border-gray-300 p-1 text-right" colSpan={5}>
-                            TOTAL
-                        </td>
-                        <td className="border border-gray-300 p-1 text-right">
-                            {formatCurrency(totals.Debit)}
-                        </td>
-                        <td className="border border-gray-300 p-1 text-right">
-                            {formatCurrency(totals.Credit)}
-                        </td>
-                        <td className="border border-gray-300 p-1 text-right">
-                            {formatCurrency(totals.Balance)}
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
-
-            <div className="mt-8 flex justify-between">
-                <div className="text-center">
-                    <p className="mb-8">Prepared by:</p>
-                    <div className="border-t border-black w-48 mt-8"></div>
-                    <p className="font-bold">Municipal Accountant</p>
-                </div>
-                <div className="text-center">
-                    <p className="mb-8">Approved by:</p>
-                    <div className="border-t border-black w-48 mt-8"></div>
-                    <p className="font-bold">Municipal Mayor</p>
-                </div>
+                    </tbody>
+                </table>
             </div>
         </div>
     );
