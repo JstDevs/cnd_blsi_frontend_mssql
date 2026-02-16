@@ -16,15 +16,25 @@ import {
   PrinterIcon,
 } from 'lucide-react';
 import { ArrowDownTrayIcon } from '@heroicons/react/24/outline';
+import { useReactToPrint } from 'react-to-print'; // Add this import
+import TrialBalancePrintView from './TrialBalancePrintView'; // Add this import
 
 const TrialBalance = () => {
   const [dateEnd, setDateEnd] = useState('2025-05-30');
-  const [dateFrom, setDateFrom] = useState('2025-05-30');
+  const [dateFrom, setDateFrom] = useState('2025-05-30'); // Keep, though unused in print view
   const [selectedFund, setSelectedFund] = useState('General Fund');
   const [selectedLedger, setSelectedLedger] = useState('Subsidiary Ledger');
   const [selectedApprover, setSelectedApprover] = useState(
     'Cedric Azupardo Entac - Treasury'
   );
+
+  const componentRef = React.useRef(); // Add ref
+
+  const handlePrint = useReactToPrint({ // Update handlePrint
+    contentRef: componentRef,
+    documentTitle: 'Trial Balance Report',
+  });
+
   const [searchTerm, setSearchTerm] = useState('');
   const [filterCategory, setFilterCategory] = useState('all');
   const [viewMode, setViewMode] = useState('summary');
@@ -327,9 +337,6 @@ const TrialBalance = () => {
     console.log('Exporting trial balance...');
   };
 
-  const handlePrint = () => {
-    window.print();
-  };
 
   return (
     <div className="space-y-6">
@@ -348,21 +355,19 @@ const TrialBalance = () => {
           <div className="flex items-center bg-gray-100 rounded-lg p-1 w-full sm:w-auto justify-center sm:justify-start">
             <button
               onClick={() => setViewMode('summary')}
-              className={`px-3 py-1 rounded-md text-sm font-medium transition-colors flex-1 ${
-                viewMode === 'summary'
-                  ? 'bg-white text-gray-900 shadow-sm'
-                  : 'text-gray-600'
-              }`}
+              className={`px-3 py-1 rounded-md text-sm font-medium transition-colors flex-1 ${viewMode === 'summary'
+                ? 'bg-white text-gray-900 shadow-sm'
+                : 'text-gray-600'
+                }`}
             >
               Summary
             </button>
             <button
               onClick={() => setViewMode('detailed')}
-              className={`px-3 py-1 rounded-md text-sm font-medium transition-colors flex-1 ${
-                viewMode === 'detailed'
-                  ? 'bg-white text-gray-900 shadow-sm'
-                  : 'text-gray-600'
-              }`}
+              className={`px-3 py-1 rounded-md text-sm font-medium transition-colors flex-1 ${viewMode === 'detailed'
+                ? 'bg-white text-gray-900 shadow-sm'
+                : 'text-gray-600'
+                }`}
             >
               Detailed
             </button>
@@ -387,7 +392,7 @@ const TrialBalance = () => {
             <ArrowDownTrayIcon className="h-5 w-5 mr-2" />
             Export
           </button>
-          <button type="button" className="btn btn-outline flex items-center">
+          <button type="button" onClick={handlePrint} className="btn btn-outline flex items-center">
             <PrinterIcon className="h-5 w-5 mr-2" />
             Print
           </button>
@@ -449,11 +454,10 @@ const TrialBalance = () => {
             <div>
               <p className="text-sm font-medium text-gray-600">Net Balance</p>
               <p
-                className={`text-2xl font-bold ${
-                  totals.debit - totals.credit >= 0
-                    ? 'text-green-600'
-                    : 'text-red-600'
-                }`}
+                className={`text-2xl font-bold ${totals.debit - totals.credit >= 0
+                  ? 'text-green-600'
+                  : 'text-red-600'
+                  }`}
               >
                 ${Math.abs(totals.debit - totals.credit).toLocaleString()}
               </p>
@@ -461,8 +465,8 @@ const TrialBalance = () => {
                 {totals.debit === totals.credit
                   ? 'Balanced'
                   : totals.debit > totals.credit
-                  ? 'Debit balance'
-                  : 'Credit balance'}
+                    ? 'Debit balance'
+                    : 'Credit balance'}
               </p>
             </div>
             <BarChart3 className="w-8 h-8 text-purple-600" />
@@ -627,11 +631,10 @@ const TrialBalance = () => {
                       </span>
                     </div>
                     <span
-                      className={`text-sm font-medium ${
-                        category.balance >= 0
-                          ? 'text-green-600'
-                          : 'text-red-600'
-                      }`}
+                      className={`text-sm font-medium ${category.balance >= 0
+                        ? 'text-green-600'
+                        : 'text-red-600'
+                        }`}
                     >
                       ${Math.abs(category.balance).toLocaleString()}
                     </span>
@@ -687,9 +690,8 @@ const TrialBalance = () => {
                       </div>
                       <div className="text-right">
                         <p
-                          className={`text-sm font-semibold ${
-                            balance >= 0 ? 'text-green-600' : 'text-red-600'
-                          }`}
+                          className={`text-sm font-semibold ${balance >= 0 ? 'text-green-600' : 'text-red-600'
+                            }`}
                         >
                           ${Math.abs(balance).toLocaleString()}
                         </p>
@@ -741,9 +743,8 @@ const TrialBalance = () => {
                   return (
                     <tr
                       key={item.id}
-                      className={`hover:bg-gray-50 transition-colors ${
-                        index % 2 === 0 ? 'bg-white' : 'bg-gray-50'
-                      }`}
+                      className={`hover:bg-gray-50 transition-colors ${index % 2 === 0 ? 'bg-white' : 'bg-gray-50'
+                        }`}
                     >
                       <td className="px-4 py-3 text-sm font-medium text-gray-900">
                         {item.accountCode}
@@ -771,9 +772,8 @@ const TrialBalance = () => {
                         })}
                       </td>
                       <td
-                        className={`px-4 py-3 text-sm text-right font-medium ${
-                          balance >= 0 ? 'text-green-600' : 'text-red-600'
-                        }`}
+                        className={`px-4 py-3 text-sm text-right font-medium ${balance >= 0 ? 'text-green-600' : 'text-red-600'
+                          }`}
                       >
                         {balance >= 0 ? '' : '-'}$
                         {Math.abs(balance).toLocaleString('en-US', {
@@ -814,11 +814,10 @@ const TrialBalance = () => {
                     })}
                   </td>
                   <td
-                    className={`px-4 py-3 text-sm text-right font-bold ${
-                      totals.debit - totals.credit >= 0
-                        ? 'text-green-600'
-                        : 'text-red-600'
-                    }`}
+                    className={`px-4 py-3 text-sm text-right font-bold ${totals.debit - totals.credit >= 0
+                      ? 'text-green-600'
+                      : 'text-red-600'
+                      }`}
                   >
                     {totals.debit - totals.credit >= 0 ? '' : '-'}$
                     {Math.abs(totals.debit - totals.credit).toLocaleString(
@@ -833,8 +832,8 @@ const TrialBalance = () => {
                     {totals.debit === totals.credit
                       ? 'BALANCED'
                       : totals.debit > totals.credit
-                      ? 'DEBIT BALANCE'
-                      : 'CREDIT BALANCE'}
+                        ? 'DEBIT BALANCE'
+                        : 'CREDIT BALANCE'}
                   </td>
                 </tr>
               </tbody>
@@ -873,6 +872,19 @@ const TrialBalance = () => {
             </span>
           </div>
         </div>
+      </div>
+
+      {/* Hidden Print View */}
+      <div style={{ display: 'none' }}>
+        <TrialBalancePrintView
+          ref={componentRef}
+          data={filteredData}
+          formValues={{
+            dateEnd,
+            fund: selectedFund
+          }}
+          approver={selectedApprover.split(' - ')[0]} // Pass name part only
+        />
       </div>
     </div>
   );

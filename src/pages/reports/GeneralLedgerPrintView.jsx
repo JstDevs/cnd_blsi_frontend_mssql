@@ -41,10 +41,10 @@ const GeneralLedgerPrintView = forwardRef(({ data, formValues, fiscalYearName, f
             <div className="w-full max-w-5xl mx-auto mb-4 flex justify-between font-bold">
                 <div className="space-y-1">
                     <p>Fund: <span className="font-normal border-b border-black min-w-[150px] inline-block ml-1">{fundName || firstRow['Fund Name'] || firstRow.Fund || firstRow.fund || '________________'}</span></p>
-                    <p>Account Title: <span className="font-normal border-b border-black min-w-[200px] inline-block ml-1">{firstRow['Account Name'] || firstRow.AccountName || firstRow.account_name || '________________'}</span></p>
+                    <p>Account Code: <span className="font-normal border-b border-black min-w-[150px] inline-block ml-1 text-center">{firstRow['Account Name'] || firstRow.AccountName || firstRow.account_name || '________________'}</span></p>
                 </div>
                 <div className="flex items-end">
-                    <p>Account Code: <span className="font-normal border-b border-black min-w-[150px] inline-block ml-1 text-center">{firstRow['Account Code'] || firstRow.AccountCode || firstRow.account_code || '________________'}</span></p>
+                    <p>Account Title: <span className="font-normal border-b border-black min-w-[300px] inline-block ml-1">{firstRow['Account Code'] || firstRow.AccountCode || firstRow.account_code || '________________'}</span></p>
                 </div>
             </div>
 

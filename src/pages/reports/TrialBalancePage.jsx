@@ -10,15 +10,21 @@ import { fetchFunds } from '../../features/budget/fundsSlice';
 import { fetchEmployees } from '@/features/settings/employeeSlice';
 import toast from 'react-hot-toast';
 
+import { useReactToPrint } from 'react-to-print';
+import TrialBalancePrintView from './TrialBalancePrintView';
+
 function TrialBalancePage() {
   const API_URL = import.meta.env.VITE_API_URL;
   const dispatch = useDispatch();
+  const componentRef = React.useRef();
 
   const { trialBalances, isLoading, error } = useSelector(
     (state) => state.trialBalance
   );
   const { funds } = useSelector((state) => state.funds);
   const { employees } = useSelector((state) => state.employees);
+
+  const [filterValues, setFilterValues] = React.useState(null);
 
   // Format currency for display
   const formatCurrency = (amount) => {
@@ -33,6 +39,11 @@ function TrialBalancePage() {
     dispatch(fetchFunds());
     dispatch(fetchEmployees());
   }, [dispatch]);
+
+  const handlePrint = useReactToPrint({
+    contentRef: componentRef,
+    documentTitle: 'Trial Balance Report',
+  });
 
   // Table columns definition
   const columns = [
@@ -69,6 +80,7 @@ function TrialBalancePage() {
       key: 'Funds',
       header: 'Funds',
       sortable: true,
+      render: (value, row) => row.Funds || 'General Fund', // Fallback if missing
     },
     {
       key: 'FullName',
@@ -134,9 +146,19 @@ function TrialBalancePage() {
     }
   };
 
-  // Handle view to Excel
+  // Handle view
   const handleView = (values) => {
+    setFilterValues(values);
     dispatch(fetchTrialBalances(values));
+  };
+
+  const handleGenerateJournal = (values) => {
+    if (!trialBalances || trialBalances.length === 0) {
+      toast.error('Please view the report first before generating.');
+      return;
+    }
+    setFilterValues(values);
+    handlePrint();
   };
 
   return (
@@ -152,7 +174,8 @@ function TrialBalancePage() {
           employees={employees}
           onExportExcel={handleExport}
           onView={handleView}
-          onClose={() => {}}
+          onGenerateJournal={handleGenerateJournal}
+          onClose={() => { }}
         />
       </div>
 
@@ -168,6 +191,19 @@ function TrialBalancePage() {
           data={trialBalances}
           loading={isLoading}
           pagination={true}
+        />
+      </div>
+
+      <div style={{ display: 'none' }}>
+        <TrialBalancePrintView
+          ref={componentRef}
+          data={trialBalances}
+          formValues={filterValues}
+          approver={
+            filterValues?.approverID
+              ? employees.find(e => e.ID === filterValues.approverID)?.FirstName + ' ' + employees.find(e => e.ID === filterValues.approverID)?.LastName
+              : ''
+          }
         />
       </div>
     </div>
