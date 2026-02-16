@@ -158,7 +158,9 @@ function TrialBalancePage() {
       return;
     }
     setFilterValues(values);
-    handlePrint();
+    setTimeout(() => {
+      handlePrint();
+    }, 500);
   };
 
   return (
@@ -199,6 +201,7 @@ function TrialBalancePage() {
           ref={componentRef}
           data={trialBalances}
           formValues={filterValues}
+          funds={funds}
           approver={
             filterValues?.approverID
               ? employees.find(e => e.ID === filterValues.approverID)?.FirstName + ' ' + employees.find(e => e.ID === filterValues.approverID)?.LastName

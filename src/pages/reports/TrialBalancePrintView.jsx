@@ -1,6 +1,6 @@
 import React from 'react';
 
-const TrialBalancePrintView = React.forwardRef(({ data, formValues, approver }, ref) => {
+const TrialBalancePrintView = React.forwardRef(({ data, formValues, approver, funds }, ref) => {
 
     const formatCurrency = (amount) => {
         return Number(amount || 0).toLocaleString('en-US', {
@@ -28,28 +28,26 @@ const TrialBalancePrintView = React.forwardRef(({ data, formValues, approver }, 
             <div className="text-center mb-8">
                 <h1 className="text-lg font-bold uppercase underline decoration-2 underline-offset-4 mb-2">TRIAL BALANCE</h1>
                 <h2 className="text-base font-bold uppercase underline decoration-2 underline-offset-4 mb-2">MUNICIPALITY OF {filteredData?.[0]?.Municipality || 'LUCENA'}</h2>
-                <p className="italic font-bold">As of {formValues?.dateEnd ? new Date(formValues.dateEnd).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' }) : '________________'}</p>
+                <p className="italic font-bold">As of {formValues?.endDate ? new Date(formValues.endDate).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' }) : '_________________'}</p>
             </div>
 
             {/* Fund Name */}
             <div className="mb-2">
-                <h3 className="font-bold text-base">{formValues?.fund || 'General Fund'}</h3>
+                <h3 className="font-bold text-base">{formValues?.fundID ? funds?.find(f => f.ID === formValues.fundID)?.Name : (filteredData?.[0]?.Funds || 'General Fund')}</h3>
             </div>
 
             {/* Table */}
             <div className="w-full border-2 border-black">
                 <table className="w-full border-collapse">
                     <thead>
-                        <tr className="text-center border-b border-black">
-                            <th className="border-r border-black p-2 w-[45%] font-normal">Title</th>
-                            <th className="border-r border-black p-2 w-[15%] font-normal">AC</th>
-                            <th className="p-0 w-[40%]">
-                                <div className="border-b border-black p-1">TOTAL</div>
-                                <div className="flex">
-                                    <div className="w-1/2 border-r border-black p-1 font-normal">Debit</div>
-                                    <div className="w-1/2 p-1 font-normal">Credit</div>
-                                </div>
-                            </th>
+                        <tr className="text-center font-bold">
+                            <th className="border-r border-b border-black p-2 w-[50%] font-normal align-middle" rowSpan={2}>Title</th>
+                            <th className="border-r border-b border-black p-2 w-[10%] font-normal align-middle" rowSpan={2}>AC</th>
+                            <th className="border-b border-black p-1 font-bold" colSpan={2}>TOTAL</th>
+                        </tr>
+                        <tr className="text-center">
+                            <th className="border-r border-b border-black p-1 w-[20%] font-normal">Debit</th>
+                            <th className="border-b border-black p-1 w-[20%] font-normal">Credit</th>
                         </tr>
                     </thead>
                     <tbody className="text-xs">
