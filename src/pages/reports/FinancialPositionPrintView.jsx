@@ -3,78 +3,152 @@ import React, { forwardRef } from 'react';
 const FinancialPositionPrintView = forwardRef(({ data, formValues, currentYearName, nonCurrentYearName, fundName, approverName }, ref) => {
 
     const formatCurrency = (amount) => {
-        return Number(amount || 0).toLocaleString('en-PH', {
+        if (amount === undefined || amount === null) return '0.00';
+        return Number(amount).toLocaleString('en-PH', {
             minimumFractionDigits: 2,
             maximumFractionDigits: 2
         });
     };
 
+    // Helper to group data by category and sub-category
+    const groupData = (items) => {
+        const groups = {
+            assets: { label: 'ASSETS', subGroups: {} },
+            liabilities: { label: 'LIABILITIES', subGroups: {} },
+            equity: { label: 'NET ASSETS / EQUITY', subGroups: {} }
+        };
+
+        items.forEach(item => {
+            const firstDigit = String(item.AccountCode)[0];
+            let category = 'assets';
+            if (firstDigit === '2') category = 'liabilities';
+            if (firstDigit === '3') category = 'equity';
+
+            // Check if backend already provides a 'Category' or 'SubCategory' field
+            // If not, we use 'Current Assets' or 'Current Liabilities' as default sub-labels
+            const subLabel = item.Category || (category === 'equity' ? '' : `Current ${groups[category].label.charAt(0) + groups[category].label.slice(1).toLowerCase()}`);
+
+            if (!groups[category].subGroups[subLabel]) {
+                groups[category].subGroups[subLabel] = [];
+            }
+            groups[category].subGroups[subLabel].push(item);
+        });
+
+        return groups;
+    };
+
+    const groupedData = groupData(data || []);
+
+    const calculateSubTotal = (items) => {
+        return items.reduce((sum, item) => sum + (Number(item.CurrentYearBalance) || 0), 0);
+    };
+
+    const calculateCategoryTotal = (subGroups) => {
+        let total = 0;
+        Object.values(subGroups).forEach(items => {
+            total += calculateSubTotal(items);
+        });
+        return total;
+    };
+
+    const totalAssets = calculateCategoryTotal(groupedData.assets.subGroups);
+    const totalLiabilities = calculateCategoryTotal(groupedData.liabilities.subGroups);
+    const totalEquity = calculateCategoryTotal(groupedData.equity.subGroups);
+
     return (
-        <div ref={ref} className="p-8 text-black bg-white min-h-screen">
+        <div ref={ref} className="p-12 text-black bg-white min-h-screen font-serif text-sm print:p-8">
             {/* Header */}
-            <div className="text-center mb-8">
-                <h1 className="text-xl font-bold uppercase">Republic of the Philippines</h1>
-                <h2 className="text-lg font-bold">Municipality of {data?.[0]?.Municipality || 'LGU'}</h2>
-                <div className="mt-4">
-                    <h3 className="text-xl font-bold uppercase underline">Statement of Financial Position</h3>
-                    <p className="text-sm">As of {formValues?.dateTo || 'N/A'}</p>
-                </div>
+            <div className="text-center mb-10">
+                <h1 className="text-base font-bold uppercase tracking-wider">Municipality of {data?.[0]?.Municipality || 'LGU'}</h1>
+                <h2 className="text-base font-bold uppercase tracking-wider">Statement of Financial Position</h2>
+                <h3 className="text-base font-bold uppercase tracking-wider">{fundName || 'General Fund'}</h3>
+                <p className="mt-2">For the Year Ended {formValues?.dateTo ? new Date(formValues.dateTo).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' }) : 'December 31, 2025'}</p>
+                <p className="italic">(In thousands of Pesos)</p>
             </div>
 
-            {/* Meta Info */}
-            <div className="mb-6 grid grid-cols-2 gap-4 text-sm">
-                <div>
-                    <p><span className="font-semibold">Fund:</span> {fundName || 'N/A'}</p>
-                    <p><span className="font-semibold">Fiscal Year (Current):</span> {currentYearName || 'N/A'}</p>
-                    <p><span className="font-semibold">Fiscal Year (Non-Current):</span> {nonCurrentYearName || 'N/A'}</p>
+            <div className="w-full max-w-4xl mx-auto">
+                {/* Year Label */}
+                <div className="flex justify-end mb-4 pr-4">
+                    <span className="font-bold">{nonCurrentYearName || '2024'}</span>
                 </div>
-                <div className="text-right">
-                    <p><span className="font-semibold">Date Range:</span> {formValues?.dateFrom} to {formValues?.dateTo}</p>
-                </div>
-            </div>
 
-            {/* Table */}
-            <table className="w-full border-collapse border border-black mb-8 text-xs">
-                <thead>
-                    <tr className="bg-gray-100 uppercase">
-                        <th className="border border-black p-2 text-left">Account Code</th>
-                        <th className="border border-black p-2 text-left">Account Name</th>
-                        <th className="border border-black p-2 text-right">{currentYearName || 'Current Year'}</th>
-                        <th className="border border-black p-2 text-right">{nonCurrentYearName || 'Non-Current Year'}</th>
-                        <th className="border border-black p-2 text-right">Increase/(Decrease)</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {data.map((item, index) => (
-                        <tr key={index}>
-                            <td className="border border-black p-2">{item.AccountCode}</td>
-                            <td className="border border-black p-2">{item.AccountName}</td>
-                            <td className="border border-black p-2 text-right">
-                                {formatCurrency(item.CurrentYearBalance)}
-                            </td>
-                            <td className="border border-black p-2 text-right">
-                                {formatCurrency(item.NonCurrentYearBalance)}
-                            </td>
-                            <td className="border border-black p-2 text-right font-bold">
-                                {formatCurrency((item.CurrentYearBalance || 0) - (item.NonCurrentYearBalance || 0))}
-                            </td>
-                        </tr>
+                {/* ASSETS Section */}
+                <div className="mb-6">
+                    <h4 className="font-bold uppercase mb-2">ASSETS</h4>
+                    {Object.entries(groupedData.assets.subGroups).map(([subLabel, items]) => (
+                        <div key={subLabel} className="mb-4">
+                            <p className="font-bold italic pl-8 mb-1">{subLabel}</p>
+                            {items.map((item, idx) => (
+                                <div key={idx} className="flex justify-between pl-12 py-0.5">
+                                    <span>{item.AccountName}</span>
+                                    <span className="pr-4">{formatCurrency(item.CurrentYearBalance)}</span>
+                                </div>
+                            ))}
+                            <div className="flex justify-between pl-8 mt-1 border-t border-transparent">
+                                <span className="font-bold">Total Assets</span>
+                                <span className="font-bold pr-4 underline decoration-double">{formatCurrency(calculateSubTotal(items))}</span>
+                            </div>
+                        </div>
                     ))}
-                </tbody>
-            </table>
-
-            {/* Signatories */}
-            <div className="mt-12 grid grid-cols-1 gap-8 max-w-xs ml-auto">
-                <div className="text-center">
-                    <p className="mb-12">Approved by:</p>
-                    <p className="font-bold border-b border-black inline-block px-8">{approverName || '____________________'}</p>
-                    <p className="text-xs uppercase">{data?.[0]?.Position || 'Position'}</p>
+                    <div className="flex justify-between font-bold mt-4">
+                        <span className="uppercase">Total Assets</span>
+                        <span className="pr-4 underline decoration-double">{formatCurrency(totalAssets)}</span>
+                    </div>
                 </div>
-            </div>
 
-            {/* Footer */}
-            <div className="mt-12 text-[10px] text-gray-500 italic">
-                <p>Printed on: {new Date().toLocaleString()}</p>
+                {/* LIABILITIES Section */}
+                <div className="mb-6">
+                    <h4 className="font-bold uppercase mb-2">LIABILITIES</h4>
+                    {Object.entries(groupedData.liabilities.subGroups).map(([subLabel, items]) => (
+                        <div key={subLabel} className="mb-2">
+                            <p className="font-bold italic pl-8 mb-1">{subLabel}</p>
+                            {items.map((item, idx) => (
+                                <div key={idx} className="flex justify-between pl-12 py-0.5">
+                                    <span>{item.AccountName}</span>
+                                    <span className="pr-4">{formatCurrency(item.CurrentYearBalance)}</span>
+                                </div>
+                            ))}
+                            <div className="flex justify-between pl-8 mt-1">
+                                <span className="font-bold">Total Liabilities</span>
+                                <span className="font-bold pr-4 underline decoration-double">{formatCurrency(calculateSubTotal(items))}</span>
+                            </div>
+                        </div>
+                    ))}
+                    <div className="flex justify-between font-bold mt-4">
+                        <span className="uppercase">Total Liabilities</span>
+                        <span className="pr-4 underline decoration-double">{formatCurrency(totalLiabilities)}</span>
+                    </div>
+                </div>
+
+                {/* NET ASSETS / EQUITY Section */}
+                <div className="mb-10">
+                    <h4 className="font-bold uppercase mb-2">NET ASSETS / EQUITY</h4>
+                    {Object.entries(groupedData.equity.subGroups).map(([subLabel, items]) => (
+                        <div key={subLabel}>
+                            {items.map((item, idx) => (
+                                <div key={idx} className="flex justify-between pl-8 py-0.5">
+                                    <span>{item.AccountName}</span>
+                                    <span className="pr-4">{formatCurrency(item.CurrentYearBalance)}</span>
+                                </div>
+                            ))}
+                        </div>
+                    ))}
+                    <div className="flex justify-between font-bold mt-4">
+                        <span className="uppercase">Total Liabilities and Net Assets / Equity</span>
+                        <span className="pr-4 underline decoration-double">{formatCurrency(totalLiabilities + totalEquity)}</span>
+                    </div>
+                </div>
+
+                {/* Signatories */}
+                <div className="mt-16 text-sm">
+                    <div className="flex flex-col items-end mr-12">
+                        <div className="text-left">
+                            <p className="mb-4">Certified Correct:</p>
+                            <p className="font-bold uppercase mt-2 mb-0">{approverName || 'ACCOUNTING S. HEAD'}</p>
+                            <p className="italic text-xs">Accounting Head</p>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     );
