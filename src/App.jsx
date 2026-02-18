@@ -142,6 +142,7 @@ import CashbookPage from './pages/collections/Cashbook/CashbookPage';
 import FinancialPositionPage from './pages/reports/FinancialPositionPage';
 import FinancialPerformancePage from './pages/reports/FinancialPerformancePage';
 import CashFlowPage from './pages/reports/CashFlowPage';
+import ChangeInEquityPage from './pages/reports/ChangeInEquityPage';
 
 
 
@@ -306,6 +307,7 @@ function App() {
           <Route path="/reports/financial-position" element={<FinancialPositionPage />} />
           <Route path="/reports/financial-performance" element={<FinancialPerformancePage />} />
           <Route path="/reports/cash-flow" element={<CashFlowPage />} />
+          <Route path="/reports/change-in-equity" element={<ChangeInEquityPage />} />
 
 
 

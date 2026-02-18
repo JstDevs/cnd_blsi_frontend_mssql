@@ -1,20 +1,20 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 const API_URL = import.meta.env.VITE_API_URL;
 
-const initialSlice = {
+const initialState = {
     equityData: [],
     isLoading: false,
     error: null,
 };
 
 export const fetchChangeInEquity = createAsyncThunk(
-    'changeInEquity/fetchEquityData',
-    async (filterProps, thunkAPI) => {
+    'changeInEquity/fetchChangeInEquity',
+    async (filters, thunkAPI) => {
         try {
             const token = sessionStorage.getItem('token');
-            const response = await fetch(`${API_URL}/changeInEquityReport`, {
+            const response = await fetch(`${API_URL}/changeInEquityReport/view`, {
                 method: 'POST',
-                headers: { 'content-type ': 'application/json', Authorization: `Bearer ${token}` },
+                headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
                 body: JSON.stringify(filters),
             });
             const res = await response.json();
@@ -26,18 +26,18 @@ export const fetchChangeInEquity = createAsyncThunk(
     }
 );
 
-const changeInEquitSlice = createSlice({
+const changeInEquitySlice = createSlice({
     name: 'changeInEquity',
-    initialState, 
+    initialState,
     reducers: {
         resetEquityState: (state) => { state.equityData = []; state.error = null; },
     },
     extraReducers: (builder) => {
-        builder .addCase(fetchChangeInEquity.pending, (state) => { state.isLoading = true; state.error = null; })
-        builder .addCase(fetchChangeInEquity.fulfilled, (state, action) => { state.isLoading = false; state.equityData = action.payload; })
-        builder .addCase(fetchChangeInEquity.rejected, (state, action) => { state.isLoading = false; state.error = action.payload; })
+        builder.addCase(fetchChangeInEquity.pending, (state) => { state.isLoading = true; state.error = null; });
+        builder.addCase(fetchChangeInEquity.fulfilled, (state, action) => { state.isLoading = false; state.equityData = action.payload; });
+        builder.addCase(fetchChangeInEquity.rejected, (state, action) => { state.isLoading = false; state.error = action.payload; });
     },
 });
 
-export const { resetEquityState } = changeInEquitSlice.actions;
-export default changeInEquitSlice.reducer;
+export const { resetEquityState } = changeInEquitySlice.actions;
+export default changeInEquitySlice.reducer;

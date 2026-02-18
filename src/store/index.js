@@ -69,6 +69,7 @@ import subsidiaryLedgerReducer from '../features/reports/subsidiaryLedgerSlice';
 import postClosingReducer from '../features/reports/postClosingSlice';
 import financialStatementReportsReducer from '../features/reports/financialStatementSlice';
 import financialPositionReducer from '../features/reports/financialPositionSlice';
+import changeInEquityReducer from '../features/reports/changeInEquitySlice';
 import financialPerformanceReducer from '../features/reports/financialPerformanceSlice';
 import cashFlowReducer from '../features/reports/cashFlowSlice';
 
@@ -148,6 +149,7 @@ export const store = configureStore({
     financialPosition: financialPositionReducer,
     financialPerformance: financialPerformanceReducer,
     cashFlow: cashFlowReducer,
+    changeInEquity: changeInEquityReducer,
     postClosing: postClosingReducer,
 
 
