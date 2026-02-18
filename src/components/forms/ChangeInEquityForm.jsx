@@ -164,7 +164,7 @@ function ChangeInEquityForm({
                     <div className="flex justify-end gap-3 pt-4 border-t border-neutral-200">
                         <button
                             type="submit"
-                            className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg transition-colors"
+                            className="btn btn-secondary"
                             disabled={isSubmitting}
                             onClick={() => (submitAction.current = 'view')}
                         >
@@ -172,7 +172,7 @@ function ChangeInEquityForm({
                         </button>
                         <button
                             type="submit"
-                            className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg transition-colors"
+                            className="btn btn-primary"
                             disabled={isSubmitting}
                             onClick={() => (submitAction.current = 'generate')}
                         >
@@ -180,7 +180,7 @@ function ChangeInEquityForm({
                         </button>
                         <button
                             type="submit"
-                            className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg transition-colors"
+                            className="btn btn-success"
                             disabled={isSubmitting}
                             onClick={() => (submitAction.current = 'export')}
                         >

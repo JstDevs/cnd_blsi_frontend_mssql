@@ -109,8 +109,11 @@ function ChangeInEquityPage() {
 
     return (
         <div className="space-y-6">
-            <div className="bg-green-800 text-white p-2">
-                <h2 className="text-lg">Change in Equity</h2>
+            <div className="page-header">
+                <h1 className="text-2xl font-bold text-gray-900 border-l-4 border-primary-600 pl-4">
+                    Change in Equity
+                </h1>
+                <p className="text-gray-600 ml-5">Generate and view statement of changes in equity.</p>
             </div>
 
             <div className="bg-white rounded-xl shadow-sm border border-neutral-200 p-6 overflow-visible">
