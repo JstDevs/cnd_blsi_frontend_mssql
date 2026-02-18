@@ -1,7 +1,9 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
+import { useReactToPrint } from 'react-to-print';
 import ChangeInEquityForm from '../../components/forms/ChangeInEquityForm';
 import DataTable from '../../components/common/DataTable';
+import ChangeInEquityPrintView from './ChangeInEquityPrintView';
 import {
     fetchChangeInEquity,
     resetEquityState,
@@ -14,6 +16,7 @@ import toast from 'react-hot-toast';
 function ChangeInEquityPage() {
     const API_URL = import.meta.env.VITE_API_URL;
     const dispatch = useDispatch();
+    const printRef = useRef();
 
     const { equityData, isLoading, error } = useSelector(
         (state) => state.changeInEquity
@@ -102,9 +105,27 @@ function ChangeInEquityPage() {
         dispatch(fetchChangeInEquity(values));
     };
 
-    const handleGenerateFSP = (values) => {
-        toast.success('Generate FSP clicked (View report first)');
-        // Implement print/pdf logic here if needed, similar to FinancialPositionPage
+    const handlePrint = useReactToPrint({
+        contentRef: printRef,
+        documentTitle: 'Statement_of_Changes_in_Net_Assets_Equity',
+    });
+
+    const handleGenerateJournal = (values) => {
+        if (!equityData || equityData.length === 0) {
+            toast.error('No data to generate journal. Please view the report first.');
+            return;
+        }
+        setFormValues(values);
+        handlePrint();
+    };
+
+    // Helper to get names for print view
+    const getCurrentYearName = () => fiscalYears.find(y => y.ID === formValues?.currentYearID)?.Name;
+    const getNonCurrentYearName = () => fiscalYears.find(y => y.ID === formValues?.nonCurrentYearID)?.Name;
+    const getFundName = () => funds.find(f => f.ID === formValues?.fundID)?.Name;
+    const getApproverName = () => {
+        const emp = employees.find(e => e.ID === formValues?.approverID);
+        return emp ? `${emp.FirstName} ${emp.LastName}` : '';
     };
 
     return (
@@ -123,7 +144,7 @@ function ChangeInEquityPage() {
                     fiscalYears={fiscalYears}
                     onExportExcel={handleExport}
                     onView={handleView}
-                    onGenerateJournal={handleGenerateFSP}
+                    onGenerateJournal={handleGenerateJournal}
                 />
             </div>
 
@@ -142,6 +163,19 @@ function ChangeInEquityPage() {
                     data={equityData}
                     loading={isLoading}
                     pagination={true}
+                />
+            </div>
+
+            {/* Hidden Print View */}
+            <div className="hidden">
+                <ChangeInEquityPrintView
+                    ref={printRef}
+                    data={equityData}
+                    formValues={formValues}
+                    currentYearName={getCurrentYearName()}
+                    nonCurrentYearName={getNonCurrentYearName()}
+                    fundName={getFundName()}
+                    approverName={getApproverName()}
                 />
             </div>
         </div>
