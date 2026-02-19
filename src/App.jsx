@@ -115,6 +115,7 @@ import SubsidiaryLedger from './pages/reports/SubsidiaryLedger';
 import FinancialStatementsPage from './pages/reports/FinancialStatementsPage';
 import BudgetReportPage from './pages/reports/BudgetReportPage';
 import BirReportPage from './pages/reports/BirReportPage';
+import AlphalistPage from './pages/reports/AlphalistPage';
 // User Access
 import UserAccessPage from './pages/userAccess';
 import ChangePassword from './pages/auth/ChangePassword';
@@ -308,6 +309,7 @@ function App() {
           <Route path="/reports/financial-performance" element={<FinancialPerformancePage />} />
           <Route path="/reports/cash-flow" element={<CashFlowPage />} />
           <Route path="/reports/change-in-equity" element={<ChangeInEquityPage />} />
+          <Route path="/reports/alphalist" element={<AlphalistPage />} />
 
 
 
