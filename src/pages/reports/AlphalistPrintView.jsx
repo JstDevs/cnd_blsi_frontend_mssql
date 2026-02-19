@@ -35,20 +35,20 @@ const AlphalistPrintView = React.forwardRef(({ data, filters, reportType, fundNa
     return (
         <div ref={ref} className="p-8 text-black bg-white min-h-screen font-sans text-[10px] print:p-8">
             {/* Header */}
-            <div className="text-center mb-4">
-                <div className="uppercase font-medium space-y-0.5">
-                    <p>PROVINCE OF {data?.[0]?.Province || 'ILOILO'}</p>
-                    <p>Municipality of {data?.[0]?.Municipality || 'PASSI CITY'}</p>
+            <div className="text-center mb-4 flex flex-col items-center">
+                <div className="uppercase font-bold leading-tight flex flex-col">
+                    <p className="m-0">PROVINCE OF {data?.[0]?.Province || 'ILOILO'}</p>
+                    <p className="m-0">Municipality of {data?.[0]?.Municipality || 'PASSI CITY'}</p>
                 </div>
 
-                <div className="mt-2 text-[9px] font-bold uppercase transition-all">
-                    <p>{fundName}</p>
-                    <p>{departmentName}</p>
+                <div className="mt-1 text-[9px] font-bold uppercase leading-tight flex flex-col">
+                    <p className="m-0">{fundName}</p>
+                    <p className="m-0">{departmentName}</p>
                 </div>
 
-                <div className="mt-3">
-                    <h1 className="text-sm font-bold uppercase">{getReportTitle()}</h1>
-                    <p className="italic text-[9px]">{getPeriodLabel()}</p>
+                <div className="mt-2 leading-tight flex flex-col">
+                    <h1 className="text-sm font-bold m-0 uppercase">{getReportTitle()}</h1>
+                    <p className="italic text-[9px] m-0">{getPeriodLabel()}</p>
                 </div>
             </div>
 
