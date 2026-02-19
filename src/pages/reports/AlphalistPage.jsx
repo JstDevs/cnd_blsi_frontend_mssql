@@ -7,9 +7,13 @@ import { fetchFunds } from '@/features/budget/fundsSlice';
 import { fetchDepartments } from '@/features/settings/departmentSlice';
 import { fetchAlphalist, resetAlphalistState } from '@/features/reports/alphalistSlice';
 import toast from 'react-hot-toast';
+import { useReactToPrint } from 'react-to-print';
+import { useRef } from 'react';
+import AlphalistPrintView from './AlphalistPrintView';
 
 const AlphalistPage = () => {
     const dispatch = useDispatch();
+    const componentRef = useRef();
     const { funds } = useSelector((state) => state.funds);
     const { departments } = useSelector((state) => state.departments);
     const { alphalistData, isLoading } = useSelector((state) => state.alphalist);
@@ -88,6 +92,18 @@ const AlphalistPage = () => {
         if (activeTab === 'Monthly' && !month) return toast.error('Please select a month');
 
         dispatch(fetchAlphalist({ ...filters, reportType: activeTab }));
+    };
+
+    const handlePrint = useReactToPrint({
+        contentRef: componentRef,
+        documentTitle: `Alphalist_${activeTab}_${filters.year}`,
+    });
+
+    const handleGenerateAlphalist = () => {
+        if (!alphalistData || alphalistData.length === 0) {
+            return toast.error('Please view the report first before generating the alphalist.');
+        }
+        handlePrint();
     };
 
     const handleExport = async () => {
@@ -208,7 +224,7 @@ const AlphalistPage = () => {
 
                         <div className="md:col-span-2 flex justify-end gap-3 pt-4 border-t border-neutral-100 mt-2">
                             <button onClick={handleView} className="btn btn-secondary px-8">View</button>
-                            <button className="btn btn-primary px-8">Generate Alphalist</button>
+                            <button onClick={handleGenerateAlphalist} className="btn btn-primary px-8">Generate Alphalist</button>
                             <button onClick={handleExport} className="btn btn-success px-8">Export to Excel</button>
                         </div>
                     </div>
@@ -259,6 +275,16 @@ const AlphalistPage = () => {
 
             <div className="mt-8">
                 <DataTable columns={columns} data={alphalistData} pagination={true} showSearch={true} loading={isLoading} />
+            </div>
+
+            {/* Hidden Print View */}
+            <div style={{ display: 'none' }}>
+                <AlphalistPrintView
+                    ref={componentRef}
+                    data={alphalistData}
+                    filters={filters}
+                    reportType={activeTab}
+                />
             </div>
         </div>
     );
