@@ -16,11 +16,11 @@ const AlphalistPage = () => {
 
     const [activeTab, setActiveTab] = useState('Annually');
     const [filters, setFilters] = useState({
-        year: new Date().getFullYear().toString(),
-        fundID: '%',
-        departmentID: '%',
-        quarter: '1',
-        month: (new Date().getMonth() + 1).toString().padStart(2, '0'),
+        year: '',
+        fundID: '',
+        departmentID: '',
+        quarter: '',
+        month: '',
         taxTypes: {
             expanded: true,
             vat: true,
@@ -79,6 +79,14 @@ const AlphalistPage = () => {
     };
 
     const handleView = () => {
+        const { year, fundID, departmentID, quarter, month } = filters;
+
+        if (!year) return toast.error('Please select a year');
+        if (!fundID) return toast.error('Please select a fund');
+        if (!departmentID) return toast.error('Please select a department');
+        if (activeTab === 'Quarterly' && !quarter) return toast.error('Please select a quarter');
+        if (activeTab === 'Monthly' && !month) return toast.error('Please select a month');
+
         dispatch(fetchAlphalist({ ...filters, reportType: activeTab }));
     };
 
@@ -135,6 +143,7 @@ const AlphalistPage = () => {
                                 type="select"
                                 options={quarters}
                                 value={filters.quarter}
+                                defaultOption="-- Select Quarter --"
                                 onChange={(e) => setFilters({ ...filters, quarter: e.target.value })}
                             />
                         )}
@@ -144,6 +153,7 @@ const AlphalistPage = () => {
                                 type="select"
                                 options={months}
                                 value={filters.month}
+                                defaultOption="-- Select Month --"
                                 onChange={(e) => setFilters({ ...filters, month: e.target.value })}
                             />
                         )}
@@ -152,6 +162,7 @@ const AlphalistPage = () => {
                             type="select"
                             options={years}
                             value={filters.year}
+                            defaultOption="-- Select Year --"
                             onChange={(e) => setFilters({ ...filters, year: e.target.value })}
                         />
                         <FormField
@@ -159,6 +170,7 @@ const AlphalistPage = () => {
                             type="select"
                             options={[{ label: 'All Funds', value: '%' }, ...funds.map(f => ({ label: f.Name, value: f.ID }))]}
                             value={filters.fundID}
+                            defaultOption="-- Select Fund --"
                             onChange={(e) => setFilters({ ...filters, fundID: e.target.value })}
                         />
                         <FormField
@@ -166,6 +178,7 @@ const AlphalistPage = () => {
                             type="select"
                             options={[{ label: 'All Departments', value: '%' }, ...departments.map(d => ({ label: d.Name, value: d.ID }))]}
                             value={filters.departmentID}
+                            defaultOption="-- Select Department --"
                             onChange={(e) => setFilters({ ...filters, departmentID: e.target.value })}
                         />
 
