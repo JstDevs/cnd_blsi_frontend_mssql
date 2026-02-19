@@ -72,6 +72,7 @@ import financialPositionReducer from '../features/reports/financialPositionSlice
 import changeInEquityReducer from '../features/reports/changeInEquitySlice';
 import financialPerformanceReducer from '../features/reports/financialPerformanceSlice';
 import cashFlowReducer from '../features/reports/cashFlowSlice';
+import alphalistReducer from '../features/reports/alphalistSlice';
 
 
 
@@ -149,6 +150,7 @@ export const store = configureStore({
     financialPosition: financialPositionReducer,
     financialPerformance: financialPerformanceReducer,
     cashFlow: cashFlowReducer,
+    alphalist: alphalistReducer,
     changeInEquity: changeInEquityReducer,
     postClosing: postClosingReducer,
 

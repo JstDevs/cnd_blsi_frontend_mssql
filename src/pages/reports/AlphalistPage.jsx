@@ -5,18 +5,20 @@ import DataTable from '../../components/common/DataTable';
 import FormField from '../../components/common/FormField';
 import { fetchFunds } from '@/features/budget/fundsSlice';
 import { fetchDepartments } from '@/features/settings/departmentSlice';
+import { fetchAlphalist, resetAlphalistState } from '@/features/reports/alphalistSlice';
 import toast from 'react-hot-toast';
 
 const AlphalistPage = () => {
     const dispatch = useDispatch();
     const { funds } = useSelector((state) => state.funds);
     const { departments } = useSelector((state) => state.departments);
+    const { alphalistData, isLoading } = useSelector((state) => state.alphalist);
 
     const [activeTab, setActiveTab] = useState('Annually');
     const [filters, setFilters] = useState({
         year: new Date().getFullYear().toString(),
-        fundID: '',
-        departmentID: '',
+        fundID: '%',
+        departmentID: '%',
         quarter: '1',
         month: (new Date().getMonth() + 1).toString().padStart(2, '0'),
         taxTypes: {
@@ -28,6 +30,7 @@ const AlphalistPage = () => {
     });
 
     useEffect(() => {
+        dispatch(resetAlphalistState());
         dispatch(fetchFunds());
         dispatch(fetchDepartments());
     }, [dispatch]);
@@ -56,13 +59,13 @@ const AlphalistPage = () => {
     });
 
     const columns = [
-        { key: 'tin', header: 'TIN', sortable: true },
-        { key: 'payeeName', header: 'Payee Name', sortable: true },
-        { key: 'atc', header: 'ATC', sortable: true },
-        { key: 'natureOfPayment', header: 'Nature of Payment', sortable: true },
-        { key: 'amount', header: 'Tax Base', sortable: true, className: 'text-right' },
-        { key: 'taxRate', header: 'Tax Rate', sortable: true, className: 'text-right' },
-        { key: 'taxWithheld', header: 'Tax Withheld', sortable: true, className: 'text-right' },
+        { key: 'TIN', header: 'TIN', sortable: true },
+        { key: 'Payee', header: 'Payee Name', sortable: true },
+        { key: 'Tax Code', header: 'ATC', sortable: true },
+        { key: 'Nature', header: 'Nature of Payment', sortable: true },
+        { key: 'Sub-Total', header: 'Tax Base', sortable: true, className: 'text-right' },
+        { key: 'Tax Rate', header: 'Tax Rate', sortable: true, className: 'text-right' },
+        { key: 'Withheld Amount', header: 'Tax Withheld', sortable: true, className: 'text-right' },
     ];
 
     const handleTaxTypeChange = (type) => {
@@ -76,8 +79,7 @@ const AlphalistPage = () => {
     };
 
     const handleView = () => {
-        toast.success(`Viewing ${activeTab} Alphalist for ${filters.year}`);
-        // Implementation for fetching data will go here
+        dispatch(fetchAlphalist({ ...filters, reportType: activeTab }));
     };
 
     const handleExport = () => {
@@ -116,8 +118,8 @@ const AlphalistPage = () => {
                             key={tab}
                             onClick={() => setActiveTab(tab.split(' ')[0])}
                             className={`px-6 py-3 text-sm font-medium transition-colors ${activeTab === tab.split(' ')[0]
-                                    ? 'bg-white text-primary-600 border-b-2 border-b-primary-600'
-                                    : 'text-neutral-500 hover:text-neutral-700 hover:bg-neutral-100'
+                                ? 'bg-white text-primary-600 border-b-2 border-b-primary-600'
+                                : 'text-neutral-500 hover:text-neutral-700 hover:bg-neutral-100'
                                 }`}
                         >
                             {tab}
@@ -155,14 +157,14 @@ const AlphalistPage = () => {
                         <FormField
                             label="Fund"
                             type="select"
-                            options={[{ label: 'All Funds', value: '' }, ...funds.map(f => ({ label: f.Name, value: f.ID }))]}
+                            options={[{ label: 'All Funds', value: '%' }, ...funds.map(f => ({ label: f.Name, value: f.ID }))]}
                             value={filters.fundID}
                             onChange={(e) => setFilters({ ...filters, fundID: e.target.value })}
                         />
                         <FormField
                             label="Department"
                             type="select"
-                            options={[{ label: 'All Departments', value: '' }, ...departments.map(d => ({ label: d.Name, value: d.ID }))]}
+                            options={[{ label: 'All Departments', value: '%' }, ...departments.map(d => ({ label: d.Name, value: d.ID }))]}
                             value={filters.departmentID}
                             onChange={(e) => setFilters({ ...filters, departmentID: e.target.value })}
                         />
@@ -218,7 +220,7 @@ const AlphalistPage = () => {
             </div>
 
             <div className="mt-8">
-                <DataTable columns={columns} data={[]} pagination={true} showSearch={true} />
+                <DataTable columns={columns} data={alphalistData} pagination={true} showSearch={true} loading={isLoading} />
             </div>
         </div>
     );
