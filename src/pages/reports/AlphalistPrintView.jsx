@@ -95,7 +95,7 @@ const AlphalistPrintView = React.forwardRef(({ data, filters, reportType, fundNa
 
             {/* Footer / Declaration */}
             <div className="mt-4 text-[9px] leading-tight">
-                <p className="text-justify">
+                <p className="text-justify indent-8" style={{ fontFamily: '"Times New Roman", Times, serif', fontSize: '12px' }}>
                     I declare under the penalties of perjury, that this has been made in good faith, verified by me, and to the best of my knowledge and belief, is true and correct and to the provisions of the NIRC and the regulations issued under the authority thereof; that the information contained herein completely reflect all income payments with the corresponding taxes withheld from payees are duly remitted to the BIR and proper Certificate of Creditable Withholding Tax at Source (BIR Form 2307) have been issued to payees; that the information appearing herein that be consistent with the total amount remitted and that income instant information shall result to denial of the claims for expenses.
                 </p>
             </div>
