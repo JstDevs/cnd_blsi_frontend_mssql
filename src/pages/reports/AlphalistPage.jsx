@@ -105,16 +105,6 @@ const AlphalistPage = () => {
                             Generate and view Alphalist reports for tax withheld.
                         </p>
                     </div>
-                    <div className="flex gap-2">
-                        <button onClick={handleExport} className="btn btn-outline">
-                            <ArrowDownTrayIcon className="h-5 w-5 mr-2" />
-                            Export to Excel
-                        </button>
-                        <button className="btn btn-primary">
-                            <PrinterIcon className="h-5 w-5 mr-2" />
-                            Print
-                        </button>
-                    </div>
                 </div>
             </div>
 
@@ -185,6 +175,7 @@ const AlphalistPage = () => {
                         <div className="md:col-span-2 flex justify-end gap-3 pt-4 border-t border-neutral-100 mt-2">
                             <button onClick={handleView} className="btn btn-secondary px-8">View</button>
                             <button className="btn btn-primary px-8">Generate Alphalist</button>
+                            <button onClick={handleExport} className="btn btn-success px-8">Export to Excel</button>
                         </div>
                     </div>
 
