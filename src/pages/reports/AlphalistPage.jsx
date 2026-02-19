@@ -284,6 +284,8 @@ const AlphalistPage = () => {
                     data={alphalistData}
                     filters={filters}
                     reportType={activeTab}
+                    fundName={filters.fundID === '%' ? 'All Funds' : funds.find(f => f.ID === filters.fundID)?.Name}
+                    departmentName={filters.departmentID === '%' ? 'All Departments' : departments.find(d => d.ID === filters.departmentID)?.Name}
                 />
             </div>
         </div>

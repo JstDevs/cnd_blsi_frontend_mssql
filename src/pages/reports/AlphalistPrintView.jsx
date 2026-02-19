@@ -1,6 +1,6 @@
 import React from 'react';
 
-const AlphalistPrintView = React.forwardRef(({ data, filters, reportType }, ref) => {
+const AlphalistPrintView = React.forwardRef(({ data, filters, reportType, fundName, departmentName }, ref) => {
     const formatCurrency = (amount) => {
         return Number(amount || 0).toLocaleString('en-US', {
             minimumFractionDigits: 2,
@@ -35,11 +35,21 @@ const AlphalistPrintView = React.forwardRef(({ data, filters, reportType }, ref)
     return (
         <div ref={ref} className="p-8 text-black bg-white min-h-screen font-sans text-[10px] print:p-8">
             {/* Header */}
-            <div className="text-center mb-6">
-                <p className="uppercase">PROVINCE OF {data?.[0]?.Province || '__________'}</p>
-                <p className="uppercase">Municipality of {data?.[0]?.Municipality || '__________'}</p>
-                <h1 className="text-sm font-bold uppercase mt-4">{getReportTitle()}</h1>
-                <p className="italic">{getPeriodLabel()}</p>
+            <div className="text-center mb-4">
+                <div className="uppercase font-medium space-y-0.5">
+                    <p>PROVINCE OF {data?.[0]?.Province || 'ILOILO'}</p>
+                    <p>Municipality of {data?.[0]?.Municipality || 'PASSI CITY'}</p>
+                </div>
+
+                <div className="mt-2 text-[9px] font-bold uppercase transition-all">
+                    <p>{fundName}</p>
+                    <p>{departmentName}</p>
+                </div>
+
+                <div className="mt-3">
+                    <h1 className="text-sm font-bold uppercase">{getReportTitle()}</h1>
+                    <p className="italic text-[9px]">{getPeriodLabel()}</p>
+                </div>
             </div>
 
             {/* Table */}
@@ -91,12 +101,6 @@ const AlphalistPrintView = React.forwardRef(({ data, filters, reportType }, ref)
             </div>
 
             {/* Signature Area (Optional, not in screenshot but usually present) */}
-            <div className="mt-12 flex justify-end">
-                <div className="text-center w-64 border-t border-black pt-2">
-                    <p className="font-bold uppercase">{data?.[0]?.Approver || '____________________'}</p>
-                    <p className="text-[8px]">{data?.[0]?.Position || 'Authorized Representative'}</p>
-                </div>
-            </div>
         </div>
     );
 });
