@@ -90,9 +90,43 @@ const AlphalistPage = () => {
         dispatch(fetchAlphalist({ ...filters, reportType: activeTab }));
     };
 
-    const handleExport = () => {
-        toast.success('Exporting to Excel...');
-        // Implementation for export will go here
+    const handleExport = async () => {
+        const { year, fundID, departmentID, quarter, month } = filters;
+
+        if (!year) return toast.error('Please select a year');
+        if (!fundID) return toast.error('Please select a fund');
+        if (!departmentID) return toast.error('Please select a department');
+        if (activeTab === 'Quarterly' && !quarter) return toast.error('Please select a quarter');
+        if (activeTab === 'Monthly' && !month) return toast.error('Please select a month');
+
+        try {
+            toast.loading('Exporting to Excel...', { id: 'export-toast' });
+            const API_URL = import.meta.env.VITE_API_URL;
+            const token = sessionStorage.getItem('token');
+            const response = await fetch(`${API_URL}/alphalist/exportExcel`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    Authorization: `Bearer ${token}`,
+                },
+                body: JSON.stringify({ ...filters, reportType: activeTab }),
+            });
+
+            if (!response.ok) throw new Error('Export failed');
+
+            const blob = await response.blob();
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `Alphalist_${activeTab}_${year}.xlsx`;
+            document.body.appendChild(a);
+            a.click();
+            window.URL.revokeObjectURL(url);
+            toast.success('Excel exported successfully', { id: 'export-toast' });
+        } catch (error) {
+            console.error('Export error:', error);
+            toast.error('Failed to export to Excel', { id: 'export-toast' });
+        }
     };
 
     return (
