@@ -24,7 +24,7 @@ const CashbookPrintView = forwardRef(({ data }, ref) => {
         <thead>
           <tr className="border-b">
             <th className="text-left py-1">Year</th>
-            <th className="text-left py-1">Officer</th>
+
             <th className="text-left py-1">Fund</th>
             <th className="text-left py-1">Invoice Date</th>
             <th className="text-left py-1">AP AR</th>
@@ -38,7 +38,7 @@ const CashbookPrintView = forwardRef(({ data }, ref) => {
           {data.map((row, i) => (
             <tr key={i} className="border-b">
               <td className="py-1">{row.Year || '-'}</td>
-              <td className="py-1">{row.Officer || '-'}</td>
+
               <td className="py-1">{row.Fund || '-'}</td>
               <td className="py-1">
                 {row.InvoiceDate

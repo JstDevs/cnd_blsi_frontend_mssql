@@ -57,11 +57,7 @@ function CashbookPage() {
       header: 'Year',
       render: (value) => value || '-',
     },
-    {
-      key: 'Officer',
-      header: 'Officer',
-      render: (value) => value || '-',
-    },
+
     {
       key: 'Fund',
       header: 'Fund',
@@ -88,9 +84,9 @@ function CashbookPage() {
       render: (value) =>
         value
           ? value.toLocaleString('en-US', {
-              style: 'currency',
-              currency: 'PHP',
-            })
+            style: 'currency',
+            currency: 'PHP',
+          })
           : '₱0.00',
     },
     {
@@ -99,9 +95,9 @@ function CashbookPage() {
       render: (value) =>
         value
           ? value.toLocaleString('en-US', {
-              style: 'currency',
-              currency: 'PHP',
-            })
+            style: 'currency',
+            currency: 'PHP',
+          })
           : '₱0.00',
     },
     {
@@ -110,9 +106,9 @@ function CashbookPage() {
       render: (value) =>
         value
           ? value.toLocaleString('en-US', {
-              style: 'currency',
-              currency: 'PHP',
-            })
+            style: 'currency',
+            currency: 'PHP',
+          })
           : '₱0.00',
     },
   ];
