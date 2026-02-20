@@ -7,6 +7,7 @@ import { fetchFiscalYears } from '@/features/settings/fiscalYearSlice';
 import { fetchFunds } from '@/features/budget/fundsSlice';
 import { fetchDepartments } from '@/features/settings/departmentSlice';
 import { useReactToPrint } from 'react-to-print';
+import SAAOBPrintView from '@/pages/budget/form-budget/SAAOBPrintView';
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
 
 const BudgetStatementOfAppropriation = () => {
@@ -276,8 +277,8 @@ const BudgetStatementOfAppropriation = () => {
         >
           Generate SAO
         </button>
-        <button 
-          className="btn btn-success" 
+        <button
+          className="btn btn-success"
           onClick={handleExport}
         >
           Export to Excel
@@ -294,7 +295,7 @@ const BudgetStatementOfAppropriation = () => {
       />
       {/* hidden print components */}
       <div className="hidden">
-        <SAAOBPrint ref={saaobRef} data={tableData} />
+        <SAAOBPrintView ref={saaobRef} data={tableData} />
         <SAOPrint ref={saoRef} data={tableData} />
       </div>
     </div>
@@ -303,43 +304,8 @@ const BudgetStatementOfAppropriation = () => {
 
 export default BudgetStatementOfAppropriation;
 
-// --------------Print components------- SAAOBPrint--------
-const SAAOBPrint = React.forwardRef(({ data }, ref) => (
-  <div ref={ref} className="p-4">
-    <h2 className="text-center font-bold">MUNICIPALITY OF ______</h2>
-    <h3 className="text-center">(CURRENT APPROPRIATION)</h3>
-    <h4 className="text-center">
-      STATUS OF APPROPRIATIONS, ALLOTMENTS, OBLIGATIONS AND BALANCES
-    </h4>
-    <table className="w-full border text-xs mt-4">
-      <thead>
-        <tr>
-          <th>CODE</th>
-          <th>FUNCTION / PPA / CLASS</th>
-          <th>APPROPRIATIONS</th>
-          <th>ALLOTMENTS</th>
-          <th>OBLIGATIONS</th>
-          <th>UNOBLIGATED APPROPRIATIONS</th>
-          <th>UNOBLIGATED ALLOTMENTS</th>
-        </tr>
-      </thead>
-      <tbody>
-        {data.map((row, idx) => (
-          <tr key={idx}>
-            <td>{row.Code}</td>
-            <td>{row.Name}</td>
-            <td>{row.Appropriation}</td>
-            <td>{row.Allotment}</td>
-            <td>{row.Obligation}</td>
-            <td>{row.UnobligatedAppropriation}</td>
-            <td>{row.UnobligatedAllotment}</td>
-          </tr>
-        ))}
-      </tbody>
-    </table>
-  </div>
-));
-// --------------Print components------- SAAOBPrint--------
+
+
 const SAOPrint = React.forwardRef(({ data }, ref) => (
   <div ref={ref} className="p-4">
     <h2 className="text-center font-bold">
