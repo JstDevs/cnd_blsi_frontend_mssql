@@ -8,6 +8,7 @@ import { fetchFunds } from '@/features/budget/fundsSlice';
 import { fetchDepartments } from '@/features/settings/departmentSlice';
 import { useReactToPrint } from 'react-to-print';
 import SAAOBPrintView from '@/pages/budget/form-budget/SAAOBPrintView';
+import SAOPrintView from '@/pages/budget/form-budget/SAOPrintView';
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
 
 const BudgetStatementOfAppropriation = () => {
@@ -310,7 +311,14 @@ const BudgetStatementOfAppropriation = () => {
           certifiedByName={certifiedByName}
           certifiedByTitle={certifiedByTitle}
         />
-        <SAOPrint ref={saoRef} data={tableData} />
+        <SAOPrintView
+          ref={saoRef}
+          data={tableData}
+          preparedByName={preparedByName}
+          preparedByTitle={preparedByTitle}
+          certifiedByName={certifiedByName}
+          certifiedByTitle={certifiedByTitle}
+        />
       </div>
     </div>
   );
@@ -320,35 +328,5 @@ export default BudgetStatementOfAppropriation;
 
 
 
-const SAOPrint = React.forwardRef(({ data }, ref) => (
-  <div ref={ref} className="p-4">
-    <h2 className="text-center font-bold">
-      STATUS OF APPROPRIATION & OBLIGATION
-    </h2>
-    <table className="w-full border text-xs mt-4">
-      <thead>
-        <tr>
-          <th>DATE</th>
-          <th>OBR NO.</th>
-          <th>PARTICULARS</th>
-          <th>APPROPRIATION / ALLOTMENT</th>
-          <th>EXPENSES</th>
-          <th>BALANCE</th>
-        </tr>
-      </thead>
-      <tbody>
-        {data.map((row, idx) => (
-          <tr key={idx}>
-            <td>{row.Date}</td>
-            <td>{row.OBRNo}</td>
-            <td>{row.Particulars}</td>
-            <td>{row.Appropriation}</td>
-            <td>{row.Expenses}</td>
-            <td>{row.Balance}</td>
-          </tr>
-        ))}
-      </tbody>
-    </table>
-  </div>
-));
+
 
