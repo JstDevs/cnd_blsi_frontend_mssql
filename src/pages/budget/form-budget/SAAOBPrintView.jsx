@@ -1,6 +1,12 @@
 import React, { forwardRef, useMemo } from 'react';
 
-const SAAOBPrintView = forwardRef(({ data }, ref) => {
+const SAAOBPrintView = forwardRef(({
+    data,
+    preparedByName,
+    preparedByTitle,
+    certifiedByName,
+    certifiedByTitle
+}, ref) => {
     // Helper to safely parse numbers
     const parseNum = (val) => Number(val) || 0;
 
@@ -136,16 +142,16 @@ const SAAOBPrintView = forwardRef(({ data }, ref) => {
                     <br />
                     <br />
                     <div className="border-b border-black w-64"></div>
-                    <p className="text-center w-64 font-bold mt-1">JANE DOE</p>
-                    <p className="text-center w-64 text-xs">Budget Officer</p>
+                    <p className="text-center w-64 font-bold mt-1 uppercase">{preparedByName}</p>
+                    <p className="text-center w-64 text-xs">{preparedByTitle}</p>
                 </div>
                 <div>
                     <p className="font-bold">Certified Correct:</p>
                     <br />
                     <br />
                     <div className="border-b border-black w-64"></div>
-                    <p className="text-center w-64 font-bold mt-1">JOHN SMITH</p>
-                    <p className="text-center w-64 text-xs">Municipal Accountant</p>
+                    <p className="text-center w-64 font-bold mt-1 uppercase">{certifiedByName}</p>
+                    <p className="text-center w-64 text-xs">{certifiedByTitle}</p>
                 </div>
             </div>
 

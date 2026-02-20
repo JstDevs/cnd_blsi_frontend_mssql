@@ -27,6 +27,13 @@ const BudgetStatementOfAppropriation = () => {
   const [fiscalYearID, setFiscalYearID] = useState('');
   const [fundsID, setFundsID] = useState('');
   const [departmentID, setDepartmentID] = useState('');
+
+  // Signatories State
+  const [preparedByName, setPreparedByName] = useState('');
+  const [preparedByTitle, setPreparedByTitle] = useState('Budget Officer');
+  const [certifiedByName, setCertifiedByName] = useState('');
+  const [certifiedByTitle, setCertifiedByTitle] = useState('Municipal Accountant');
+
   const saaobRef = useRef();
   const saoRef = useRef();
   useEffect(() => {
@@ -295,7 +302,14 @@ const BudgetStatementOfAppropriation = () => {
       />
       {/* hidden print components */}
       <div className="hidden">
-        <SAAOBPrintView ref={saaobRef} data={tableData} />
+        <SAAOBPrintView
+          ref={saaobRef}
+          data={tableData}
+          preparedByName={preparedByName}
+          preparedByTitle={preparedByTitle}
+          certifiedByName={certifiedByName}
+          certifiedByTitle={certifiedByTitle}
+        />
         <SAOPrint ref={saoRef} data={tableData} />
       </div>
     </div>
