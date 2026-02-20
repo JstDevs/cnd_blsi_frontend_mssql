@@ -314,10 +314,8 @@ const BudgetStatementOfAppropriation = () => {
         <SAOPrintView
           ref={saoRef}
           data={tableData}
-          preparedByName={preparedByName}
-          preparedByTitle={preparedByTitle}
-          certifiedByName={certifiedByName}
-          certifiedByTitle={certifiedByTitle}
+          fundName={funds.find(f => f.ID == fundsID)?.Name || ''}
+          deptName={departments.find(d => d.ID == departmentID)?.Name || ''}
         />
       </div>
     </div>
