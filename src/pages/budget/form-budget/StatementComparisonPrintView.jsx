@@ -43,14 +43,17 @@ const StatementComparisonPrintView = forwardRef(({ data, fiscalYear }, ref) => {
       {/* <table className="w-full border-collapse border text-xs"> */}
       <table className="w-full text-xs">
         <thead>
-          <tr>
-            <th className="text-[9px] w-[24%]">Particular       </th>
-            <th className="text-[9px] w-[16%] text-right">Notes </th>
-            <th className="text-[9px] w-[12%]">Original Budget  </th>
-            <th className="text-[9px] w-[12%]">Final Budget     </th>
-            <th className="text-[9px] w-[12%]">Budget Difference</th>
-            <th className="text-[9px] w-[12%]">Actual Amounts   </th>
-            <th className="text-[9px] w-[12%]">Final Difference </th>
+          <tr className="border-b border-black">
+            <th className="text-[9px] w-[20%] text-left align-top py-2" rowSpan={2}>Particular</th>
+            <th className="text-[9px] w-[5%] text-center align-top py-2" rowSpan={2}>Notes</th>
+            <th className="text-[9px] text-center border-b border-black py-1" colSpan={2}>Budget Amounts</th>
+            <th className="text-[9px] w-[12%] text-center align-top py-2" rowSpan={2}>Difference<br />Original and Final<br />Budget</th>
+            <th className="text-[9px] w-[12%] text-center align-top py-2" rowSpan={2}>Actual<br />Amounts</th>
+            <th className="text-[9px] w-[12%] text-center align-top py-2" rowSpan={2}>Difference<br />Final Budget and<br />Actual Amount</th>
+          </tr>
+          <tr className="border-b border-black">
+            <th className="text-[9px] w-[12%] text-right py-1">Original</th>
+            <th className="text-[9px] w-[12%] text-right py-1">Final</th>
           </tr>
         </thead>
         <tbody>
@@ -66,26 +69,26 @@ const StatementComparisonPrintView = forwardRef(({ data, fiscalYear }, ref) => {
             // </tr>
 
             <tr key={idx}>
-              <td className="text-[9px] leading-tight">
+              <td className="text-[9px] leading-tight py-1">
                 {/* {row.Type} - {row.Subtype} - {row.Category} - {row.ChartOfAccounts}  */}
                 {row.ChartOfAccounts}
               </td>
-              <td className="text-[9px]">
+              <td className="text-[9px] py-1">
 
               </td>
-              <td className="text-[9px] text-right">
+              <td className="text-[9px] text-right py-1">
                 {Number(row.Original || 0).toLocaleString('en-PH', { minimumFractionDigits: 2 })}
               </td>
-              <td className="text-[9px] text-right">
+              <td className="text-[9px] text-right py-1">
                 {Number(row.Final || 0).toLocaleString('en-PH', { minimumFractionDigits: 2 })}
               </td>
-              <td className="text-[9px] text-right">
+              <td className="text-[9px] text-right py-1">
                 {Number(row.Difference || 0).toLocaleString('en-PH', { minimumFractionDigits: 2 })}
               </td>
-              <td className="text-[9px] text-right">
+              <td className="text-[9px] text-right py-1">
                 {Number(row.Actual || 0).toLocaleString('en-PH', { minimumFractionDigits: 2 })}
               </td>
-              <td className="text-[9px] text-right">
+              <td className="text-[9px] text-right py-1">
                 {Number(row.Difference2 || 0).toLocaleString('en-PH', { minimumFractionDigits: 2 })}
               </td>
             </tr>
