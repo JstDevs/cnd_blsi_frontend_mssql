@@ -104,16 +104,16 @@ function CollectionReportPage() {
         header: 'Sub-Total',
 
         render: (value) =>
-          value.toLocaleString('en-US', {
+          value?.toLocaleString('en-US', {
             style: 'currency',
             currency: 'PHP',
-          }),
+          }) || '-',
       },
       {
         key: 'Date', // Added key
         header: 'Date',
 
-        render: (value) => new Date(value).toLocaleDateString(),
+        render: (value) => (value ? new Date(value).toLocaleDateString() : '-'),
       },
       {
         key: 'FullName', // Added key
