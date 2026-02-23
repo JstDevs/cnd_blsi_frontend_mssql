@@ -210,48 +210,117 @@ const CollectionReportPrintView = forwardRef(({ type, data }, ref) => {
       })()}
 
       {/* Quarterly Report */}
-      {type === 'quarterly' && (
-        <div>
-          <h2 className="text-xl font-bold text-center">
-            QUARTERLY COLLECTION SUMMARY
-          </h2>
-          <table className="w-full border mt-6">
-            <thead>
-              <tr>
-                <th className="border p-2">Quarter</th>
-                <th className="border p-2">Year</th>
-                <th className="border p-2">Charge Account</th>
-                <th className="border p-2">Expense Name</th>
-                <th className="border p-2">Fund Name</th>
-                <th className="border p-2">Breakdown</th>
-                <th className="border p-2">Total</th>
-                <th className="border p-2">Processed By</th>
+      {/* Quarterly Report */}
+{type === 'quarterly' && (() => {
+  // 1. Get info from first row
+  const year = data.length > 0 ? data[0].Year : '';
+  const quarter = data.length > 0 ? data[0].Quarter : '';
+  const preparerName = data.length > 0 ? data[0].FullName : '';
+  const preparerPosition = data.length > 0 ? data[0].Position : '';
+
+  // 2. Determine month column labels based on quarter
+  const monthLabels = {
+    '1': ['January', 'February', 'March'],
+    '2': ['April', 'May', 'June'],
+    '3': ['July', 'August', 'September'],
+    '4': ['October', 'November', 'December'],
+  };
+  const quarterNum = String(quarter).replace(/\D/g, '').trim() || '1';
+  const [m1, m2, m3] = monthLabels[quarterNum] || monthLabels['1'];
+
+  const quarterLabel =
+    quarterNum === '1' ? '1st Qtr.' :
+    quarterNum === '2' ? '2nd Qtr.' :
+    quarterNum === '3' ? '3rd Qtr.' : '4th Qtr.';
+
+  // 3. Group rows by FundName
+  const groupedByFund = data.reduce((acc, row) => {
+    const fund = row.FundName || 'Unknown Fund';
+    if (!acc[fund]) acc[fund] = { accounts: [], m1: 0, m2: 0, m3: 0, total: 0 };
+    acc[fund].accounts.push(row);
+    acc[fund].m1 += Number(row.First || 0);
+    acc[fund].m2 += Number(row.Second || 0);
+    acc[fund].m3 += Number(row.Third || 0);
+    acc[fund].total += Number(row.Total || 0);
+    return acc;
+  }, {});
+
+  // 4. Compute grand totals
+  const grandM1 = Object.values(groupedByFund).reduce((s, f) => s + f.m1, 0);
+  const grandM2 = Object.values(groupedByFund).reduce((s, f) => s + f.m2, 0);
+  const grandM3 = Object.values(groupedByFund).reduce((s, f) => s + f.m3, 0);
+  const grandTotal = Object.values(groupedByFund).reduce((s, f) => s + f.total, 0);
+
+  const fmt = (n) => Number(n || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+
+  return (
+    <div className="p-4 leading-tight" style={{ fontFamily: 'Arial, sans-serif' }}>
+      {/* Header */}
+      <div className="text-center mb-4">
+        <p className="font-bold text-base uppercase tracking-widest">OFFICE OF THE CITY TREASURER</p>
+        <p className="font-bold text-sm mt-1">SUMMARY OF COLLECTION ({quarterLabel} CY - {year})</p>
+      </div>
+
+      {/* Table */}
+      <table className="w-full border-2 border-black border-collapse text-xs">
+        <thead>
+          <tr className="border-2 border-black">
+            <th className="border-2 border-black p-1 text-center font-bold">LOCAL SOURCES</th>
+            <th className="border-2 border-black p-1 text-center font-bold">{m1} {year}</th>
+            <th className="border-2 border-black p-1 text-center font-bold">{m2} {year}</th>
+            <th className="border-2 border-black p-1 text-center font-bold">{m3} {year}</th>
+            <th className="border-2 border-black p-1 text-center font-bold">TOTAL ({quarterLabel})</th>
+          </tr>
+        </thead>
+        <tbody>
+          {Object.entries(groupedByFund).map(([fundName, fundData]) => (
+            <React.Fragment key={fundName}>
+              {/* Fund header row */}
+              <tr className="border border-black">
+                <td colSpan={5} className="p-1 font-bold border border-black uppercase">{fundName}:</td>
               </tr>
-            </thead>
-            <tbody>
-              {data.map((row, idx) => (
-                <tr key={idx}>
-                  <td className="border p-2">{row.Quarter}</td>
-                  <td className="border p-2">{row.Year}</td>
-                  <td className="border p-2">{row.ChargeAccountID}</td>
-                  <td className="border p-2">{row.Name}</td>
-                  <td className="border p-2">{row.FundName}</td>
-                  <td className="border p-2">
-                    Q1: {row.First} | Q2: {row.Second} | Q3: {row.Third}
-                  </td>
-                  <td className="border p-2 text-right">
-                    {row.Total?.toLocaleString('en-US', {
-                      style: 'currency',
-                      currency: 'PHP',
-                    })}
-                  </td>
-                  <td className="border p-2">{row.FullName}</td>
+              {/* Account rows */}
+              {fundData.accounts.map((row, idx) => (
+                <tr key={idx} className="border border-black">
+                  <td className="p-1 pl-4 border border-black">{row.Name}</td>
+                  <td className="p-1 text-right border border-black">{Number(row.First) ? fmt(row.First) : ''}</td>
+                  <td className="p-1 text-right border border-black">{Number(row.Second) ? fmt(row.Second) : ''}</td>
+                  <td className="p-1 text-right border border-black">{Number(row.Third) ? fmt(row.Third) : ''}</td>
+                  <td className="p-1 text-right border border-black">{fmt(row.Total)}</td>
                 </tr>
               ))}
-            </tbody>
-          </table>
+              {/* Sub-total row */}
+              <tr className="border-2 border-black font-bold">
+                <td className="p-1 text-center border border-black italic">sub - total</td>
+                <td className="p-1 text-right border border-black">{fmt(fundData.m1)}</td>
+                <td className="p-1 text-right border border-black">{fmt(fundData.m2)}</td>
+                <td className="p-1 text-right border border-black">{fmt(fundData.m3)}</td>
+                <td className="p-1 text-right border border-black">{fmt(fundData.total)}</td>
+              </tr>
+            </React.Fragment>
+          ))}
+          {/* Grand Total */}
+          <tr className="border-2 border-black font-bold">
+            <td className="p-1 border border-black uppercase">GRAND TOTAL</td>
+            <td className="p-1 text-right border border-black">{fmt(grandM1)}</td>
+            <td className="p-1 text-right border border-black">{fmt(grandM2)}</td>
+            <td className="p-1 text-right border border-black">{fmt(grandM3)}</td>
+            <td className="p-1 text-right border border-black">{fmt(grandTotal)}</td>
+          </tr>
+        </tbody>
+      </table>
+
+      {/* Signature */}
+      <div className="mt-6">
+        <p className="text-xs italic">Prepared By:</p>
+        <div className="mt-4 text-center" style={{ width: '200px' }}>
+          <p className="font-bold text-sm">{preparerName || 'Clark E. Entac'}</p>
+          <p className="text-xs">{preparerPosition || 'Budget Head'}</p>
         </div>
-      )}
+      </div>
+    </div>
+  );
+})()}
 
       {/* Flexible Report */}
       {type === 'flexible' && (
