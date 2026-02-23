@@ -98,48 +98,116 @@ const CollectionReportPrintView = forwardRef(({ type, data }, ref) => {
       })()}
 
       {/* Monthly Report */}
-      {type === 'monthly' && (
-        <div>
-          <h2 className="text-xl font-bold text-center">
-            MONTHLY COLLECTION SUMMARY
-          </h2>
-          <table className="w-full border mt-6">
-            <thead>
-              <tr>
-                <th className="border p-2">Month</th>
-                <th className="border p-2">Year</th>
-                <th className="border p-2">Charge Account</th>
-                <th className="border p-2">Expense Name</th>
-                <th className="border p-2">Amount</th>
-                <th className="border p-2">Date Range</th>
-                <th className="border p-2">Processed By</th>
-                <th className="border p-2">Position</th>
-              </tr>
-            </thead>
-            <tbody>
-              {data.map((row, idx) => (
-                <tr key={idx}>
-                  <td className="border p-2">{row.Month}</td>
-                  <td className="border p-2">{row.Year}</td>
-                  <td className="border p-2">{row.ChargeAccountID}</td>
-                  <td className="border p-2">{row.Name}</td>
-                  <td className="border p-2 text-right">
-                    {row.SubTotal?.toLocaleString('en-US', {
-                      style: 'currency',
-                      currency: 'PHP',
-                    })}
-                  </td>
-                  <td className="border p-2">
-                    {row.Date1} to {row.Date2}
-                  </td>
-                  <td className="border p-2">{row.FullName}</td>
-                  <td className="border p-2">{row.Position}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      )}
+      {type === 'monthly' && (() => {
+        const groupedByFund = data.reduce((acc, row) => {
+          const fund = row.Name || 'Unknown Fund';
+          if (!acc[fund]) {
+            acc[fund] = {
+              accounts: [],
+              total: 0
+            };
+          }
+          acc[fund].accounts.push(row);
+          acc[fund].total += Number(row.SubTotal || 0);
+          return acc;
+        }, {});
+
+        const grandTotal = Object.values(groupedByFund).reduce((sum, fund) => sum + fund.total, 0);
+
+        const monthNames = ["January", "February", "March", "April", "May", "June",
+          "July", "August", "September", "October", "November", "December"
+        ];
+        const monthIndex = data.length > 0 ? parseInt(data[0].Month) - 1 : -1;
+        const monthName = monthIndex >= 0 ? monthNames[monthIndex] : '';
+        const year = data.length > 0 ? data[0].Year : '';
+
+        const preparerName = data.length > 0 ? data[0].FullName : '';
+        const preparerPosition = data.length > 0 ? data[0].Position : '';
+
+        return (
+          <div className="p-4 leading-tight" style={{ fontFamily: 'Arial, sans-serif' }}>
+            {/* Centered Header */}
+            <div className="text-center mb-8 uppercase">
+              <p className="text-base tracking-widest">CITY OF PASSI</p>
+              <p className="font-bold text-lg mt-1">OFFICE OF THE CITY TREASURER</p>
+              <p className="font-bold text-base mt-4 underline">MONTHLY SUMMARY OF COLLECTION {year}</p>
+            </div>
+
+            {/* Custom Table */}
+            <div className="overflow-x-auto">
+              <table className="w-full border-2 border-black border-collapse text-xs">
+                <thead>
+                  <tr className="border-b-2 border-black">
+                    <th className="w-12 border-r-2 border-black"></th>
+                    <th className="p-1 border-r-2 border-black text-left font-normal italic"></th>
+                    <th className="w-24 border-r-2 border-black text-[10px] leading-none uppercase font-bold text-center">
+                      ACCOUNT<br />CODE
+                    </th>
+                    <th className="w-32 font-bold text-sm text-center">{monthName}</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {Object.entries(groupedByFund).map(([fundName, fundData]) => (
+                    <React.Fragment key={fundName}>
+                      {/* Fund Header */}
+                      <tr style={{ backgroundColor: '#2dd44a' }} className="border-b-2 border-black">
+                        <td className="border-r-2 border-black"></td>
+                        <td colSpan="2" className="p-1 border-r-2 border-black font-bold uppercase">{fundName}</td>
+                        <td className="border-black"></td>
+                      </tr>
+                      {/* Accounts */}
+                      {fundData.accounts.map((row, idx) => (
+                        <tr key={idx} className="border-b border-black">
+                          <td className="border-r-2 border-black text-center"></td>
+                          <td className="p-1 pl-6 border-r-2 border-black font-normal">{row.ChartOfAccounts}</td>
+                          <td className="border-r-2 border-black text-center font-bold">{row.ChargeAccountID}</td>
+                          <td className="p-1 text-right font-bold">
+                            {Number(row.SubTotal || 0).toLocaleString('en-US', {
+                              minimumFractionDigits: 2,
+                              maximumFractionDigits: 2,
+                            })}
+                          </td>
+                        </tr>
+                      ))}
+                      {/* Fund Sub-Total */}
+                      <tr style={{ backgroundColor: '#ffff00' }} className="border-b-2 border-black font-bold">
+                        <td className="border-r-2 border-black"></td>
+                        <td colSpan="2" className="p-1 border-r-2 border-black text-center uppercase">Sub-Total</td>
+                        <td className="p-1 text-right">
+                          {fundData.total.toLocaleString('en-US', {
+                            minimumFractionDigits: 2,
+                            maximumFractionDigits: 2,
+                          })}
+                        </td>
+                      </tr>
+                    </React.Fragment>
+                  ))}
+                  {/* Grand Total */}
+                  <tr style={{ backgroundColor: '#77ced9' }} className="font-bold border-black">
+                    <td className="border-r-2 border-black"></td>
+                    <td colSpan="2" className="p-1 border-r-2 border-black uppercase">TOTAL COLLECTIONS</td>
+                    <td className="p-1 text-right">
+                      {grandTotal.toLocaleString('en-US', {
+                        minimumFractionDigits: 2,
+                        maximumFractionDigits: 2,
+                      })}
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+
+            {/* Signature Section */}
+            <div className="mt-8">
+              <p className="text-[10px] italic">Prepared by:</p>
+              <div className="mt-4">
+                <p className="font-bold text-sm mb-0">{preparerName || 'Clark E. Entac'}</p>
+                <p className="text-[10px]">{preparerPosition || 'Budget Head'}</p>
+              </div>
+            </div>
+          </div>
+        );
+      })()}
 
       {/* Quarterly Report */}
       {type === 'quarterly' && (
