@@ -53,8 +53,9 @@ const CollectionReportPrintView = forwardRef(({ type, data }, ref) => {
                         </span>
                       </div>
                     ))}
-                    <div className="flex max-w-2xl mt-1">
-                      <span className="font-bold w-[26rem] text-right">
+                    <div className="flex max-w-2xl mt-2 font-bold text-lg">
+                      <span className="w-[26rem]"></span>
+                      <span className="w-32 text-right">
                         {fundData.total.toLocaleString('en-US', {
                           minimumFractionDigits: 2,
                           maximumFractionDigits: 2,
