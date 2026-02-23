@@ -5,45 +5,96 @@ const CollectionReportPrintView = forwardRef(({ type, data }, ref) => {
   return (
     <div ref={ref} className="p-6 text-black text-sm">
       {/* Daily Report */}
-      {type === 'daily' && (
-        <div>
-          <h2 className="text-xl font-bold text-center">
-            Republic of the Philippines
-          </h2>
-          <h3 className="text-lg text-center">DAILY COLLECTION REPORT</h3>
-          <table className="w-full border mt-6">
-            <thead>
-              <tr>
-                <th className="border p-2">OR Date</th>
-                <th className="border p-2">OR No</th>
-                <th className="border p-2">Payor</th>
-                <th className="border p-2">Amount</th>
-                <th className="border p-2">Posted By</th>
-              </tr>
-            </thead>
-            <tbody>
-              {data.map((row, idx) => (
-                <tr key={idx}>
-                  <td className="border p-2">{row.ORDate}</td>
-                  <td className="border p-2">{row.ORNo}</td>
-                  <td className="border p-2">{row.Payor}</td>
-                  <td className="border p-2 text-right">
-                    {row.Amount?.toLocaleString('en-US', {
-                      style: 'currency',
-                      currency: 'PHP',
-                    })}
-                  </td>
-                  <td className="border p-2">{row.PostedBy}</td>
-                </tr>
+      {type === 'daily' && (() => {
+        // Grouping logic
+        const groupedByFund = data.reduce((acc, row) => {
+          const fund = row.Name || 'Unknown Fund';
+          if (!acc[fund]) {
+            acc[fund] = {
+              accounts: [],
+              total: 0
+            };
+          }
+          acc[fund].accounts.push(row);
+          acc[fund].total += Number(row.SubTotal || 0);
+          return acc;
+        }, {});
+
+        const grandTotal = Object.values(groupedByFund).reduce((sum, fund) => sum + fund.total, 0);
+
+        const reportDate = data.length > 0 && data[0].Date
+          ? new Date(data[0].Date).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })
+          : '';
+
+        const preparerName = data.length > 0 ? data[0].FullName : '';
+        const preparerPosition = data.length > 0 ? data[0].Position : '';
+
+        return (
+          <div className="p-4 leading-tight" style={{ fontFamily: 'Arial, sans-serif' }}>
+            {/* Header Date */}
+            <div className="mb-6">
+              <p className="font-bold text-base">{reportDate}</p>
+            </div>
+
+            {/* Funds and Accounts */}
+            <div className="space-y-6 mb-8">
+              {Object.entries(groupedByFund).map(([fundName, fundData]) => (
+                <div key={fundName}>
+                  <p className="font-bold mb-1 uppercase">{fundName}</p>
+                  <div className="pl-0">
+                    {fundData.accounts.map((row, idx) => (
+                      <div key={idx} className="flex max-w-xl text-sm">
+                        <span className="w-72">{row.Account}</span>
+                        <span className="w-32 text-right">
+                          {Number(row.SubTotal || 0).toLocaleString('en-US', {
+                            minimumFractionDigits: 2,
+                            maximumFractionDigits: 2,
+                          })}
+                        </span>
+                      </div>
+                    ))}
+                    <div className="flex max-w-2xl mt-1">
+                      <span className="font-bold w-[26rem] text-right">
+                        {fundData.total.toLocaleString('en-US', {
+                          minimumFractionDigits: 2,
+                          maximumFractionDigits: 2,
+                        })}
+                      </span>
+                    </div>
+                  </div>
+                </div>
               ))}
-            </tbody>
-          </table>
-          <div className="mt-6 flex justify-between">
-            <p>Prepared By: __________</p>
-            <p>Noted By: __________</p>
+            </div>
+
+            {/* Grand Total Section */}
+            <div className="mb-8">
+              <p className="font-bold mb-2 uppercase">GRAND TOTAL</p>
+              <div className="space-y-1">
+                {Object.entries(groupedByFund).map(([fundName, fundData]) => (
+                  <div key={fundName} className="flex max-w-xl font-bold text-sm">
+                    <span className="w-72">{fundName}</span>
+                    <span className="w-32 text-right">
+                      {fundData.total.toLocaleString('en-US', {
+                        minimumFractionDigits: 2,
+                        maximumFractionDigits: 2,
+                      })}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Signatories */}
+            <div className="mt-4 flex justify-center w-[30rem]">
+              <div className="text-center">
+                <p className="mb-1 text-sm italic">Prepared:</p>
+                <p className="font-bold text-base mb-0">{preparerName || 'Clark E. Entac'}</p>
+                <p className="text-sm">{preparerPosition || 'Budget Head'}</p>
+              </div>
+            </div>
           </div>
-        </div>
-      )}
+        );
+      })()}
 
       {/* Monthly Report */}
       {type === 'monthly' && (
