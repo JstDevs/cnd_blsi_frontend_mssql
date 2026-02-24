@@ -261,14 +261,12 @@ function CollectionReportPage() {
       {
         key: 'ProcessedBy',
         header: 'Processed By',
-
-        render: (_, row) => `${row.Prepare} (${row.PreparePosition})`,
+        render: (_, row) => row.Prepare || '-',
       },
       {
         key: 'NotedBy',
         header: 'Noted By',
-
-        render: (_, row) => `${row.Poster} (${row.NotedPosition})`,
+        render: (_, row) => row.Poster || '-',
       },
       {
         key: 'Note',
