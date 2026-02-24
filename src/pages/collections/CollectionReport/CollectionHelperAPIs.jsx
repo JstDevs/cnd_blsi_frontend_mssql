@@ -28,8 +28,8 @@ export const fetchCollectionReport = async (type, params) => {
         queryParams.append('year', params.year);
         break;
       case 'flexible':
-        queryParams.append('startdate', params.startDate);
-        queryParams.append('enddate', params.endDate);
+        queryParams.append('startdate', params.startdate);
+        queryParams.append('enddate', params.enddate);
         if (params.note) queryParams.append('note', params.note);
         break;
       default:

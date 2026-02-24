@@ -248,7 +248,7 @@ function CollectionReportForm({
           typeParams = {
             startdate: values.fromDate,
             enddate: values.toDate,
-            note: values.notedBy,
+            // note: values.notedBy,
           };
           break;
         default:
