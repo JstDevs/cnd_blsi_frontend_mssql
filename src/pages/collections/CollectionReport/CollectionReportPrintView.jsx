@@ -211,166 +211,237 @@ const CollectionReportPrintView = forwardRef(({ type, data }, ref) => {
 
       {/* Quarterly Report */}
       {/* Quarterly Report */}
-{type === 'quarterly' && (() => {
-  // 1. Get info from first row
-  const year = data.length > 0 ? data[0].Year : '';
-  const quarter = data.length > 0 ? data[0].Quarter : '';
-  const preparerName = data.length > 0 ? data[0].FullName : '';
-  const preparerPosition = data.length > 0 ? data[0].Position : '';
+      {type === 'quarterly' && (() => {
+        // 1. Get info from first row
+        const year = data.length > 0 ? data[0].Year : '';
+        const quarter = data.length > 0 ? data[0].Quarter : '';
+        const preparerName = data.length > 0 ? data[0].FullName : '';
+        const preparerPosition = data.length > 0 ? data[0].Position : '';
 
-  // 2. Determine month column labels based on quarter
-  const monthLabels = {
-    '1': ['January', 'February', 'March'],
-    '2': ['April', 'May', 'June'],
-    '3': ['July', 'August', 'September'],
-    '4': ['October', 'November', 'December'],
-  };
-  const quarterNum = String(quarter).replace(/\D/g, '').trim() || '1';
-  const [m1, m2, m3] = monthLabels[quarterNum] || monthLabels['1'];
+        // 2. Determine month column labels based on quarter
+        const monthLabels = {
+          '1': ['January', 'February', 'March'],
+          '2': ['April', 'May', 'June'],
+          '3': ['July', 'August', 'September'],
+          '4': ['October', 'November', 'December'],
+        };
+        const quarterNum = String(quarter).replace(/\D/g, '').trim() || '1';
+        const [m1, m2, m3] = monthLabels[quarterNum] || monthLabels['1'];
 
-  const quarterLabel =
-    quarterNum === '1' ? '1st Qtr.' :
-    quarterNum === '2' ? '2nd Qtr.' :
-    quarterNum === '3' ? '3rd Qtr.' : '4th Qtr.';
+        const quarterLabel =
+          quarterNum === '1' ? '1st Qtr.' :
+            quarterNum === '2' ? '2nd Qtr.' :
+              quarterNum === '3' ? '3rd Qtr.' : '4th Qtr.';
 
-  // 3. Group rows by FundName
-  const groupedByFund = data.reduce((acc, row) => {
-    const fund = row.FundName || 'Unknown Fund';
-    if (!acc[fund]) acc[fund] = { accounts: [], m1: 0, m2: 0, m3: 0, total: 0 };
-    acc[fund].accounts.push(row);
-    acc[fund].m1 += Number(row.First || 0);
-    acc[fund].m2 += Number(row.Second || 0);
-    acc[fund].m3 += Number(row.Third || 0);
-    acc[fund].total += Number(row.Total || 0);
-    return acc;
-  }, {});
+        // 3. Group rows by FundName
+        const groupedByFund = data.reduce((acc, row) => {
+          const fund = row.FundName || 'Unknown Fund';
+          if (!acc[fund]) acc[fund] = { accounts: [], m1: 0, m2: 0, m3: 0, total: 0 };
+          acc[fund].accounts.push(row);
+          acc[fund].m1 += Number(row.First || 0);
+          acc[fund].m2 += Number(row.Second || 0);
+          acc[fund].m3 += Number(row.Third || 0);
+          acc[fund].total += Number(row.Total || 0);
+          return acc;
+        }, {});
 
-  // 4. Compute grand totals
-  const grandM1 = Object.values(groupedByFund).reduce((s, f) => s + f.m1, 0);
-  const grandM2 = Object.values(groupedByFund).reduce((s, f) => s + f.m2, 0);
-  const grandM3 = Object.values(groupedByFund).reduce((s, f) => s + f.m3, 0);
-  const grandTotal = Object.values(groupedByFund).reduce((s, f) => s + f.total, 0);
+        // 4. Compute grand totals
+        const grandM1 = Object.values(groupedByFund).reduce((s, f) => s + f.m1, 0);
+        const grandM2 = Object.values(groupedByFund).reduce((s, f) => s + f.m2, 0);
+        const grandM3 = Object.values(groupedByFund).reduce((s, f) => s + f.m3, 0);
+        const grandTotal = Object.values(groupedByFund).reduce((s, f) => s + f.total, 0);
 
-  const fmt = (n) => Number(n || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+        const fmt = (n) => Number(n || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 
-  return (
-    <div className="p-4 leading-tight" style={{ fontFamily: 'Arial, sans-serif' }}>
-      {/* Header */}
-      <div className="text-center mb-4">
-        <p className="font-bold text-base uppercase tracking-widest">OFFICE OF THE CITY TREASURER</p>
-        <p className="font-bold text-sm mt-1">SUMMARY OF COLLECTION ({quarterLabel} CY - {year})</p>
-      </div>
+        return (
+          <div className="p-4 leading-tight" style={{ fontFamily: 'Arial, sans-serif' }}>
+            {/* Header */}
+            <div className="text-center mb-4">
+              <p className="font-bold text-base uppercase tracking-widest">OFFICE OF THE CITY TREASURER</p>
+              <p className="font-bold text-sm mt-1">SUMMARY OF COLLECTION ({quarterLabel} CY - {year})</p>
+            </div>
 
-      {/* Table */}
-      <table className="w-full border-2 border-black border-collapse text-xs">
-        <thead>
-          <tr className="border-2 border-black">
-            <th className="border-2 border-black p-1 text-center font-bold">LOCAL SOURCES</th>
-            <th className="border-2 border-black p-1 text-center font-bold">{m1} {year}</th>
-            <th className="border-2 border-black p-1 text-center font-bold">{m2} {year}</th>
-            <th className="border-2 border-black p-1 text-center font-bold">{m3} {year}</th>
-            <th className="border-2 border-black p-1 text-center font-bold">TOTAL ({quarterLabel})</th>
-          </tr>
-        </thead>
-        <tbody>
-          {Object.entries(groupedByFund).map(([fundName, fundData]) => (
-            <React.Fragment key={fundName}>
-              {/* Fund header row */}
-              <tr className="border border-black">
-                <td colSpan={5} className="p-1 font-bold border border-black uppercase">{fundName}:</td>
-              </tr>
-              {/* Account rows */}
-              {fundData.accounts.map((row, idx) => (
-                <tr key={idx} className="border border-black">
-                  <td className="p-1 pl-4 border border-black">{row.Name}</td>
-                  <td className="p-1 text-right border border-black">{Number(row.First) ? fmt(row.First) : ''}</td>
-                  <td className="p-1 text-right border border-black">{Number(row.Second) ? fmt(row.Second) : ''}</td>
-                  <td className="p-1 text-right border border-black">{Number(row.Third) ? fmt(row.Third) : ''}</td>
-                  <td className="p-1 text-right border border-black">{fmt(row.Total)}</td>
+            {/* Table */}
+            <table className="w-full border-2 border-black border-collapse text-xs">
+              <thead>
+                <tr className="border-2 border-black">
+                  <th className="border-2 border-black p-1 text-center font-bold">LOCAL SOURCES</th>
+                  <th className="border-2 border-black p-1 text-center font-bold">{m1} {year}</th>
+                  <th className="border-2 border-black p-1 text-center font-bold">{m2} {year}</th>
+                  <th className="border-2 border-black p-1 text-center font-bold">{m3} {year}</th>
+                  <th className="border-2 border-black p-1 text-center font-bold">TOTAL ({quarterLabel})</th>
                 </tr>
-              ))}
-              {/* Sub-total row */}
-              <tr className="border-2 border-black font-bold">
-                <td className="p-1 text-center border border-black italic">sub - total</td>
-                <td className="p-1 text-right border border-black">{fmt(fundData.m1)}</td>
-                <td className="p-1 text-right border border-black">{fmt(fundData.m2)}</td>
-                <td className="p-1 text-right border border-black">{fmt(fundData.m3)}</td>
-                <td className="p-1 text-right border border-black">{fmt(fundData.total)}</td>
-              </tr>
-            </React.Fragment>
-          ))}
-          {/* Grand Total */}
-          <tr className="border-2 border-black font-bold">
-            <td className="p-1 border border-black uppercase">GRAND TOTAL</td>
-            <td className="p-1 text-right border border-black">{fmt(grandM1)}</td>
-            <td className="p-1 text-right border border-black">{fmt(grandM2)}</td>
-            <td className="p-1 text-right border border-black">{fmt(grandM3)}</td>
-            <td className="p-1 text-right border border-black">{fmt(grandTotal)}</td>
-          </tr>
-        </tbody>
-      </table>
+              </thead>
+              <tbody>
+                {Object.entries(groupedByFund).map(([fundName, fundData]) => (
+                  <React.Fragment key={fundName}>
+                    {/* Fund header row */}
+                    <tr className="border border-black">
+                      <td colSpan={5} className="p-1 font-bold border border-black uppercase">{fundName}:</td>
+                    </tr>
+                    {/* Account rows */}
+                    {fundData.accounts.map((row, idx) => (
+                      <tr key={idx} className="border border-black">
+                        <td className="p-1 pl-4 border border-black">{row.Name}</td>
+                        <td className="p-1 text-right border border-black">{Number(row.First) ? fmt(row.First) : ''}</td>
+                        <td className="p-1 text-right border border-black">{Number(row.Second) ? fmt(row.Second) : ''}</td>
+                        <td className="p-1 text-right border border-black">{Number(row.Third) ? fmt(row.Third) : ''}</td>
+                        <td className="p-1 text-right border border-black">{fmt(row.Total)}</td>
+                      </tr>
+                    ))}
+                    {/* Sub-total row */}
+                    <tr className="border-2 border-black font-bold">
+                      <td className="p-1 text-center border border-black italic">sub - total</td>
+                      <td className="p-1 text-right border border-black">{fmt(fundData.m1)}</td>
+                      <td className="p-1 text-right border border-black">{fmt(fundData.m2)}</td>
+                      <td className="p-1 text-right border border-black">{fmt(fundData.m3)}</td>
+                      <td className="p-1 text-right border border-black">{fmt(fundData.total)}</td>
+                    </tr>
+                  </React.Fragment>
+                ))}
+                {/* Grand Total */}
+                <tr className="border-2 border-black font-bold">
+                  <td className="p-1 border border-black uppercase">GRAND TOTAL</td>
+                  <td className="p-1 text-right border border-black">{fmt(grandM1)}</td>
+                  <td className="p-1 text-right border border-black">{fmt(grandM2)}</td>
+                  <td className="p-1 text-right border border-black">{fmt(grandM3)}</td>
+                  <td className="p-1 text-right border border-black">{fmt(grandTotal)}</td>
+                </tr>
+              </tbody>
+            </table>
 
-      {/* Signature */}
-      <div className="mt-6">
-        <p className="text-xs italic">Prepared By:</p>
-        <div className="mt-4 text-center" style={{ width: '200px' }}>
-          <p className="font-bold text-sm">{preparerName || 'Clark E. Entac'}</p>
-          <p className="text-xs">{preparerPosition || 'Budget Head'}</p>
-        </div>
-      </div>
-    </div>
-  );
-})()}
+            {/* Signature */}
+            <div className="mt-6">
+              <p className="text-xs italic">Prepared By:</p>
+              <div className="mt-4 text-center" style={{ width: '200px' }}>
+                <p className="font-bold text-sm">{preparerName || 'Clark E. Entac'}</p>
+                <p className="text-xs">{preparerPosition || 'Budget Head'}</p>
+              </div>
+            </div>
+          </div>
+        );
+      })()}
 
       {/* Flexible Report */}
-      {type === 'flexible' && (
-        <div>
-          <h2 className="text-xl font-bold text-center">
-            FLEXIBLE COLLECTION REPORT
-          </h2>
-          <table className="w-full border mt-6">
-            <thead>
-              <tr>
-                <th className="border p-2">Date Range</th>
-                <th className="border p-2">Invoice #</th>
-                <th className="border p-2">Customer</th>
-                <th className="border p-2">Municipality</th>
-                <th className="border p-2">Province</th>
-                <th className="border p-2">Amount</th>
-                <th className="border p-2">Processed By</th>
-                <th className="border p-2">Noted By</th>
-                <th className="border p-2">Remarks</th>
-              </tr>
-            </thead>
-            <tbody>
-              {data.map((row, idx) => (
-                <tr key={idx}>
-                  <td className="border p-2">
-                    {row.StartDate} to {row.EndDate}
-                  </td>
-                  <td className="border p-2">{row.InvoiceNumber}</td>
-                  <td className="border p-2">{row.CustomerName}</td>
-                  <td className="border p-2">{row.Municipality}</td>
-                  <td className="border p-2">{row.Province}</td>
-                  <td className="border p-2 text-right">
-                    {row.Total?.toLocaleString('en-US', {
-                      style: 'currency',
-                      currency: 'PHP',
-                    })}
-                  </td>
-                  <td className="border p-2">
-                    {row.Prepare} ({row.PreparePosition})
-                  </td>
-                  <td className="border p-2">
-                    {row.Poster} ({row.NotedPosition})
-                  </td>
-                  <td className="border p-2">{row.Note}</td>
+      {type === 'flexible' && (() => {
+        const totalAmount = data.reduce((sum, row) => sum + Number(row.Total || 0), 0);
+        const totalRecords = data.length;
+
+        // Format date helper
+        const fmtDate = (d) => {
+          if (!d) return '';
+          const dt = new Date(d);
+          if (isNaN(dt)) return d;
+          const mm = String(dt.getMonth() + 1).padStart(2, '0');
+          const dd = String(dt.getDate()).padStart(2, '0');
+          const yyyy = dt.getFullYear();
+          return `${mm}/${dd}/${yyyy}`;
+        };
+
+        // Get date range from first/last rows (or from StartDate/EndDate of data)
+        const startDate = data.length > 0 ? fmtDate(data[0].StartDate || data[0].InvoiceDate) : '';
+        const endDate = data.length > 0 ? fmtDate(data[data.length - 1].EndDate || data[data.length - 1].InvoiceDate) : '';
+
+        // Signatory info from first row
+        const preparedByName = data.length > 0 ? (data[0].Prepare || '') : '';
+        const preparedByPos = data.length > 0 ? (data[0].PreparePosition || '') : '';
+        const notedByName = data.length > 0 ? (data[0].Poster || '') : '';
+        const notedByPos = data.length > 0 ? (data[0].NotedPosition || '') : '';
+
+        const fmt = (n) => Number(n || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+
+        return (
+          <div style={{ fontFamily: 'Arial, sans-serif', fontSize: '12px', padding: '20px', color: '#000' }}>
+            {/* Government Header */}
+            <div style={{ marginBottom: '16px' }}>
+              <p style={{ fontWeight: 'bold', fontSize: '11px', margin: '0' }}>Republic of the Philippines</p>
+              <p style={{ fontWeight: 'bold', fontSize: '11px', margin: '0' }}>PROVINCE OF SAN DIONISIO</p>
+              <p style={{ fontWeight: 'bold', fontSize: '11px', margin: '0' }}>Municipality of ILOILO</p>
+              <p style={{ fontWeight: 'bold', fontSize: '11px', margin: '0' }}>OFFICE OF THE MUNICIPAL TREASURER</p>
+            </div>
+
+            <hr style={{ borderTop: '2px solid #000', marginBottom: '16px' }} />
+
+            {/* Report Title */}
+            <div style={{ textAlign: 'center', marginBottom: '12px' }}>
+              <p style={{ fontWeight: 'bold', fontSize: '16px', margin: '0' }}>Collection Report</p>
+              <p style={{ fontWeight: 'bold', fontSize: '11px', margin: '2px 0 0 0' }}>
+                OR DATE {startDate} TO {endDate}
+              </p>
+            </div>
+
+            {/* Table */}
+            <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '11px' }}>
+              <thead>
+                <tr style={{ borderTop: '1px solid #000', borderBottom: '1px solid #000' }}>
+                  <th style={{ padding: '4px 8px', textAlign: 'left', fontWeight: 'bold', borderRight: '1px solid #ccc' }}>OR DATE</th>
+                  <th style={{ padding: '4px 8px', textAlign: 'left', fontWeight: 'bold', borderRight: '1px solid #ccc' }}>OR No</th>
+                  <th style={{ padding: '4px 8px', textAlign: 'left', fontWeight: 'bold', borderRight: '1px solid #ccc' }}>PAYOR</th>
+                  <th style={{ padding: '4px 8px', textAlign: 'right', fontWeight: 'bold', borderRight: '1px solid #ccc' }}>Amount</th>
+                  <th style={{ padding: '4px 8px', textAlign: 'left', fontWeight: 'bold' }}>Posted By</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      )}
+              </thead>
+              <tbody>
+                {data.map((row, idx) => (
+                  <tr key={idx} style={{ borderBottom: '1px solid #eee' }}>
+                    <td style={{ padding: '3px 8px', borderRight: '1px solid #ccc' }}>
+                      {fmtDate(row.InvoiceDate || row.StartDate)}
+                    </td>
+                    <td style={{ padding: '3px 8px', borderRight: '1px solid #ccc' }}>
+                      {row.InvoiceNumber}
+                    </td>
+                    <td style={{ padding: '3px 8px', borderRight: '1px solid #ccc' }}>
+                      {row.CustomerName}
+                    </td>
+                    <td style={{ padding: '3px 8px', textAlign: 'right', borderRight: '1px solid #ccc' }}>
+                      {fmt(row.Total)}
+                    </td>
+                    <td style={{ padding: '3px 8px', color: '#1a56db' }}>
+                      {row.Prepare}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+              <tfoot>
+                <tr style={{ borderTop: '2px solid #000' }}>
+                  <td colSpan={2} style={{ padding: '4px 8px', fontWeight: 'bold' }}>
+                    Total Records: {totalRecords}
+                  </td>
+                  <td style={{ padding: '4px 8px', textAlign: 'right', fontWeight: 'bold' }}>
+                    Total Amount:
+                  </td>
+                  <td style={{ padding: '4px 8px', textAlign: 'right', fontWeight: 'bold', fontSize: '13px' }}>
+                    {fmt(totalAmount)}
+                  </td>
+                  <td></td>
+                </tr>
+              </tfoot>
+            </table>
+
+            {/* Signatories */}
+            <div style={{ marginTop: '24px', display: 'flex', justifyContent: 'space-between' }}>
+              <div>
+                <p style={{ fontSize: '11px', margin: '0 0 16px 0' }}>Prepared By:</p>
+                <p style={{ fontWeight: 'bold', fontSize: '12px', margin: '0', textAlign: 'center' }}>
+                  {preparedByName || 'Accounting S. Head'}
+                </p>
+                <p style={{ fontSize: '11px', margin: '0', textAlign: 'center', color: '#1a56db' }}>
+                  {preparedByPos || 'Accounting Head'}
+                </p>
+              </div>
+              <div style={{ textAlign: 'right' }}>
+                <p style={{ fontSize: '11px', margin: '0 0 16px 0' }}>Noted By:</p>
+                <p style={{ fontWeight: 'bold', fontSize: '12px', margin: '0', textAlign: 'center' }}>
+                  {notedByName || 'Mayor S. Office'}
+                </p>
+                <p style={{ fontSize: '11px', margin: '0', textAlign: 'center', color: '#1a56db' }}>
+                  {notedByPos || 'Mayor'}
+                </p>
+              </div>
+            </div>
+          </div>
+        );
+      })()}
     </div>
   );
 });
