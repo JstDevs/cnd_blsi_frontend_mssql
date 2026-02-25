@@ -373,70 +373,76 @@ const CollectionReportPrintView = forwardRef(({ type, data }, ref) => {
             {/* Table */}
             <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '11px' }}>
               <thead>
-                <tr style={{ borderTop: '1px solid #000', borderBottom: '1px solid #000' }}>
-                  <th style={{ padding: '4px 8px', textAlign: 'left', fontWeight: 'bold', borderRight: '1px solid #ccc' }}>OR DATE</th>
-                  <th style={{ padding: '4px 8px', textAlign: 'left', fontWeight: 'bold', borderRight: '1px solid #ccc' }}>OR No</th>
-                  <th style={{ padding: '4px 8px', textAlign: 'left', fontWeight: 'bold', borderRight: '1px solid #ccc' }}>PAYOR</th>
-                  <th style={{ padding: '4px 8px', textAlign: 'right', fontWeight: 'bold', borderRight: '1px solid #ccc' }}>Amount</th>
-                  <th style={{ padding: '4px 8px', textAlign: 'left', fontWeight: 'bold' }}>Posted By</th>
+                <tr>
+                  <th style={{ padding: '4px 8px', textAlign: 'left', fontWeight: 'bold', border: '1px solid #000', width: '90px' }}>OR DATE</th>
+                  <th style={{ padding: '4px 8px', textAlign: 'left', fontWeight: 'bold', border: '1px solid #000', width: '70px' }}>OR No</th>
+                  <th style={{ padding: '4px 8px', textAlign: 'left', fontWeight: 'bold', border: '1px solid #000', width: 'auto' }}>PAYOR</th>
+                  <th style={{ padding: '4px 8px', textAlign: 'right', fontWeight: 'bold', border: '1px solid #000', width: '100px' }}>Amount</th>
+                  <th style={{ padding: '4px 8px', textAlign: 'left', fontWeight: 'bold', border: '1px solid #000', width: '130px' }}>Posted By</th>
                 </tr>
               </thead>
               <tbody>
                 {data.map((row, idx) => (
-                  <tr key={idx} style={{ borderBottom: '1px solid #eee' }}>
-                    <td style={{ padding: '3px 8px', borderRight: '1px solid #ccc' }}>
+                  <tr key={idx}>
+                    <td style={{ padding: '3px 8px', border: '1px solid #000' }}>
                       {fmtDate(row.InvoiceDate || row.StartDate)}
                     </td>
-                    <td style={{ padding: '3px 8px', borderRight: '1px solid #ccc' }}>
+                    <td style={{ padding: '3px 8px', border: '1px solid #000' }}>
                       {row.InvoiceNumber}
                     </td>
-                    <td style={{ padding: '3px 8px', borderRight: '1px solid #ccc' }}>
+                    <td style={{ padding: '3px 8px', border: '1px solid #000' }}>
                       {row.CustomerName}
                     </td>
-                    <td style={{ padding: '3px 8px', textAlign: 'right', borderRight: '1px solid #ccc' }}>
+                    <td style={{ padding: '3px 8px', textAlign: 'right', border: '1px solid #000' }}>
                       {fmt(row.Total)}
                     </td>
-                    <td style={{ padding: '3px 8px', color: '#1a56db' }}>
+                    <td style={{ padding: '3px 8px', color: '#1a56db', border: '1px solid #000' }}>
                       {row.Prepare}
                     </td>
                   </tr>
                 ))}
               </tbody>
               <tfoot>
-                <tr style={{ borderTop: '2px solid #000' }}>
-                  <td colSpan={2} style={{ padding: '4px 8px', fontWeight: 'bold' }}>
+                <tr>
+                  <td colSpan={2} style={{ padding: '4px 8px', fontWeight: 'bold', border: '1px solid #000', textAlign: 'left' }}>
                     Total Records: {totalRecords}
                   </td>
-                  <td style={{ padding: '4px 8px', textAlign: 'right', fontWeight: 'bold' }}>
+                  <td style={{ padding: '4px 8px', textAlign: 'right', fontWeight: 'bold', border: '1px solid #000' }}>
                     Total Amount:
                   </td>
-                  <td style={{ padding: '4px 8px', textAlign: 'right', fontWeight: 'bold', fontSize: '13px' }}>
+                  <td style={{ padding: '4px 8px', textAlign: 'right', fontWeight: 'bold', fontSize: '14px', border: '1px solid #000' }}>
                     {fmt(totalAmount)}
                   </td>
-                  <td></td>
+                  <td style={{ border: '1px solid #000' }}></td>
                 </tr>
               </tfoot>
             </table>
 
             {/* Signatories */}
-            <div style={{ marginTop: '24px', display: 'flex', justifyContent: 'space-between' }}>
-              <div>
-                <p style={{ fontSize: '11px', margin: '0 0 16px 0' }}>Prepared By:</p>
-                <p style={{ fontWeight: 'bold', fontSize: '12px', margin: '0', textAlign: 'center' }}>
-                  {preparedByName || 'Accounting S. Head'}
-                </p>
-                <p style={{ fontSize: '11px', margin: '0', textAlign: 'center', color: '#1a56db' }}>
-                  {preparedByPos || 'Accounting Head'}
-                </p>
+            <div style={{ marginTop: '16px', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+              {/* Left */}
+              <div style={{ minWidth: '180px' }}>
+                <p style={{ fontSize: '11px', margin: '0 0 20px 0' }}>Prepared By:</p>
+                <div style={{ textAlign: 'center' }}>
+                  <p style={{ fontWeight: 'bold', fontSize: '13px', margin: '0' }}>
+                    {preparedByName || 'Accounting S. Head'}
+                  </p>
+                  <p style={{ fontSize: '11px', margin: '1px 0 0 0', color: '#1a56db' }}>
+                    {preparedByPos || 'Accounting Head'}
+                  </p>
+                </div>
               </div>
-              <div style={{ textAlign: 'right' }}>
-                <p style={{ fontSize: '11px', margin: '0 0 16px 0' }}>Noted By:</p>
-                <p style={{ fontWeight: 'bold', fontSize: '12px', margin: '0', textAlign: 'center' }}>
-                  {notedByName || 'Mayor S. Office'}
-                </p>
-                <p style={{ fontSize: '11px', margin: '0', textAlign: 'center', color: '#1a56db' }}>
-                  {notedByPos || 'Mayor'}
-                </p>
+              {/* Right */}
+              <div style={{ minWidth: '180px', textAlign: 'right' }}>
+                <p style={{ fontSize: '11px', margin: '0 0 20px 0' }}>Noted By:</p>
+                <div style={{ textAlign: 'center' }}>
+                  <p style={{ fontWeight: 'bold', fontSize: '13px', margin: '0' }}>
+                    {notedByName || 'Mayor S. Office'}
+                  </p>
+                  <p style={{ fontSize: '11px', margin: '1px 0 0 0', color: '#1a56db' }}>
+                    {notedByPos || 'Mayor'}
+                  </p>
+                </div>
               </div>
             </div>
           </div>
