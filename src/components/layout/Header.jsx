@@ -54,14 +54,14 @@ function Header({ toggleSidebar, isSidebarOpen }) {
         <div className="flex justify-between h-20">
           <div className="flex-1 flex items-center">
             <div className="hidden md:flex flex-col items-start">
-              <img src={genericLogo} alt="Generic logo" className='h-16 mr-6'/>
-            </div>          
+              <img src={genericLogo} alt="Generic logo" className='h-16 mr-6' />
+            </div>
             <div className="hidden md:flex flex-col items-start">
               <h1 className="text-xl font-bold text-black text-left items-start">Municipality of LGU</h1>
             </div>
           </div>
           <div className="flex">
-            <div className="flex-shrink-0 flex items-center lg:hidden">
+            <div className="flex-shrink-0 flex items-center">
               <button
                 type="button"
                 className="inline-flex items-center justify-center p-2 rounded-md text-neutral-500 hover:text-neutral-900 hover:bg-neutral-100 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-primary-500"
@@ -70,11 +70,7 @@ function Header({ toggleSidebar, isSidebarOpen }) {
                 <span className="sr-only">
                   {isSidebarOpen ? 'Close sidebar' : 'Open sidebar'}
                 </span>
-                {isSidebarOpen ? (
-                  <XMarkIcon className="block h-6 w-6" aria-hidden="true" />
-                ) : (
-                  <Bars3Icon className="block h-6 w-6" aria-hidden="true" />
-                )}
+                <Bars3Icon className="block h-6 w-6" aria-hidden="true" />
               </button>
             </div>
             <div className="hidden sm:ml-6 sm:flex sm:items-center">
@@ -173,11 +169,10 @@ function Header({ toggleSidebar, isSidebarOpen }) {
                         {({ active }) => (
                           <button
                             onClick={() => navigate('/profile')}
-                            className={`${
-                              active
+                            className={`${active
                                 ? 'bg-neutral-100 text-neutral-900'
                                 : 'text-neutral-700'
-                            } flex items-center px-4 py-2 text-sm w-full text-left`}
+                              } flex items-center px-4 py-2 text-sm w-full text-left`}
                           >
                             <UserCircleIcon
                               className="mr-3 h-5 w-5 text-neutral-400"
@@ -193,11 +188,10 @@ function Header({ toggleSidebar, isSidebarOpen }) {
                         {({ active }) => (
                           <button
                             onClick={() => navigate('/change-password')}
-                            className={`${
-                              active
+                            className={`${active
                                 ? 'bg-neutral-100 text-neutral-900'
                                 : 'text-neutral-700'
-                            } flex items-center px-4 py-2 text-sm w-full text-left`}
+                              } flex items-center px-4 py-2 text-sm w-full text-left`}
                           >
                             <KeyIcon
                               className="mr-3 h-5 w-5 text-neutral-400"
@@ -213,11 +207,10 @@ function Header({ toggleSidebar, isSidebarOpen }) {
                         {({ active }) => (
                           <button
                             onClick={handleLogout}
-                            className={`${
-                              active
+                            className={`${active
                                 ? 'bg-neutral-100 text-neutral-900'
                                 : 'text-neutral-700'
-                            } flex items-center px-4 py-2 text-sm w-full text-left`}
+                              } flex items-center px-4 py-2 text-sm w-full text-left`}
                           >
                             <ArrowRightOnRectangleIcon
                               className="mr-3 h-5 w-5 text-neutral-400"

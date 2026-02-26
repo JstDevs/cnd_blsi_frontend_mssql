@@ -10,6 +10,7 @@ function DashboardLayout() {
   const location = useLocation();
 
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+  const [isCollapsed, setIsCollapsed] = useState(false);
 
   // Close sidebar on mobile when navigating
   useEffect(() => {
@@ -34,7 +35,11 @@ function DashboardLayout() {
   }, [location.pathname]);
 
   const toggleSidebar = () => {
-    setIsSidebarOpen(!isSidebarOpen);
+    if (window.innerWidth < 1024) {
+      setIsSidebarOpen(!isSidebarOpen);
+    } else {
+      setIsCollapsed(!isCollapsed);
+    }
   };
 
   // Handle authentication redirect in useEffect
@@ -57,11 +62,11 @@ function DashboardLayout() {
 
       {/* Sidebar */}
       <div
-        className={`fixed inset-y-0 left-0 flex flex-col z-30 transform transition-transform duration-300 ease-in-out lg:translate-x-0 lg:static lg:inset-0 ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'
+        className={`fixed inset-y-0 left-0 flex flex-col z-30 transform transition-all duration-300 ease-in-out lg:translate-x-0 lg:static lg:inset-0 ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'
           }`}
-        style={{ width: '300px' }}
+        style={{ width: isCollapsed ? '80px' : '300px' }}
       >
-        <Sidebar />
+        <Sidebar isCollapsed={isCollapsed} />
       </div>
 
       {/* Main content */}
